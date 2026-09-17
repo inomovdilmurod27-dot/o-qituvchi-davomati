@@ -1231,6 +1231,239 @@ th{
   .hero-card h2{font-size:19px}
   .nav-btn{font-size:11px;padding:6px 8px}
 }
+
+/* ===== UMUMIY KALENDAR JADVALI — RASMIY KO‘RINISH ===== */
+.calendar-grid{
+  grid-template-columns:125px repeat(6,minmax(185px,1fr));
+  gap:0;
+  background:#fff;
+  border:1px solid #cfd8e3;
+  border-radius:8px;
+  overflow:auto;
+  box-shadow:0 3px 12px rgba(15,23,42,.06);
+}
+.calendar-cell{
+  min-height:104px;
+  padding:12px 13px;
+  background:#fff;
+  border-right:1px solid #d9e1ea;
+  border-bottom:1px solid #d9e1ea;
+  font-size:12px;
+  line-height:1.48;
+  color:#24364b;
+}
+.calendar-head{
+  min-height:auto;
+  padding:11px 12px;
+  background:#0a315c;
+  color:#fff;
+  font-size:12px;
+  font-weight:800;
+  text-align:left;
+  letter-spacing:.1px;
+  position:sticky;
+  top:0;
+  z-index:2;
+}
+.calendar-grid > .calendar-cell:nth-child(7n+1):not(.calendar-head){
+  background:#f4f7fa;
+  color:#0a315c;
+  font-weight:800;
+  border-right:2px solid #c7d3df;
+}
+.calendar-cell b{
+  display:block;
+  color:#0a315c;
+  font-size:12px;
+  line-height:1.35;
+  margin-bottom:3px;
+}
+.calendar-cell hr{
+  border:0;
+  border-top:1px solid #d9e1ea;
+  margin:9px 0;
+}
+.calendar-cell:not(.calendar-head):hover{
+  background:#f8fbfe;
+}
+@media(max-width:900px){
+  .calendar-grid{grid-template-columns:105px repeat(6,170px)}
+  .calendar-cell{padding:10px;font-size:11px}
+}
+
+
+/* ===== KALENDAR: YENGIL KO‘K RANG VA DARS BLOKLARINI AJRATISH ===== */
+.calendar-head{
+  background:#3b93bd !important;
+  color:#fff !important;
+  border-color:#d7e4ec !important;
+}
+
+.calendar-grid > .calendar-cell:nth-child(7n+1):not(.calendar-head){
+  background:#eef6fa !important;
+  color:#173b57 !important;
+  border-right:1px solid #cfdce5 !important;
+}
+
+.calendar-cell{
+  background:#fff;
+  border-color:#d9e3ea !important;
+}
+
+.calendar-cell b{
+  color:#123b5d !important;
+}
+
+/* Bir katakdagi har bir darsni alohida rasmiy blok ko‘rinishida ajratish */
+.calendar-cell hr{
+  margin:8px 0 !important;
+  border:0 !important;
+  border-top:1px solid #c8d6df !important;
+}
+
+/* Dars matnining o‘qilishini yaxshilash */
+.calendar-cell:not(.calendar-head){
+  line-height:1.55 !important;
+  padding:11px 12px !important;
+}
+
+/* Darslar ko‘p bo‘lgan kataklarda bloklar orasini aniqroq ajratish */
+.calendar-cell:not(.calendar-head) b + br{
+  display:none;
+}
+.calendar-cell:not(.calendar-head) b{
+  margin-top:2px;
+  margin-bottom:4px !important;
+}
+
+
+/* ===== KALENDAR: DUSHANBADAN SHANBAGACHA BIR EKRANDA ===== */
+#advancedModal .modal-card{
+  width:min(1500px,98vw) !important;
+}
+
+#advancedModal .calendar-grid{
+  width:100% !important;
+  grid-template-columns:105px repeat(6,minmax(0,1fr)) !important;
+  overflow-x:hidden !important;
+}
+
+#advancedModal .calendar-cell{
+  min-width:0 !important;
+  padding:9px 8px !important;
+  font-size:11px !important;
+  overflow-wrap:anywhere;
+  word-break:normal;
+}
+
+#advancedModal .calendar-head{
+  font-size:11.5px !important;
+  text-align:center !important;
+}
+
+#advancedModal .calendar-cell b{
+  font-size:11px !important;
+}
+
+@media(max-width:1100px){
+  #advancedModal .calendar-grid{
+    grid-template-columns:90px repeat(6,minmax(0,1fr)) !important;
+  }
+  #advancedModal .calendar-cell{
+    padding:7px 6px !important;
+    font-size:10px !important;
+  }
+  #advancedModal .calendar-cell b{
+    font-size:10px !important;
+  }
+}
+
+
+/* ===== KALENDAR: JUFTLIKLARNI ANIQ AJRATISH ===== */
+#advancedModal .calendar-grid > .calendar-cell:nth-child(7n+1):not(.calendar-head){
+  background:#dfeff7 !important;
+  color:#0a315c !important;
+  font-weight:900 !important;
+  font-size:11.5px !important;
+  border-top:2px solid #7fb6d2 !important;
+  border-bottom:2px solid #7fb6d2 !important;
+}
+
+#advancedModal .calendar-grid > .calendar-cell:nth-child(n+8):nth-child(-n+14),
+#advancedModal .calendar-grid > .calendar-cell:nth-child(n+22):nth-child(-n+28),
+#advancedModal .calendar-grid > .calendar-cell:nth-child(n+36):nth-child(-n+42),
+#advancedModal .calendar-grid > .calendar-cell:nth-child(n+50):nth-child(-n+56){
+  background:#fbfdff;
+}
+
+#advancedModal .calendar-grid > .calendar-cell:nth-child(7n+2),
+#advancedModal .calendar-grid > .calendar-cell:nth-child(7n+3),
+#advancedModal .calendar-grid > .calendar-cell:nth-child(7n+4),
+#advancedModal .calendar-grid > .calendar-cell:nth-child(7n+5),
+#advancedModal .calendar-grid > .calendar-cell:nth-child(7n+6),
+#advancedModal .calendar-grid > .calendar-cell:nth-child(7n+7){
+  border-top:1px solid #b8cad6;
+}
+
+#advancedModal .calendar-grid > .calendar-cell:nth-child(7n+1){
+  text-align:center;
+}
+
+/* ===== KALENDAR: DARS TURI BADGELARI ===== */
+#advancedModal .calendar-lesson{
+  display:block;
+  margin:0 0 8px 0;
+  padding:8px 8px 7px;
+  border:1px solid #c8d9e6;
+  border-left:4px solid #6aa6c8;
+  border-radius:10px;
+  background:#ffffff;
+  box-shadow:0 1px 2px rgba(13, 41, 74, 0.05);
+}
+#advancedModal .calendar-lesson:last-child{
+  margin-bottom:0;
+}
+#advancedModal .calendar-lesson-type{
+  display:inline-block;
+  margin:0 0 5px 0;
+  padding:2px 7px;
+  border:1px solid #c9d3de;
+  border-radius:4px;
+  background:#f4f6f8;
+  color:#344054;
+  font-size:9.5px;
+  font-weight:700;
+  letter-spacing:.1px;
+  line-height:1.3;
+}
+#advancedModal .calendar-lesson-type.ma-ruza,
+#advancedModal .calendar-lesson-type.amaliy,
+#advancedModal .calendar-lesson-type.laboratoriya,
+#advancedModal .calendar-lesson-type.seminar{
+  background:#f4f6f8;
+  color:#344054;
+  border-color:#c9d3de;
+}
+#advancedModal .calendar-lesson-subject{
+  display:block;
+  margin:0 0 4px 0;
+  font-size:11px;
+  font-weight:800;
+  color:#0f2748;
+  line-height:1.35;
+}
+#advancedModal .calendar-lesson-meta,
+#advancedModal .calendar-lesson-room{
+  display:block;
+  color:#4c6077;
+  line-height:1.35;
+}
+#advancedModal .calendar-empty{
+  color:#8a99ac;
+  text-align:center;
+  padding-top:14px;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
@@ -1323,6 +1556,7 @@ th{
     <button data-tab="auditTab">Audit</button>
     <button data-tab="exceptionAdminTab">Istisno jadvali</button>
     <button data-tab="structureAdminTab">Tuzilma</button>
+    <button data-tab="managerAdminTab" id="managerAdminTabBtn">Kafedra mudirlari</button>
   </div>
 
   <div id="adminAlert" class="alert"></div>
@@ -1459,6 +1693,21 @@ th{
     <div class="admin-list" id="orgList"></div>
   </section>
 
+  <section id="managerAdminTab" class="tab-section" style="display:none">
+    <div class="section-title"><h3>Kafedra mudirlari</h3></div>
+    <p class="note">Bu bo‘lim faqat Super admin uchun. Kafedra mudiri login va parol orqali kiradi va faqat o‘z kafedrasiga tegishli ma’lumotlarni ko‘radi.</p>
+    <div class="form">
+      <input type="hidden" id="managerEditId">
+      <div class="full"><label>F.I.Sh.<input id="managerName" placeholder="Kafedra mudiri F.I.Sh."></label></div>
+      <div><label>Login<input id="managerLogin" placeholder="masalan: ekologiya_mudir"></label></div>
+      <div><label>Parol<input id="managerPassword" type="password" placeholder="Kamida 6 ta belgi"></label></div>
+      <div class="full"><label>Kafedra<select id="managerDepartment"></select></label></div>
+      <div class="full"><button class="btn primary" id="saveManagerBtn">Kafedra mudirini saqlash</button></div>
+    </div>
+    <div class="section-title"><h3>Ro‘yxat</h3></div>
+    <div class="admin-list" id="managerList"></div>
+  </section>
+
 </aside>
 
 <script>
@@ -1501,6 +1750,7 @@ let cloudReady = false;
 let cloudInitStarted = false;
 
 function save(){
+  if(typeof syncActiveDepartmentWorkspace==="function") syncActiveDepartmentWorkspace();
   localStorage.setItem("dispatchDB", JSON.stringify(db));
   if(cloudReady){
     dispatchDoc.set({
@@ -1547,6 +1797,13 @@ function nowInfo(){const d=new Date();return {d,day:dayNames[d.getDay()],minutes
 function weekOverlap(a,b){return a==="doim"||b==="doim"||a===b}
 function lessonActive(l){return !l.cancelled && l.status==="approved" && (l.weekType==="doim"||l.weekType===currentWeek)}
 function teacherById(id){return db.teachers.find(t=>t.id==id)}
+function scopedTeachers(){
+  const u=db.currentUser||{};
+  if(u.role==="mudiri" && u.department){
+    return db.teachers.filter(t=>String(t.department||"").trim()===String(u.department||"").trim());
+  }
+  return db.teachers;
+}
 function roomByName(name){return db.rooms.find(r=>r.name===name)}
 function roomById(id){return db.rooms.find(r=>String(r.id)===String(id))}
 function roomDisplay(name){
@@ -1621,7 +1878,7 @@ $("maxrajBtn").onclick=()=>{currentWeek="maxraj";localStorage.setItem("currentWe
 
 function matches(t){const q=$("search").value.trim().toLowerCase(),st=getStatus(t),sf=$("statusFilter").value,rf=$("roomFilter").value,gf=$("groupFilter").value,subf=$("subjectFilter").value;const text=[t.name,t.position,t.degree,...t.schedule.flatMap(l=>[l.subject,l.group,l.room,l.type,l.day,l.weekType])].join(" ").toLowerCase();if(q&&!text.includes(q))return false;if(sf!=="all"&&st.key!==sf)return false;if(rf&&!t.schedule.some(l=>l.room===rf))return false;if(gf&&!t.schedule.some(l=>l.group===gf))return false;if(subf&&!t.schedule.some(l=>l.subject===subf))return false;return true}
 function renderTeachers(){
- const arr=db.teachers.filter(matches);
+ const arr=scopedTeachers().filter(matches);
  $("teacherGrid").innerHTML=arr.length?arr.map(t=>{
   const st=getStatus(t), lessons=todayLessonsFor(t);
   let body="";
@@ -1647,9 +1904,9 @@ function renderTeachers(){
   return `<article class="card teacher-card" onclick="openTeacher(${t.id})"><div class="teacher-head"><img class="avatar" src="${esc(t.image)}"><div><div class="teacher-name">${esc(t.name)}</div><div class="meta">${esc(t.position)} · ${esc(t.degree)}</div></div></div><div class="status"><span class="dot" style="background:${st.color}"></span>${st.label}</div><div class="lesson">${body}</div>${st.key==="inclass"?`<div class="room">${roomDisplay(st.lesson.room).replace("-xona","-XONA")}</div>`:""}</article>`;
  }).join(""):`<div class="empty">Mos o‘qituvchi topilmadi.</div>`
 }
-function renderToday(){const list=[];db.teachers.forEach(t=>todayLessonsFor(t).forEach(l=>list.push({...l,teacher:t})));list.sort((a,b)=>a.pair-b.pair);$("todayList").innerHTML=list.length?list.map(x=>`<div class="today-item" onclick="openTeacher(${x.teacher.id})"><strong>${x.pair}-juftlik · ${x.start}–${x.end} · ${esc(x.teacher.name)}</strong><br>${esc(x.subject)} · ${esc(x.group)} · ${roomDisplay(x.room)} · ${esc(x.type)} · ${x.weekType==="doim"?"Doimiy":x.weekType}</div>`).join(""):`<div class="empty">Bugun joriy hafta bo‘yicha tasdiqlangan dars yo‘q.</div>`}
-function renderStats(){const inc=db.teachers.filter(t=>getStatus(t).key==="inclass").length,pending=db.teachers.reduce((n,t)=>n+t.schedule.filter(l=>l.status==="pending"&&!l.cancelled).length,0);$("totalTeachers").textContent=db.teachers.length;$("inClassCount").textContent=inc;$("todayLessonsCount").textContent=db.teachers.reduce((n,t)=>n+todayLessonsFor(t).length,0);$("pendingCount").textContent=pending}
-function populateFilters(){const rooms=new Set(),groups=new Set(),subs=new Set();db.teachers.forEach(t=>t.schedule.forEach(l=>{rooms.add(l.room);groups.add(l.group);subs.add(l.subject)}));$("roomFilter").innerHTML='<option value="">Barcha xonalar</option>'+[...rooms].sort().map(x=>`<option>${esc(x)}</option>`).join("");$("groupFilter").innerHTML='<option value="">Barcha guruhlar</option>'+[...groups].sort().map(x=>`<option>${esc(x)}</option>`).join("");$("subjectFilter").innerHTML='<option value="">Barcha fanlar</option>'+[...subs].sort().map(x=>`<option>${esc(x)}</option>`).join("")}
+function renderToday(){const list=[];scopedTeachers().forEach(t=>todayLessonsFor(t).forEach(l=>list.push({...l,teacher:t})));list.sort((a,b)=>a.pair-b.pair);$("todayList").innerHTML=list.length?list.map(x=>`<div class="today-item" onclick="openTeacher(${x.teacher.id})"><strong>${x.pair}-juftlik · ${x.start}–${x.end} · ${esc(x.teacher.name)}</strong><br>${esc(x.subject)} · ${esc(x.group)} · ${roomDisplay(x.room)} · ${esc(x.type)} · ${x.weekType==="doim"?"Doimiy":x.weekType}</div>`).join(""):`<div class="empty">Bugun joriy hafta bo‘yicha tasdiqlangan dars yo‘q.</div>`}
+function renderStats(){const ts=scopedTeachers(),inc=ts.filter(t=>getStatus(t).key==="inclass").length,pending=ts.reduce((n,t)=>n+t.schedule.filter(l=>l.status==="pending"&&!l.cancelled).length,0);$("totalTeachers").textContent=ts.length;$("inClassCount").textContent=inc;$("todayLessonsCount").textContent=ts.reduce((n,t)=>n+todayLessonsFor(t).length,0);$("pendingCount").textContent=pending}
+function populateFilters(){const rooms=new Set(),groups=new Set(),subs=new Set();scopedTeachers().forEach(t=>t.schedule.forEach(l=>{rooms.add(l.room);groups.add(l.group);subs.add(l.subject)}));$("roomFilter").innerHTML='<option value="">Barcha xonalar</option>'+[...rooms].sort().map(x=>`<option>${esc(x)}</option>`).join("");$("groupFilter").innerHTML='<option value="">Barcha guruhlar</option>'+[...groups].sort().map(x=>`<option>${esc(x)}</option>`).join("");$("subjectFilter").innerHTML='<option value="">Barcha fanlar</option>'+[...subs].sort().map(x=>`<option>${esc(x)}</option>`).join("")}
 
 function openTeacher(id){const t=teacherById(id),st=getStatus(t);$("profile").innerHTML=`<img src="${esc(t.image)}"><div><h2>${esc(t.name)}</h2><div class="info"><div><b>Ilmiy daraja:</b> ${esc(t.degree)}</div><div><b>Lavozim:</b> ${esc(t.position)}</div><div><b>Kafedra:</b> ${esc(t.department)}</div><div><b>Telefon:</b> ${esc(t.phone)}</div><div><b>Holat:</b> ${esc(availabilityLabel(t.availability))}</div></div></div>`;let h=`<div class="status"><span class="dot" style="background:${st.color}"></span>${st.label.toUpperCase()}</div>`;if(st.key==="inclass"){const sub=st.lesson.substituteTeacherId?teacherById(st.lesson.substituteTeacherId):null;h+=`<p><b>Fan:</b> ${esc(st.lesson.subject)}<br><b>Guruh:</b> ${esc(st.lesson.group)}<br><b>Xona:</b> ${roomDisplay(st.lesson.room)}<br><b>Dars turi:</b> ${esc(st.lesson.type)}<br><b>Juftlik:</b> ${st.lesson.pair}<br><b>Vaqt:</b> ${st.lesson.start}–${st.lesson.end}${sub?`<br><b>Almashtiruvchi:</b> ${esc(sub.name)}`:""}</p><b>Dars tugashiga ${st.remaining} daqiqa qoldi.</b>`}else if(st.next){h+=`<p><b>Keyingi dars:</b> ${st.next.start}<br><b>Fan:</b> ${esc(st.next.subject)}<br><b>Guruh:</b> ${esc(st.next.group)}<br><b>Xona:</b> ${roomDisplay(st.next.room)}</p>`}else h+=`<p>Bugun joriy hafta bo‘yicha boshqa dars mavjud emas.</p>`;$("statusCard").innerHTML=h;$("roomCard").innerHTML=st.key==="inclass"?`<b>${roomDisplay(st.lesson.room).replace("-xona","-XONA")}</b><span>Joriy dars xonasi</span>`:st.next?`<b>${roomDisplay(st.next.room).replace("-xona","-XONA")}</b><span>Keyingi dars xonasi</span>`:`<b style="font-size:24px">DARS YO‘Q</b>`;$("teacherScheduleBody").innerHTML=[...t.schedule].sort((a,b)=>dayOrder[a.day]-dayOrder[b.day]||a.pair-b.pair).map(l=>`<tr><td>${l.day}</td><td>${l.pair}</td><td>${l.start}–${l.end}</td><td>${esc(l.subject)}</td><td>${esc(l.group)}</td><td>${roomDisplay(l.room)}</td><td>${esc(l.type)}</td><td><span class="badge ${l.weekType}">${l.weekType==="doim"?"Doimiy":l.weekType}</span></td><td><span class="badge ${l.cancelled?"cancelled":l.status}">${l.cancelled?"Bekor qilingan":l.status==="approved"?"Tasdiqlangan":"Kutilmoqda"}</span></td></tr>`).join("");$("teacherModal").classList.add("open")}
 window.openTeacher=openTeacher;
@@ -1805,15 +2062,13 @@ function roleCanEdit(){
 function applyRoleUI(){
   $("adminBtn").style.display=roleCanEdit()?"inline-block":"none";
   $("loginBtn").textContent=`${db.currentUser?.name||"Mehmon"} · ${db.currentUser?.role||"viewer"}`;
+  const mt=document.getElementById("managerAdminTabBtn");
+  if(mt)mt.style.display=db.currentUser?.role==="superadmin"?"inline-block":"none";
 }
-$("loginBtn").onclick=()=>{$("loginModal").classList.add("open")};
-$("closeLogin").onclick=()=>$("loginModal").classList.remove("open");
-$("doLoginBtn").onclick=()=>{
-  db.currentUser={name:$("loginUser").value.trim()||"Foydalanuvchi",role:$("loginRole").value};
-  audit("Tizimga kirildi",db.currentUser.role);
-  save();applyRoleUI();$("loginModal").classList.remove("open");
-};
-$("closeAdvanced").onclick=()=>$("advancedModal").classList.remove("open");
+$("loginBtn").onclick=()=>{const m=$("loginModal");if(m)m.classList.add("open")};
+if($("closeLogin")) $("closeLogin").onclick=()=>$("loginModal").classList.remove("open");
+if($("doLoginBtn")) $("doLoginBtn").onclick=()=>{};
+if($("closeAdvanced")) $("closeAdvanced").onclick=()=>$("advancedModal").classList.remove("open");
 
 function openAdvanced(title,subtitle,html){
   $("advancedTitle").textContent=title;
@@ -1840,7 +2095,18 @@ $("cabinetBtn").onclick=()=>{
 };
 
 function allApprovedLessons(){
-  const arr=[];db.teachers.forEach(t=>t.schedule.forEach(l=>{if(!l.cancelled&&l.status==="approved")arr.push({...l,teacher:t})}));return arr;
+  const arr=[];scopedTeachers().forEach(t=>t.schedule.forEach(l=>{if(!l.cancelled&&l.status==="approved")arr.push({...l,teacher:t})}));return arr;
+}
+function calendarLessonTypeClass(type=""){
+  const normalized=String(type).toLowerCase()
+    .replace(/['’]/g,"")
+    .replace(/\s+/g,"-")
+    .replace(/[^a-z0-9\-Ѐ-ӿ]/g,"");
+  if(normalized.includes("maruza")||normalized.includes("ma-ruza")||normalized.includes("ma’ruza")) return "ma-ruza";
+  if(normalized.includes("amaliy")) return "amaliy";
+  if(normalized.includes("laboratoriya")) return "laboratoriya";
+  if(normalized.includes("seminar")) return "seminar";
+  return "ma-ruza";
 }
 $("calendarBtn").onclick=()=>{
   const days=["Dushanba","Seshanba","Chorshanba","Payshanba","Juma","Shanba"];
@@ -1850,7 +2116,14 @@ $("calendarBtn").onclick=()=>{
     html+=`<div class="calendar-cell calendar-head">${p}-juftlik<br>${pairTimes[p].start}–${pairTimes[p].end}</div>`;
     days.forEach(d=>{
       const ls=allApprovedLessons().filter(l=>l.day===d&&l.pair===p&&(l.weekType==="doim"||l.weekType===currentWeek));
-      html+=`<div class="calendar-cell">${ls.map(l=>`<b>${esc(l.subject)}</b><br>${esc(l.teacher.name)}<br>${esc(l.group)} · ${roomDisplay(l.room)}<hr>`).join("")||"—"}</div>`;
+      html+=`<div class="calendar-cell">${ls.length?ls.map(l=>`
+        <div class="calendar-lesson">
+          <span class="calendar-lesson-type ${calendarLessonTypeClass(l.type)}">${esc(l.type||"Dars")}</span>
+          <span class="calendar-lesson-subject">${esc(l.subject)}</span>
+          <span class="calendar-lesson-meta">${esc(l.teacher.name)}</span>
+          <span class="calendar-lesson-meta">${esc(l.group)}</span>
+          <span class="calendar-lesson-room">${roomDisplay(l.room)}</span>
+        </div>`).join(""):`<div class="calendar-empty">—</div>`}</div>`;
     });
   }
   html+=`</div>`;
@@ -1874,7 +2147,7 @@ $("freeTeacherBtn").onclick=()=>{
   let pair=Object.entries(pairTimes).find(([p,t])=>minutes>=mins(t.start)&&minutes<=mins(t.end));
   pair=pair?Number(pair[0]):1;
   const busy=new Set(allApprovedLessons().filter(l=>l.day===day&&l.pair===pair&&(l.weekType==="doim"||l.weekType===currentWeek)).map(l=>String(l.substituteTeacherId||l.teacher.id)));
-  const free=db.teachers.filter(t=>t.availability==="available"&&!busy.has(String(t.id)));
+  const free=scopedTeachers().filter(t=>t.availability==="available"&&!busy.has(String(t.id)));
   openAdvanced("Bo‘sh o‘qituvchilar",`${day}, ${pair}-juftlik`,
     `<div class="grid">${free.map(t=>`<div class="card"><h3>${esc(t.name)}</h3><div class="mini">${esc(t.position)} · ${esc(t.degree)}</div></div>`).join("")||'<div class="empty">Bo‘sh o‘qituvchi yo‘q.</div>'}</div>`);
 };
@@ -2034,20 +2307,15 @@ renderAdvanced();
     <div class="modal-top">
       <div>
         <h2 style="margin:0;color:var(--navy)">Tizimga kirish</h2>
-        <p class="note">Demo rollar: superadmin / admin / mudir / oqituvchi / foydalanuvchi</p>
+        <p class="note">Super admin yoki kafedra mudiri o‘z login-paroli orqali kiradi.</p>
       </div>
       <button class="close" id="closeLogin">×</button>
     </div>
     <div class="form" style="margin-top:12px">
-      <div class="full"><label>Foydalanuvchi nomi<input id="loginUser" placeholder="admin"></label></div>
-      <div class="full"><label>Rol<select id="loginRole">
-        <option value="superadmin">Super admin</option>
-        <option value="admin">Admin</option>
-        <option value="mudiri">Kafedra mudiri</option>
-        <option value="teacher">O‘qituvchi</option>
-        <option value="viewer">Oddiy foydalanuvchi</option>
-      </select></label></div>
+      <div class="full"><label>Login<input id="loginUser" placeholder="Login"></label></div>
+      <div class="full"><label>Parol<input id="loginPassword" type="password" placeholder="Parol"></label></div>
       <div class="full"><button class="btn primary" id="doLoginBtn">Kirish</button></div>
+      <div class="full"><div id="loginError" class="alert"></div></div>
     </div>
   </div>
 </div>
@@ -2068,6 +2336,206 @@ renderAdvanced();
 (function(){
   const g=id=>document.getElementById(id);
   function sEsc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
+  function ensureDepartmentWorkspaces(){
+    if(!db.departmentWorkspaces || typeof db.departmentWorkspaces!=='object') db.departmentWorkspaces={};
+
+    // Mavjud asosiy kafedra ma'lumotlarini birinchi marta alohida workspace sifatida saqlab qoladi.
+    const existingDeps=[...new Set((db.teachers||[]).map(t=>String(t.department||'').trim()).filter(Boolean))];
+    existingDeps.forEach(dep=>{
+      if(!db.departmentWorkspaces[dep]){
+        const teachers=(db.teachers||[]).filter(t=>String(t.department||'').trim()===dep);
+        db.departmentWorkspaces[dep]={
+          teachers:JSON.parse(JSON.stringify(teachers)),
+          rooms:JSON.parse(JSON.stringify(db.rooms||[])),
+          history:[],
+          dayExceptions:[]
+        };
+      }
+    });
+  }
+
+  function ensureDepartmentWorkspace(department){
+    const dep=String(department||'').trim();
+    if(!dep) return null;
+    ensureDepartmentWorkspaces();
+    if(!db.departmentWorkspaces[dep]){
+      db.departmentWorkspaces[dep]={
+        teachers:[],
+        rooms:[],
+        history:[],
+        dayExceptions:[]
+      };
+    }
+    return db.departmentWorkspaces[dep];
+  }
+
+  function activateDepartmentWorkspace(department){
+    const ws=ensureDepartmentWorkspace(department);
+    if(!ws) return;
+    db.teachers=ws.teachers;
+    db.rooms=ws.rooms;
+    db.history=ws.history;
+    db.dayExceptions=ws.dayExceptions;
+  }
+
+  function syncActiveDepartmentWorkspace(){
+    const u=db.currentUser||{};
+    if(u.role!=='mudiri' || !u.department) return;
+    const ws=ensureDepartmentWorkspace(u.department);
+    ws.teachers=db.teachers;
+    ws.rooms=db.rooms;
+    ws.history=db.history;
+    ws.dayExceptions=db.dayExceptions;
+  }
+
+  function ensureUsers(){
+    if(!Array.isArray(db.users)) db.users=[];
+    if(!db.users.some(u=>u.role==='superadmin')){
+      db.users.push({id:1,name:'Super admin',username:'admin',password:'admin123',role:'superadmin',department:''});
+    }
+  }
+
+  function departmentOptions(){
+    const deps=[...new Set([
+      ...(db.orgStructure||[]).map(x=>String(x.department||'').trim()),
+      ...(db.teachers||[]).map(t=>String(t.department||'').trim())
+    ].filter(Boolean))].sort();
+    return deps;
+  }
+
+  function refreshManagerDepartments(){
+    const el=g('managerDepartment'); if(!el)return;
+    el.innerHTML=departmentOptions().map(d=>`<option value="${sEsc(d)}">${sEsc(d)}</option>`).join('');
+  }
+
+  function renderManagers(){
+    const box=g('managerList'); if(!box)return;
+    const managers=(db.users||[]).filter(u=>u.role==='mudiri');
+    box.innerHTML=managers.length?managers.map(u=>`
+      <div class="admin-row">
+        <strong>${sEsc(u.name)}</strong>
+        <div class="mini">${sEsc(u.department)} · login: ${sEsc(u.username)}</div>
+        <div class="actions" style="margin-top:8px">
+          <button class="btn ghost" onclick="editManagerUser(${u.id})">Tahrirlash</button>
+          <button class="btn danger" onclick="deleteManagerUser(${u.id})">O‘chirish</button>
+        </div>
+      </div>`).join(''):'<div class="empty">Kafedra mudirlari kiritilmagan.</div>';
+  }
+
+  window.editManagerUser=id=>{
+    const u=(db.users||[]).find(x=>String(x.id)===String(id)); if(!u)return;
+    g('managerEditId').value=u.id;
+    g('managerName').value=u.name||'';
+    g('managerLogin').value=u.username||'';
+    g('managerPassword').value=u.password||'';
+    g('managerDepartment').value=u.department||'';
+    g('saveManagerBtn').textContent='O‘zgarishlarni saqlash';
+    switchTab('managerAdminTab');
+  };
+
+  window.deleteManagerUser=id=>{
+    const u=(db.users||[]).find(x=>String(x.id)===String(id)); if(!u)return;
+    if(!confirm(`${u.name} o‘chirilsinmi?`))return;
+    db.users=db.users.filter(x=>String(x.id)!==String(id));
+    save(); renderManagers();
+  };
+
+  function bindManagerAdmin(){
+    const btn=g('saveManagerBtn'); if(!btn)return;
+    btn.onclick=()=>{
+      if(db.currentUser?.role!=='superadmin'){showAlert('Bu bo‘lim faqat Super admin uchun.','error');return;}
+      const id=g('managerEditId').value;
+      const name=g('managerName').value.trim();
+      const username=g('managerLogin').value.trim();
+      const password=g('managerPassword').value;
+      const department=g('managerDepartment').value;
+      if(!name||!username||!password||!department){showAlert('Barcha maydonlarni to‘ldiring.','error');return;}
+      if(password.length<6){showAlert('Parol kamida 6 ta belgidan iborat bo‘lsin.','error');return;}
+      const dup=(db.users||[]).find(u=>u.username.toLowerCase()===username.toLowerCase()&&String(u.id)!==String(id));
+      if(dup){showAlert('Bu login band. Boshqa login kiriting.','error');return;}
+      if(id){
+        const u=db.users.find(x=>String(x.id)===String(id));
+        Object.assign(u,{name,username,password,department,role:'mudiri'});
+      }else{
+        db.users.push({id:Date.now(),name,username,password,department,role:'mudiri'});
+      }
+      ensureDepartmentWorkspace(department);
+      save();
+      g('managerEditId').value='';
+      g('managerName').value=g('managerLogin').value=g('managerPassword').value='';
+      g('saveManagerBtn').textContent='Kafedra mudirini saqlash';
+      renderManagers();
+      showAlert('Kafedra mudiri saqlandi.','ok');
+    };
+  }
+
+  function bindRealLogin(){
+    const loginBtn=g('loginBtn'), close=g('closeLogin'), doBtn=g('doLoginBtn');
+    if(loginBtn) loginBtn.onclick=()=>g('loginModal').classList.add('open');
+    if(close) close.onclick=()=>g('loginModal').classList.remove('open');
+    if(doBtn) doBtn.onclick=()=>{
+      const username=g('loginUser').value.trim().toLowerCase();
+      const password=g('loginPassword').value;
+      const err=g('loginError');
+      let u=(db.users||[]).find(x=>String(x.username||'').toLowerCase()===username&&String(x.password||'')===String(password));
+      if(!u && username==='admin' && password==='admin123'){
+        u={id:1,name:'Super admin',username:'admin',password:'admin123',role:'superadmin',department:''};
+        if(!Array.isArray(db.users)) db.users=[];
+        if(!db.users.some(x=>x.role==='superadmin')) db.users.push(u);
+      }
+      if(!u){
+        err.className='alert show error';
+        err.textContent='Login yoki parol noto‘g‘ri.';
+        return;
+      }
+      db.currentUser={id:u.id,name:u.name,role:u.role,department:u.department||''};
+      if(u.role==='mudiri' && u.department) activateDepartmentWorkspace(u.department);
+      audit('Tizimga kirildi',`${u.role}${u.department?' · '+u.department:''}`);
+      document.body.classList.remove('login-required');
+      applyRoleUI();
+      renderAll();
+      g('loginModal').classList.remove('open');
+      g('loginPassword').value='';
+      if(err){err.className='alert';err.textContent='';}
+      if(u.role==='mudiri') openDepartmentManagerCabinet();
+    };
+  }
+
+  function openDepartmentManagerCabinet(){
+    const u=db.currentUser||{};
+    const dep=String(u.department||'').trim();
+    const teachers=(db.teachers||[]).filter(t=>String(t.department||'').trim()===dep);
+    const lessons=[];
+    teachers.forEach(t=>(t.schedule||[]).forEach(l=>{if(!l.cancelled)lessons.push({...l,teacher:t})}));
+    const {day}=nowInfo();
+    const today=lessons.filter(l=>l.day===day&&(l.weekType==='doim'||l.weekType===currentWeek));
+    let html=`<div class="card">
+      <h3>${sEsc(u.name||'Kafedra mudiri')}</h3>
+      <div class="mini"><b>Kafedra:</b> ${sEsc(dep)}</div>
+    </div>
+    <div class="kpi-grid" style="margin-top:12px">
+      <div class="kpi">O‘qituvchilar<b>${teachers.length}</b></div>
+      <div class="kpi">Bugungi darslar<b>${today.length}</b></div>
+      <div class="kpi">Tasdiqlangan darslar<b>${lessons.filter(l=>l.status==='approved').length}</b></div>
+      <div class="kpi">Kutilayotgan tasdiq<b>${lessons.filter(l=>l.status==='pending').length}</b></div>
+    </div>
+    <div class="section-title"><h3>Kafedra o‘qituvchilari</h3></div>
+    <div class="grid">${teachers.map(t=>{
+      const st=getStatus(t);
+      return `<div class="card">
+        <h3>${sEsc(t.name)}</h3>
+        <div class="mini">${sEsc(t.position)} · ${sEsc(t.degree)}</div>
+        <div class="status"><span class="dot" style="background:${st.color}"></span>${sEsc(st.label)}</div>
+        <div class="mini" style="margin-top:6px">Jami dars: ${(t.schedule||[]).length}</div>
+      </div>`;
+    }).join('')||'<div class="empty">Bu kafedrada o‘qituvchi topilmadi.</div>'}</div>
+    <div class="section-title"><h3>Bugungi darslar</h3></div>
+    <div class="today-list">${today.sort((a,b)=>a.pair-b.pair).map(l=>`
+      <div class="today-item"><strong>${l.pair}-juftlik · ${l.start}–${l.end} · ${sEsc(l.teacher.name)}</strong><br>
+      ${sEsc(l.subject)} · ${sEsc(l.group)} · ${roomDisplay(l.room)} · ${sEsc(l.type)}</div>`).join('')||'<div class="empty">Bugun dars yo‘q.</div>'}</div>`;
+    openSmart('Kafedra mudiri kabineti',dep,html);
+  }
+
   function ensureExtraDB(){
     if(typeof db==='undefined') return;
     if(!Array.isArray(db.dayExceptions)) db.dayExceptions=[];
@@ -2083,7 +2551,7 @@ renderAdvanced();
 
   function approvedLessons(){
     const a=[]; if(typeof db==='undefined')return a;
-    db.teachers.forEach(t=>(t.schedule||[]).forEach(l=>{if(!l.cancelled&&l.status==='approved')a.push({...l,teacher:t})})); return a;
+    scopedTeachers().forEach(t=>(t.schedule||[]).forEach(l=>{if(!l.cancelled&&l.status==='approved')a.push({...l,teacher:t})})); return a;
   }
   function slotOccupiedRoom(room,day,pair,week){return approvedLessons().some(l=>l.room===room&&l.day===day&&Number(l.pair)===Number(pair)&&(l.weekType==='doim'||week==='doim'||l.weekType===week));}
   function slotTeacherBusy(tid,day,pair,week){return approvedLessons().some(l=>String(l.substituteTeacherId||l.teacher.id)===String(tid)&&l.day===day&&Number(l.pair)===Number(pair)&&(l.weekType==='doim'||week==='doim'||l.weekType===week));}
@@ -2122,7 +2590,7 @@ renderAdvanced();
   g('smartTimeBtn')?.addEventListener('click',()=>{
     openSmart('Avtomatik bo‘sh vaqt tavsiyasi','O‘qituvchi va guruh bir vaqtda bo‘sh bo‘lgan juftliklar topiladi.',`
       <div class="form">
-        <div class="full"><label>O‘qituvchi<select id="stTeacher">${db.teachers.map(t=>`<option value="${t.id}">${sEsc(t.name)}</option>`).join('')}</select></label></div>
+        <div class="full"><label>O‘qituvchi<select id="stTeacher">${scopedTeachers().map(t=>`<option value="${t.id}">${sEsc(t.name)}</option>`).join('')}</select></label></div>
         <div><label>Guruh<input id="stGroup" placeholder="GTI-31"></label></div>
         <div><label>Hafta<select id="stWeek"><option value="surat">Surat</option><option value="maxraj">Maxraj</option></select></label></div>
         <div><label>Talabalar soni<input type="number" min="1" id="stSize" value="25"></label></div>
@@ -2194,12 +2662,156 @@ renderAdvanced();
   g('languageSelect')?.addEventListener('change',e=>applyLanguage(e.target.value));
 
   function initExtras(){
-    ensureExtraDB();
+    ensureExtraDB();ensureUsers();ensureDepartmentWorkspaces();
+    db.currentUser={name:'Mehmon',role:'viewer',department:''};
+    localStorage.removeItem('dispatchCurrentUser');
+    refreshManagerDepartments();renderManagers();bindManagerAdmin();bindRealLogin();
+    const managerTab=g('managerAdminTabBtn');
+    if(managerTab)managerTab.style.display=db.currentUser?.role==='superadmin'?'inline-block':'none';
+    const cabinet=g('cabinetBtn');
+    if(cabinet)cabinet.addEventListener('click',e=>{
+      if(db.currentUser?.role==='mudiri'){
+        e.preventDefault();e.stopImmediatePropagation();openDepartmentManagerCabinet();
+      }
+    },true);
     if(g('exRoom'))g('exRoom').innerHTML='<option value="">O‘zgarmaydi</option>'+(db.rooms||[]).map(r=>`<option value="${sEsc(r.name)}">${sEsc(r.name)}-xona</option>`).join('');
     refreshExTeachers();renderExceptions();renderOrg();
     const lng=localStorage.getItem('uiLanguage')||'uz';if(g('languageSelect'))g('languageSelect').value=lng;applyLanguage(lng);
+    applyRoleUI();
+    document.body.classList.add('login-required');
+    setTimeout(()=>{ if(g('loginModal')) g('loginModal').classList.add('open'); },0);
+    save();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initExtras);else initExtras();
+})();
+</script>
+
+<script>
+(function(){
+  function closeModal(modal){
+    if(modal && modal.classList && modal.classList.contains('modal')){
+      modal.classList.remove('open');
+    }
+  }
+
+  document.addEventListener('click', function(e){
+    const closeBtn = e.target.closest('.close');
+    if(closeBtn){
+      const modal = closeBtn.closest('.modal');
+      if(modal){
+        if(modal.id==='loginModal' && document.body.classList.contains('login-required')){
+          e.preventDefault(); e.stopPropagation(); return;
+        }
+        e.preventDefault();
+        e.stopPropagation();
+        closeModal(modal);
+        return;
+      }
+    }
+
+    const modal = e.target.classList && e.target.classList.contains('modal') ? e.target : null;
+    if(modal){
+      if(modal.id==='loginModal' && document.body.classList.contains('login-required')) return;
+      closeModal(modal);
+    }
+  });
+})();
+</script>
+
+
+<style>
+body.login-required #loginModal .close{display:none!important}
+body.login-required #loginModal{background:rgba(10,31,55,.72)!important}
+</style>
+
+
+<style>
+/* Faqat tizimga kirish oynasi: orqa fon ko‘rinmaydi */
+body.login-required #loginModal{
+  background:#f4f6f8 !important;
+}
+</style>
+
+
+<style>
+/* ===== TIZIMGA KIRISH — RASMIY KO‘RINISH ===== */
+body.login-required #loginModal{
+  background:#eef2f6 !important;
+}
+
+body.login-required #loginModal .modal-card{
+  max-width:430px !important;
+  width:92% !important;
+  padding:26px 28px !important;
+  border-radius:10px !important;
+  border:1px solid #cfd8e3 !important;
+  box-shadow:0 18px 45px rgba(15,23,42,.14) !important;
+}
+
+body.login-required #loginModal .modal-top{
+  padding-bottom:12px;
+  margin-bottom:8px;
+  border-bottom:1px solid #e2e8f0;
+}
+
+body.login-required #loginModal h2{
+  font-size:21px !important;
+  color:#173b5f !important;
+  font-weight:800 !important;
+}
+
+body.login-required #loginModal .note{
+  margin-top:6px !important;
+  color:#667085 !important;
+  font-size:11.5px !important;
+}
+
+body.login-required #loginModal label{
+  color:#344054 !important;
+  font-size:11.5px !important;
+  font-weight:700 !important;
+}
+
+body.login-required #loginModal input{
+  height:42px !important;
+  border:1px solid #c9d3df !important;
+  border-radius:6px !important;
+  background:#fff !important;
+  font-size:13px !important;
+}
+
+body.login-required #loginModal input:focus{
+  border-color:#5f8fb7 !important;
+  box-shadow:0 0 0 3px rgba(59,147,189,.10) !important;
+}
+
+body.login-required #loginModal #doLoginBtn{
+  width:100% !important;
+  height:42px !important;
+  margin-top:4px !important;
+  background:#173b5f !important;
+  border-color:#173b5f !important;
+  border-radius:6px !important;
+  font-size:13px !important;
+  font-weight:800 !important;
+}
+</style>
+
+
+<script>
+(function(){
+  document.addEventListener('keydown', function(e){
+    if(e.key !== 'Enter') return;
+    const loginModal = document.getElementById('loginModal');
+    if(!loginModal || !loginModal.classList.contains('open')) return;
+
+    const active = document.activeElement;
+    if(active && (active.id === 'loginUser' || active.id === 'loginPassword')){
+      e.preventDefault();
+      const btn = document.getElementById('doLoginBtn');
+      if(btn) btn.click();
+    }
+  });
 })();
 </script>
 
