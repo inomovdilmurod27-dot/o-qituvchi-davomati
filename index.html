@@ -1611,7 +1611,7 @@ th{
       <div><label>Xona nomi/raqami<input id="rName" placeholder="305"></label></div>
       <div><label>Sig‘imi<input id="rCapacity" type="number" min="1" placeholder="30"></label></div>
       <div><label>Xona turi<select id="rType"><option>Oddiy auditoriya</option><option>Laboratoriya</option><option>Kompyuter xonasi</option><option>Ma’ruza zali</option><option>Seminar xonasi</option></select></label></div>
-      <div><label>Bino<input id="rBuilding" placeholder="1-bino"></label></div>
+      <div><label>Bino<select id="rBuilding"><option value="1-bino">1-bino</option><option value="2-bino">2-bino</option><option value="3-bino">3-bino</option><option value="4-bino">4-bino</option><option value="5-bino">5-bino</option><option value="6-bino">6-bino</option><option value="7-bino">7-bino</option><option value="8-bino">8-bino</option><option value="9-bino">9-bino</option><option value="10-bino">10-bino</option><option value="11-bino">11-bino</option><option value="12-bino">12-bino</option><option value="13-bino">13-bino</option><option value="14-bino">14-bino</option><option value="15-bino">15-bino</option><option value="16-bino">16-bino</option><option value="17-bino">17-bino</option><option value="18-bino">18-bino</option><option value="19-bino">19-bino</option><option value="20-bino">20-bino</option><option value="21-bino">21-bino</option><option value="22-bino">22-bino</option><option value="23-bino">23-bino</option><option value="24-bino">24-bino</option><option value="25-bino">25-bino</option><option value="26-bino">26-bino</option><option value="27-bino">27-bino</option><option value="28-bino">28-bino</option><option value="29-bino">29-bino</option><option value="30-bino">30-bino</option><option value="31-bino">31-bino</option><option value="32-bino">32-bino</option><option value="33-bino">33-bino</option><option value="34-bino">34-bino</option><option value="35-bino">35-bino</option><option value="36-bino">36-bino</option><option value="37-bino">37-bino</option><option value="38-bino">38-bino</option><option value="39-bino">39-bino</option><option value="40-bino">40-bino</option><option value="41-bino">41-bino</option><option value="42-bino">42-bino</option><option value="43-bino">43-bino</option><option value="44-bino">44-bino</option><option value="45-bino">45-bino</option><option value="46-bino">46-bino</option><option value="47-bino">47-bino</option><option value="48-bino">48-bino</option><option value="49-bino">49-bino</option><option value="50-bino">50-bino</option></select></label></div>
       <div class="full"><button class="btn primary" id="saveRoomBtn">Xonani saqlash</button></div>
     </div>
     <div class="section-title"><h3>Xonalar</h3></div><div class="admin-list" id="roomAdminList"></div>
@@ -1935,40 +1935,47 @@ function validateLesson(candidate,teacherId,editingLessonId=null){
    if(l.group.trim().toLowerCase()===candidate.group.trim().toLowerCase()) errs.push(`Guruh konflikti: ${candidate.group} guruhi shu vaqtda boshqa darsga biriktirilgan (${l.subject}, ${l.room}-xona).`);
   })
  });
- // Kafedralar alohida bo‘lsa ham, fizik xona va o‘qituvchi bandligi universitet bo‘yicha umumiy tekshiriladi.
+ // Kafedralar alohida bo‘lsa ham, fizik xona va o‘qituvchi bandligi universitet bo‘yicha HAMMA kafedralarda tekshiriladi.
  const currentDep=String(db.currentUser?.department||t?.department||"").trim();
  const normalizeName=v=>String(v||"").trim().toLowerCase().replace(/\s+/g," ");
  const candidateTeacher=teacherById(candidate.substituteTeacherId||teacherId)||t;
  const candidateTeacherName=normalizeName(candidateTeacher?.name);
  const candidateTeacherPhone=String(candidateTeacher?.phone||"").replace(/\D/g,"");
+ const candidateRoomNameGlobal=normalizePhysicalRoom(candidate.room||room?.name);
+ const candidateBuildingGlobal=normalizeBuilding(candidate.roomBuilding||room?.building);
  const workspaces=(db.departmentWorkspaces&&typeof db.departmentWorkspaces==="object")?db.departmentWorkspaces:{};
+
  Object.entries(workspaces).forEach(([dep,ws])=>{
-  if(String(dep).trim()===currentDep) return;
   const wsTeachers=Array.isArray(ws?.teachers)?ws.teachers:[];
   const wsRooms=Array.isArray(ws?.rooms)?ws.rooms:[];
-  const wsRoomByLesson=l=>wsRooms.find(r=>String(r.id)===String(l.roomId))||wsRooms.find(r=>String(r.name)===String(l.room));
+  const wsRoomByLesson=l=>
+    wsRooms.find(r=>String(r.id)===String(l.roomId))||
+    wsRooms.find(r=>normalizePhysicalRoom(r.name)===normalizePhysicalRoom(l.room));
   const wsTeacherById=id=>wsTeachers.find(x=>String(x.id)===String(id));
+
   wsTeachers.forEach(other=>{
    (other.schedule||[]).forEach(l=>{
     if(l.cancelled) return;
+    if(String(dep).trim()===currentDep && editingLessonId && String(l.id)===String(editingLessonId)) return;
     if(l.day!==candidate.day || Number(l.pair)!==Number(candidate.pair) || !weekOverlap(l.weekType,candidate.weekType)) return;
 
     const existingRoom=wsRoomByLesson(l);
     const existingRoomName=normalizePhysicalRoom(l.room||existingRoom?.name);
-    const candidateRoomName=normalizePhysicalRoom(candidate.room||room?.name);
     const existingBuilding=normalizeBuilding(l.roomBuilding||existingRoom?.building);
-    const candidateBuilding=normalizeBuilding(candidate.roomBuilding||room?.building);
 
-    if(existingRoomName===candidateRoomName && existingBuilding===candidateBuilding){
-      errs.push(`Xona konflikti: ${candidate.room}-xona · ${room?.building||candidate.roomBuilding||"bino ko‘rsatilmagan"} ${candidate.day}, ${candidate.pair}-juftlikda boshqa kafedrada band (${other.name}, ${l.subject}).`);
+    if(existingRoomName && existingRoomName===candidateRoomNameGlobal && existingBuilding===candidateBuildingGlobal){
+      errs.push(`Xona konflikti: ${candidate.room}-xona · ${room?.building||candidate.roomBuilding||"bino ko‘rsatilmagan"} ${candidate.day}, ${candidate.pair}-juftlikda band (${other.name}, ${l.subject}).`);
     }
 
     const effectiveExisting=wsTeacherById(l.substituteTeacherId)||other;
     const existingName=normalizeName(effectiveExisting?.name);
     const existingPhone=String(effectiveExisting?.phone||"").replace(/\D/g,"");
-    const sameTeacher=(candidateTeacherName&&existingName===candidateTeacherName) || (candidateTeacherPhone.length>=7&&existingPhone===candidateTeacherPhone);
+    const sameTeacher=
+      (candidateTeacherName && existingName===candidateTeacherName) ||
+      (candidateTeacherPhone.length>=7 && existingPhone===candidateTeacherPhone);
+
     if(sameTeacher){
-      errs.push(`O‘qituvchi konflikti: ${candidateTeacher?.name||t?.name||"O‘qituvchi"} ${candidate.day}, ${candidate.pair}-juftlikda boshqa kafedrada darsga biriktirilgan (${l.subject}, ${l.room}-xona).`);
+      errs.push(`O‘qituvchi konflikti: ${candidateTeacher?.name||t?.name||"O‘qituvchi"} ${candidate.day}, ${candidate.pair}-juftlikda boshqa darsga biriktirilgan (${l.subject}, ${l.room}-xona).`);
     }
    });
   });
@@ -2031,7 +2038,7 @@ function editTeacher(id){const t=teacherById(id);if(!t)return;switchTab("teacher
 function deleteTeacher(id){const t=teacherById(id);if(!t||!confirm(`${t.name} o‘chirilsinmi?`))return;db.teachers=db.teachers.filter(x=>x.id!==id);addHistory("O‘qituvchi o‘chirildi",t.name);save();renderAll()}
 window.editTeacher=editTeacher;window.deleteTeacher=deleteTeacher;
 
-function clearRoomForm(){$("editRoomId").value="";$("rName").value=$("rCapacity").value=$("rBuilding").value="";$("rType").value="Oddiy auditoriya";$("saveRoomBtn").textContent="Xonani saqlash"}
+function clearRoomForm(){$("editRoomId").value="";$("rName").value=$("rCapacity").value="";$("rBuilding").value="1-bino";$("rType").value="Oddiy auditoriya";$("saveRoomBtn").textContent="Xonani saqlash"}
 $("saveRoomBtn").onclick=()=>{const name=$("rName").value.trim(),cap=Number($("rCapacity").value),building=$("rBuilding").value.trim();if(!name||!cap)return showAlert("Xona va sig‘imni kiriting.","error");const id=$("editRoomId").value;const duplicate=db.rooms.find(r=>r.name===name&&String(r.building||"")===String(building)&&String(r.id)!==String(id));if(duplicate)return showAlert("Bu xona shu binoda allaqachon mavjud.","error");if(id){const r=db.rooms.find(x=>x.id==id);Object.assign(r,{name,capacity:cap,type:$("rType").value,building});addHistory("Xona tahrirlandi",name)}else{db.rooms.push({id:Date.now(),name,capacity:cap,type:$("rType").value,building});addHistory("Xona qo‘shildi",name)}save();clearRoomForm();renderAll();showAlert("Xona saqlandi.","ok")}
 function editRoom(id){const r=db.rooms.find(x=>x.id===id);if(!r)return;switchTab("roomTab");$("editRoomId").value=r.id;$("rName").value=r.name;$("rCapacity").value=r.capacity;$("rType").value=r.type;$("rBuilding").value=r.building;$("saveRoomBtn").textContent="O‘zgarishlarni saqlash";$("adminPanel").scrollTo({top:0,behavior:"smooth"})}
 function deleteRoom(id){const r=db.rooms.find(x=>x.id===id);if(!r)return;const used=db.teachers.some(t=>t.schedule.some(l=>l.room===r.name));if(used)return showAlert("Bu xona darslarda ishlatilgan. Avval darslarni boshqa xonaga o‘tkazing.","error");if(confirm(`${r.name}-xona o‘chirilsinmi?`)){db.rooms=db.rooms.filter(x=>x.id!==id);addHistory("Xona o‘chirildi",r.name);save();renderAll()}}
