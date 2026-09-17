@@ -1555,7 +1555,29 @@ function roomDisplay(name){
 function addHistory(action,details){db.history.unshift({id:Date.now(),time:new Date().toLocaleString("uz-UZ"),action,details});save()}
 function showAlert(msg,type="ok"){const a=$("adminAlert");a.className="alert show "+type;a.innerHTML=msg;setTimeout(()=>a.classList.remove("show"),5000)}
 
-function todayLessonsFor(t){const {day}=nowInfo();return t.schedule.filter(l=>l.day===day&&lessonActive(l)).sort((a,b)=>a.pair-b.pair)}
+function availabilityLabel(v){
+ const m={available:"Mavjud",leave:"Ta’til",trip:"Xizmat safari",sick:"Kasallik",meeting:"Yig‘ilish"};
+ return m[v]||v||"";
+}
+function todayLessonsFor(t){
+ const {day}=nowInfo(), today=new Date().toISOString().slice(0,10);
+ let arr=t.schedule.filter(l=>l.day===day&&lessonActive(l)).map(l=>({...l}));
+ const ex=(db.dayExceptions||[]).filter(x=>String(x.teacherId)===String(t.id)&&x.date===today);
+ ex.forEach(x=>{
+  const i=arr.findIndex(l=>String(l.id)===String(x.lessonId));
+  if(i<0)return;
+  if(x.action==="cancel"){arr.splice(i,1);return;}
+  if(x.action==="move"&&x.newPair){
+   arr[i].pair=Number(x.newPair);
+   if(pairTimes[arr[i].pair]){
+    arr[i].start=pairTimes[arr[i].pair].start;
+    arr[i].end=pairTimes[arr[i].pair].end;
+   }
+  }
+  if((x.action==="room"||x.action==="move")&&x.newRoom) arr[i].room=x.newRoom;
+ });
+ return arr.sort((a,b)=>a.pair-b.pair)
+}
 function getStatus(t){
  const {minutes}=nowInfo(); if(t.availability!=="available") return {key:"free",label:"Mavjud emas",color:"var(--red)",next:null};
  const arr=todayLessonsFor(t);
@@ -1622,11 +1644,11 @@ function renderTeachers(){
   return `<article class="card teacher-card" onclick="openTeacher(${t.id})"><div class="teacher-head"><img class="avatar" src="${esc(t.image)}"><div><div class="teacher-name">${esc(t.name)}</div><div class="meta">${esc(t.position)} · ${esc(t.degree)}</div></div></div><div class="status"><span class="dot" style="background:${st.color}"></span>${st.label}</div><div class="lesson">${body}</div>${st.key==="inclass"?`<div class="room">${roomDisplay(st.lesson.room).replace("-xona","-XONA")}</div>`:""}</article>`;
  }).join(""):`<div class="empty">Mos o‘qituvchi topilmadi.</div>`
 }
-function renderToday(){const list=[];db.teachers.forEach(t=>todayLessonsFor(t).forEach(l=>list.push({...l,teacher:t})));list.sort((a,b)=>a.pair-b.pair);$("todayList").innerHTML=list.length?list.map(x=>`<div class="today-item" onclick="openTeacher(${x.teacher.id})"><strong>${x.pair}-juftlik · ${x.start}–${x.end} · ${esc(x.teacher.name)}</strong><br>${esc(x.subject)} · ${esc(x.group)} · ${esc(x.room)}-xona · ${esc(x.type)} · ${x.weekType==="doim"?"Doimiy":x.weekType}</div>`).join(""):`<div class="empty">Bugun joriy hafta bo‘yicha tasdiqlangan dars yo‘q.</div>`}
+function renderToday(){const list=[];db.teachers.forEach(t=>todayLessonsFor(t).forEach(l=>list.push({...l,teacher:t})));list.sort((a,b)=>a.pair-b.pair);$("todayList").innerHTML=list.length?list.map(x=>`<div class="today-item" onclick="openTeacher(${x.teacher.id})"><strong>${x.pair}-juftlik · ${x.start}–${x.end} · ${esc(x.teacher.name)}</strong><br>${esc(x.subject)} · ${esc(x.group)} · ${roomDisplay(x.room)} · ${esc(x.type)} · ${x.weekType==="doim"?"Doimiy":x.weekType}</div>`).join(""):`<div class="empty">Bugun joriy hafta bo‘yicha tasdiqlangan dars yo‘q.</div>`}
 function renderStats(){const inc=db.teachers.filter(t=>getStatus(t).key==="inclass").length,pending=db.teachers.reduce((n,t)=>n+t.schedule.filter(l=>l.status==="pending"&&!l.cancelled).length,0);$("totalTeachers").textContent=db.teachers.length;$("inClassCount").textContent=inc;$("todayLessonsCount").textContent=db.teachers.reduce((n,t)=>n+todayLessonsFor(t).length,0);$("pendingCount").textContent=pending}
 function populateFilters(){const rooms=new Set(),groups=new Set(),subs=new Set();db.teachers.forEach(t=>t.schedule.forEach(l=>{rooms.add(l.room);groups.add(l.group);subs.add(l.subject)}));$("roomFilter").innerHTML='<option value="">Barcha xonalar</option>'+[...rooms].sort().map(x=>`<option>${esc(x)}</option>`).join("");$("groupFilter").innerHTML='<option value="">Barcha guruhlar</option>'+[...groups].sort().map(x=>`<option>${esc(x)}</option>`).join("");$("subjectFilter").innerHTML='<option value="">Barcha fanlar</option>'+[...subs].sort().map(x=>`<option>${esc(x)}</option>`).join("")}
 
-function openTeacher(id){const t=teacherById(id),st=getStatus(t);$("profile").innerHTML=`<img src="${esc(t.image)}"><div><h2>${esc(t.name)}</h2><div class="info"><div><b>Ilmiy daraja:</b> ${esc(t.degree)}</div><div><b>Lavozim:</b> ${esc(t.position)}</div><div><b>Kafedra:</b> ${esc(t.department)}</div><div><b>Telefon:</b> ${esc(t.phone)}</div><div><b>Holat:</b> ${esc(t.availability)}</div></div></div>`;let h=`<div class="status"><span class="dot" style="background:${st.color}"></span>${st.label.toUpperCase()}</div>`;if(st.key==="inclass"){const sub=st.lesson.substituteTeacherId?teacherById(st.lesson.substituteTeacherId):null;h+=`<p><b>Fan:</b> ${esc(st.lesson.subject)}<br><b>Guruh:</b> ${esc(st.lesson.group)}<br><b>Xona:</b> ${roomDisplay(st.lesson.room)}<br><b>Dars turi:</b> ${esc(st.lesson.type)}<br><b>Juftlik:</b> ${st.lesson.pair}<br><b>Vaqt:</b> ${st.lesson.start}–${st.lesson.end}${sub?`<br><b>Almashtiruvchi:</b> ${esc(sub.name)}`:""}</p><b>Dars tugashiga ${st.remaining} daqiqa qoldi.</b>`}else if(st.next){h+=`<p><b>Keyingi dars:</b> ${st.next.start}<br><b>Fan:</b> ${esc(st.next.subject)}<br><b>Guruh:</b> ${esc(st.next.group)}<br><b>Xona:</b> ${roomDisplay(st.next.room)}</p>`}else h+=`<p>Bugun joriy hafta bo‘yicha boshqa dars mavjud emas.</p>`;$("statusCard").innerHTML=h;$("roomCard").innerHTML=st.key==="inclass"?`<b>${roomDisplay(st.lesson.room).replace("-xona","-XONA")}</b><span>Joriy dars xonasi</span>`:st.next?`<b>${roomDisplay(st.next.room).replace("-xona","-XONA")}</b><span>Keyingi dars xonasi</span>`:`<b style="font-size:24px">DARS YO‘Q</b>`;$("teacherScheduleBody").innerHTML=[...t.schedule].sort((a,b)=>dayOrder[a.day]-dayOrder[b.day]||a.pair-b.pair).map(l=>`<tr><td>${l.day}</td><td>${l.pair}</td><td>${l.start}–${l.end}</td><td>${esc(l.subject)}</td><td>${esc(l.group)}</td><td>${roomDisplay(l.room)}</td><td>${esc(l.type)}</td><td><span class="badge ${l.weekType}">${l.weekType==="doim"?"Doimiy":l.weekType}</span></td><td><span class="badge ${l.cancelled?"cancelled":l.status}">${l.cancelled?"Bekor qilingan":l.status==="approved"?"Tasdiqlangan":"Kutilmoqda"}</span></td></tr>`).join("");$("teacherModal").classList.add("open")}
+function openTeacher(id){const t=teacherById(id),st=getStatus(t);$("profile").innerHTML=`<img src="${esc(t.image)}"><div><h2>${esc(t.name)}</h2><div class="info"><div><b>Ilmiy daraja:</b> ${esc(t.degree)}</div><div><b>Lavozim:</b> ${esc(t.position)}</div><div><b>Kafedra:</b> ${esc(t.department)}</div><div><b>Telefon:</b> ${esc(t.phone)}</div><div><b>Holat:</b> ${esc(availabilityLabel(t.availability))}</div></div></div>`;let h=`<div class="status"><span class="dot" style="background:${st.color}"></span>${st.label.toUpperCase()}</div>`;if(st.key==="inclass"){const sub=st.lesson.substituteTeacherId?teacherById(st.lesson.substituteTeacherId):null;h+=`<p><b>Fan:</b> ${esc(st.lesson.subject)}<br><b>Guruh:</b> ${esc(st.lesson.group)}<br><b>Xona:</b> ${roomDisplay(st.lesson.room)}<br><b>Dars turi:</b> ${esc(st.lesson.type)}<br><b>Juftlik:</b> ${st.lesson.pair}<br><b>Vaqt:</b> ${st.lesson.start}–${st.lesson.end}${sub?`<br><b>Almashtiruvchi:</b> ${esc(sub.name)}`:""}</p><b>Dars tugashiga ${st.remaining} daqiqa qoldi.</b>`}else if(st.next){h+=`<p><b>Keyingi dars:</b> ${st.next.start}<br><b>Fan:</b> ${esc(st.next.subject)}<br><b>Guruh:</b> ${esc(st.next.group)}<br><b>Xona:</b> ${roomDisplay(st.next.room)}</p>`}else h+=`<p>Bugun joriy hafta bo‘yicha boshqa dars mavjud emas.</p>`;$("statusCard").innerHTML=h;$("roomCard").innerHTML=st.key==="inclass"?`<b>${roomDisplay(st.lesson.room).replace("-xona","-XONA")}</b><span>Joriy dars xonasi</span>`:st.next?`<b>${roomDisplay(st.next.room).replace("-xona","-XONA")}</b><span>Keyingi dars xonasi</span>`:`<b style="font-size:24px">DARS YO‘Q</b>`;$("teacherScheduleBody").innerHTML=[...t.schedule].sort((a,b)=>dayOrder[a.day]-dayOrder[b.day]||a.pair-b.pair).map(l=>`<tr><td>${l.day}</td><td>${l.pair}</td><td>${l.start}–${l.end}</td><td>${esc(l.subject)}</td><td>${esc(l.group)}</td><td>${roomDisplay(l.room)}</td><td>${esc(l.type)}</td><td><span class="badge ${l.weekType}">${l.weekType==="doim"?"Doimiy":l.weekType}</span></td><td><span class="badge ${l.cancelled?"cancelled":l.status}">${l.cancelled?"Bekor qilingan":l.status==="approved"?"Tasdiqlangan":"Kutilmoqda"}</span></td></tr>`).join("");$("teacherModal").classList.add("open")}
 window.openTeacher=openTeacher;
 
 function renderAdminSelectors(){$("lTeacher").innerHTML=db.teachers.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join("");$("lSubstitute").innerHTML='<option value="">Yo‘q</option>'+db.teachers.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join("");$("lRoom").innerHTML=db.rooms.map(r=>`<option value="${esc(r.name)}">${esc(r.name)} · ${esc(r.type)} · ${r.capacity} o‘rin</option>`).join("")}
@@ -1885,8 +1907,8 @@ $("monitorBtn").onclick=()=>{
     const freeRooms=db.rooms.filter(r=>!occupied.has(r.name)).slice(0,12);
     wrap.innerHTML=`<div class="monitor-header"><div><h1 style="margin:0">Darslar monitoringi</h1><div>${day} · ${currentWeek.toUpperCase()} hafta</div></div><button class="btn danger" onclick="document.getElementById('monitorMode').remove()">Yopish</button></div>
     <div class="monitor-grid">
-      <div class="monitor-card"><h3>Hozir darsda</h3>${live.map(x=>`<p><b>${esc(x.t.name)}</b><br>${esc(x.l.subject)} · ${esc(x.l.room)}-xona</p>`).join("")||"Hozir dars yo‘q."}</div>
-      <div class="monitor-card"><h3>Bo‘sh xonalar</h3>${freeRooms.map(r=>`<p>${esc(r.name)}-xona · ${r.capacity} o‘rin</p>`).join("")||"Bo‘sh xona yo‘q."}</div>
+      <div class="monitor-card"><h3>Hozir darsda</h3>${live.map(x=>`<p><b>${esc(x.t.name)}</b><br>${esc(x.l.subject)} · ${roomDisplay(x.l.room)}</p>`).join("")||"Hozir dars yo‘q."}</div>
+      <div class="monitor-card"><h3>Bo‘sh xonalar</h3>${freeRooms.map(r=>`<p>${roomDisplay(r.name)} · ${r.capacity} o‘rin</p>`).join("")||"Bo‘sh xona yo‘q."}</div>
       <div class="monitor-card"><h3>Vaqt</h3><div style="font-size:42px;font-weight:800">${new Date().toLocaleTimeString("uz-UZ",{hour12:false})}</div></div>
     </div>`;
   };
