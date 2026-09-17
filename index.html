@@ -1867,6 +1867,42 @@ function validateLesson(candidate,teacherId,editingLessonId=null){
    if(l.group.trim().toLowerCase()===candidate.group.trim().toLowerCase()) errs.push(`Guruh konflikti: ${candidate.group} guruhi shu vaqtda boshqa darsga biriktirilgan (${l.subject}, ${l.room}-xona).`);
   })
  });
+ // Kafedralar alohida bo‘lsa ham, fizik xona va o‘qituvchi bandligi universitet bo‘yicha umumiy tekshiriladi.
+ const currentDep=String(db.currentUser?.department||t?.department||"").trim();
+ const normalizeName=v=>String(v||"").trim().toLowerCase().replace(/\s+/g," ");
+ const candidateTeacher=teacherById(candidate.substituteTeacherId||teacherId)||t;
+ const candidateTeacherName=normalizeName(candidateTeacher?.name);
+ const candidateTeacherPhone=String(candidateTeacher?.phone||"").replace(/\D/g,"");
+ const workspaces=(db.departmentWorkspaces&&typeof db.departmentWorkspaces==="object")?db.departmentWorkspaces:{};
+ Object.entries(workspaces).forEach(([dep,ws])=>{
+  if(String(dep).trim()===currentDep) return;
+  const wsTeachers=Array.isArray(ws?.teachers)?ws.teachers:[];
+  const wsRooms=Array.isArray(ws?.rooms)?ws.rooms:[];
+  const wsRoomByLesson=l=>wsRooms.find(r=>String(r.id)===String(l.roomId))||wsRooms.find(r=>String(r.name)===String(l.room));
+  const wsTeacherById=id=>wsTeachers.find(x=>String(x.id)===String(id));
+  wsTeachers.forEach(other=>{
+   (other.schedule||[]).forEach(l=>{
+    if(l.cancelled) return;
+    if(l.day!==candidate.day || Number(l.pair)!==Number(candidate.pair) || !weekOverlap(l.weekType,candidate.weekType)) return;
+
+    const existingRoom=wsRoomByLesson(l);
+    const existingBuilding=String(existingRoom?.building||l.roomBuilding||"").trim();
+    const candidateBuilding=String(room?.building||candidate.roomBuilding||"").trim();
+    if(String(l.room||"").trim()===String(candidate.room||"").trim() && existingBuilding===candidateBuilding){
+      errs.push(`Xona konflikti: ${candidate.room}-xona · ${candidateBuilding||"bino ko‘rsatilmagan"} ${candidate.day}, ${candidate.pair}-juftlikda boshqa kafedrada band (${other.name}, ${l.subject}).`);
+    }
+
+    const effectiveExisting=wsTeacherById(l.substituteTeacherId)||other;
+    const existingName=normalizeName(effectiveExisting?.name);
+    const existingPhone=String(effectiveExisting?.phone||"").replace(/\D/g,"");
+    const sameTeacher=(candidateTeacherName&&existingName===candidateTeacherName) || (candidateTeacherPhone.length>=7&&existingPhone===candidateTeacherPhone);
+    if(sameTeacher){
+      errs.push(`O‘qituvchi konflikti: ${candidateTeacher?.name||t?.name||"O‘qituvchi"} ${candidate.day}, ${candidate.pair}-juftlikda boshqa kafedrada darsga biriktirilgan (${l.subject}, ${l.room}-xona).`);
+    }
+   });
+  });
+ });
+
  if(candidate.substituteTeacherId && String(candidate.substituteTeacherId)===String(teacherId)) warns.push("Almashtiruvchi o‘qituvchi asosiy o‘qituvchi bilan bir xil.");
  return {errs:[...new Set(errs)],warns:[...new Set(warns)]}
 }
