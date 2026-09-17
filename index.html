@@ -1465,21 +1465,33 @@ th{
 }
 
 
-
-/* ===== SAQLASHDAN KEYINGI OGОHLANTIRISH XABARI — SAQLASH TUGMASI PASTIDA ===== */
+/* ===== SAQLASHDAN KEYINGI OGОHLANTIRISH XABARI — DOIMO KO‘RINADIGAN ===== */
 #adminAlert.alert.show{
   display:block !important;
-  position:static !important;
-  width:100% !important;
-  margin:10px 0 0 0 !important;
-  padding:12px 14px !important;
-  border-radius:7px !important;
-  box-shadow:none !important;
-  z-index:auto !important;
-  font-size:12.5px !important;
-  line-height:1.5 !important;
+  position:fixed !important;
+  top:18px !important;
+  right:18px !important;
+  left:auto !important;
+  width:min(420px,calc(100vw - 36px)) !important;
+  max-height:70vh !important;
+  overflow:auto !important;
+  margin:0 !important;
+  padding:14px 16px !important;
+  border-radius:8px !important;
+  box-shadow:0 14px 35px rgba(15,23,42,.22) !important;
+  z-index:5000 !important;
+  font-size:13px !important;
+  line-height:1.55 !important;
   font-weight:600 !important;
 }
+@media(max-width:520px){
+  #adminAlert.alert.show{
+    top:10px !important;
+    right:10px !important;
+    width:calc(100vw - 20px) !important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
@@ -1575,6 +1587,7 @@ th{
     <button data-tab="managerAdminTab" id="managerAdminTabBtn">Kafedra mudirlari</button>
   </div>
 
+  <div id="adminAlert" class="alert"></div>
 
   <section id="teacherTab" class="tab-section">
     <div class="form">
@@ -1621,7 +1634,6 @@ th{
       <div><label>Holat<select id="lStatus"><option value="pending">Tasdiqlash kutilmoqda</option><option value="approved">Tasdiqlangan</option></select></label></div>
       <div class="full"><label>Izoh<textarea id="lNote" rows="2" placeholder="Qo‘shimcha izoh"></textarea></label></div>
       <div class="full"><button class="btn primary" id="saveLessonBtn">Darsni saqlash</button></div>
-      <div class="full"><div id="adminAlert" class="alert"></div></div>
     </div>
     <div class="section-title"><h3>Darslar</h3></div><div class="admin-list" id="lessonAdminList"></div>
   </section>
