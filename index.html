@@ -1233,6 +1233,8 @@ th{
 }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <header class="topbar">
@@ -1481,7 +1483,64 @@ let db=JSON.parse(localStorage.getItem("dispatchDB")||"null")||{
  ],
  history:[]
 };
-function save(){localStorage.setItem("dispatchDB",JSON.stringify(db))}
+
+// ===== Firebase / Firestore sinxronizatsiyasi =====
+const firebaseConfig = {
+  apiKey: "AIzaSyCsa6R4ozs0PkMpZkXhCeEi3qFOa1yfiNI",
+  authDomain: "oqituvchi-davomati.firebaseapp.com",
+  projectId: "oqituvchi-davomati",
+  storageBucket: "oqituvchi-davomati.firebasestorage.app",
+  messagingSenderId: "562215648825",
+  appId: "1:562215648825:web:73fce4c4879eb21d6457e8"
+};
+
+firebase.initializeApp(firebaseConfig);
+const firestoreDB = firebase.firestore();
+const dispatchDoc = firestoreDB.collection("appData").doc("main");
+let cloudReady = false;
+let cloudInitStarted = false;
+
+function save(){
+  localStorage.setItem("dispatchDB", JSON.stringify(db));
+  if(cloudReady){
+    dispatchDoc.set({
+      db: db,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(err => console.error("Firestore saqlash xatosi:", err));
+  }
+}
+
+async function initCloudSync(){
+  if(cloudInitStarted) return;
+  cloudInitStarted = true;
+  try{
+    const snap = await dispatchDoc.get();
+
+    if(snap.exists && snap.data() && snap.data().db){
+      db = snap.data().db;
+      localStorage.setItem("dispatchDB", JSON.stringify(db));
+      if(typeof renderAll === "function") renderAll();
+    }else{
+      await dispatchDoc.set({
+        db: db,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+
+    cloudReady = true;
+
+    dispatchDoc.onSnapshot(s=>{
+      if(!s.exists || !s.data() || !s.data().db) return;
+      db = s.data().db;
+      localStorage.setItem("dispatchDB", JSON.stringify(db));
+      if(typeof renderAll === "function") renderAll();
+    }, err => console.error("Firestore o‘qish xatosi:", err));
+
+  }catch(err){
+    console.error("Firebase ulanish xatosi:", err);
+  }
+}
+
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
 function mins(t){const [h,m]=t.split(":").map(Number);return h*60+m}
 function nowInfo(){const d=new Date();return {d,day:dayNames[d.getDay()],minutes:d.getHours()*60+d.getMinutes()}}
@@ -1673,7 +1732,7 @@ $("homeBtn").onclick=()=>window.scrollTo({top:0,behavior:"smooth"});
 ["search","statusFilter","roomFilter","groupFilter","subjectFilter"].forEach(id=>$(id).addEventListener("input",renderTeachers));
 
 function renderAll(){populateFilters();renderTeachers();renderToday();renderStats();renderAdminSelectors();renderTeacherAdmin();renderRoomAdmin();renderLessonAdmin();renderApproval();renderHistory();updateWeekUI()}
-updateClock();updatePairTime();renderAll();setInterval(()=>{updateClock();renderTeachers();renderToday();renderStats()},1000);
+updateClock();updatePairTime();renderAll();initCloudSync();setInterval(()=>{updateClock();renderTeachers();renderToday();renderStats()},1000);
 
 // ================= KENGAYTIRILGAN MODULLAR =================
 if(!db.settings) db.settings={academicYear:"2026/2027",semester:"I-semestr"};
