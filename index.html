@@ -1921,10 +1921,14 @@ function validateLesson(candidate,teacherId,editingLessonId=null){
     if(l.day!==candidate.day || Number(l.pair)!==Number(candidate.pair) || !weekOverlap(l.weekType,candidate.weekType)) return;
 
     const existingRoom=wsRoomByLesson(l);
-    const existingBuilding=String(existingRoom?.building||l.roomBuilding||"").trim();
-    const candidateBuilding=String(room?.building||candidate.roomBuilding||"").trim();
-    if(String(l.room||"").trim()===String(candidate.room||"").trim() && existingBuilding===candidateBuilding){
-      errs.push(`Xona konflikti: ${candidate.room}-xona · ${candidateBuilding||"bino ko‘rsatilmagan"} ${candidate.day}, ${candidate.pair}-juftlikda boshqa kafedrada band (${other.name}, ${l.subject}).`);
+    const normalizeRoomPart=v=>String(v||"").trim().toLowerCase().replace(/\s+/g," ");
+    const existingRoomName=normalizeRoomPart(l.room||existingRoom?.name);
+    const candidateRoomName=normalizeRoomPart(candidate.room||room?.name);
+    const existingBuilding=normalizeRoomPart(l.roomBuilding||existingRoom?.building);
+    const candidateBuilding=normalizeRoomPart(candidate.roomBuilding||room?.building);
+
+    if(existingRoomName===candidateRoomName && existingBuilding===candidateBuilding){
+      errs.push(`Xona konflikti: ${candidate.room}-xona · ${room?.building||candidate.roomBuilding||"bino ko‘rsatilmagan"} ${candidate.day}, ${candidate.pair}-juftlikda boshqa kafedrada band (${other.name}, ${l.subject}).`);
     }
 
     const effectiveExisting=wsTeacherById(l.substituteTeacherId)||other;
