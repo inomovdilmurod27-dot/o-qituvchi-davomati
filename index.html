@@ -1464,6 +1464,34 @@ th{
   padding-top:14px;
 }
 
+
+/* ===== SAQLASHDAN KEYINGI OGОHLANTIRISH XABARI — DOIMO KO‘RINADIGAN ===== */
+#adminAlert.alert.show{
+  display:block !important;
+  position:fixed !important;
+  top:18px !important;
+  right:18px !important;
+  left:auto !important;
+  width:min(420px,calc(100vw - 36px)) !important;
+  max-height:70vh !important;
+  overflow:auto !important;
+  margin:0 !important;
+  padding:14px 16px !important;
+  border-radius:8px !important;
+  box-shadow:0 14px 35px rgba(15,23,42,.22) !important;
+  z-index:5000 !important;
+  font-size:13px !important;
+  line-height:1.55 !important;
+  font-weight:600 !important;
+}
+@media(max-width:520px){
+  #adminAlert.alert.show{
+    top:10px !important;
+    right:10px !important;
+    width:calc(100vw - 20px) !important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
@@ -1811,7 +1839,14 @@ function roomDisplay(name){
   return `${esc(name)}-xona${r&&r.building?` · ${esc(r.building)}`:""}`;
 }
 function addHistory(action,details){db.history.unshift({id:Date.now(),time:new Date().toLocaleString("uz-UZ"),action,details});save()}
-function showAlert(msg,type="ok"){const a=$("adminAlert");a.className="alert show "+type;a.innerHTML=msg;setTimeout(()=>a.classList.remove("show"),5000)}
+function showAlert(msg,type="ok"){
+ const a=$("adminAlert");
+ if(!a)return;
+ a.className="alert show "+type;
+ a.innerHTML=msg;
+ clearTimeout(a._hideTimer);
+ a._hideTimer=setTimeout(()=>a.classList.remove("show"),type==="error"?8000:5000);
+}
 
 function availabilityLabel(v){
  const m={available:"Mavjud",leave:"Ta’til",trip:"Xizmat safari",sick:"Kasallik",meeting:"Yig‘ilish"};
