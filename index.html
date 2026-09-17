@@ -1893,6 +1893,21 @@ function getStatus(t){
  const next=arr.find(l=>mins(l.start)>minutes);return{key:"free",label:"Hozir darsda emas",color:"var(--gray)",next:next||null}
 }
 
+function normalizePhysicalRoom(v){
+ return String(v||"")
+  .trim()
+  .toLowerCase()
+  .replace(/xona/g,"")
+  .replace(/[^a-z0-9а-яёўғқҳ]+/gi,"")
+}
+function normalizeBuilding(v){
+ return String(v||"")
+  .trim()
+  .toLowerCase()
+  .replace(/bino/g,"")
+  .replace(/[^a-z0-9а-яёўғқҳ]+/gi,"")
+}
+
 function validateLesson(candidate,teacherId,editingLessonId=null){
  const errs=[], warns=[]; const t=teacherById(teacherId); const room=roomById(candidate.roomId)||roomByName(candidate.room);
  if(!t) errs.push("O‘qituvchi topilmadi.");
@@ -1911,7 +1926,11 @@ function validateLesson(candidate,teacherId,editingLessonId=null){
    const candidateEffective=candidate.substituteTeacherId||teacherId;
    if(String(effectiveTeacher)===String(candidateEffective)) errs.push(`O‘qituvchi konflikti: ${candidate.day}, ${candidate.pair}-juftlikda boshqa dars mavjud (${l.subject}, ${l.room}-xona).`);
    const existingRoom=roomById(l.roomId)||roomByName(l.room);
-   const sameRoom=l.room===candidate.room && String(existingRoom?.building||l.roomBuilding||"")===String(room?.building||candidate.roomBuilding||"");
+   const existingRoomKey=normalizePhysicalRoom(l.room||existingRoom?.name);
+   const candidateRoomKey=normalizePhysicalRoom(candidate.room||room?.name);
+   const existingBuildingKey=normalizeBuilding(l.roomBuilding||existingRoom?.building);
+   const candidateBuildingKey=normalizeBuilding(candidate.roomBuilding||room?.building);
+   const sameRoom=existingRoomKey===candidateRoomKey && existingBuildingKey===candidateBuildingKey;
    if(sameRoom) errs.push(`Xona konflikti: ${candidate.room}-xona · ${room?.building||candidate.roomBuilding||"bino ko‘rsatilmagan"} ${candidate.day}, ${candidate.pair}-juftlikda band (${other.name}, ${l.subject}).`);
    if(l.group.trim().toLowerCase()===candidate.group.trim().toLowerCase()) errs.push(`Guruh konflikti: ${candidate.group} guruhi shu vaqtda boshqa darsga biriktirilgan (${l.subject}, ${l.room}-xona).`);
   })
@@ -1935,11 +1954,10 @@ function validateLesson(candidate,teacherId,editingLessonId=null){
     if(l.day!==candidate.day || Number(l.pair)!==Number(candidate.pair) || !weekOverlap(l.weekType,candidate.weekType)) return;
 
     const existingRoom=wsRoomByLesson(l);
-    const normalizeRoomPart=v=>String(v||"").trim().toLowerCase().replace(/\s+/g," ");
-    const existingRoomName=normalizeRoomPart(l.room||existingRoom?.name);
-    const candidateRoomName=normalizeRoomPart(candidate.room||room?.name);
-    const existingBuilding=normalizeRoomPart(l.roomBuilding||existingRoom?.building);
-    const candidateBuilding=normalizeRoomPart(candidate.roomBuilding||room?.building);
+    const existingRoomName=normalizePhysicalRoom(l.room||existingRoom?.name);
+    const candidateRoomName=normalizePhysicalRoom(candidate.room||room?.name);
+    const existingBuilding=normalizeBuilding(l.roomBuilding||existingRoom?.building);
+    const candidateBuilding=normalizeBuilding(candidate.roomBuilding||room?.building);
 
     if(existingRoomName===candidateRoomName && existingBuilding===candidateBuilding){
       errs.push(`Xona konflikti: ${candidate.room}-xona · ${room?.building||candidate.roomBuilding||"bino ko‘rsatilmagan"} ${candidate.day}, ${candidate.pair}-juftlikda boshqa kafedrada band (${other.name}, ${l.subject}).`);
