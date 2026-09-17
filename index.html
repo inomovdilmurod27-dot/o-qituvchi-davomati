@@ -1795,7 +1795,14 @@ async function initCloudSync(){
     const snap = await dispatchDoc.get();
 
     if(snap.exists && snap.data() && snap.data().db){
+      const sessionUser=db.currentUser&&db.currentUser.role!=="viewer"?{...db.currentUser}:null;
       db = snap.data().db;
+      if(sessionUser){
+        db.currentUser=sessionUser;
+        if(sessionUser.role==="mudiri" && sessionUser.department && typeof window.activateDepartmentWorkspace==="function"){
+          window.activateDepartmentWorkspace(sessionUser.department);
+        }
+      }
       localStorage.setItem("dispatchDB", JSON.stringify(db));
       if(typeof renderAll === "function") renderAll();
     }else{
@@ -1809,7 +1816,14 @@ async function initCloudSync(){
 
     dispatchDoc.onSnapshot(s=>{
       if(!s.exists || !s.data() || !s.data().db) return;
+      const sessionUser=db.currentUser&&db.currentUser.role!=="viewer"?{...db.currentUser}:null;
       db = s.data().db;
+      if(sessionUser){
+        db.currentUser=sessionUser;
+        if(sessionUser.role==="mudiri" && sessionUser.department && typeof window.activateDepartmentWorkspace==="function"){
+          window.activateDepartmentWorkspace(sessionUser.department);
+        }
+      }
       localStorage.setItem("dispatchDB", JSON.stringify(db));
       if(typeof renderAll === "function") renderAll();
     }, err => console.error("Firestore o‘qish xatosi:", err));
@@ -2421,11 +2435,23 @@ renderAdvanced();
         const teachers=(db.teachers||[]).filter(t=>String(t.department||'').trim()===dep);
         db.departmentWorkspaces[dep]={
           teachers:JSON.parse(JSON.stringify(teachers)),
+          rooms:[],
           history:[],
           dayExceptions:[]
         };
       }
     });
+
+    // Eski versiyadan o'tishda top-level xonalarni faqat hozirgi yagona kafedraga bir marta biriktiradi.
+    // Shu sabab yangi kafedralarga boshqa kafedraning xonalari ko'chib o'tmaydi.
+    const topTeacherDeps=[...new Set((db.teachers||[]).map(t=>String(t.department||'').trim()).filter(Boolean))];
+    if(topTeacherDeps.length===1){
+      const dep=topTeacherDeps[0];
+      const ws=db.departmentWorkspaces[dep];
+      if(ws && (!Array.isArray(ws.rooms) || ws.rooms.length===0) && Array.isArray(db.rooms) && db.rooms.length){
+        ws.rooms=JSON.parse(JSON.stringify(db.rooms));
+      }
+    }
   }
 
   function ensureDepartmentWorkspace(department){
@@ -2435,6 +2461,7 @@ renderAdvanced();
     if(!db.departmentWorkspaces[dep]){
       db.departmentWorkspaces[dep]={
         teachers:[],
+        rooms:[],
         history:[],
         dayExceptions:[]
       };
@@ -2446,6 +2473,7 @@ renderAdvanced();
     const ws=ensureDepartmentWorkspace(department);
     if(!ws) return;
     db.teachers=Array.isArray(ws.teachers)?ws.teachers:[];
+    db.rooms=Array.isArray(ws.rooms)?ws.rooms:[];
     db.history=Array.isArray(ws.history)?ws.history:[];
     db.dayExceptions=Array.isArray(ws.dayExceptions)?ws.dayExceptions:[];
   }
@@ -2455,6 +2483,7 @@ renderAdvanced();
     if(u.role!=='mudiri' || !u.department) return;
     const ws=ensureDepartmentWorkspace(u.department);
     ws.teachers=db.teachers;
+    ws.rooms=db.rooms;
     ws.history=db.history;
     ws.dayExceptions=db.dayExceptions;
   }
