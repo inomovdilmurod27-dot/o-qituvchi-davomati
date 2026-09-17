@@ -1845,7 +1845,7 @@ function showAlert(msg,type="ok"){
  a.className="alert show "+type;
  a.innerHTML=msg;
  clearTimeout(a._hideTimer);
- a._hideTimer=setTimeout(()=>a.classList.remove("show"),15000);
+ a._hideTimer=setTimeout(()=>a.classList.remove("show"),type==="error"?8000:5000);
 }
 
 function availabilityLabel(v){
