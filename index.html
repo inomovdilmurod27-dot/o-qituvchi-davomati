@@ -1595,7 +1595,33 @@ $("suratBtn").onclick=()=>{currentWeek="surat";localStorage.setItem("currentWeek
 $("maxrajBtn").onclick=()=>{currentWeek="maxraj";localStorage.setItem("currentWeek",currentWeek);updateWeekUI();renderAll()}
 
 function matches(t){const q=$("search").value.trim().toLowerCase(),st=getStatus(t),sf=$("statusFilter").value,rf=$("roomFilter").value,gf=$("groupFilter").value,subf=$("subjectFilter").value;const text=[t.name,t.position,t.degree,...t.schedule.flatMap(l=>[l.subject,l.group,l.room,l.type,l.day,l.weekType])].join(" ").toLowerCase();if(q&&!text.includes(q))return false;if(sf!=="all"&&st.key!==sf)return false;if(rf&&!t.schedule.some(l=>l.room===rf))return false;if(gf&&!t.schedule.some(l=>l.group===gf))return false;if(subf&&!t.schedule.some(l=>l.subject===subf))return false;return true}
-function renderTeachers(){const arr=db.teachers.filter(matches);$("teacherGrid").innerHTML=arr.length?arr.map(t=>{const st=getStatus(t);let body=st.key==="inclass"?`<b>${esc(st.lesson.subject)}</b><br>${esc(st.lesson.group)} · ${esc(st.lesson.type)}<br>${st.lesson.start}–${st.lesson.end}`:st.next?`<b>Keyingi dars: ${st.next.start}</b><br>${esc(st.next.subject)}<br>${roomDisplay(st.next.room)}`:t.availability!=="available"?`<b>Mavjud emas:</b> ${esc(t.availabilityNote||t.availability)}`:"Bugun boshqa dars yo‘q.";return `<article class="card teacher-card" onclick="openTeacher(${t.id})"><div class="teacher-head"><img class="avatar" src="${esc(t.image)}"><div><div class="teacher-name">${esc(t.name)}</div><div class="meta">${esc(t.position)} · ${esc(t.degree)}</div></div></div><div class="status"><span class="dot" style="background:${st.color}"></span>${st.label}</div><div class="lesson">${body}</div>${st.key==="inclass"?`<div class="room">${roomDisplay(st.lesson.room).replace("-xona","-XONA")}</div>`:""}</article>`}).join(""):`<div class="empty">Mos o‘qituvchi topilmadi.</div>`}
+function renderTeachers(){
+ const arr=db.teachers.filter(matches);
+ $("teacherGrid").innerHTML=arr.length?arr.map(t=>{
+  const st=getStatus(t), lessons=todayLessonsFor(t);
+  let body="";
+  if(t.availability!=="available"){
+   body=`<b>Mavjud emas:</b> ${esc(t.availabilityNote||t.availability)}`;
+  }else{
+   const mainLesson=st.lesson||st.next||null;
+   if(mainLesson){
+    const prefix=st.key==="inclass"?"":st.key==="soon"?"Yaqin dars: ":st.key==="break"?"Keyingi dars: ":"Keyingi dars: ";
+    body=`${prefix?`<b>${prefix}${mainLesson.pair}-juftlik</b><br>`:`<b>${mainLesson.pair}-juftlik · ${esc(mainLesson.subject)}</b><br>`}${prefix?`${esc(mainLesson.subject)}<br>`:""}${esc(mainLesson.group)} · ${esc(mainLesson.type)}<br>${mainLesson.start}–${mainLesson.end}<br>${roomDisplay(mainLesson.room)}`;
+    const later=lessons.filter(l=>l.pair>mainLesson.pair);
+    if(later.length){
+     body+=`<br><span class="mini"><b>Bugun yana ${later.length} ta darsi bor:</b> ${later.map(l=>`${l.pair}-juftlik`).join(", ")}</span>`;
+    }else{
+     body+=`<br><span class="mini">Bugungi so‘nggi dars.</span>`;
+    }
+   }else if(lessons.length){
+    body="Bugungi darslari tugagan.";
+   }else{
+    body="Bugun dars yo‘q.";
+   }
+  }
+  return `<article class="card teacher-card" onclick="openTeacher(${t.id})"><div class="teacher-head"><img class="avatar" src="${esc(t.image)}"><div><div class="teacher-name">${esc(t.name)}</div><div class="meta">${esc(t.position)} · ${esc(t.degree)}</div></div></div><div class="status"><span class="dot" style="background:${st.color}"></span>${st.label}</div><div class="lesson">${body}</div>${st.key==="inclass"?`<div class="room">${roomDisplay(st.lesson.room).replace("-xona","-XONA")}</div>`:""}</article>`;
+ }).join(""):`<div class="empty">Mos o‘qituvchi topilmadi.</div>`
+}
 function renderToday(){const list=[];db.teachers.forEach(t=>todayLessonsFor(t).forEach(l=>list.push({...l,teacher:t})));list.sort((a,b)=>a.pair-b.pair);$("todayList").innerHTML=list.length?list.map(x=>`<div class="today-item" onclick="openTeacher(${x.teacher.id})"><strong>${x.pair}-juftlik · ${x.start}–${x.end} · ${esc(x.teacher.name)}</strong><br>${esc(x.subject)} · ${esc(x.group)} · ${esc(x.room)}-xona · ${esc(x.type)} · ${x.weekType==="doim"?"Doimiy":x.weekType}</div>`).join(""):`<div class="empty">Bugun joriy hafta bo‘yicha tasdiqlangan dars yo‘q.</div>`}
 function renderStats(){const inc=db.teachers.filter(t=>getStatus(t).key==="inclass").length,pending=db.teachers.reduce((n,t)=>n+t.schedule.filter(l=>l.status==="pending"&&!l.cancelled).length,0);$("totalTeachers").textContent=db.teachers.length;$("inClassCount").textContent=inc;$("todayLessonsCount").textContent=db.teachers.reduce((n,t)=>n+todayLessonsFor(t).length,0);$("pendingCount").textContent=pending}
 function populateFilters(){const rooms=new Set(),groups=new Set(),subs=new Set();db.teachers.forEach(t=>t.schedule.forEach(l=>{rooms.add(l.room);groups.add(l.group);subs.add(l.subject)}));$("roomFilter").innerHTML='<option value="">Barcha xonalar</option>'+[...rooms].sort().map(x=>`<option>${esc(x)}</option>`).join("");$("groupFilter").innerHTML='<option value="">Barcha guruhlar</option>'+[...groups].sort().map(x=>`<option>${esc(x)}</option>`).join("");$("subjectFilter").innerHTML='<option value="">Barcha fanlar</option>'+[...subs].sort().map(x=>`<option>${esc(x)}</option>`).join("")}
