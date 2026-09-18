@@ -2853,7 +2853,6 @@ function validateLesson(candidate,teacherId,editingLessonId=null){
  if(!room) errs.push("Tanlangan xona bazada mavjud emas.");
  if(room && candidate.groupSize>room.capacity) errs.push(`${room.name}-xona sig‘imi ${room.capacity} ta, guruh esa ${candidate.groupSize} ta talaba.`);
  if(room){
-  if(candidate.type==="Laboratoriya" && room.type!=="Laboratoriya") errs.push("Laboratoriya darsi laboratoriya xonasiga biriktirilishi kerak.");
   if(candidate.type==="Ma’ruza" && !["Ma’ruza zali","Oddiy auditoriya"].includes(room.type)) warns.push(`Ma’ruza uchun "${room.type}" tanlandi.`);
  }
  db.teachers.forEach(other=>{
@@ -3195,7 +3194,15 @@ $("closeTeacherModal").onclick=()=>$("teacherModal").classList.remove("open");
 $("closeGeneric").onclick=()=>$("genericModal").classList.remove("open");
 $("teacherModal").onclick=e=>{if(e.target===$("teacherModal"))$("teacherModal").classList.remove("open")}
 $("genericModal").onclick=e=>{if(e.target===$("genericModal"))$("genericModal").classList.remove("open")}
-$("homeBtn").onclick=()=>window.scrollTo({top:0,behavior:"smooth"});
+$("homeBtn").onclick=()=>{
+  document.querySelectorAll(".modal.open").forEach(m=>{
+    if(m.id!=="loginModal") m.classList.remove("open");
+  });
+  $("adminPanel")?.classList.remove("open");
+  document.querySelectorAll(".side-panel.open").forEach(p=>p.classList.remove("open"));
+  document.querySelector(".monitor-mode")?.remove();
+  window.scrollTo({top:0,behavior:"smooth"});
+};
 ["search","statusFilter","roomFilter","groupFilter","subjectFilter"].forEach(id=>$(id).addEventListener("input",renderTeachers));
 
 function renderAll(){populateFilters();renderTeachers();renderToday();renderStats();renderAdminSelectors();renderTeacherAdmin();renderRoomAdmin();renderLessonAdmin();renderApproval();renderHistory();updateWeekUI()}
@@ -3891,6 +3898,7 @@ renderAdvanced();
         return;
       }
       db.currentUser={id:u.id,name:u.name,role:u.role,department:u.department||''};
+      sessionStorage.setItem('dispatchCurrentUser',JSON.stringify(db.currentUser));
       if(u.role==='mudiri' && u.department){
         activateDepartmentWorkspace(u.department);
         if(g('tDepartment')) g('tDepartment').value=u.department;
@@ -4075,8 +4083,38 @@ renderAdvanced();
   function initExtras(){
     ensureExtraDB();ensureUsers();ensureDepartmentWorkspaces();
     if(typeof purgeDeletedLessonMirrors==="function") purgeDeletedLessonMirrors();
-    db.currentUser={name:'Mehmon',role:'viewer',department:''};
-    localStorage.removeItem('dispatchCurrentUser');
+
+    let restoredUser=null;
+    try{
+      restoredUser=JSON.parse(sessionStorage.getItem('dispatchCurrentUser')||'null');
+    }catch(e){
+      restoredUser=null;
+    }
+
+    if(restoredUser && restoredUser.role && restoredUser.role!=='viewer'){
+      let validUser=(db.users||[]).find(u=>String(u.id)===String(restoredUser.id));
+      if(!validUser && restoredUser.role==='superadmin' && String(restoredUser.id)==='1'){
+        validUser={id:1,name:'Super admin',username:'admin',role:'superadmin',department:''};
+      }
+
+      if(validUser){
+        db.currentUser={
+          id:validUser.id,
+          name:validUser.name,
+          role:validUser.role,
+          department:validUser.department||''
+        };
+        if(db.currentUser.role==='mudiri' && db.currentUser.department){
+          activateDepartmentWorkspace(db.currentUser.department);
+        }
+      }else{
+        sessionStorage.removeItem('dispatchCurrentUser');
+        db.currentUser={name:'Mehmon',role:'viewer',department:''};
+      }
+    }else{
+      db.currentUser={name:'Mehmon',role:'viewer',department:''};
+    }
+
     refreshManagerDepartments();renderManagers();bindManagerAdmin();bindRealLogin();
     const managerTab=g('managerAdminTabBtn');
     if(managerTab)managerTab.style.display=db.currentUser?.role==='superadmin'?'inline-block':'none';
@@ -4090,8 +4128,15 @@ renderAdvanced();
     refreshExTeachers();renderExceptions();renderOrg();
     const lng=localStorage.getItem('uiLanguage')||'uz';if(g('languageSelect'))g('languageSelect').value=lng;applyLanguage(lng);
     applyRoleUI();
-    document.body.classList.add('login-required');
-    setTimeout(()=>{ if(g('loginModal')) g('loginModal').classList.add('open'); },0);
+
+    if(db.currentUser?.role==='viewer'){
+      document.body.classList.add('login-required');
+      setTimeout(()=>{ if(g('loginModal')) g('loginModal').classList.add('open'); },0);
+    }else{
+      document.body.classList.remove('login-required');
+      g('loginModal')?.classList.remove('open');
+    }
+
     save();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initExtras);else initExtras();
@@ -7584,6 +7629,61 @@ body.hemis-layout #advancedModal .modal-card{
   outline-offset:1px;
 }
 </style>
+
+
+<script id="one-time-clear-teachers-rooms">
+(function(){
+  const RESET_KEY="dispatch_clear_teachers_rooms_20260918_v1";
+  if(localStorage.getItem(RESET_KEY)==="1") return;
+
+  function clearTeachersRooms(targetDb){
+    if(!targetDb || typeof targetDb!=="object") return;
+
+    targetDb.teachers=[];
+    targetDb.rooms=[];
+    targetDb.history=[];
+    targetDb.dayExceptions=[];
+    targetDb.semesterSchedules={};
+
+    if(targetDb.departmentWorkspaces && typeof targetDb.departmentWorkspaces==="object"){
+      Object.values(targetDb.departmentWorkspaces).forEach(ws=>{
+        if(!ws || typeof ws!=="object") return;
+        ws.teachers=[];
+        ws.rooms=[];
+        ws.history=[];
+        ws.dayExceptions=[];
+      });
+    }
+  }
+
+  function run(){
+    try{
+      if(typeof db!=="undefined"){
+        clearTeachersRooms(db);
+        localStorage.setItem("dispatchDB",JSON.stringify(db));
+        if(typeof save==="function") save();
+        if(typeof renderAll==="function") renderAll();
+      }else{
+        const raw=localStorage.getItem("dispatchDB");
+        if(raw){
+          const localDb=JSON.parse(raw);
+          clearTeachersRooms(localDb);
+          localStorage.setItem("dispatchDB",JSON.stringify(localDb));
+        }
+      }
+      localStorage.setItem(RESET_KEY,"1");
+    }catch(err){
+      console.error("O‘qituvchi va xonalarni tozalash xatosi:",err);
+    }
+  }
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",()=>setTimeout(run,300),{once:true});
+  }else{
+    setTimeout(run,300);
+  }
+})();
+</script>
 
 </body>
 </html>
