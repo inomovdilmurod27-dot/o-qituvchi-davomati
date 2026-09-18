@@ -2246,46 +2246,11 @@ let db=JSON.parse(localStorage.getItem("dispatchDB")||"null")||{
 const TEACHER_LESSON_RESET_VERSION="2026-09-18-empty-teachers-rooms-v2";
 
 function clearAllTeacherLessonData(targetDb){
-  if(!targetDb||typeof targetDb!=="object")return false;
-  if(targetDb.teacherLessonResetVersion===TEACHER_LESSON_RESET_VERSION)return false;
-
-  targetDb.teachers=[];
-  targetDb.rooms=[];
-  targetDb.history=[];
-  targetDb.dayExceptions=[];
-  targetDb.audit=[];
-  targetDb.deletedLessons=[];
-  targetDb.deletedLessonFingerprints=[];
-  targetDb.semesterSchedules={};
-
-  if(targetDb.departmentWorkspaces&&typeof targetDb.departmentWorkspaces==="object"){
-    Object.values(targetDb.departmentWorkspaces).forEach(ws=>{
-      if(!ws||typeof ws!=="object")return;
-      ws.teachers=[];
-      ws.rooms=[];
-      ws.history=[];
-      ws.dayExceptions=[];
-    });
-  }
-
-  // O‘qituvchi rolidagi eski loginlar ham qolib ketmaydi.
-  if(Array.isArray(targetDb.users)){
-    targetDb.users=targetDb.users.filter(u=>!["teacher","oqituvchi","o‘qituvchi"].includes(String(u?.role||"").toLowerCase()));
-  }
-  if(["teacher","oqituvchi","o‘qituvchi"].includes(String(targetDb.currentUser?.role||"").toLowerCase())){
-    targetDb.currentUser={name:"Mehmon",role:"viewer",department:""};
-  }
-
-  targetDb.teacherLessonResetVersion=TEACHER_LESSON_RESET_VERSION;
-  localStorage.removeItem("dispatchDeletedLessonsV2");
-  localStorage.removeItem("dispatchAutoSnapshotsV2");
-  localStorage.removeItem("dispatchFavoritesV2");
-  localStorage.removeItem("dispatchSearchHistory");
-  localStorage.setItem("dispatchDB",JSON.stringify(targetDb));
-  return true;
+  // Eski bir martalik tozalash vazifasi yakunlangan.
+  // Endi yangi kiritilgan ma’lumotlar avtomatik o‘chirilmaydi.
+  return false;
 }
 
-clearAllTeacherLessonData(db);
 
 // ===== Firebase / Firestore sinxronizatsiyasi =====
 const firebaseConfig = {
@@ -7628,63 +7593,6 @@ body.hemis-layout #advancedModal .modal-card{
   outline-offset:1px;
 }
 </style>
-
-
-<script id="one-time-clear-teachers-rooms">
-(function(){
-  const RESET_KEY="dispatch_clear_teachers_rooms_20260918_v1";
-  if(localStorage.getItem(RESET_KEY)==="1") return;
-
-  function clearTeachersRooms(targetDb){
-    if(!targetDb || typeof targetDb!=="object") return;
-
-    targetDb.teachers=[];
-    targetDb.rooms=[];
-    targetDb.history=[];
-    targetDb.dayExceptions=[];
-    targetDb.semesterSchedules={};
-
-    if(targetDb.departmentWorkspaces && typeof targetDb.departmentWorkspaces==="object"){
-      Object.values(targetDb.departmentWorkspaces).forEach(ws=>{
-        if(!ws || typeof ws!=="object") return;
-        ws.teachers=[];
-        ws.rooms=[];
-        ws.history=[];
-        ws.dayExceptions=[];
-      });
-    }
-  }
-
-  function run(){
-    try{
-      if(typeof db!=="undefined"){
-        clearTeachersRooms(db);
-        localStorage.setItem("dispatchDB",JSON.stringify(db));
-        if(typeof save==="function") save();
-        if(typeof renderAll==="function") renderAll();
-      }else{
-        const raw=localStorage.getItem("dispatchDB");
-        if(raw){
-          const localDb=JSON.parse(raw);
-          clearTeachersRooms(localDb);
-          localStorage.setItem("dispatchDB",JSON.stringify(localDb));
-        }
-      }
-      localStorage.setItem(RESET_KEY,"1");
-    }catch(err){
-      console.error("O‘qituvchi va xonalarni tozalash xatosi:",err);
-    }
-  }
-
-  if(document.readyState==="loading"){
-    document.addEventListener("DOMContentLoaded",()=>setTimeout(run,300),{once:true});
-  }else{
-    setTimeout(run,300);
-  }
-})();
-</script>
-
-
 <script id="alert-close-on-outside-click">
 (function(){
   document.addEventListener("click",function(e){
