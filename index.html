@@ -2243,23 +2243,26 @@ let db=JSON.parse(localStorage.getItem("dispatchDB")||"null")||{
 // ===== O‘QITUVCHI VA DARSLARNI BIR MARTALIK TO‘LIQ TOZALASH =====
 // Versiya belgisi tufayli tozalash faqat bir marta bajariladi.
 // Keyin yangidan kiritilgan o‘qituvchi va darslar odatdagidek saqlanadi.
-const TEACHER_LESSON_RESET_VERSION="2026-09-18-empty-teachers-lessons-v1";
+const TEACHER_LESSON_RESET_VERSION="2026-09-18-empty-teachers-rooms-v2";
 
 function clearAllTeacherLessonData(targetDb){
   if(!targetDb||typeof targetDb!=="object")return false;
   if(targetDb.teacherLessonResetVersion===TEACHER_LESSON_RESET_VERSION)return false;
 
   targetDb.teachers=[];
+  targetDb.rooms=[];
   targetDb.history=[];
   targetDb.dayExceptions=[];
   targetDb.audit=[];
   targetDb.deletedLessons=[];
   targetDb.deletedLessonFingerprints=[];
+  targetDb.semesterSchedules={};
 
   if(targetDb.departmentWorkspaces&&typeof targetDb.departmentWorkspaces==="object"){
     Object.values(targetDb.departmentWorkspaces).forEach(ws=>{
       if(!ws||typeof ws!=="object")return;
       ws.teachers=[];
+      ws.rooms=[];
       ws.history=[];
       ws.dayExceptions=[];
     });
@@ -2275,6 +2278,9 @@ function clearAllTeacherLessonData(targetDb){
 
   targetDb.teacherLessonResetVersion=TEACHER_LESSON_RESET_VERSION;
   localStorage.removeItem("dispatchDeletedLessonsV2");
+  localStorage.removeItem("dispatchAutoSnapshotsV2");
+  localStorage.removeItem("dispatchFavoritesV2");
+  localStorage.removeItem("dispatchSearchHistory");
   localStorage.setItem("dispatchDB",JSON.stringify(targetDb));
   return true;
 }
@@ -2374,17 +2380,43 @@ function applySemesterSchedules(key=semesterPeriodKey()){
 }
 ensureSemesterSchedules();
 
+let cloudSaveTimer=null;
+let cloudSaveInFlight=false;
+let cloudSaveQueued=false;
+
+function flushCloudSave(){
+  if(!cloudReady) return;
+  if(cloudSaveInFlight){
+    cloudSaveQueued=true;
+    return;
+  }
+  cloudSaveInFlight=true;
+  dispatchDoc.set({
+    db: db,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(err=>{
+    console.error("Firestore saqlash xatosi:",err);
+  }).finally(()=>{
+    cloudSaveInFlight=false;
+    if(cloudSaveQueued){
+      cloudSaveQueued=false;
+      clearTimeout(cloudSaveTimer);
+      cloudSaveTimer=setTimeout(flushCloudSave,250);
+    }
+  });
+}
+
 function save(){
   if(typeof captureActiveSemesterSchedules==="function") captureActiveSemesterSchedules();
   if(typeof mergeDeletedLessonsFromLocal==="function") mergeDeletedLessonsFromLocal();
   if(typeof purgeDeletedLessonMirrors==="function") purgeDeletedLessonMirrors();
   if(typeof window.syncActiveDepartmentWorkspace==="function") window.syncActiveDepartmentWorkspace();
+
   localStorage.setItem("dispatchDB", JSON.stringify(db));
+
   if(cloudReady){
-    dispatchDoc.set({
-      db: db,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).catch(err => console.error("Firestore saqlash xatosi:", err));
+    clearTimeout(cloudSaveTimer);
+    cloudSaveTimer=setTimeout(flushCloudSave,300);
   }
 }
 
@@ -4843,7 +4875,11 @@ body.hemis-layout #advancedModal .calendar-grid{
   else ready();
 
   // HEMIS topbar keyinroq qurilsa ham qo‘shimcha tugmalarni o‘rnatadi.
-  const obs=new MutationObserver(()=>installTopTools());
+  let topToolsTimer=null;
+  const obs=new MutationObserver(()=>{
+    clearTimeout(topToolsTimer);
+    topToolsTimer=setTimeout(installTopTools,120);
+  });
   obs.observe(document.body,{childList:true,subtree:true});
 })();
 </script>
@@ -5441,7 +5477,11 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 
-  const obs=new MutationObserver(()=>{installDuplicateGuard();addSuite();bannerCheck()});
+  let proObsTimer=null;
+  const obs=new MutationObserver(()=>{
+    clearTimeout(proObsTimer);
+    proObsTimer=setTimeout(()=>{installDuplicateGuard();addSuite();bannerCheck()},120);
+  });
   obs.observe(document.body,{childList:true,subtree:true});
 })();
 </script>
@@ -5708,13 +5748,8 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
     while(arr.length>7)arr.pop();
     try{localStorage.setItem(SNAP_KEY,JSON.stringify(arr))}catch(e){while(arr.length>2)arr.pop();try{localStorage.setItem(SNAP_KEY,JSON.stringify(arr))}catch{}}
   }
-  makeSnapshot("Kunlik");
-  const oldSaveU=window.save;
-  if(typeof oldSaveU==="function"&&!window.__ultraSaveWrapped){
-    window.__ultraSaveWrapped=true;
-    window.save=function(){makeSnapshot("Muhim o‘zgarish");return oldSaveU.apply(this,arguments)};
-    try{save=window.save}catch{}
-  }
+  /* Avtomatik to‘liq snapshotlar tezlik uchun o‘chirildi.
+     Qo‘lda Snapshot olish/tiklash funksiyasi ishlashda davom etadi. */
   function snapshotHTML(){
     const a=loadSnaps();
     return `<div class="ultra-actions"><button class="ultra-btn2" onclick="window.ultraSnapshotNow()">Hozir snapshot</button></div><br>`+
@@ -6375,7 +6410,11 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
     ensureUltraDB();cleanupTrash();menu();guards();installVersionCapture();bindSearchHistory();handleHash();
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
-  const mo=new MutationObserver(()=>{menu();guards();installVersionCapture();bindSearchHistory()});
+  let ultraObsTimer=null;
+  const mo=new MutationObserver(()=>{
+    clearTimeout(ultraObsTimer);
+    ultraObsTimer=setTimeout(()=>{menu();guards();installVersionCapture();bindSearchHistory()},140);
+  });
   mo.observe(document.body,{childList:true,subtree:true});
 })();
 </script>
@@ -6561,10 +6600,13 @@ body.hemis-layout #advancedModal .modal-card{
     setTimeout(buildNestedSidebar,120);
   }
 
+  var nestedTimer=null;
   var observer = new MutationObserver(function(){
-    buildNestedSidebar();
+    clearTimeout(nestedTimer);
+    nestedTimer=setTimeout(buildNestedSidebar,100);
   });
   observer.observe(document.body,{childList:true,subtree:true});
+  setTimeout(function(){observer.disconnect();buildNestedSidebar();},1800);
 })();
 </script>
 
