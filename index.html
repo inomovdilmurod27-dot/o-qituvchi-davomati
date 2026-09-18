@@ -2302,6 +2302,8 @@ const firestoreDB = firebase.firestore();
 const dispatchDoc = firestoreDB.collection("appData").doc("main");
 let cloudReady = false;
 let cloudInitStarted = false;
+let localDirtyBeforeCloudReady = false;
+let suppressRemoteSnapshot = false;
 
 
 /* ===== SEMESTR BO‘YICHA DARS JADVALLARINI ALOHIDA SAQLASH ===== */
@@ -2385,12 +2387,16 @@ let cloudSaveInFlight=false;
 let cloudSaveQueued=false;
 
 function flushCloudSave(){
+  cloudSaveTimer=null;
   if(!cloudReady) return;
   if(cloudSaveInFlight){
     cloudSaveQueued=true;
     return;
   }
+
   cloudSaveInFlight=true;
+  suppressRemoteSnapshot=true;
+
   dispatchDoc.set({
     db: db,
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -2398,9 +2404,10 @@ function flushCloudSave(){
     console.error("Firestore saqlash xatosi:",err);
   }).finally(()=>{
     cloudSaveInFlight=false;
+    suppressRemoteSnapshot=false;
+
     if(cloudSaveQueued){
       cloudSaveQueued=false;
-      clearTimeout(cloudSaveTimer);
       cloudSaveTimer=setTimeout(flushCloudSave,250);
     }
   });
@@ -2414,10 +2421,13 @@ function save(){
 
   localStorage.setItem("dispatchDB", JSON.stringify(db));
 
-  if(cloudReady){
-    clearTimeout(cloudSaveTimer);
-    cloudSaveTimer=setTimeout(flushCloudSave,300);
+  if(!cloudReady){
+    localDirtyBeforeCloudReady=true;
+    return;
   }
+
+  clearTimeout(cloudSaveTimer);
+  cloudSaveTimer=setTimeout(flushCloudSave,300);
 }
 
 async function initCloudSync(){
@@ -2428,40 +2438,59 @@ async function initCloudSync(){
 
     if(snap.exists && snap.data() && snap.data().db){
       const sessionUser=db.currentUser&&db.currentUser.role!=="viewer"?{...db.currentUser}:null;
-      db = snap.data().db;
-      if(typeof ensureSemesterSchedules==="function") ensureSemesterSchedules();
-      if(typeof applySemesterSchedules==="function") applySemesterSchedules();
+
+      if(!localDirtyBeforeCloudReady){
+        db = snap.data().db;
+        if(typeof ensureSemesterSchedules==="function") ensureSemesterSchedules();
+        if(typeof applySemesterSchedules==="function") applySemesterSchedules();
+      }
+
       const resetApplied=clearAllTeacherLessonData(db);
       if(typeof mergeDeletedLessonsFromLocal==="function") mergeDeletedLessonsFromLocal();
+
       if(sessionUser){
         db.currentUser=sessionUser;
         if(sessionUser.role==="mudiri" && sessionUser.department && typeof window.activateDepartmentWorkspace==="function"){
           window.activateDepartmentWorkspace(sessionUser.department);
         }
       }
+
       const removed=typeof purgeDeletedLessonMirrors==="function"?purgeDeletedLessonMirrors():0;
       localStorage.setItem("dispatchDB", JSON.stringify(db));
-      if(removed>0||resetApplied){
+
+      if(localDirtyBeforeCloudReady || removed>0 || resetApplied){
+        suppressRemoteSnapshot=true;
         await dispatchDoc.set({
           db: db,
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
+        suppressRemoteSnapshot=false;
+        localDirtyBeforeCloudReady=false;
       }
+
       if(typeof renderAll === "function") renderAll();
       if(typeof updateCurrentUserBadge==="function") updateCurrentUserBadge();
     }else{
       if(typeof mergeDeletedLessonsFromLocal==="function") mergeDeletedLessonsFromLocal();
       if(typeof purgeDeletedLessonMirrors==="function") purgeDeletedLessonMirrors();
+      suppressRemoteSnapshot=true;
       await dispatchDoc.set({
         db: db,
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       });
+      suppressRemoteSnapshot=false;
+      localDirtyBeforeCloudReady=false;
     }
 
     cloudReady = true;
 
     dispatchDoc.onSnapshot(s=>{
       if(!s.exists || !s.data() || !s.data().db) return;
+
+      // Mahalliy o‘zgarish Firestore'ga yozilayotgan paytda eski snapshot
+      // yangi kiritilgan ma’lumotlarni ustidan bosib ketmasin.
+      if(suppressRemoteSnapshot || cloudSaveInFlight || cloudSaveQueued || cloudSaveTimer) return;
+
       const sessionUser=db.currentUser&&db.currentUser.role!=="viewer"?{...db.currentUser}:null;
       db = s.data().db;
       if(typeof ensureSemesterSchedules==="function") ensureSemesterSchedules();
