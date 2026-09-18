@@ -2263,6 +2263,8 @@ let cloudReady = false;
 let cloudInitStarted = false;
 
 function save(){
+  if(typeof mergeDeletedLessonsFromLocal==="function") mergeDeletedLessonsFromLocal();
+  if(typeof purgeDeletedLessonMirrors==="function") purgeDeletedLessonMirrors();
   if(typeof window.syncActiveDepartmentWorkspace==="function") window.syncActiveDepartmentWorkspace();
   localStorage.setItem("dispatchDB", JSON.stringify(db));
   if(cloudReady){
@@ -2282,16 +2284,25 @@ async function initCloudSync(){
     if(snap.exists && snap.data() && snap.data().db){
       const sessionUser=db.currentUser&&db.currentUser.role!=="viewer"?{...db.currentUser}:null;
       db = snap.data().db;
+      if(typeof mergeDeletedLessonsFromLocal==="function") mergeDeletedLessonsFromLocal();
       if(sessionUser){
         db.currentUser=sessionUser;
         if(sessionUser.role==="mudiri" && sessionUser.department && typeof window.activateDepartmentWorkspace==="function"){
           window.activateDepartmentWorkspace(sessionUser.department);
         }
       }
-      if(typeof purgeDeletedLessonMirrors==="function") purgeDeletedLessonMirrors();
+      const removed=typeof purgeDeletedLessonMirrors==="function"?purgeDeletedLessonMirrors():0;
       localStorage.setItem("dispatchDB", JSON.stringify(db));
+      if(removed>0){
+        await dispatchDoc.set({
+          db: db,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
       if(typeof renderAll === "function") renderAll();
     }else{
+      if(typeof mergeDeletedLessonsFromLocal==="function") mergeDeletedLessonsFromLocal();
+      if(typeof purgeDeletedLessonMirrors==="function") purgeDeletedLessonMirrors();
       await dispatchDoc.set({
         db: db,
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -2304,15 +2315,22 @@ async function initCloudSync(){
       if(!s.exists || !s.data() || !s.data().db) return;
       const sessionUser=db.currentUser&&db.currentUser.role!=="viewer"?{...db.currentUser}:null;
       db = s.data().db;
+      if(typeof mergeDeletedLessonsFromLocal==="function") mergeDeletedLessonsFromLocal();
       if(sessionUser){
         db.currentUser=sessionUser;
         if(sessionUser.role==="mudiri" && sessionUser.department && typeof window.activateDepartmentWorkspace==="function"){
           window.activateDepartmentWorkspace(sessionUser.department);
         }
       }
-      if(typeof purgeDeletedLessonMirrors==="function") purgeDeletedLessonMirrors();
+      const removed=typeof purgeDeletedLessonMirrors==="function"?purgeDeletedLessonMirrors():0;
       localStorage.setItem("dispatchDB", JSON.stringify(db));
       if(typeof renderAll === "function") renderAll();
+      if(removed>0){
+        dispatchDoc.set({
+          db: db,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(err=>console.error("Firestore tozalash xatosi:",err));
+      }
     }, err => console.error("Firestore o‘qish xatosi:", err));
 
   }catch(err){
@@ -2410,47 +2428,180 @@ function teacherIdentityKey(t){
  return name?`n:${name}`:"";
 }
 
+const DELETED_LESSONS_STORAGE_KEY="dispatchDeletedLessonsV2";
+
+function normalizeLessonText(v){
+ return String(v||"").trim().toLowerCase().replace(/\s+/g," ");
+}
 function lessonFingerprint(l,teacher,room){
  const teacherKey=teacherIdentityKey(teacher);
  const roomKey=physicalRoomKey(room?.name||l.room,room?.building||l.roomBuilding);
  return [
    teacherKey,
-   String(l.day||"").trim().toLowerCase(),
+   normalizeLessonText(l.day),
    Number(l.pair)||0,
-   String(l.weekType||"").trim().toLowerCase(),
-   String(l.subject||"").trim().toLowerCase().replace(/\s+/g," "),
-   String(l.group||"").trim().toLowerCase().replace(/\s+/g," "),
+   normalizeLessonText(l.weekType),
+   normalizeLessonText(l.subject),
+   normalizeLessonText(l.group),
    roomKey
  ].join("||");
 }
-function ensureDeletedLessonFingerprints(){
- if(!Array.isArray(db.deletedLessonFingerprints))db.deletedLessonFingerprints=[];
- return db.deletedLessonFingerprints;
+
+// Guruh yoki xona identifikatori mirror nusxada farq qilsa ham ayni darsni taniydi.
+function lessonDeleteKey(l,teacher){
+ return [
+   teacherIdentityKey(teacher),
+   normalizeLessonText(l.day),
+   Number(l.pair)||0,
+   normalizeLessonText(l.weekType),
+   normalizeLessonText(l.subject)
+ ].join("||");
 }
+
+function getStoredDeletedLessons(){
+ try{
+   const value=JSON.parse(localStorage.getItem(DELETED_LESSONS_STORAGE_KEY)||"[]");
+   return Array.isArray(value)?value:[];
+ }catch(e){
+   return [];
+ }
+}
+
+function saveStoredDeletedLessons(records){
+ const clean=(Array.isArray(records)?records:[]).slice(-2000);
+ localStorage.setItem(DELETED_LESSONS_STORAGE_KEY,JSON.stringify(clean));
+}
+
+function sameDeletedRecord(a,b){
+ return !!(
+   (a?.fp&&b?.fp&&a.fp===b.fp)||
+   (a?.key&&b?.key&&a.key===b.key)||
+   (a?.id&&b?.id&&String(a.id)===String(b.id)&&
+     (!a.teacherKey||!b.teacherKey||a.teacherKey===b.teacherKey))
+ );
+}
+
+function mergeDeletedLessonsFromLocal(){
+ if(!Array.isArray(db.deletedLessons))db.deletedLessons=[];
+
+ // Avvalgi versiyadagi fingerprintlar ham yo‘qolmaydi.
+ if(Array.isArray(db.deletedLessonFingerprints)){
+   db.deletedLessonFingerprints.forEach(fp=>{
+     if(!fp)return;
+     const parts=String(fp).split("||");
+     const oldRecord={
+       id:"",
+       teacherKey:parts[0]||"",
+       fp,
+       key:parts.length>=5?parts.slice(0,5).join("||"):"",
+       deletedAt:Date.now()
+     };
+     const existing=db.deletedLessons.find(x=>x?.fp===fp);
+     if(existing){
+       if(!existing.teacherKey)existing.teacherKey=oldRecord.teacherKey;
+       if(!existing.key)existing.key=oldRecord.key;
+     }else{
+       db.deletedLessons.push(oldRecord);
+     }
+   });
+ }
+
+ getStoredDeletedLessons().forEach(item=>{
+   if(!item)return;
+   const existing=db.deletedLessons.find(x=>sameDeletedRecord(x,item));
+   if(existing){
+     if(!existing.id&&item.id)existing.id=item.id;
+     if(!existing.teacherKey&&item.teacherKey)existing.teacherKey=item.teacherKey;
+     if(!existing.fp&&item.fp)existing.fp=item.fp;
+     if(!existing.key&&item.key)existing.key=item.key;
+     if(!existing.deletedAt&&item.deletedAt)existing.deletedAt=item.deletedAt;
+   }else{
+     db.deletedLessons.push(item);
+   }
+ });
+
+ if(db.deletedLessons.length>2000)db.deletedLessons.splice(0,db.deletedLessons.length-2000);
+ saveStoredDeletedLessons(db.deletedLessons);
+ return db.deletedLessons;
+}
+
+function rememberDeletedLesson(l,teacher,room){
+ const record={
+   id:l?.id!=null?String(l.id):"",
+   teacherKey:teacherIdentityKey(teacher),
+   fp:lessonFingerprint(l,teacher,room),
+   key:lessonDeleteKey(l,teacher),
+   deletedAt:Date.now()
+ };
+ const records=mergeDeletedLessonsFromLocal();
+ if(!records.some(x=>sameDeletedRecord(x,record)))records.push(record);
+ if(records.length>2000)records.splice(0,records.length-2000);
+ saveStoredDeletedLessons(records);
+ return record;
+}
+
+function isDeletedLesson(l,teacher,room){
+ if(!l)return false;
+ const candidate={
+   id:l.id!=null?String(l.id):"",
+   teacherKey:teacherIdentityKey(teacher),
+   fp:lessonFingerprint(l,teacher,room),
+   key:lessonDeleteKey(l,teacher)
+ };
+ const records=Array.isArray(db.deletedLessons)?db.deletedLessons:mergeDeletedLessonsFromLocal();
+ return records.some(record=>sameDeletedRecord(record,candidate));
+}
+
+// Xuddi shu dars keyinchalik ongli ravishda qayta qo‘shilsa, eski tombstone olib tashlanadi.
+function forgetDeletedLesson(l,teacher,room){
+ const candidate={
+   id:l?.id!=null?String(l.id):"",
+   teacherKey:teacherIdentityKey(teacher),
+   fp:lessonFingerprint(l,teacher,room),
+   key:lessonDeleteKey(l,teacher)
+ };
+ const records=mergeDeletedLessonsFromLocal();
+ db.deletedLessons=records.filter(record=>!sameDeletedRecord(record,candidate));
+ if(Array.isArray(db.deletedLessonFingerprints)){
+   db.deletedLessonFingerprints=db.deletedLessonFingerprints.filter(fp=>{
+     const parts=String(fp||"").split("||");
+     const oldKey=parts.length>=5?parts.slice(0,5).join("||"):"";
+     return fp!==candidate.fp&&oldKey!==candidate.key;
+   });
+ }
+ saveStoredDeletedLessons(db.deletedLessons);
+}
+
+// Eski chaqiriqlar bilan moslik uchun qoldiriladi.
 function isDeletedLessonFingerprint(fp){
- return !!fp && ensureDeletedLessonFingerprints().includes(fp);
+ if(!fp)return false;
+ const records=Array.isArray(db.deletedLessons)?db.deletedLessons:mergeDeletedLessonsFromLocal();
+ return records.some(x=>x.fp===fp);
 }
-function rememberDeletedLessonFingerprint(fp){
- if(!fp)return;
- const arr=ensureDeletedLessonFingerprints();
- if(!arr.includes(fp))arr.push(fp);
- if(arr.length>1000)arr.splice(0,arr.length-1000);
-}
+
 function purgeDeletedLessonMirrors(){
- const tombstones=new Set(ensureDeletedLessonFingerprints());
- if(!tombstones.size)return;
+ mergeDeletedLessonsFromLocal();
+ if(!db.deletedLessons.length)return 0;
+ let removed=0;
  const cleanTeacherSchedules=(teachers,rooms)=>{
    (teachers||[]).forEach(t=>{
      t.schedule=(t.schedule||[]).filter(l=>{
        const r=(rooms||[]).find(x=>String(x.id)===String(l.roomId))||
                (rooms||[]).find(x=>physicalRoomKey(x.name,x.building)===physicalRoomKey(l.room,l.roomBuilding));
-       return !tombstones.has(lessonFingerprint(l,t,r));
+       const effective=(l.substituteTeacherId
+         ?(teachers||[]).find(x=>String(x.id)===String(l.substituteTeacherId))
+         :null)||t;
+       const deleted=isDeletedLesson(l,effective,r);
+       if(deleted)removed++;
+       return !deleted;
      });
    });
  };
  cleanTeacherSchedules(db.teachers||[],db.rooms||[]);
  const workspaces=(db.departmentWorkspaces&&typeof db.departmentWorkspaces==="object")?db.departmentWorkspaces:{};
  Object.values(workspaces).forEach(ws=>cleanTeacherSchedules(ws?.teachers||[],ws?.rooms||[]));
+ saveStoredDeletedLessons(db.deletedLessons);
+ return removed;
 }
 function workspaceEntries(){
  const ws=(db.departmentWorkspaces&&typeof db.departmentWorkspaces==="object")
@@ -2476,8 +2627,7 @@ function globalApprovedLessons(){
       ?teachers.find(x=>String(x.id)===String(l.substituteTeacherId))
       :null)||owner;
     const room=workspaceRoomForLesson(ws,l);
-    const fp=lessonFingerprint(l,effective,room);
-    if(isDeletedLessonFingerprint(fp))return;
+    if(isDeletedLesson(l,effective,room))return;
     out.push({
       ...l,
       department:dep,
@@ -2528,7 +2678,7 @@ function validateLesson(candidate,teacherId,editingLessonId=null){
   other.schedule.forEach(l=>{
    const effectiveExistingTeacher=teacherById(l.substituteTeacherId)||other;
    const effectiveExistingRoom=roomById(l.roomId)||db.rooms.find(r=>physicalRoomKey(r.name,r.building)===physicalRoomKey(l.room,l.roomBuilding));
-   if(isDeletedLessonFingerprint(lessonFingerprint(l,effectiveExistingTeacher,effectiveExistingRoom)))return;
+   if(isDeletedLesson(l,effectiveExistingTeacher,effectiveExistingRoom))return;
    if(l.id==editingLessonId || l.cancelled) return;
    if(l.day!==candidate.day || l.pair!==candidate.pair || !weekOverlap(l.weekType,candidate.weekType)) return;
    const effectiveTeacher=l.substituteTeacherId||other.id;
@@ -2568,7 +2718,7 @@ function validateLesson(candidate,teacherId,editingLessonId=null){
    (other.schedule||[]).forEach(l=>{
     const existingRoomForDeleteCheck=wsRoomByLesson(l);
     const effectiveTeacherForDeleteCheck=wsTeacherById(l.substituteTeacherId)||other;
-    if(isDeletedLessonFingerprint(lessonFingerprint(l,effectiveTeacherForDeleteCheck,existingRoomForDeleteCheck)))return;
+    if(isDeletedLesson(l,effectiveTeacherForDeleteCheck,existingRoomForDeleteCheck))return;
     if(l.cancelled) return;
     // Tahrirlanayotgan darsning eski/mirror nusxasi qaysi kafedra workspace'ida qolgan bo‘lsa ham
     // o‘ziga o‘zi konflikt bermaydi.
@@ -2715,9 +2865,11 @@ $("saveLessonBtn").onclick=()=>{const teacherId=$("lTeacher").value, p=pairTimes
  });
 
  const newT=teacherById(teacherId);
+ const effectiveNewTeacher=teacherById(candidate.substituteTeacherId)||newT;
+ forgetDeletedLesson({...candidate,id:Number(editId)},effectiveNewTeacher,selectedRoom);
  newT.schedule.push({...candidate,id:Number(editId)});
  addHistory("Dars tahrirlandi",`${newT.name} · ${candidate.subject} · ${candidate.day} ${candidate.pair}-juftlik`);
-}else{const t=teacherById(teacherId);t.schedule.push({...candidate,id:Date.now()});addHistory("Dars qo‘shildi",`${t.name} · ${candidate.subject} · ${candidate.day} ${candidate.pair}-juftlik`)}save();clearLessonForm();renderAll();showAlert("Dars saqlandi.","ok")}
+}else{const t=teacherById(teacherId);const newLesson={...candidate,id:Number(candidate.id)};const effectiveNewTeacher=teacherById(newLesson.substituteTeacherId)||t;forgetDeletedLesson(newLesson,effectiveNewTeacher,selectedRoom);t.schedule.push(newLesson);addHistory("Dars qo‘shildi",`${t.name} · ${candidate.subject} · ${candidate.day} ${candidate.pair}-juftlik`)}save();clearLessonForm();renderAll();showAlert("Dars saqlandi.","ok")}
 function editLesson(tid,lid){
  const t=teacherById(tid),l=t?.schedule.find(x=>String(x.id)===String(lid));if(!l)return;
  const lr=roomById(l.roomId)||db.rooms.find(r=>normalizePhysicalRoom(r.name)===normalizePhysicalRoom(l.room)&&normalizeBuilding(r.building)===normalizeBuilding(l.roomBuilding))||roomByName(l.room);
@@ -2733,44 +2885,29 @@ function deleteLesson(tid,lid){
 
  const activeRoom=roomById(l.roomId)||db.rooms.find(r=>physicalRoomKey(r.name,r.building)===physicalRoomKey(l.room,l.roomBuilding));
  const activeEffectiveTeacher=teacherById(l.substituteTeacherId)||t;
- const deletedFp=lessonFingerprint(l,activeEffectiveTeacher,activeRoom);
 
- // O‘chirilgan dars fingerprintini saqlaydi: eski mirror nusxa Firestore/snapshotdan qaytsa ham hisobga olinmaydi.
- rememberDeletedLessonFingerprint(deletedFp);
+ // Dars ID, to‘liq fingerprint va yumshoq mirror kaliti bilan registrga olinadi.
+ rememberDeletedLesson(l,activeEffectiveTeacher,activeRoom);
 
- // Faol kafedradan o‘chirish.
+ // Top-level va barcha departmentWorkspaces nusxalarini bir yo‘la tozalaydi.
+ purgeDeletedLessonMirrors();
+
+ // Favqulodda holatda faol massivda qolgan ID nusxasini ham majburan chiqaradi.
  t.schedule=(t.schedule||[]).filter(x=>String(x.id)!==String(lid));
 
- // Barcha kafedralardagi shu darsning eski mirror nusxalarini ID bo‘yicha HAM, fingerprint bo‘yicha HAM tozalaydi.
- const workspaces=(db.departmentWorkspaces&&typeof db.departmentWorkspaces==="object")?db.departmentWorkspaces:{};
- Object.values(workspaces).forEach(ws=>{
-   const teachers=Array.isArray(ws?.teachers)?ws.teachers:[];
-   const rooms=Array.isArray(ws?.rooms)?ws.rooms:[];
-   teachers.forEach(wt=>{
-     wt.schedule=(wt.schedule||[]).filter(x=>{
-       if(String(x.id)===String(lid))return false;
-       const xr=rooms.find(r=>String(r.id)===String(x.roomId))||
-                rooms.find(r=>physicalRoomKey(r.name,r.building)===physicalRoomKey(x.room,x.roomBuilding));
-       const xe=(x.substituteTeacherId?teachers.find(tt=>String(tt.id)===String(x.substituteTeacherId)):null)||wt;
-       return lessonFingerprint(x,xe,xr)!==deletedFp;
-     });
+ if(Array.isArray(db.history)){
+   db.history.unshift({
+     id:Date.now(),
+     time:new Date().toLocaleString("uz-UZ"),
+     action:"Dars o‘chirildi",
+     details:`${t.name} · ${l.subject}`
    });
- });
+ }
 
- // Faol top-level massivda boshqa ID bilan qolgan nusxa bo‘lsa ham tozalaydi.
- db.teachers.forEach(wt=>{
-   wt.schedule=(wt.schedule||[]).filter(x=>{
-     if(String(x.id)===String(lid))return false;
-     const xr=roomById(x.roomId)||db.rooms.find(r=>physicalRoomKey(r.name,r.building)===physicalRoomKey(x.room,x.roomBuilding));
-     const xe=teacherById(x.substituteTeacherId)||wt;
-     return lessonFingerprint(x,xe,xr)!==deletedFp;
-   });
- });
-
- addHistory("Dars o‘chirildi",`${t.name} · ${l.subject}`);
+ // save() faol workspace, localStorage va Firestore'ga faqat tozalangan bazani yozadi.
  save();
  renderAll();
- showAlert("Dars o‘chirildi.","ok");
+ showAlert("Dars barcha kafedralar jadvalidan va bazadan o‘chirildi.","ok");
 }
 function toggleCancel(tid,lid){const t=teacherById(tid),l=t?.schedule.find(x=>x.id===lid);if(!l)return;l.cancelled=!l.cancelled;addHistory(l.cancelled?"Dars bekor qilindi":"Dars qayta faollashtirildi",`${t.name} · ${l.subject}`);save();renderAll()}
 function approveLesson(tid,lid){const t=teacherById(tid),l=t?.schedule.find(x=>x.id===lid);if(!l)return;l.status="approved";addHistory("Dars tasdiqlandi",`${t.name} · ${l.subject}`);save();renderAll()}
