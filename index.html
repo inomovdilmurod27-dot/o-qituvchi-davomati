@@ -1231,756 +1231,8 @@ th{
   .hero-card h2{font-size:19px}
   .nav-btn{font-size:11px;padding:6px 8px}
 }
-
-/* ===== UMUMIY KALENDAR JADVALI — RASMIY KO‘RINISH ===== */
-.calendar-grid{
-  grid-template-columns:125px repeat(6,minmax(185px,1fr));
-  gap:0;
-  background:#fff;
-  border:1px solid #cfd8e3;
-  border-radius:8px;
-  overflow:auto;
-  box-shadow:0 3px 12px rgba(15,23,42,.06);
-}
-.calendar-cell{
-  min-height:104px;
-  padding:12px 13px;
-  background:#fff;
-  border-right:1px solid #d9e1ea;
-  border-bottom:1px solid #d9e1ea;
-  font-size:12px;
-  line-height:1.48;
-  color:#24364b;
-}
-.calendar-head{
-  min-height:auto;
-  padding:11px 12px;
-  background:#0a315c;
-  color:#fff;
-  font-size:12px;
-  font-weight:800;
-  text-align:left;
-  letter-spacing:.1px;
-  position:sticky;
-  top:0;
-  z-index:2;
-}
-.calendar-grid > .calendar-cell:nth-child(7n+1):not(.calendar-head){
-  background:#f4f7fa;
-  color:#0a315c;
-  font-weight:800;
-  border-right:2px solid #c7d3df;
-}
-.calendar-cell b{
-  display:block;
-  color:#0a315c;
-  font-size:12px;
-  line-height:1.35;
-  margin-bottom:3px;
-}
-.calendar-cell hr{
-  border:0;
-  border-top:1px solid #d9e1ea;
-  margin:9px 0;
-}
-.calendar-cell:not(.calendar-head):hover{
-  background:#f8fbfe;
-}
-@media(max-width:900px){
-  .calendar-grid{grid-template-columns:105px repeat(6,170px)}
-  .calendar-cell{padding:10px;font-size:11px}
-}
-
-
-/* ===== KALENDAR: YENGIL KO‘K RANG VA DARS BLOKLARINI AJRATISH ===== */
-.calendar-head{
-  background:#3b93bd !important;
-  color:#fff !important;
-  border-color:#d7e4ec !important;
-}
-
-.calendar-grid > .calendar-cell:nth-child(7n+1):not(.calendar-head){
-  background:#eef6fa !important;
-  color:#173b57 !important;
-  border-right:1px solid #cfdce5 !important;
-}
-
-.calendar-cell{
-  background:#fff;
-  border-color:#d9e3ea !important;
-}
-
-.calendar-cell b{
-  color:#123b5d !important;
-}
-
-/* Bir katakdagi har bir darsni alohida rasmiy blok ko‘rinishida ajratish */
-.calendar-cell hr{
-  margin:8px 0 !important;
-  border:0 !important;
-  border-top:1px solid #c8d6df !important;
-}
-
-/* Dars matnining o‘qilishini yaxshilash */
-.calendar-cell:not(.calendar-head){
-  line-height:1.55 !important;
-  padding:11px 12px !important;
-}
-
-/* Darslar ko‘p bo‘lgan kataklarda bloklar orasini aniqroq ajratish */
-.calendar-cell:not(.calendar-head) b + br{
-  display:none;
-}
-.calendar-cell:not(.calendar-head) b{
-  margin-top:2px;
-  margin-bottom:4px !important;
-}
-
-
-/* ===== KALENDAR: DUSHANBADAN SHANBAGACHA BIR EKRANDA ===== */
-#advancedModal .modal-card{
-  width:min(1500px,98vw) !important;
-}
-
-#advancedModal .calendar-grid{
-  width:100% !important;
-  grid-template-columns:105px repeat(6,minmax(0,1fr)) !important;
-  overflow-x:hidden !important;
-}
-
-#advancedModal .calendar-cell{
-  min-width:0 !important;
-  padding:9px 8px !important;
-  font-size:11px !important;
-  overflow-wrap:anywhere;
-  word-break:normal;
-}
-
-#advancedModal .calendar-head{
-  font-size:11.5px !important;
-  text-align:center !important;
-}
-
-#advancedModal .calendar-cell b{
-  font-size:11px !important;
-}
-
-@media(max-width:1100px){
-  #advancedModal .calendar-grid{
-    grid-template-columns:90px repeat(6,minmax(0,1fr)) !important;
-  }
-  #advancedModal .calendar-cell{
-    padding:7px 6px !important;
-    font-size:10px !important;
-  }
-  #advancedModal .calendar-cell b{
-    font-size:10px !important;
-  }
-}
-
-
-/* ===== KALENDAR: JUFTLIKLARNI ANIQ AJRATISH ===== */
-#advancedModal .calendar-grid > .calendar-cell:nth-child(7n+1):not(.calendar-head){
-  background:#dfeff7 !important;
-  color:#0a315c !important;
-  font-weight:900 !important;
-  font-size:11.5px !important;
-  border-top:2px solid #7fb6d2 !important;
-  border-bottom:2px solid #7fb6d2 !important;
-}
-
-#advancedModal .calendar-grid > .calendar-cell:nth-child(n+8):nth-child(-n+14),
-#advancedModal .calendar-grid > .calendar-cell:nth-child(n+22):nth-child(-n+28),
-#advancedModal .calendar-grid > .calendar-cell:nth-child(n+36):nth-child(-n+42),
-#advancedModal .calendar-grid > .calendar-cell:nth-child(n+50):nth-child(-n+56){
-  background:#fbfdff;
-}
-
-#advancedModal .calendar-grid > .calendar-cell:nth-child(7n+2),
-#advancedModal .calendar-grid > .calendar-cell:nth-child(7n+3),
-#advancedModal .calendar-grid > .calendar-cell:nth-child(7n+4),
-#advancedModal .calendar-grid > .calendar-cell:nth-child(7n+5),
-#advancedModal .calendar-grid > .calendar-cell:nth-child(7n+6),
-#advancedModal .calendar-grid > .calendar-cell:nth-child(7n+7){
-  border-top:1px solid #b8cad6;
-}
-
-#advancedModal .calendar-grid > .calendar-cell:nth-child(7n+1){
-  text-align:center;
-}
-
-/* ===== KALENDAR: DARS TURI BADGELARI ===== */
-#advancedModal .calendar-lesson{
-  display:block;
-  margin:0 0 8px 0;
-  padding:8px 8px 7px;
-  border:1px solid #c8d9e6;
-  border-left:4px solid #6aa6c8;
-  border-radius:10px;
-  background:#ffffff;
-  box-shadow:0 1px 2px rgba(13, 41, 74, 0.05);
-}
-#advancedModal .calendar-lesson:last-child{
-  margin-bottom:0;
-}
-#advancedModal .calendar-lesson-type{
-  display:inline-block;
-  margin:0 0 5px 0;
-  padding:2px 7px;
-  border:1px solid #c9d3de;
-  border-radius:4px;
-  background:#f4f6f8;
-  color:#344054;
-  font-size:9.5px;
-  font-weight:700;
-  letter-spacing:.1px;
-  line-height:1.3;
-}
-#advancedModal .calendar-lesson-type.ma-ruza,
-#advancedModal .calendar-lesson-type.amaliy,
-#advancedModal .calendar-lesson-type.laboratoriya,
-#advancedModal .calendar-lesson-type.seminar{
-  background:#f4f6f8;
-  color:#344054;
-  border-color:#c9d3de;
-}
-#advancedModal .calendar-lesson-subject{
-  display:block;
-  margin:0 0 4px 0;
-  font-size:11px;
-  font-weight:800;
-  color:#0f2748;
-  line-height:1.35;
-}
-#advancedModal .calendar-lesson-meta,
-#advancedModal .calendar-lesson-room{
-  display:block;
-  color:#4c6077;
-  line-height:1.35;
-}
-#advancedModal .calendar-empty{
-  color:#8a99ac;
-  text-align:center;
-  padding-top:14px;
-}
-
-
-/* ===== SAQLASHDAN KEYINGI OGОHLANTIRISH XABARI — DOIMO KO‘RINADIGAN ===== */
-#adminAlert.alert.show{
-  display:block !important;
-  position:fixed !important;
-  top:18px !important;
-  right:18px !important;
-  left:auto !important;
-  width:min(420px,calc(100vw - 36px)) !important;
-  max-height:70vh !important;
-  overflow:auto !important;
-  margin:0 !important;
-  padding:14px 16px !important;
-  border-radius:8px !important;
-  box-shadow:0 14px 35px rgba(15,23,42,.22) !important;
-  z-index:5000 !important;
-  font-size:13px !important;
-  line-height:1.55 !important;
-  font-weight:600 !important;
-}
-@media(max-width:520px){
-  #adminAlert.alert.show{
-    top:10px !important;
-    right:10px !important;
-    width:calc(100vw - 20px) !important;
-  }
-}
-
-
-
-/* ===== HEMIS uslubidagi rasmiy ko‘rinish (faqat dizayn) ===== */
-body.hemis-layout{
-  background:#e9edf2;
-  padding-top:58px;
-  padding-left:270px;
-}
-body.hemis-layout .topbar{
-  position:fixed;
-  left:0; right:0; top:0;
-  min-height:58px;
-  height:58px;
-  padding:8px 18px;
-  background:#4191bf;
-  border-bottom:none;
-  box-shadow:none;
-  z-index:1200;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  flex-wrap:nowrap;
-}
-body.hemis-layout .brand{
-  min-width:auto;
-  margin-right:18px;
-  gap:12px;
-}
-body.hemis-layout .logo{
-  width:42px;
-  height:42px;
-  border-radius:6px;
-  background:rgba(0,0,0,.16);
-  border:none;
-  font-size:15px;
-}
-body.hemis-layout .brand h1,
-body.hemis-layout .brand p{
-  color:#fff;
-}
-body.hemis-layout .brand h1{font-size:15px}
-body.hemis-layout .brand p{font-size:11px; opacity:.92}
-body.hemis-layout .topbar .clock{
-  background:rgba(255,255,255,.14);
-  border:1px solid rgba(255,255,255,.2);
-  color:#fff;
-  min-width:132px;
-  padding:6px 10px;
-}
-body.hemis-layout .topbar .clock .d,
-body.hemis-layout .topbar .clock .t{color:#fff}
-body.hemis-layout .topbar #languageSelect,
-body.hemis-layout .topbar .week-btn,
-body.hemis-layout .topbar #homeBtn,
-body.hemis-layout .topbar #adminBtn,
-body.hemis-layout .topbar #loginBtn,
-body.hemis-layout .topbar #cabinetBtn,
-body.hemis-layout .topbar #calendarBtn,
-body.hemis-layout .topbar #freeRoomBtn,
-body.hemis-layout .topbar #freeTeacherBtn,
-body.hemis-layout .topbar #statsBtn,
-body.hemis-layout .topbar #monitorBtn,
-body.hemis-layout .topbar #smartRoomBtn,
-body.hemis-layout .topbar #smartTimeBtn,
-body.hemis-layout .topbar #qualityBtn,
-body.hemis-layout .topbar #groupGapBtn,
-body.hemis-layout .topbar #exceptionBtn,
-body.hemis-layout .topbar #structureBtn{
-  display:none;
-}
-body.hemis-layout .topbar-right{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  margin-left:auto;
-}
-body.hemis-layout .hemis-user-badge{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  color:#fff;
-}
-body.hemis-layout .hemis-user-badge img{
-  width:34px; height:34px; border-radius:50%; object-fit:cover;
-  border:2px solid rgba(255,255,255,.4);
-}
-body.hemis-layout .hemis-user-badge b{display:block; font-size:12px; line-height:1.2}
-body.hemis-layout .hemis-user-badge span{display:block; font-size:11px; opacity:.9}
-body.hemis-layout .hemis-sidebar{
-  position:fixed;
-  top:58px; left:0; bottom:0;
-  width:270px;
-  background:linear-gradient(180deg,#20323c 0%, #1b2a33 100%);
-  color:#fff;
-  overflow:auto;
-  z-index:1100;
-  box-shadow:inset -1px 0 0 rgba(255,255,255,.05);
-}
-body.hemis-layout .hemis-quick{
-  padding:12px 16px;
-  background:rgba(255,255,255,.04);
-  color:#c8d2d9;
-  border-bottom:1px solid rgba(255,255,255,.08);
-  font-size:13px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-}
-body.hemis-layout .hemis-quick:after{content:'▾'; color:#c8d2d9; font-size:12px}
-body.hemis-layout .hemis-menu-section{padding:8px 0; border-top:1px solid rgba(255,255,255,.04)}
-body.hemis-layout .hemis-menu-title{
-  padding:8px 18px 6px;
-  color:#8fa3af;
-  font-size:11px;
-  font-weight:700;
-  text-transform:uppercase;
-  letter-spacing:.08em;
-}
-body.hemis-layout .hemis-menu-group{
-  display:flex;
-  flex-direction:column;
-  gap:2px;
-}
-body.hemis-layout .hemis-side-link,
-body.hemis-layout .hemis-language-wrap{
-  width:100%;
-  text-align:left;
-  background:transparent;
-  border:none;
-  border-radius:0;
-  color:#eef5f8;
-  padding:13px 16px;
-  margin:0;
-  display:flex;
-  align-items:center;
-  gap:12px;
-  font-weight:500;
-  font-size:15px;
-  transition:background .18s ease, color .18s ease;
-}
-body.hemis-layout .hemis-side-link:hover,
-body.hemis-layout .hemis-language-wrap:hover{
-  background:#29404c;
-  color:#fff;
-}
-body.hemis-layout .hemis-side-link.active{
-  background:#2b424e;
-  color:#fff;
-  box-shadow:inset 3px 0 0 #3eb3e6;
-}
-body.hemis-layout .hemis-side-link .menu-icon{
-  width:18px;
-  min-width:18px;
-  text-align:center;
-  color:#dbe8ef;
-  opacity:.95;
-  font-size:16px;
-}
-body.hemis-layout .hemis-side-link .menu-text{
-  flex:1;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-body.hemis-layout .hemis-side-link .menu-arrow{
-  margin-left:auto;
-  color:#d8e3ea;
-  font-size:18px;
-  line-height:1;
-  opacity:.95;
-}
-body.hemis-layout .hemis-language-wrap{
-  flex-direction:column;
-  align-items:stretch;
-  gap:8px;
-}
-body.hemis-layout .hemis-language-label{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  color:#eef5f8;
-  font-size:15px;
-}
-body.hemis-layout .hemis-language-wrap select{
-  width:100%;
-  background:#f7fafc;
-  color:#22313a;
-  border:1px solid rgba(255,255,255,.16);
-  border-radius:4px;
-  padding:10px 12px;
-  font-weight:600;
-}
-body.hemis-layout main{
-  max-width:none;
-  padding:18px 16px 26px;
-}
-body.hemis-layout .hemis-breadcrumb{
-  font-size:13px;
-  color:#73808d;
-  margin:4px 0 14px;
-}
-body.hemis-layout .hemis-breadcrumb b{color:#4c5b68}
-body.hemis-layout .hero-card,
-body.hemis-layout .summary,
-body.hemis-layout .card,
-body.hemis-layout .today-item,
-body.hemis-layout .empty{
-  border-radius:3px;
-  box-shadow:none;
-}
-body.hemis-layout .hero-card{
-  background:#fff;
-  color:#364152;
-  border:1px solid #d8dee6;
-  border-top:3px solid #27b5e8;
-}
-body.hemis-layout .hero-card:after{display:none}
-body.hemis-layout .hero-card h2{font-size:21px; color:#334155}
-body.hemis-layout .hero-card p{color:#667085}
-body.hemis-layout .week-indicator{
-  background:#f2f7fb;
-  color:#2c6d94;
-  border:1px solid #d9eaf5;
-}
-body.hemis-layout .summary{
-  background:#fff;
-  border:1px solid #d8dee6;
-  padding:10px;
-}
-body.hemis-layout .stat{
-  background:#fff;
-  border-radius:3px;
-  border:1px solid #dfe4ea;
-  min-height:86px;
-}
-body.hemis-layout .stat b{color:#4191bf; font-size:34px; line-height:1}
-body.hemis-layout .controls{margin:16px 0}
-body.hemis-layout .control{
-  border-radius:3px;
-  border:1px solid #cfd8e3;
-}
-body.hemis-layout .section-title h3:before{background:#27b5e8}
-body.hemis-layout .today-item{border-left-color:#35b8ea}
-
-body.hemis-layout .hemis-shortcuts{
-  background:#fff;
-  border:1px solid #d8dee6;
-  border-top:3px solid #27b5e8;
-  border-radius:3px;
-  padding:14px 12px 16px;
-  margin:16px 0;
-}
-body.hemis-layout .hemis-shortcuts h3{
-  margin:0 0 12px;
-  font-size:18px;
-  color:#3a4651;
-  font-weight:600;
-}
-body.hemis-layout .shortcut-grid{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:16px;
-}
-body.hemis-layout .shortcut-card{
-  position:relative;
-  min-height:152px;
-  background:#fff;
-  border:1px solid #35b8ea;
-  border-radius:3px;
-  overflow:hidden;
-  padding:18px 14px 0;
-  display:flex;
-  flex-direction:column;
-  justify-content:space-between;
-}
-body.hemis-layout .shortcut-card .shortcut-count{
-  font-size:40px;
-  font-weight:700;
-  color:#4191bf;
-  line-height:1;
-  margin-bottom:10px;
-}
-body.hemis-layout .shortcut-card .shortcut-title{
-  font-size:14px;
-  color:#4191bf;
-  margin-bottom:8px;
-}
-body.hemis-layout .shortcut-card .shortcut-icon{
-  position:absolute;
-  right:16px;
-  top:14px;
-  font-size:64px;
-  color:#d7d7d7;
-  line-height:1;
-  font-weight:300;
-}
-body.hemis-layout .shortcut-card .shortcut-open{
-  margin:0 -14px;
-  padding:8px 14px;
-  background:#ececec;
-  color:#4191bf;
-  border-top:1px solid #d4d4d4;
-  font-weight:500;
-  text-align:center;
-}
-body.hemis-layout .shortcut-card:hover{box-shadow:0 4px 12px rgba(65,145,191,.12)}
-body.hemis-layout .shortcut-card:hover .shortcut-open{background:#e6eef3}
-
-@media (max-width:1200px){
-  body.hemis-layout{padding-left:0}
-  body.hemis-layout .hemis-sidebar{transform:translateX(-100%); transition:.25s}
-  body.hemis-layout.sidebar-open .hemis-sidebar{transform:translateX(0)}
-  body.hemis-layout main{padding:16px}
-  body.hemis-layout .topbar{padding:8px 12px}
-}
-@media (max-width:900px){
-  body.hemis-layout .shortcut-grid{grid-template-columns:1fr}
-  body.hemis-layout .hero{grid-template-columns:1fr}
-}
-
-
-
-/* ===== HEMIS BSTU uslubiga yaqin IXCHAM RASMIY DIZAYN ===== */
-:root{
-  --hemis-blue:#3f93bf;
-  --hemis-cyan:#19b9ec;
-  --hemis-sidebar:#22313a;
-  --hemis-sidebar-hover:#2b3e48;
-  --hemis-sidebar-active:#314650;
-  --hemis-page:#e9eef3;
-  --hemis-border:#d4dde5;
-  --hemis-text:#364152;
-}
-body.hemis-layout{
-  background:var(--hemis-page) !important;
-  padding-top:52px !important;
-  padding-left:228px !important;
-  min-height:100vh;
-}
-body.hemis-layout .topbar{
-  height:52px !important;
-  min-height:52px !important;
-  padding:5px 12px !important;
-  background:var(--hemis-blue) !important;
-  border:0 !important;
-  box-shadow:0 1px 3px rgba(0,0,0,.12) !important;
-}
-body.hemis-layout .brand{min-width:0 !important;gap:8px !important;margin-right:8px !important}
-body.hemis-layout .logo{width:34px !important;height:34px !important;font-size:12px !important;border-radius:4px !important}
-body.hemis-layout .brand h1{font-size:13px !important;line-height:1.15 !important;white-space:nowrap}
-body.hemis-layout .brand p{font-size:9px !important;margin-top:1px !important;white-space:nowrap}
-body.hemis-layout .topbar-right{gap:7px !important}
-body.hemis-layout .topbar .clock{min-width:104px !important;padding:3px 7px !important;border-radius:3px !important}
-body.hemis-layout .topbar .clock .d{font-size:8.5px !important}
-body.hemis-layout .topbar .clock .t{font-size:13px !important}
-body.hemis-layout .hemis-user-badge{gap:6px !important}
-body.hemis-layout .hemis-user-badge img{width:28px !important;height:28px !important;border-width:1px !important}
-body.hemis-layout .hemis-user-badge b{font-size:10px !important}
-body.hemis-layout .hemis-user-badge span{font-size:9px !important}
-
-body.hemis-layout .hemis-sidebar{
-  top:52px !important;
-  width:228px !important;
-  background:var(--hemis-sidebar) !important;
-  overflow-y:auto !important;
-  overflow-x:hidden !important;
-  scrollbar-width:thin;
-  scrollbar-color:#50636e transparent;
-}
-body.hemis-layout .hemis-sidebar::-webkit-scrollbar{width:5px}
-body.hemis-layout .hemis-sidebar::-webkit-scrollbar-thumb{background:#50636e;border-radius:8px}
-body.hemis-layout .hemis-quick{
-  padding:8px 12px !important;
-  min-height:34px;
-  font-size:11px !important;
-  background:var(--hemis-sidebar) !important;
-  color:#d8e1e7 !important;
-  border-bottom:1px solid rgba(255,255,255,.05) !important;
-}
-body.hemis-layout .hemis-menu-section{padding:2px 0 !important;border-top:1px solid rgba(255,255,255,.035) !important}
-body.hemis-layout .hemis-menu-title{
-  padding:6px 12px 3px !important;
-  font-size:8.5px !important;
-  color:#82949f !important;
-}
-body.hemis-layout .hemis-menu-group{gap:0 !important;padding:0 !important}
-body.hemis-layout .hemis-side-link{
-  min-height:35px !important;
-  padding:7px 10px 7px 13px !important;
-  gap:8px !important;
-  font-size:11.5px !important;
-  font-weight:500 !important;
-  border-left:2px solid transparent !important;
-}
-body.hemis-layout .hemis-side-link:hover{background:var(--hemis-sidebar-hover) !important}
-body.hemis-layout .hemis-side-link.active{
-  background:var(--hemis-sidebar-active) !important;
-  border-left-color:var(--hemis-cyan) !important;
-  box-shadow:none !important;
-}
-body.hemis-layout .hemis-side-link .menu-icon{width:15px !important;min-width:15px !important;font-size:12px !important}
-body.hemis-layout .hemis-side-link .menu-arrow{font-size:13px !important}
-body.hemis-layout .hemis-language-wrap{padding:7px 10px 9px !important;gap:5px !important}
-body.hemis-layout .hemis-language-label{font-size:11.5px !important;gap:8px !important}
-body.hemis-layout .hemis-language-wrap select{padding:6px 7px !important;font-size:10.5px !important;border-radius:3px !important}
-
-body.hemis-layout main{
-  max-width:none !important;
-  padding:12px 14px 18px !important;
-}
-body.hemis-layout .hemis-breadcrumb{
-  margin:0 0 8px !important;
-  padding:4px 0 !important;
-  font-size:10px !important;
-}
-body.hemis-layout .hero{
-  grid-template-columns:minmax(0,1.7fr) minmax(280px,.75fr) !important;
-  gap:8px !important;
-}
-body.hemis-layout .hero-card{
-  padding:12px 14px !important;
-  min-height:112px !important;
-  border-top:2px solid var(--hemis-cyan) !important;
-}
-body.hemis-layout .hero-card h2{font-size:17px !important;margin-bottom:4px !important}
-body.hemis-layout .hero-card p{font-size:10.5px !important;line-height:1.4 !important}
-body.hemis-layout .week-indicator{margin-top:7px !important;padding:4px 7px !important;font-size:9.5px !important;border-radius:3px !important}
-body.hemis-layout .summary{padding:6px !important;gap:5px !important}
-body.hemis-layout .stat{min-height:49px !important;padding:7px 8px !important;font-size:9.5px !important}
-body.hemis-layout .stat b{font-size:18px !important;margin-top:1px !important}
-
-body.hemis-layout .hemis-shortcuts{
-  margin:8px 0 !important;
-  padding:8px 9px 10px !important;
-  border-top:2px solid var(--hemis-cyan) !important;
-}
-body.hemis-layout .hemis-shortcuts h3{font-size:14px !important;margin-bottom:7px !important}
-body.hemis-layout .shortcut-grid{
-  grid-template-columns:repeat(6,minmax(0,1fr)) !important;
-  gap:7px !important;
-}
-body.hemis-layout .shortcut-card{
-  min-height:94px !important;
-  padding:10px 9px 0 !important;
-  border-color:#32b9e9 !important;
-  border-radius:2px !important;
-}
-body.hemis-layout .shortcut-card .shortcut-count{font-size:24px !important;margin-bottom:4px !important}
-body.hemis-layout .shortcut-card .shortcut-title{font-size:10.5px !important;margin-bottom:4px !important;line-height:1.25 !important;padding-right:24px}
-body.hemis-layout .shortcut-card .shortcut-icon{right:7px !important;top:8px !important;font-size:30px !important}
-body.hemis-layout .shortcut-card .shortcut-open{margin:0 -9px !important;padding:4px 5px !important;font-size:9px !important}
-
-body.hemis-layout .controls{
-  grid-template-columns:minmax(180px,1.4fr) repeat(4,minmax(105px,.55fr)) !important;
-  gap:5px !important;
-  margin:8px 0 9px !important;
-}
-body.hemis-layout .control{padding:6px 7px !important;min-height:29px !important;font-size:10.5px !important;border-radius:2px !important}
-body.hemis-layout .section-title{margin:9px 0 5px !important}
-body.hemis-layout .section-title h3{font-size:13px !important;padding-left:7px !important}
-body.hemis-layout .section-title h3:before{width:2px !important}
-body.hemis-layout .grid{gap:6px !important}
-body.hemis-layout .card{padding:8px !important}
-body.hemis-layout .teacher-card .avatar{width:38px !important;height:38px !important}
-body.hemis-layout .teacher-name{font-size:10.5px !important}
-body.hemis-layout .meta{font-size:9px !important}
-body.hemis-layout .status{font-size:9.5px !important;margin-top:5px !important}
-body.hemis-layout .lesson{padding:5px 6px !important;margin-top:5px !important;font-size:9px !important}
-body.hemis-layout .room{font-size:11.5px !important;margin-top:4px !important}
-body.hemis-layout .today-list{gap:4px !important}
-body.hemis-layout .today-item{padding:6px 8px !important;font-size:9.5px !important;border-left-width:2px !important}
-
-/* Faqat eng muhim 6 ta funksiya Bosh sahifadagi kartalarda qoladi */
-body.hemis-layout .shortcut-card:nth-child(n+7){display:none !important}
-
-@media(max-width:1350px){
-  body.hemis-layout .shortcut-grid{grid-template-columns:repeat(3,minmax(0,1fr)) !important}
-}
-@media(max-width:1100px){
-  body.hemis-layout{padding-left:0 !important}
-  body.hemis-layout .hemis-sidebar{transform:translateX(-100%)}
-  body.hemis-layout.sidebar-open .hemis-sidebar{transform:translateX(0)}
-  body.hemis-layout .hero{grid-template-columns:1fr !important}
-}
-
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <header class="topbar">
@@ -2069,7 +1321,6 @@ body.hemis-layout .shortcut-card:nth-child(n+7){display:none !important}
     <button data-tab="auditTab">Audit</button>
     <button data-tab="exceptionAdminTab">Istisno jadvali</button>
     <button data-tab="structureAdminTab">Tuzilma</button>
-    <button data-tab="managerAdminTab" id="managerAdminTabBtn">Kafedra mudirlari</button>
   </div>
 
   <div id="adminAlert" class="alert"></div>
@@ -2096,7 +1347,7 @@ body.hemis-layout .shortcut-card:nth-child(n+7){display:none !important}
       <div><label>Xona nomi/raqami<input id="rName" placeholder="305"></label></div>
       <div><label>Sig‘imi<input id="rCapacity" type="number" min="1" placeholder="30"></label></div>
       <div><label>Xona turi<select id="rType"><option>Oddiy auditoriya</option><option>Laboratoriya</option><option>Kompyuter xonasi</option><option>Ma’ruza zali</option><option>Seminar xonasi</option></select></label></div>
-      <div><label>Bino<select id="rBuilding"><option value="1-bino">1-bino</option><option value="2-bino">2-bino</option><option value="3-bino">3-bino</option><option value="4-bino">4-bino</option><option value="5-bino">5-bino</option><option value="6-bino">6-bino</option><option value="7-bino">7-bino</option><option value="8-bino">8-bino</option><option value="9-bino">9-bino</option><option value="10-bino">10-bino</option><option value="11-bino">11-bino</option><option value="12-bino">12-bino</option><option value="13-bino">13-bino</option><option value="14-bino">14-bino</option><option value="15-bino">15-bino</option><option value="16-bino">16-bino</option><option value="17-bino">17-bino</option><option value="18-bino">18-bino</option><option value="19-bino">19-bino</option><option value="20-bino">20-bino</option><option value="21-bino">21-bino</option><option value="22-bino">22-bino</option><option value="23-bino">23-bino</option><option value="24-bino">24-bino</option><option value="25-bino">25-bino</option><option value="26-bino">26-bino</option><option value="27-bino">27-bino</option><option value="28-bino">28-bino</option><option value="29-bino">29-bino</option><option value="30-bino">30-bino</option><option value="31-bino">31-bino</option><option value="32-bino">32-bino</option><option value="33-bino">33-bino</option><option value="34-bino">34-bino</option><option value="35-bino">35-bino</option><option value="36-bino">36-bino</option><option value="37-bino">37-bino</option><option value="38-bino">38-bino</option><option value="39-bino">39-bino</option><option value="40-bino">40-bino</option><option value="41-bino">41-bino</option><option value="42-bino">42-bino</option><option value="43-bino">43-bino</option><option value="44-bino">44-bino</option><option value="45-bino">45-bino</option><option value="46-bino">46-bino</option><option value="47-bino">47-bino</option><option value="48-bino">48-bino</option><option value="49-bino">49-bino</option><option value="50-bino">50-bino</option></select></label></div>
+      <div><label>Bino<input id="rBuilding" placeholder="1-bino"></label></div>
       <div class="full"><button class="btn primary" id="saveRoomBtn">Xonani saqlash</button></div>
     </div>
     <div class="section-title"><h3>Xonalar</h3></div><div class="admin-list" id="roomAdminList"></div>
@@ -2198,27 +1449,12 @@ body.hemis-layout .shortcut-card:nth-child(n+7){display:none !important}
     <div class="form">
       <input type="hidden" id="orgEditId">
       <div><label>Bino<input id="orgBuilding" placeholder="1-bino"></label></div>
-      <div><label>Fakultet<input id="orgFaculty" placeholder="Tabiiy resurslarni boshqarish"></label></div>
+      <div><label>Fakultet<input id="orgFaculty" placeholder="Muhandislik fakulteti"></label></div>
       <div class="full"><label>Kafedra<input id="orgDepartment" placeholder="Ekologiya, irrigatsiya va gidrotexnika"></label></div>
       <div class="full"><button class="btn primary" id="saveOrgBtn">Strukturani saqlash</button></div>
     </div>
     <div class="section-title"><h3>Struktura ro‘yxati</h3></div>
     <div class="admin-list" id="orgList"></div>
-  </section>
-
-  <section id="managerAdminTab" class="tab-section" style="display:none">
-    <div class="section-title"><h3>Kafedra mudirlari</h3></div>
-    <p class="note">Bu bo‘lim faqat Super admin uchun. Kafedra mudiri login va parol orqali kiradi va faqat o‘z kafedrasiga tegishli ma’lumotlarni ko‘radi.</p>
-    <div class="form">
-      <input type="hidden" id="managerEditId">
-      <div class="full"><label>F.I.Sh.<input id="managerName" placeholder="Kafedra mudiri F.I.Sh."></label></div>
-      <div><label>Login<input id="managerLogin" placeholder="masalan: ekologiya_mudir"></label></div>
-      <div><label>Parol<input id="managerPassword" type="password" placeholder="Kamida 6 ta belgi"></label></div>
-      <div class="full"><label>Kafedra<select id="managerDepartment"></select></label></div>
-      <div class="full"><button class="btn primary" id="saveManagerBtn">Kafedra mudirini saqlash</button></div>
-    </div>
-    <div class="section-title"><h3>Ro‘yxat</h3></div>
-    <div class="admin-list" id="managerList"></div>
   </section>
 
 </aside>
@@ -2245,155 +1481,18 @@ let db=JSON.parse(localStorage.getItem("dispatchDB")||"null")||{
  ],
  history:[]
 };
-
-// ===== Firebase / Firestore sinxronizatsiyasi =====
-const firebaseConfig = {
-  apiKey: "AIzaSyCsa6R4ozs0PkMpZkXhCeEi3qFOa1yfiNI",
-  authDomain: "oqituvchi-davomati.firebaseapp.com",
-  projectId: "oqituvchi-davomati",
-  storageBucket: "oqituvchi-davomati.firebasestorage.app",
-  messagingSenderId: "562215648825",
-  appId: "1:562215648825:web:73fce4c4879eb21d6457e8"
-};
-
-firebase.initializeApp(firebaseConfig);
-const firestoreDB = firebase.firestore();
-const dispatchDoc = firestoreDB.collection("appData").doc("main");
-let cloudReady = false;
-let cloudInitStarted = false;
-
-function save(){
-  if(typeof mergeDeletedLessonsFromLocal==="function") mergeDeletedLessonsFromLocal();
-  if(typeof purgeDeletedLessonMirrors==="function") purgeDeletedLessonMirrors();
-  if(typeof window.syncActiveDepartmentWorkspace==="function") window.syncActiveDepartmentWorkspace();
-  localStorage.setItem("dispatchDB", JSON.stringify(db));
-  if(cloudReady){
-    dispatchDoc.set({
-      db: db,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).catch(err => console.error("Firestore saqlash xatosi:", err));
-  }
-}
-
-async function initCloudSync(){
-  if(cloudInitStarted) return;
-  cloudInitStarted = true;
-  try{
-    const snap = await dispatchDoc.get();
-
-    if(snap.exists && snap.data() && snap.data().db){
-      const sessionUser=db.currentUser&&db.currentUser.role!=="viewer"?{...db.currentUser}:null;
-      db = snap.data().db;
-      if(typeof mergeDeletedLessonsFromLocal==="function") mergeDeletedLessonsFromLocal();
-      if(sessionUser){
-        db.currentUser=sessionUser;
-        if(sessionUser.role==="mudiri" && sessionUser.department && typeof window.activateDepartmentWorkspace==="function"){
-          window.activateDepartmentWorkspace(sessionUser.department);
-        }
-      }
-      const removed=typeof purgeDeletedLessonMirrors==="function"?purgeDeletedLessonMirrors():0;
-      localStorage.setItem("dispatchDB", JSON.stringify(db));
-      if(removed>0){
-        await dispatchDoc.set({
-          db: db,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-      }
-      if(typeof renderAll === "function") renderAll();
-    }else{
-      if(typeof mergeDeletedLessonsFromLocal==="function") mergeDeletedLessonsFromLocal();
-      if(typeof purgeDeletedLessonMirrors==="function") purgeDeletedLessonMirrors();
-      await dispatchDoc.set({
-        db: db,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    }
-
-    cloudReady = true;
-
-    dispatchDoc.onSnapshot(s=>{
-      if(!s.exists || !s.data() || !s.data().db) return;
-      const sessionUser=db.currentUser&&db.currentUser.role!=="viewer"?{...db.currentUser}:null;
-      db = s.data().db;
-      if(typeof mergeDeletedLessonsFromLocal==="function") mergeDeletedLessonsFromLocal();
-      if(sessionUser){
-        db.currentUser=sessionUser;
-        if(sessionUser.role==="mudiri" && sessionUser.department && typeof window.activateDepartmentWorkspace==="function"){
-          window.activateDepartmentWorkspace(sessionUser.department);
-        }
-      }
-      const removed=typeof purgeDeletedLessonMirrors==="function"?purgeDeletedLessonMirrors():0;
-      localStorage.setItem("dispatchDB", JSON.stringify(db));
-      if(typeof renderAll === "function") renderAll();
-      if(removed>0){
-        dispatchDoc.set({
-          db: db,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }).catch(err=>console.error("Firestore tozalash xatosi:",err));
-      }
-    }, err => console.error("Firestore o‘qish xatosi:", err));
-
-  }catch(err){
-    console.error("Firebase ulanish xatosi:", err);
-  }
-}
-
+function save(){localStorage.setItem("dispatchDB",JSON.stringify(db))}
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
 function mins(t){const [h,m]=t.split(":").map(Number);return h*60+m}
 function nowInfo(){const d=new Date();return {d,day:dayNames[d.getDay()],minutes:d.getHours()*60+d.getMinutes()}}
 function weekOverlap(a,b){return a==="doim"||b==="doim"||a===b}
 function lessonActive(l){return !l.cancelled && l.status==="approved" && (l.weekType==="doim"||l.weekType===currentWeek)}
 function teacherById(id){return db.teachers.find(t=>t.id==id)}
-function scopedTeachers(){
-  const u=db.currentUser||{};
-  if(u.role==="mudiri" && u.department){
-    return db.teachers.filter(t=>String(t.department||"").trim()===String(u.department||"").trim());
-  }
-  return db.teachers;
-}
 function roomByName(name){return db.rooms.find(r=>r.name===name)}
-function roomById(id){return db.rooms.find(r=>String(r.id)===String(id))}
-function roomDisplay(name){
-  const r=roomByName(name);
-  return `${esc(name)}-xona${r&&r.building?` · ${esc(r.building)}`:""}`;
-}
 function addHistory(action,details){db.history.unshift({id:Date.now(),time:new Date().toLocaleString("uz-UZ"),action,details});save()}
-function showAlert(msg,type="ok"){
- const a=$("adminAlert");
- if(!a)return;
- a.className="alert show "+type;
- a.innerHTML=msg;
- clearTimeout(a._hideTimer);
- a._hideTimer=setTimeout(()=>a.classList.remove("show"),type==="error"?8000:5000);
-}
+function showAlert(msg,type="ok"){const a=$("adminAlert");a.className="alert show "+type;a.innerHTML=msg;setTimeout(()=>a.classList.remove("show"),5000)}
 
-function availabilityLabel(v){
- const m={available:"Mavjud",leave:"Ta’til",trip:"Xizmat safari",sick:"Kasallik",meeting:"Yig‘ilish"};
- return m[v]||v||"";
-}
-function localDateISO(d=new Date()){
- const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");
- return `${y}-${m}-${day}`;
-}
-function todayLessonsFor(t){
- const {day}=nowInfo(), today=localDateISO();
- let arr=t.schedule.filter(l=>l.day===day&&lessonActive(l)).map(l=>({...l}));
- const ex=(db.dayExceptions||[]).filter(x=>String(x.teacherId)===String(t.id)&&x.date===today);
- ex.forEach(x=>{
-  const i=arr.findIndex(l=>String(l.id)===String(x.lessonId));
-  if(i<0)return;
-  if(x.action==="cancel"){arr.splice(i,1);return;}
-  if(x.action==="move"&&x.newPair){
-   arr[i].pair=Number(x.newPair);
-   if(pairTimes[arr[i].pair]){
-    arr[i].start=pairTimes[arr[i].pair].start;
-    arr[i].end=pairTimes[arr[i].pair].end;
-   }
-  }
-  if((x.action==="room"||x.action==="move")&&x.newRoom) arr[i].room=x.newRoom;
- });
- return arr.sort((a,b)=>a.pair-b.pair)
-}
+function todayLessonsFor(t){const {day}=nowInfo();return t.schedule.filter(l=>l.day===day&&lessonActive(l)).sort((a,b)=>a.pair-b.pair)}
 function getStatus(t){
  const {minutes}=nowInfo(); if(t.availability!=="available") return {key:"free",label:"Mavjud emas",color:"var(--red)",next:null};
  const arr=todayLessonsFor(t);
@@ -2402,270 +1501,8 @@ function getStatus(t){
  const next=arr.find(l=>mins(l.start)>minutes);return{key:"free",label:"Hozir darsda emas",color:"var(--gray)",next:next||null}
 }
 
-function normalizePhysicalRoom(v){
- return String(v||"")
-  .trim()
-  .toLowerCase()
-  .replace(/xona/g,"")
-  .replace(/[^a-z0-9а-яёўғқҳ]+/gi,"")
-}
-function normalizeBuilding(v){
- return String(v||"")
-  .trim()
-  .toLowerCase()
-  .replace(/bino/g,"")
-  .replace(/[^a-z0-9а-яёўғқҳ]+/gi,"")
-}
-
-function physicalRoomKey(name,building){
- return `${normalizePhysicalRoom(name)}|${normalizeBuilding(building)}`;
-}
-function teacherIdentityKey(t){
- if(!t)return "";
- const phone=String(t.phone||"").replace(/\D/g,"");
- if(phone.length>=7)return `p:${phone}`;
- const name=String(t.name||"").trim().toLowerCase().replace(/\s+/g," ");
- return name?`n:${name}`:"";
-}
-
-const DELETED_LESSONS_STORAGE_KEY="dispatchDeletedLessonsV2";
-
-function normalizeLessonText(v){
- return String(v||"").trim().toLowerCase().replace(/\s+/g," ");
-}
-function lessonFingerprint(l,teacher,room){
- const teacherKey=teacherIdentityKey(teacher);
- const roomKey=physicalRoomKey(room?.name||l.room,room?.building||l.roomBuilding);
- return [
-   teacherKey,
-   normalizeLessonText(l.day),
-   Number(l.pair)||0,
-   normalizeLessonText(l.weekType),
-   normalizeLessonText(l.subject),
-   normalizeLessonText(l.group),
-   roomKey
- ].join("||");
-}
-
-// Guruh yoki xona identifikatori mirror nusxada farq qilsa ham ayni darsni taniydi.
-function lessonDeleteKey(l,teacher){
- return [
-   teacherIdentityKey(teacher),
-   normalizeLessonText(l.day),
-   Number(l.pair)||0,
-   normalizeLessonText(l.weekType),
-   normalizeLessonText(l.subject)
- ].join("||");
-}
-
-function getStoredDeletedLessons(){
- try{
-   const value=JSON.parse(localStorage.getItem(DELETED_LESSONS_STORAGE_KEY)||"[]");
-   return Array.isArray(value)?value:[];
- }catch(e){
-   return [];
- }
-}
-
-function saveStoredDeletedLessons(records){
- const clean=(Array.isArray(records)?records:[]).slice(-2000);
- localStorage.setItem(DELETED_LESSONS_STORAGE_KEY,JSON.stringify(clean));
-}
-
-function sameDeletedRecord(a,b){
- return !!(
-   (a?.fp&&b?.fp&&a.fp===b.fp)||
-   (a?.key&&b?.key&&a.key===b.key)||
-   (a?.id&&b?.id&&String(a.id)===String(b.id)&&
-     (!a.teacherKey||!b.teacherKey||a.teacherKey===b.teacherKey))
- );
-}
-
-function mergeDeletedLessonsFromLocal(){
- if(!Array.isArray(db.deletedLessons))db.deletedLessons=[];
-
- // Avvalgi versiyadagi fingerprintlar ham yo‘qolmaydi.
- if(Array.isArray(db.deletedLessonFingerprints)){
-   db.deletedLessonFingerprints.forEach(fp=>{
-     if(!fp)return;
-     const parts=String(fp).split("||");
-     const oldRecord={
-       id:"",
-       teacherKey:parts[0]||"",
-       fp,
-       key:parts.length>=5?parts.slice(0,5).join("||"):"",
-       deletedAt:Date.now()
-     };
-     const existing=db.deletedLessons.find(x=>x?.fp===fp);
-     if(existing){
-       if(!existing.teacherKey)existing.teacherKey=oldRecord.teacherKey;
-       if(!existing.key)existing.key=oldRecord.key;
-     }else{
-       db.deletedLessons.push(oldRecord);
-     }
-   });
- }
-
- getStoredDeletedLessons().forEach(item=>{
-   if(!item)return;
-   const existing=db.deletedLessons.find(x=>sameDeletedRecord(x,item));
-   if(existing){
-     if(!existing.id&&item.id)existing.id=item.id;
-     if(!existing.teacherKey&&item.teacherKey)existing.teacherKey=item.teacherKey;
-     if(!existing.fp&&item.fp)existing.fp=item.fp;
-     if(!existing.key&&item.key)existing.key=item.key;
-     if(!existing.deletedAt&&item.deletedAt)existing.deletedAt=item.deletedAt;
-   }else{
-     db.deletedLessons.push(item);
-   }
- });
-
- if(db.deletedLessons.length>2000)db.deletedLessons.splice(0,db.deletedLessons.length-2000);
- saveStoredDeletedLessons(db.deletedLessons);
- return db.deletedLessons;
-}
-
-function rememberDeletedLesson(l,teacher,room){
- const record={
-   id:l?.id!=null?String(l.id):"",
-   teacherKey:teacherIdentityKey(teacher),
-   fp:lessonFingerprint(l,teacher,room),
-   key:lessonDeleteKey(l,teacher),
-   deletedAt:Date.now()
- };
- const records=mergeDeletedLessonsFromLocal();
- if(!records.some(x=>sameDeletedRecord(x,record)))records.push(record);
- if(records.length>2000)records.splice(0,records.length-2000);
- saveStoredDeletedLessons(records);
- return record;
-}
-
-function isDeletedLesson(l,teacher,room){
- if(!l)return false;
- const candidate={
-   id:l.id!=null?String(l.id):"",
-   teacherKey:teacherIdentityKey(teacher),
-   fp:lessonFingerprint(l,teacher,room),
-   key:lessonDeleteKey(l,teacher)
- };
- const records=Array.isArray(db.deletedLessons)?db.deletedLessons:mergeDeletedLessonsFromLocal();
- return records.some(record=>sameDeletedRecord(record,candidate));
-}
-
-// Xuddi shu dars keyinchalik ongli ravishda qayta qo‘shilsa, eski tombstone olib tashlanadi.
-function forgetDeletedLesson(l,teacher,room){
- const candidate={
-   id:l?.id!=null?String(l.id):"",
-   teacherKey:teacherIdentityKey(teacher),
-   fp:lessonFingerprint(l,teacher,room),
-   key:lessonDeleteKey(l,teacher)
- };
- const records=mergeDeletedLessonsFromLocal();
- db.deletedLessons=records.filter(record=>!sameDeletedRecord(record,candidate));
- if(Array.isArray(db.deletedLessonFingerprints)){
-   db.deletedLessonFingerprints=db.deletedLessonFingerprints.filter(fp=>{
-     const parts=String(fp||"").split("||");
-     const oldKey=parts.length>=5?parts.slice(0,5).join("||"):"";
-     return fp!==candidate.fp&&oldKey!==candidate.key;
-   });
- }
- saveStoredDeletedLessons(db.deletedLessons);
-}
-
-// Eski chaqiriqlar bilan moslik uchun qoldiriladi.
-function isDeletedLessonFingerprint(fp){
- if(!fp)return false;
- const records=Array.isArray(db.deletedLessons)?db.deletedLessons:mergeDeletedLessonsFromLocal();
- return records.some(x=>x.fp===fp);
-}
-
-function purgeDeletedLessonMirrors(){
- mergeDeletedLessonsFromLocal();
- if(!db.deletedLessons.length)return 0;
- let removed=0;
- const cleanTeacherSchedules=(teachers,rooms)=>{
-   (teachers||[]).forEach(t=>{
-     t.schedule=(t.schedule||[]).filter(l=>{
-       const r=(rooms||[]).find(x=>String(x.id)===String(l.roomId))||
-               (rooms||[]).find(x=>physicalRoomKey(x.name,x.building)===physicalRoomKey(l.room,l.roomBuilding));
-       const effective=(l.substituteTeacherId
-         ?(teachers||[]).find(x=>String(x.id)===String(l.substituteTeacherId))
-         :null)||t;
-       const deleted=isDeletedLesson(l,effective,r);
-       if(deleted)removed++;
-       return !deleted;
-     });
-   });
- };
- cleanTeacherSchedules(db.teachers||[],db.rooms||[]);
- const workspaces=(db.departmentWorkspaces&&typeof db.departmentWorkspaces==="object")?db.departmentWorkspaces:{};
- Object.values(workspaces).forEach(ws=>cleanTeacherSchedules(ws?.teachers||[],ws?.rooms||[]));
- saveStoredDeletedLessons(db.deletedLessons);
- return removed;
-}
-function workspaceEntries(){
- const ws=(db.departmentWorkspaces&&typeof db.departmentWorkspaces==="object")
-   ?Object.entries(db.departmentWorkspaces):[];
- return ws.length?ws:[["",{teachers:db.teachers||[],rooms:db.rooms||[]}]];
-}
-function workspaceRoomForLesson(ws,l){
- const rooms=Array.isArray(ws?.rooms)?ws.rooms:[];
- return rooms.find(r=>String(r.id)===String(l.roomId))||
-        rooms.find(r=>
-          normalizePhysicalRoom(r.name)===normalizePhysicalRoom(l.room) &&
-          (!l.roomBuilding || normalizeBuilding(r.building)===normalizeBuilding(l.roomBuilding))
-        )||null;
-}
-function globalApprovedLessons(){
- const out=[];
- workspaceEntries().forEach(([dep,ws])=>{
-  const teachers=Array.isArray(ws?.teachers)?ws.teachers:[];
-  teachers.forEach(owner=>{
-   (owner.schedule||[]).forEach(l=>{
-    if(l.cancelled||l.status!=="approved")return;
-    const effective=(l.substituteTeacherId
-      ?teachers.find(x=>String(x.id)===String(l.substituteTeacherId))
-      :null)||owner;
-    const room=workspaceRoomForLesson(ws,l);
-    if(isDeletedLesson(l,effective,room))return;
-    out.push({
-      ...l,
-      department:dep,
-      teacher:owner,
-      effectiveTeacher:effective,
-      physicalRoomKey:physicalRoomKey(
-        room?.name||l.room,
-        room?.building||l.roomBuilding
-      )
-    });
-   });
-  });
- });
- return out;
-}
-function globalRoomOccupied(room,day,pair,week){
- const key=physicalRoomKey(room?.name,room?.building);
- if(!normalizePhysicalRoom(room?.name))return false;
- return globalApprovedLessons().some(l=>
-   l.physicalRoomKey===key &&
-   l.day===day &&
-   Number(l.pair)===Number(pair) &&
-   weekOverlap(l.weekType,week)
- );
-}
-function globalTeacherBusy(teacher,day,pair,week){
- const key=teacherIdentityKey(teacher);
- if(!key)return false;
- return globalApprovedLessons().some(l=>
-   teacherIdentityKey(l.effectiveTeacher)===key &&
-   l.day===day &&
-   Number(l.pair)===Number(pair) &&
-   weekOverlap(l.weekType,week)
- );
-}
-
 function validateLesson(candidate,teacherId,editingLessonId=null){
- const errs=[], warns=[]; const t=teacherById(teacherId); const room=roomById(candidate.roomId)||roomByName(candidate.room);
+ const errs=[], warns=[]; const t=teacherById(teacherId); const room=roomByName(candidate.room);
  if(!t) errs.push("O‘qituvchi topilmadi.");
  if(t && t.availability!=="available") errs.push(`O‘qituvchi hozir "${t.availability}" holatida. ${esc(t.availabilityNote)}`);
  if(!room) errs.push("Tanlangan xona bazada mavjud emas.");
@@ -2676,77 +1513,15 @@ function validateLesson(candidate,teacherId,editingLessonId=null){
  }
  db.teachers.forEach(other=>{
   other.schedule.forEach(l=>{
-   const effectiveExistingTeacher=teacherById(l.substituteTeacherId)||other;
-   const effectiveExistingRoom=roomById(l.roomId)||db.rooms.find(r=>physicalRoomKey(r.name,r.building)===physicalRoomKey(l.room,l.roomBuilding));
-   if(isDeletedLesson(l,effectiveExistingTeacher,effectiveExistingRoom))return;
    if(l.id==editingLessonId || l.cancelled) return;
    if(l.day!==candidate.day || l.pair!==candidate.pair || !weekOverlap(l.weekType,candidate.weekType)) return;
    const effectiveTeacher=l.substituteTeacherId||other.id;
    const candidateEffective=candidate.substituteTeacherId||teacherId;
    if(String(effectiveTeacher)===String(candidateEffective)) errs.push(`O‘qituvchi konflikti: ${candidate.day}, ${candidate.pair}-juftlikda boshqa dars mavjud (${l.subject}, ${l.room}-xona).`);
-   const existingRoom=roomById(l.roomId)||roomByName(l.room);
-   const existingRoomKey=normalizePhysicalRoom(existingRoom?.name||l.room);
-   const candidateRoomKey=normalizePhysicalRoom(room?.name||candidate.room);
-   const existingBuildingKey=normalizeBuilding(existingRoom?.building||l.roomBuilding);
-   const candidateBuildingKey=normalizeBuilding(room?.building||candidate.roomBuilding);
-   const sameRoom=existingRoomKey===candidateRoomKey && existingBuildingKey===candidateBuildingKey;
-   if(sameRoom) errs.push(`Xona konflikti: ${candidate.room}-xona · ${room?.building||candidate.roomBuilding||"bino ko‘rsatilmagan"} ${candidate.day}, ${candidate.pair}-juftlikda band (${other.name}, ${l.subject}).`);
+   if(l.room===candidate.room) errs.push(`Xona konflikti: ${candidate.room}-xona ${candidate.day}, ${candidate.pair}-juftlikda band (${other.name}, ${l.subject}).`);
    if(l.group.trim().toLowerCase()===candidate.group.trim().toLowerCase()) errs.push(`Guruh konflikti: ${candidate.group} guruhi shu vaqtda boshqa darsga biriktirilgan (${l.subject}, ${l.room}-xona).`);
   })
  });
- // Kafedralar alohida bo‘lsa ham, fizik xona va o‘qituvchi bandligi universitet bo‘yicha HAMMA kafedralarda tekshiriladi.
- const currentDep=String(db.currentUser?.department||t?.department||"").trim();
- const normalizeName=v=>String(v||"").trim().toLowerCase().replace(/\s+/g," ");
- const candidateTeacher=teacherById(candidate.substituteTeacherId||teacherId)||t;
- const candidateTeacherName=normalizeName(candidateTeacher?.name);
- const candidateTeacherPhone=String(candidateTeacher?.phone||"").replace(/\D/g,"");
- const candidateRoomNameGlobal=normalizePhysicalRoom(candidate.room||room?.name);
- const candidateBuildingGlobal=normalizeBuilding(candidate.roomBuilding||room?.building);
- const workspaces=(db.departmentWorkspaces&&typeof db.departmentWorkspaces==="object")?db.departmentWorkspaces:{};
-
- Object.entries(workspaces).forEach(([dep,ws])=>{
-  // Faol kafedra yuqorida db.teachers orqali tekshirildi; bu yerda faqat boshqa kafedralar.
-  if(currentDep && String(dep).trim()===currentDep)return;
-  const wsTeachers=Array.isArray(ws?.teachers)?ws.teachers:[];
-  const wsRooms=Array.isArray(ws?.rooms)?ws.rooms:[];
-  const wsRoomByLesson=l=>
-    wsRooms.find(r=>String(r.id)===String(l.roomId))||
-    wsRooms.find(r=>normalizePhysicalRoom(r.name)===normalizePhysicalRoom(l.room));
-  const wsTeacherById=id=>wsTeachers.find(x=>String(x.id)===String(id));
-
-  wsTeachers.forEach(other=>{
-   (other.schedule||[]).forEach(l=>{
-    const existingRoomForDeleteCheck=wsRoomByLesson(l);
-    const effectiveTeacherForDeleteCheck=wsTeacherById(l.substituteTeacherId)||other;
-    if(isDeletedLesson(l,effectiveTeacherForDeleteCheck,existingRoomForDeleteCheck))return;
-    if(l.cancelled) return;
-    // Tahrirlanayotgan darsning eski/mirror nusxasi qaysi kafedra workspace'ida qolgan bo‘lsa ham
-    // o‘ziga o‘zi konflikt bermaydi.
-    if(editingLessonId && String(l.id)===String(editingLessonId)) return;
-    if(l.day!==candidate.day || Number(l.pair)!==Number(candidate.pair) || !weekOverlap(l.weekType,candidate.weekType)) return;
-
-    const existingRoom=wsRoomByLesson(l);
-    const existingRoomName=normalizePhysicalRoom(existingRoom?.name||l.room);
-    const existingBuilding=normalizeBuilding(existingRoom?.building||l.roomBuilding);
-
-    if(existingRoomName && existingRoomName===candidateRoomNameGlobal && existingBuilding===candidateBuildingGlobal){
-      errs.push(`Xona konflikti: ${candidate.room}-xona · ${room?.building||candidate.roomBuilding||"bino ko‘rsatilmagan"} ${candidate.day}, ${candidate.pair}-juftlikda band (${other.name}, ${l.subject}).`);
-    }
-
-    const effectiveExisting=wsTeacherById(l.substituteTeacherId)||other;
-    const existingName=normalizeName(effectiveExisting?.name);
-    const existingPhone=String(effectiveExisting?.phone||"").replace(/\D/g,"");
-    const sameTeacher=
-      (candidateTeacherName && existingName===candidateTeacherName) ||
-      (candidateTeacherPhone.length>=7 && existingPhone===candidateTeacherPhone);
-
-    if(sameTeacher){
-      errs.push(`O‘qituvchi konflikti: ${candidateTeacher?.name||t?.name||"O‘qituvchi"} ${candidate.day}, ${candidate.pair}-juftlikda boshqa darsga biriktirilgan (${l.subject}, ${l.room}-xona).`);
-    }
-   });
-  });
- });
-
  if(candidate.substituteTeacherId && String(candidate.substituteTeacherId)===String(teacherId)) warns.push("Almashtiruvchi o‘qituvchi asosiy o‘qituvchi bilan bir xil.");
  return {errs:[...new Set(errs)],warns:[...new Set(warns)]}
 }
@@ -2757,158 +1532,39 @@ $("suratBtn").onclick=()=>{currentWeek="surat";localStorage.setItem("currentWeek
 $("maxrajBtn").onclick=()=>{currentWeek="maxraj";localStorage.setItem("currentWeek",currentWeek);updateWeekUI();renderAll()}
 
 function matches(t){const q=$("search").value.trim().toLowerCase(),st=getStatus(t),sf=$("statusFilter").value,rf=$("roomFilter").value,gf=$("groupFilter").value,subf=$("subjectFilter").value;const text=[t.name,t.position,t.degree,...t.schedule.flatMap(l=>[l.subject,l.group,l.room,l.type,l.day,l.weekType])].join(" ").toLowerCase();if(q&&!text.includes(q))return false;if(sf!=="all"&&st.key!==sf)return false;if(rf&&!t.schedule.some(l=>l.room===rf))return false;if(gf&&!t.schedule.some(l=>l.group===gf))return false;if(subf&&!t.schedule.some(l=>l.subject===subf))return false;return true}
-function renderTeachers(){
- const arr=scopedTeachers().filter(matches);
- $("teacherGrid").innerHTML=arr.length?arr.map(t=>{
-  const st=getStatus(t), lessons=todayLessonsFor(t);
-  let body="";
-  if(t.availability!=="available"){
-   body=`<b>Mavjud emas:</b> ${esc(t.availabilityNote||t.availability)}`;
-  }else{
-   const mainLesson=st.lesson||st.next||null;
-   if(mainLesson){
-    const prefix=st.key==="inclass"?"":st.key==="soon"?"Yaqin dars: ":st.key==="break"?"Keyingi dars: ":"Keyingi dars: ";
-    body=`${prefix?`<b>${prefix}${mainLesson.pair}-juftlik</b><br>`:`<b>${mainLesson.pair}-juftlik · ${esc(mainLesson.subject)}</b><br>`}${prefix?`${esc(mainLesson.subject)}<br>`:""}${esc(mainLesson.group)} · ${esc(mainLesson.type)}<br>${mainLesson.start}–${mainLesson.end}<br>${roomDisplay(mainLesson.room)}`;
-    const later=lessons.filter(l=>l.pair>mainLesson.pair);
-    if(later.length){
-     body+=`<br><span class="mini"><b>Bugun yana ${later.length} ta darsi bor:</b> ${later.map(l=>`${l.pair}-juftlik`).join(", ")}</span>`;
-    }else{
-     body+=`<br><span class="mini">Bugungi so‘nggi dars.</span>`;
-    }
-   }else if(lessons.length){
-    body="Bugungi darslari tugagan.";
-   }else{
-    body="Bugun dars yo‘q.";
-   }
-  }
-  return `<article class="card teacher-card" onclick="openTeacher(${t.id})"><div class="teacher-head"><img class="avatar" src="${esc(t.image)}"><div><div class="teacher-name">${esc(t.name)}</div><div class="meta">${esc(t.position)} · ${esc(t.degree)}</div></div></div><div class="status"><span class="dot" style="background:${st.color}"></span>${st.label}</div><div class="lesson">${body}</div>${st.key==="inclass"?`<div class="room">${roomDisplay(st.lesson.room).replace("-xona","-XONA")}</div>`:""}</article>`;
- }).join(""):`<div class="empty">Mos o‘qituvchi topilmadi.</div>`
-}
-function renderToday(){const list=[];scopedTeachers().forEach(t=>todayLessonsFor(t).forEach(l=>list.push({...l,teacher:t})));list.sort((a,b)=>a.pair-b.pair);$("todayList").innerHTML=list.length?list.map(x=>`<div class="today-item" onclick="openTeacher(${x.teacher.id})"><strong>${x.pair}-juftlik · ${x.start}–${x.end} · ${esc(x.teacher.name)}</strong><br>${esc(x.subject)} · ${esc(x.group)} · ${roomDisplay(x.room)} · ${esc(x.type)} · ${x.weekType==="doim"?"Doimiy":x.weekType}</div>`).join(""):`<div class="empty">Bugun joriy hafta bo‘yicha tasdiqlangan dars yo‘q.</div>`}
-function renderStats(){const ts=scopedTeachers(),inc=ts.filter(t=>getStatus(t).key==="inclass").length,pending=ts.reduce((n,t)=>n+t.schedule.filter(l=>l.status==="pending"&&!l.cancelled).length,0);$("totalTeachers").textContent=ts.length;$("inClassCount").textContent=inc;$("todayLessonsCount").textContent=ts.reduce((n,t)=>n+todayLessonsFor(t).length,0);$("pendingCount").textContent=pending}
-function populateFilters(){const rooms=new Set(),groups=new Set(),subs=new Set();scopedTeachers().forEach(t=>t.schedule.forEach(l=>{rooms.add(l.room);groups.add(l.group);subs.add(l.subject)}));$("roomFilter").innerHTML='<option value="">Barcha xonalar</option>'+[...rooms].sort().map(x=>`<option>${esc(x)}</option>`).join("");$("groupFilter").innerHTML='<option value="">Barcha guruhlar</option>'+[...groups].sort().map(x=>`<option>${esc(x)}</option>`).join("");$("subjectFilter").innerHTML='<option value="">Barcha fanlar</option>'+[...subs].sort().map(x=>`<option>${esc(x)}</option>`).join("")}
+function renderTeachers(){const arr=db.teachers.filter(matches);$("teacherGrid").innerHTML=arr.length?arr.map(t=>{const st=getStatus(t);let body=st.key==="inclass"?`<b>${esc(st.lesson.subject)}</b><br>${esc(st.lesson.group)} · ${esc(st.lesson.type)}<br>${st.lesson.start}–${st.lesson.end}`:st.next?`<b>Keyingi dars: ${st.next.start}</b><br>${esc(st.next.subject)}<br>${esc(st.next.room)}-xona`:t.availability!=="available"?`<b>Mavjud emas:</b> ${esc(t.availabilityNote||t.availability)}`:"Bugun boshqa dars yo‘q.";return `<article class="card teacher-card" onclick="openTeacher(${t.id})"><div class="teacher-head"><img class="avatar" src="${esc(t.image)}"><div><div class="teacher-name">${esc(t.name)}</div><div class="meta">${esc(t.position)} · ${esc(t.degree)}</div></div></div><div class="status"><span class="dot" style="background:${st.color}"></span>${st.label}</div><div class="lesson">${body}</div>${st.key==="inclass"?`<div class="room">${esc(st.lesson.room)}-XONA</div>`:""}</article>`}).join(""):`<div class="empty">Mos o‘qituvchi topilmadi.</div>`}
+function renderToday(){const list=[];db.teachers.forEach(t=>todayLessonsFor(t).forEach(l=>list.push({...l,teacher:t})));list.sort((a,b)=>a.pair-b.pair);$("todayList").innerHTML=list.length?list.map(x=>`<div class="today-item" onclick="openTeacher(${x.teacher.id})"><strong>${x.pair}-juftlik · ${x.start}–${x.end} · ${esc(x.teacher.name)}</strong><br>${esc(x.subject)} · ${esc(x.group)} · ${esc(x.room)}-xona · ${esc(x.type)} · ${x.weekType==="doim"?"Doimiy":x.weekType}</div>`).join(""):`<div class="empty">Bugun joriy hafta bo‘yicha tasdiqlangan dars yo‘q.</div>`}
+function renderStats(){const inc=db.teachers.filter(t=>getStatus(t).key==="inclass").length,pending=db.teachers.reduce((n,t)=>n+t.schedule.filter(l=>l.status==="pending"&&!l.cancelled).length,0);$("totalTeachers").textContent=db.teachers.length;$("inClassCount").textContent=inc;$("todayLessonsCount").textContent=db.teachers.reduce((n,t)=>n+todayLessonsFor(t).length,0);$("pendingCount").textContent=pending}
+function populateFilters(){const rooms=new Set(),groups=new Set(),subs=new Set();db.teachers.forEach(t=>t.schedule.forEach(l=>{rooms.add(l.room);groups.add(l.group);subs.add(l.subject)}));$("roomFilter").innerHTML='<option value="">Barcha xonalar</option>'+[...rooms].sort().map(x=>`<option>${esc(x)}</option>`).join("");$("groupFilter").innerHTML='<option value="">Barcha guruhlar</option>'+[...groups].sort().map(x=>`<option>${esc(x)}</option>`).join("");$("subjectFilter").innerHTML='<option value="">Barcha fanlar</option>'+[...subs].sort().map(x=>`<option>${esc(x)}</option>`).join("")}
 
-function openTeacher(id){const t=teacherById(id),st=getStatus(t);$("profile").innerHTML=`<img src="${esc(t.image)}"><div><h2>${esc(t.name)}</h2><div class="info"><div><b>Ilmiy daraja:</b> ${esc(t.degree)}</div><div><b>Lavozim:</b> ${esc(t.position)}</div><div><b>Kafedra:</b> ${esc(t.department)}</div><div><b>Telefon:</b> ${esc(t.phone)}</div><div><b>Holat:</b> ${esc(availabilityLabel(t.availability))}</div></div></div>`;let h=`<div class="status"><span class="dot" style="background:${st.color}"></span>${st.label.toUpperCase()}</div>`;if(st.key==="inclass"){const sub=st.lesson.substituteTeacherId?teacherById(st.lesson.substituteTeacherId):null;h+=`<p><b>Fan:</b> ${esc(st.lesson.subject)}<br><b>Guruh:</b> ${esc(st.lesson.group)}<br><b>Xona:</b> ${roomDisplay(st.lesson.room)}<br><b>Dars turi:</b> ${esc(st.lesson.type)}<br><b>Juftlik:</b> ${st.lesson.pair}<br><b>Vaqt:</b> ${st.lesson.start}–${st.lesson.end}${sub?`<br><b>Almashtiruvchi:</b> ${esc(sub.name)}`:""}</p><b>Dars tugashiga ${st.remaining} daqiqa qoldi.</b>`}else if(st.next){h+=`<p><b>Keyingi dars:</b> ${st.next.start}<br><b>Fan:</b> ${esc(st.next.subject)}<br><b>Guruh:</b> ${esc(st.next.group)}<br><b>Xona:</b> ${roomDisplay(st.next.room)}</p>`}else h+=`<p>Bugun joriy hafta bo‘yicha boshqa dars mavjud emas.</p>`;$("statusCard").innerHTML=h;$("roomCard").innerHTML=st.key==="inclass"?`<b>${roomDisplay(st.lesson.room).replace("-xona","-XONA")}</b><span>Joriy dars xonasi</span>`:st.next?`<b>${roomDisplay(st.next.room).replace("-xona","-XONA")}</b><span>Keyingi dars xonasi</span>`:`<b style="font-size:24px">DARS YO‘Q</b>`;$("teacherScheduleBody").innerHTML=[...t.schedule].sort((a,b)=>dayOrder[a.day]-dayOrder[b.day]||a.pair-b.pair).map(l=>`<tr><td>${l.day}</td><td>${l.pair}</td><td>${l.start}–${l.end}</td><td>${esc(l.subject)}</td><td>${esc(l.group)}</td><td>${roomDisplay(l.room)}</td><td>${esc(l.type)}</td><td><span class="badge ${l.weekType}">${l.weekType==="doim"?"Doimiy":l.weekType}</span></td><td><span class="badge ${l.cancelled?"cancelled":l.status}">${l.cancelled?"Bekor qilingan":l.status==="approved"?"Tasdiqlangan":"Kutilmoqda"}</span></td></tr>`).join("");$("teacherModal").classList.add("open")}
+function openTeacher(id){const t=teacherById(id),st=getStatus(t);$("profile").innerHTML=`<img src="${esc(t.image)}"><div><h2>${esc(t.name)}</h2><div class="info"><div><b>Ilmiy daraja:</b> ${esc(t.degree)}</div><div><b>Lavozim:</b> ${esc(t.position)}</div><div><b>Kafedra:</b> ${esc(t.department)}</div><div><b>Telefon:</b> ${esc(t.phone)}</div><div><b>Holat:</b> ${esc(t.availability)}</div></div></div>`;let h=`<div class="status"><span class="dot" style="background:${st.color}"></span>${st.label.toUpperCase()}</div>`;if(st.key==="inclass"){const sub=st.lesson.substituteTeacherId?teacherById(st.lesson.substituteTeacherId):null;h+=`<p><b>Fan:</b> ${esc(st.lesson.subject)}<br><b>Guruh:</b> ${esc(st.lesson.group)}<br><b>Xona:</b> ${esc(st.lesson.room)}<br><b>Dars turi:</b> ${esc(st.lesson.type)}<br><b>Juftlik:</b> ${st.lesson.pair}<br><b>Vaqt:</b> ${st.lesson.start}–${st.lesson.end}${sub?`<br><b>Almashtiruvchi:</b> ${esc(sub.name)}`:""}</p><b>Dars tugashiga ${st.remaining} daqiqa qoldi.</b>`}else if(st.next){h+=`<p><b>Keyingi dars:</b> ${st.next.start}<br><b>Fan:</b> ${esc(st.next.subject)}<br><b>Guruh:</b> ${esc(st.next.group)}<br><b>Xona:</b> ${esc(st.next.room)}</p>`}else h+=`<p>Bugun joriy hafta bo‘yicha boshqa dars mavjud emas.</p>`;$("statusCard").innerHTML=h;$("roomCard").innerHTML=st.key==="inclass"?`<b>${esc(st.lesson.room)}-XONA</b><span>Joriy dars xonasi</span>`:st.next?`<b>${esc(st.next.room)}-XONA</b><span>Keyingi dars xonasi</span>`:`<b style="font-size:24px">DARS YO‘Q</b>`;$("teacherScheduleBody").innerHTML=[...t.schedule].sort((a,b)=>dayOrder[a.day]-dayOrder[b.day]||a.pair-b.pair).map(l=>`<tr><td>${l.day}</td><td>${l.pair}</td><td>${l.start}–${l.end}</td><td>${esc(l.subject)}</td><td>${esc(l.group)}</td><td>${esc(l.room)}</td><td>${esc(l.type)}</td><td><span class="badge ${l.weekType}">${l.weekType==="doim"?"Doimiy":l.weekType}</span></td><td><span class="badge ${l.cancelled?"cancelled":l.status}">${l.cancelled?"Bekor qilingan":l.status==="approved"?"Tasdiqlangan":"Kutilmoqda"}</span></td></tr>`).join("");$("teacherModal").classList.add("open")}
 window.openTeacher=openTeacher;
 
-function renderAdminSelectors(){$("lTeacher").innerHTML=db.teachers.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join("");$("lSubstitute").innerHTML='<option value="">Yo‘q</option>'+db.teachers.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join("");$("lRoom").innerHTML=db.rooms.map(r=>`<option value="${r.id}">${esc(r.name)}-xona · ${esc(r.building||"")} · ${esc(r.type)} · ${r.capacity} o‘rin</option>`).join("")}
+function renderAdminSelectors(){$("lTeacher").innerHTML=db.teachers.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join("");$("lSubstitute").innerHTML='<option value="">Yo‘q</option>'+db.teachers.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join("");$("lRoom").innerHTML=db.rooms.map(r=>`<option value="${esc(r.name)}">${esc(r.name)} · ${esc(r.type)} · ${r.capacity} o‘rin</option>`).join("")}
 function renderTeacherAdmin(){$("teacherAdminList").innerHTML=db.teachers.map(t=>`<div class="admin-row"><strong>${esc(t.name)}</strong><div class="mini">${esc(t.position)} · ${esc(t.availability)} · Darslar: ${t.schedule.length}</div><div class="actions" style="margin-top:8px"><button class="btn ghost" onclick="editTeacher(${t.id})">Tahrirlash</button><button class="btn danger" onclick="deleteTeacher(${t.id})">O‘chirish</button></div></div>`).join("")}
 function renderRoomAdmin(){$("roomAdminList").innerHTML=db.rooms.map(r=>`<div class="admin-row"><strong>${esc(r.name)}-xona</strong><div class="mini">${esc(r.type)} · ${r.capacity} o‘rin · ${esc(r.building)}</div><div class="actions" style="margin-top:8px"><button class="btn ghost" onclick="editRoom(${r.id})">Tahrirlash</button><button class="btn danger" onclick="deleteRoom(${r.id})">O‘chirish</button></div></div>`).join("")}
-function renderLessonAdmin(){const rows=[];db.teachers.forEach(t=>t.schedule.forEach(l=>rows.push({t,l})));$("lessonAdminList").innerHTML=rows.length?rows.map(({t,l})=>`<div class="admin-row"><strong>${esc(t.name)} · ${l.day} · ${l.pair}-juftlik</strong><div class="mini">${esc(l.subject)} · ${esc(l.group)} · ${roomDisplay(l.room)} · ${esc(l.type)} · ${l.weekType==="doim"?"Doimiy":l.weekType}</div><div style="margin-top:6px"><span class="badge ${l.cancelled?"cancelled":l.status}">${l.cancelled?"Bekor qilingan":l.status==="approved"?"Tasdiqlangan":"Kutilmoqda"}</span></div><div class="actions" style="margin-top:8px"><button class="btn ghost" onclick="editLesson(${t.id},${l.id})">Tahrirlash</button><button class="btn warn" onclick="toggleCancel(${t.id},${l.id})">${l.cancelled?"Qayta faollashtirish":"Bekor qilish"}</button><button class="btn danger" onclick="deleteLesson(${t.id},${l.id})">O‘chirish</button></div></div>`).join(""):`<div class="empty">Darslar yo‘q.</div>`}
-function renderApproval(){$("approvalList").innerHTML=db.teachers.flatMap(t=>t.schedule.filter(l=>l.status==="pending"&&!l.cancelled).map(l=>({t,l}))).map(({t,l})=>`<div class="admin-row"><strong>${esc(t.name)} · ${l.day}, ${l.pair}-juftlik</strong><div class="mini">${esc(l.subject)} · ${esc(l.group)} · ${roomDisplay(l.room)}</div><div class="actions" style="margin-top:8px"><button class="btn success" onclick="approveLesson(${t.id},${l.id})">Tasdiqlash</button><button class="btn danger" onclick="rejectLesson(${t.id},${l.id})">Rad etish</button></div></div>`).join("")||'<div class="empty">Tasdiqlash kutilayotgan dars yo‘q.</div>'}
+function renderLessonAdmin(){const rows=[];db.teachers.forEach(t=>t.schedule.forEach(l=>rows.push({t,l})));$("lessonAdminList").innerHTML=rows.length?rows.map(({t,l})=>`<div class="admin-row"><strong>${esc(t.name)} · ${l.day} · ${l.pair}-juftlik</strong><div class="mini">${esc(l.subject)} · ${esc(l.group)} · ${esc(l.room)}-xona · ${esc(l.type)} · ${l.weekType==="doim"?"Doimiy":l.weekType}</div><div style="margin-top:6px"><span class="badge ${l.cancelled?"cancelled":l.status}">${l.cancelled?"Bekor qilingan":l.status==="approved"?"Tasdiqlangan":"Kutilmoqda"}</span></div><div class="actions" style="margin-top:8px"><button class="btn ghost" onclick="editLesson(${t.id},${l.id})">Tahrirlash</button><button class="btn warn" onclick="toggleCancel(${t.id},${l.id})">${l.cancelled?"Qayta faollashtirish":"Bekor qilish"}</button><button class="btn danger" onclick="deleteLesson(${t.id},${l.id})">O‘chirish</button></div></div>`).join(""):`<div class="empty">Darslar yo‘q.</div>`}
+function renderApproval(){$("approvalList").innerHTML=db.teachers.flatMap(t=>t.schedule.filter(l=>l.status==="pending"&&!l.cancelled).map(l=>({t,l}))).map(({t,l})=>`<div class="admin-row"><strong>${esc(t.name)} · ${l.day}, ${l.pair}-juftlik</strong><div class="mini">${esc(l.subject)} · ${esc(l.group)} · ${esc(l.room)}-xona</div><div class="actions" style="margin-top:8px"><button class="btn success" onclick="approveLesson(${t.id},${l.id})">Tasdiqlash</button><button class="btn danger" onclick="rejectLesson(${t.id},${l.id})">Rad etish</button></div></div>`).join("")||'<div class="empty">Tasdiqlash kutilayotgan dars yo‘q.</div>'}
 function renderHistory(){$("historyList").innerHTML=db.history.length?db.history.map(h=>`<div class="admin-row"><strong>${esc(h.action)}</strong><div class="mini">${esc(h.time)}</div><div style="margin-top:5px">${esc(h.details)}</div></div>`).join(""):'<div class="empty">Tarix bo‘sh.</div>'}
 
-function clearTeacherForm(){$("editTeacherId").value="";["tName","tDegree","tPosition","tPhone","tImage","tAvailabilityNote"].forEach(id=>$(id).value="");$("tDepartment").value=(db.currentUser?.role==="mudiri"&&db.currentUser?.department)?db.currentUser.department:"Ekologiya, irrigatsiya va gidrotexnika";$("tAvailability").value="available";$("saveTeacherBtn").textContent="O‘qituvchini saqlash"}
-$("saveTeacherBtn").onclick=()=>{const name=$("tName").value.trim();if(!name)return showAlert("Ism-familiya kiritilmagan.","error");const department=(db.currentUser?.role==="mudiri"&&db.currentUser?.department)?db.currentUser.department:$("tDepartment").value.trim();const id=$("editTeacherId").value;let t=id?teacherById(id):null;if(t){Object.assign(t,{name,degree:$("tDegree").value.trim(),position:$("tPosition").value.trim(),department,phone:$("tPhone").value.trim(),image:$("tImage").value.trim()||t.image,availability:$("tAvailability").value,availabilityNote:$("tAvailabilityNote").value.trim()});addHistory("O‘qituvchi tahrirlandi",name)}else{const nid=Date.now();db.teachers.push({id:nid,name,degree:$("tDegree").value.trim(),position:$("tPosition").value.trim()||"O‘qituvchi",department,phone:$("tPhone").value.trim(),image:$("tImage").value.trim()||`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=dbeafe&color=1d4ed8&size=256`,availability:$("tAvailability").value,availabilityNote:$("tAvailabilityNote").value.trim(),schedule:[]});addHistory("O‘qituvchi qo‘shildi",name)}save();clearTeacherForm();renderAll();showAlert("O‘qituvchi ma’lumotlari saqlandi.","ok")}
+function clearTeacherForm(){$("editTeacherId").value="";["tName","tDegree","tPosition","tPhone","tImage","tAvailabilityNote"].forEach(id=>$(id).value="");$("tDepartment").value="Ekologiya, irrigatsiya va gidrotexnika";$("tAvailability").value="available";$("saveTeacherBtn").textContent="O‘qituvchini saqlash"}
+$("saveTeacherBtn").onclick=()=>{const name=$("tName").value.trim();if(!name)return showAlert("Ism-familiya kiritilmagan.","error");const id=$("editTeacherId").value;let t=id?teacherById(id):null;if(t){Object.assign(t,{name,degree:$("tDegree").value.trim(),position:$("tPosition").value.trim(),department:$("tDepartment").value.trim(),phone:$("tPhone").value.trim(),image:$("tImage").value.trim()||t.image,availability:$("tAvailability").value,availabilityNote:$("tAvailabilityNote").value.trim()});addHistory("O‘qituvchi tahrirlandi",name)}else{const nid=Date.now();db.teachers.push({id:nid,name,degree:$("tDegree").value.trim(),position:$("tPosition").value.trim()||"O‘qituvchi",department:$("tDepartment").value.trim(),phone:$("tPhone").value.trim(),image:$("tImage").value.trim()||`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=dbeafe&color=1d4ed8&size=256`,availability:$("tAvailability").value,availabilityNote:$("tAvailabilityNote").value.trim(),schedule:[]});addHistory("O‘qituvchi qo‘shildi",name)}save();clearTeacherForm();renderAll();showAlert("O‘qituvchi ma’lumotlari saqlandi.","ok")}
 function editTeacher(id){const t=teacherById(id);if(!t)return;switchTab("teacherTab");$("editTeacherId").value=t.id;$("tName").value=t.name;$("tDegree").value=t.degree;$("tPosition").value=t.position;$("tDepartment").value=t.department;$("tPhone").value=t.phone;$("tImage").value=t.image;$("tAvailability").value=t.availability;$("tAvailabilityNote").value=t.availabilityNote;$("saveTeacherBtn").textContent="O‘zgarishlarni saqlash";$("adminPanel").scrollTo({top:0,behavior:"smooth"})}
 function deleteTeacher(id){const t=teacherById(id);if(!t||!confirm(`${t.name} o‘chirilsinmi?`))return;db.teachers=db.teachers.filter(x=>x.id!==id);addHistory("O‘qituvchi o‘chirildi",t.name);save();renderAll()}
 window.editTeacher=editTeacher;window.deleteTeacher=deleteTeacher;
 
-function clearRoomForm(){$("editRoomId").value="";$("rName").value=$("rCapacity").value="";$("rBuilding").value="1-bino";$("rType").value="Oddiy auditoriya";$("saveRoomBtn").textContent="Xonani saqlash"}
-$("saveRoomBtn").onclick=()=>{
- const name=$("rName").value.trim(),cap=Number($("rCapacity").value),building=$("rBuilding").value.trim();
- if(!name||!cap)return showAlert("Xona va sig‘imni kiriting.","error");
- const id=$("editRoomId").value;
- const duplicate=db.rooms.find(r=>normalizePhysicalRoom(r.name)===normalizePhysicalRoom(name)&&normalizeBuilding(r.building)===normalizeBuilding(building)&&String(r.id)!==String(id));
- if(duplicate)return showAlert("Bu xona shu binoda allaqachon mavjud.","error");
- if(id){
-   const r=db.rooms.find(x=>String(x.id)===String(id));
-   if(!r)return showAlert("Tahrirlanayotgan xona topilmadi.","error");
-   const oldName=r.name,oldBuilding=r.building;
-   Object.assign(r,{name,capacity:cap,type:$("rType").value,building});
-   db.teachers.forEach(t=>(t.schedule||[]).forEach(l=>{
-     const sameId=l.roomId!=null&&String(l.roomId)===String(r.id);
-     const sameOldKey=physicalRoomKey(l.room,l.roomBuilding)===physicalRoomKey(oldName,oldBuilding);
-     if(sameId||sameOldKey){
-       l.room=r.name;
-       l.roomId=r.id;
-       l.roomBuilding=r.building;
-     }
-   }));
-   addHistory("Xona tahrirlandi",`${oldName} · ${oldBuilding} → ${name} · ${building}`);
- }else{
-   db.rooms.push({id:Date.now(),name,capacity:cap,type:$("rType").value,building});
-   addHistory("Xona qo‘shildi",`${name} · ${building}`);
- }
- save();clearRoomForm();renderAll();showAlert("Xona saqlandi.","ok");
-}
+function clearRoomForm(){$("editRoomId").value="";$("rName").value=$("rCapacity").value=$("rBuilding").value="";$("rType").value="Oddiy auditoriya";$("saveRoomBtn").textContent="Xonani saqlash"}
+$("saveRoomBtn").onclick=()=>{const name=$("rName").value.trim(),cap=Number($("rCapacity").value);if(!name||!cap)return showAlert("Xona va sig‘imni kiriting.","error");const id=$("editRoomId").value;const duplicate=db.rooms.find(r=>r.name===name&&String(r.id)!==String(id));if(duplicate)return showAlert("Bu xona allaqachon mavjud.","error");if(id){const r=db.rooms.find(x=>x.id==id);Object.assign(r,{name,capacity:cap,type:$("rType").value,building:$("rBuilding").value.trim()});addHistory("Xona tahrirlandi",name)}else{db.rooms.push({id:Date.now(),name,capacity:cap,type:$("rType").value,building:$("rBuilding").value.trim()});addHistory("Xona qo‘shildi",name)}save();clearRoomForm();renderAll();showAlert("Xona saqlandi.","ok")}
 function editRoom(id){const r=db.rooms.find(x=>x.id===id);if(!r)return;switchTab("roomTab");$("editRoomId").value=r.id;$("rName").value=r.name;$("rCapacity").value=r.capacity;$("rType").value=r.type;$("rBuilding").value=r.building;$("saveRoomBtn").textContent="O‘zgarishlarni saqlash";$("adminPanel").scrollTo({top:0,behavior:"smooth"})}
-function deleteRoom(id){
- const r=db.rooms.find(x=>String(x.id)===String(id));if(!r)return;
- const key=physicalRoomKey(r.name,r.building);
- const used=db.teachers.some(t=>(t.schedule||[]).some(l=>
-   (l.roomId!=null&&String(l.roomId)===String(r.id))||
-   physicalRoomKey(l.room,l.roomBuilding)===key
- ));
- if(used)return showAlert("Bu xona darslarda ishlatilgan. Avval darslarni boshqa xonaga o‘tkazing.","error");
- if(confirm(`${r.name}-xona · ${r.building||""} o‘chirilsinmi?`)){
-   db.rooms=db.rooms.filter(x=>String(x.id)!==String(id));
-   addHistory("Xona o‘chirildi",`${r.name} · ${r.building||""}`);
-   save();renderAll();showAlert("Xona o‘chirildi.","ok");
- }
-}
+function deleteRoom(id){const r=db.rooms.find(x=>x.id===id);if(!r)return;const used=db.teachers.some(t=>t.schedule.some(l=>l.room===r.name));if(used)return showAlert("Bu xona darslarda ishlatilgan. Avval darslarni boshqa xonaga o‘tkazing.","error");if(confirm(`${r.name}-xona o‘chirilsinmi?`)){db.rooms=db.rooms.filter(x=>x.id!==id);addHistory("Xona o‘chirildi",r.name);save();renderAll()}}
 window.editRoom=editRoom;window.deleteRoom=deleteRoom;
 
 function updatePairTime(){const p=pairTimes[$("lPair").value];$("lTime").value=`${p.start} – ${p.end}`}
 function clearLessonForm(){$("editLessonTeacherId").value=$("editLessonId").value="";$("lSubject").value=$("lGroup").value=$("lGroupSize").value=$("lNote").value="";$("lSubstitute").value="";$("lStatus").value="pending";$("saveLessonBtn").textContent="Darsni saqlash";updatePairTime()}
 $("lPair").onchange=updatePairTime;
-$("saveLessonBtn").onclick=()=>{const teacherId=$("lTeacher").value, p=pairTimes[$("lPair").value],selectedRoom=roomById($("lRoom").value);if(!teacherId)return showAlert("O‘qituvchini tanlang.","error");if(!selectedRoom)return showAlert("Xonani tanlang.","error");const candidate={id:$("editLessonId").value||Date.now(),day:$("lDay").value,weekType:$("lWeek").value,pair:Number($("lPair").value),start:p.start,end:p.end,subject:$("lSubject").value.trim(),group:$("lGroup").value.trim(),groupSize:Number($("lGroupSize").value),room:selectedRoom.name,roomId:selectedRoom.id,roomBuilding:selectedRoom.building||"",type:$("lType").value,substituteTeacherId:$("lSubstitute").value,status:$("lStatus").value,cancelled:false,note:$("lNote").value.trim()};if(!candidate.subject||!candidate.group||!candidate.groupSize)return showAlert("Fan, guruh va guruh sonini to‘liq kiriting.","error");const validation=validateLesson(candidate,teacherId,$("editLessonId").value||null);if(validation.errs.length)return showAlert("<b>Dars saqlanmadi:</b><br>• "+validation.errs.join("<br>• "),"error");if(validation.warns.length&&!confirm("Ogohlantirishlar:\n- "+validation.warns.join("\n- ")+"\n\nBaribir saqlaysizmi?"))return;const editId=$("editLessonId").value;const editTid=$("editLessonTeacherId").value;if(editId){
- const oldT=teacherById(editTid);
- if(oldT) oldT.schedule=(oldT.schedule||[]).filter(l=>String(l.id)!==String(editId));
-
- // Shu ID bilan oldingi mirror nusxalar qolgan bo‘lsa, ularni ham olib tashlaydi.
- const workspaces=(db.departmentWorkspaces&&typeof db.departmentWorkspaces==="object")?db.departmentWorkspaces:{};
- Object.values(workspaces).forEach(ws=>{
-   (ws?.teachers||[]).forEach(wt=>{
-     if(Array.isArray(wt.schedule)) wt.schedule=wt.schedule.filter(l=>String(l.id)!==String(editId));
-   });
- });
-
- const newT=teacherById(teacherId);
- const effectiveNewTeacher=teacherById(candidate.substituteTeacherId)||newT;
- forgetDeletedLesson({...candidate,id:Number(editId)},effectiveNewTeacher,selectedRoom);
- newT.schedule.push({...candidate,id:Number(editId)});
- addHistory("Dars tahrirlandi",`${newT.name} · ${candidate.subject} · ${candidate.day} ${candidate.pair}-juftlik`);
-}else{const t=teacherById(teacherId);const newLesson={...candidate,id:Number(candidate.id)};const effectiveNewTeacher=teacherById(newLesson.substituteTeacherId)||t;forgetDeletedLesson(newLesson,effectiveNewTeacher,selectedRoom);t.schedule.push(newLesson);addHistory("Dars qo‘shildi",`${t.name} · ${candidate.subject} · ${candidate.day} ${candidate.pair}-juftlik`)}save();clearLessonForm();renderAll();showAlert("Dars saqlandi.","ok")}
-function editLesson(tid,lid){
- const t=teacherById(tid),l=t?.schedule.find(x=>String(x.id)===String(lid));if(!l)return;
- const lr=roomById(l.roomId)||db.rooms.find(r=>normalizePhysicalRoom(r.name)===normalizePhysicalRoom(l.room)&&normalizeBuilding(r.building)===normalizeBuilding(l.roomBuilding))||roomByName(l.room);
- switchTab("lessonTab");
- $("editLessonTeacherId").value=tid;$("editLessonId").value=lid;$("lTeacher").value=tid;$("lDay").value=l.day;$("lWeek").value=l.weekType;
- $("lSubject").value=l.subject;$("lGroup").value=l.group;$("lGroupSize").value=l.groupSize;$("lRoom").value=lr?.id||"";
- $("lType").value=l.type;$("lPair").value=l.pair;$("lSubstitute").value=l.substituteTeacherId||"";$("lStatus").value=l.status;$("lNote").value=l.note||"";
- updatePairTime();$("saveLessonBtn").textContent="Darsdagi o‘zgarishlarni saqlash";$("adminPanel").scrollTo({top:0,behavior:"smooth"});
-}
-function deleteLesson(tid,lid){
- const t=teacherById(tid),l=t?.schedule.find(x=>String(x.id)===String(lid));
- if(!l||!confirm("Dars butunlay o‘chirilsinmi?"))return;
-
- const activeRoom=roomById(l.roomId)||db.rooms.find(r=>physicalRoomKey(r.name,r.building)===physicalRoomKey(l.room,l.roomBuilding));
- const activeEffectiveTeacher=teacherById(l.substituteTeacherId)||t;
-
- // Dars ID, to‘liq fingerprint va yumshoq mirror kaliti bilan registrga olinadi.
- rememberDeletedLesson(l,activeEffectiveTeacher,activeRoom);
-
- // Top-level va barcha departmentWorkspaces nusxalarini bir yo‘la tozalaydi.
- purgeDeletedLessonMirrors();
-
- // Favqulodda holatda faol massivda qolgan ID nusxasini ham majburan chiqaradi.
- t.schedule=(t.schedule||[]).filter(x=>String(x.id)!==String(lid));
-
- if(Array.isArray(db.history)){
-   db.history.unshift({
-     id:Date.now(),
-     time:new Date().toLocaleString("uz-UZ"),
-     action:"Dars o‘chirildi",
-     details:`${t.name} · ${l.subject}`
-   });
- }
-
- // save() faol workspace, localStorage va Firestore'ga faqat tozalangan bazani yozadi.
- save();
- renderAll();
- showAlert("Dars barcha kafedralar jadvalidan va bazadan o‘chirildi.","ok");
-}
+$("saveLessonBtn").onclick=()=>{const teacherId=$("lTeacher").value, p=pairTimes[$("lPair").value];const candidate={id:$("editLessonId").value||Date.now(),day:$("lDay").value,weekType:$("lWeek").value,pair:Number($("lPair").value),start:p.start,end:p.end,subject:$("lSubject").value.trim(),group:$("lGroup").value.trim(),groupSize:Number($("lGroupSize").value),room:$("lRoom").value,type:$("lType").value,substituteTeacherId:$("lSubstitute").value,status:$("lStatus").value,cancelled:false,note:$("lNote").value.trim()};if(!candidate.subject||!candidate.group||!candidate.groupSize)return showAlert("Fan, guruh va guruh sonini to‘liq kiriting.","error");const validation=validateLesson(candidate,teacherId,$("editLessonId").value||null);if(validation.errs.length)return showAlert("<b>Dars saqlanmadi:</b><br>• "+validation.errs.join("<br>• "),"error");if(validation.warns.length&&!confirm("Ogohlantirishlar:\n- "+validation.warns.join("\n- ")+"\n\nBaribir saqlaysizmi?"))return;const editId=$("editLessonId").value;const editTid=$("editLessonTeacherId").value;if(editId){const oldT=teacherById(editTid),idx=oldT.schedule.findIndex(l=>l.id==editId);if(idx>=0)oldT.schedule.splice(idx,1);const newT=teacherById(teacherId);newT.schedule.push({...candidate,id:Number(editId)});addHistory("Dars tahrirlandi",`${newT.name} · ${candidate.subject} · ${candidate.day} ${candidate.pair}-juftlik`)}else{const t=teacherById(teacherId);t.schedule.push({...candidate,id:Date.now()});addHistory("Dars qo‘shildi",`${t.name} · ${candidate.subject} · ${candidate.day} ${candidate.pair}-juftlik`)}save();clearLessonForm();renderAll();showAlert("Dars saqlandi.","ok")}
+function editLesson(tid,lid){const t=teacherById(tid),l=t?.schedule.find(x=>x.id===lid);if(!l)return;switchTab("lessonTab");$("editLessonTeacherId").value=tid;$("editLessonId").value=lid;$("lTeacher").value=tid;$("lDay").value=l.day;$("lWeek").value=l.weekType;$("lSubject").value=l.subject;$("lGroup").value=l.group;$("lGroupSize").value=l.groupSize;$("lRoom").value=l.room;$("lType").value=l.type;$("lPair").value=l.pair;$("lSubstitute").value=l.substituteTeacherId||"";$("lStatus").value=l.status;$("lNote").value=l.note||"";updatePairTime();$("saveLessonBtn").textContent="Darsdagi o‘zgarishlarni saqlash";$("adminPanel").scrollTo({top:0,behavior:"smooth"})}
+function deleteLesson(tid,lid){const t=teacherById(tid),l=t?.schedule.find(x=>x.id===lid);if(!l||!confirm("Dars butunlay o‘chirilsinmi?"))return;t.schedule=t.schedule.filter(x=>x.id!==lid);addHistory("Dars o‘chirildi",`${t.name} · ${l.subject}`);save();renderAll()}
 function toggleCancel(tid,lid){const t=teacherById(tid),l=t?.schedule.find(x=>x.id===lid);if(!l)return;l.cancelled=!l.cancelled;addHistory(l.cancelled?"Dars bekor qilindi":"Dars qayta faollashtirildi",`${t.name} · ${l.subject}`);save();renderAll()}
 function approveLesson(tid,lid){const t=teacherById(tid),l=t?.schedule.find(x=>x.id===lid);if(!l)return;l.status="approved";addHistory("Dars tasdiqlandi",`${t.name} · ${l.subject}`);save();renderAll()}
 function rejectLesson(tid,lid){const t=teacherById(tid),l=t?.schedule.find(x=>x.id===lid);if(!l)return;l.cancelled=true;l.status="pending";addHistory("Dars rad etildi",`${t.name} · ${l.subject}`);save();renderAll()}
@@ -2917,8 +1573,8 @@ window.editLesson=editLesson;window.deleteLesson=deleteLesson;window.toggleCance
 function switchTab(id){document.querySelectorAll(".tab-section").forEach(s=>s.style.display=s.id===id?"block":"none");document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("active",b.dataset.tab===id))}
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
 
-$("roomViewBtn").onclick=()=>{const rows=db.rooms.map(r=>{const lessons=[];const key=physicalRoomKey(r.name,r.building);db.teachers.forEach(t=>(t.schedule||[]).filter(l=>!l.cancelled&&((l.roomId!=null&&String(l.roomId)===String(r.id))||physicalRoomKey(l.room,l.roomBuilding)===key)).forEach(l=>lessons.push({...l,teacher:t.name})));return `<div class="card"><h3>${esc(r.name)}-xona</h3><div class="mini">${esc(r.type)} · ${r.capacity} o‘rin · ${esc(r.building)}</div><div style="margin-top:10px">${lessons.length?lessons.sort((a,b)=>dayOrder[a.day]-dayOrder[b.day]||a.pair-b.pair).map(l=>`${l.day}, ${l.pair}-juftlik — ${esc(l.teacher)} / ${esc(l.subject)} / ${esc(l.group)}<br>`).join(""):"Dars yo‘q"}</div></div>`}).join("");$("genericTitle").textContent="Xonalar bo‘yicha jadval";$("genericBody").innerHTML=`<div class="grid">${rows}</div>`;$("genericModal").classList.add("open")}
-$("groupViewBtn").onclick=()=>{const groups={};db.teachers.forEach(t=>t.schedule.filter(l=>!l.cancelled).forEach(l=>(groups[l.group]??=[]).push({...l,teacher:t.name})));$("genericTitle").textContent="Guruhlar bo‘yicha jadval";$("genericBody").innerHTML=Object.keys(groups).sort().map(g=>`<div class="card" style="margin-bottom:10px"><h3>${esc(g)}</h3>${groups[g].sort((a,b)=>dayOrder[a.day]-dayOrder[b.day]||a.pair-b.pair).map(l=>`${l.day}, ${l.pair}-juftlik — ${esc(l.subject)} / ${esc(l.teacher)} / ${roomDisplay(l.room)}<br>`).join("")}</div>`).join("")||'<div class="empty">Guruhlar yo‘q.</div>';$("genericModal").classList.add("open")}
+$("roomViewBtn").onclick=()=>{const rows=db.rooms.map(r=>{const lessons=[];db.teachers.forEach(t=>t.schedule.filter(l=>l.room===r.name&&!l.cancelled).forEach(l=>lessons.push({...l,teacher:t.name})));return `<div class="card"><h3>${esc(r.name)}-xona</h3><div class="mini">${esc(r.type)} · ${r.capacity} o‘rin · ${esc(r.building)}</div><div style="margin-top:10px">${lessons.length?lessons.sort((a,b)=>dayOrder[a.day]-dayOrder[b.day]||a.pair-b.pair).map(l=>`${l.day}, ${l.pair}-juftlik — ${esc(l.teacher)} / ${esc(l.subject)} / ${esc(l.group)}<br>`).join(""):"Dars yo‘q"}</div></div>`}).join("");$("genericTitle").textContent="Xonalar bo‘yicha jadval";$("genericBody").innerHTML=`<div class="grid">${rows}</div>`;$("genericModal").classList.add("open")}
+$("groupViewBtn").onclick=()=>{const groups={};db.teachers.forEach(t=>t.schedule.filter(l=>!l.cancelled).forEach(l=>(groups[l.group]??=[]).push({...l,teacher:t.name})));$("genericTitle").textContent="Guruhlar bo‘yicha jadval";$("genericBody").innerHTML=Object.keys(groups).sort().map(g=>`<div class="card" style="margin-bottom:10px"><h3>${esc(g)}</h3>${groups[g].sort((a,b)=>dayOrder[a.day]-dayOrder[b.day]||a.pair-b.pair).map(l=>`${l.day}, ${l.pair}-juftlik — ${esc(l.subject)} / ${esc(l.teacher)} / ${esc(l.room)}-xona<br>`).join("")}</div>`).join("")||'<div class="empty">Guruhlar yo‘q.</div>';$("genericModal").classList.add("open")}
 
 
 $("exportExcelBtn").onclick=()=>{
@@ -3017,7 +1673,7 @@ $("homeBtn").onclick=()=>window.scrollTo({top:0,behavior:"smooth"});
 ["search","statusFilter","roomFilter","groupFilter","subjectFilter"].forEach(id=>$(id).addEventListener("input",renderTeachers));
 
 function renderAll(){populateFilters();renderTeachers();renderToday();renderStats();renderAdminSelectors();renderTeacherAdmin();renderRoomAdmin();renderLessonAdmin();renderApproval();renderHistory();updateWeekUI()}
-updateClock();updatePairTime();renderAll();initCloudSync();setInterval(()=>{updateClock();renderTeachers();renderToday();renderStats()},1000);
+updateClock();updatePairTime();renderAll();setInterval(()=>{updateClock();renderTeachers();renderToday();renderStats()},1000);
 
 // ================= KENGAYTIRILGAN MODULLAR =================
 if(!db.settings) db.settings={academicYear:"2026/2027",semester:"I-semestr"};
@@ -3035,13 +1691,15 @@ function roleCanEdit(){
 function applyRoleUI(){
   $("adminBtn").style.display=roleCanEdit()?"inline-block":"none";
   $("loginBtn").textContent=`${db.currentUser?.name||"Mehmon"} · ${db.currentUser?.role||"viewer"}`;
-  const mt=document.getElementById("managerAdminTabBtn");
-  if(mt)mt.style.display=db.currentUser?.role==="superadmin"?"inline-block":"none";
 }
-$("loginBtn").onclick=()=>{const m=$("loginModal");if(m)m.classList.add("open")};
-if($("closeLogin")) $("closeLogin").onclick=()=>$("loginModal").classList.remove("open");
-if($("doLoginBtn")) $("doLoginBtn").onclick=()=>{};
-if($("closeAdvanced")) $("closeAdvanced").onclick=()=>$("advancedModal").classList.remove("open");
+$("loginBtn").onclick=()=>{$("loginModal").classList.add("open")};
+$("closeLogin").onclick=()=>$("loginModal").classList.remove("open");
+$("doLoginBtn").onclick=()=>{
+  db.currentUser={name:$("loginUser").value.trim()||"Foydalanuvchi",role:$("loginRole").value};
+  audit("Tizimga kirildi",db.currentUser.role);
+  save();applyRoleUI();$("loginModal").classList.remove("open");
+};
+$("closeAdvanced").onclick=()=>$("advancedModal").classList.remove("open");
 
 function openAdvanced(title,subtitle,html){
   $("advancedTitle").textContent=title;
@@ -3058,7 +1716,7 @@ $("cabinetBtn").onclick=()=>{
     if(t){
       content+=`<div class="section-title"><h3>Mening jadvalim</h3></div>`;
       content+=`<div style="overflow:auto"><table><thead><tr><th>Kun</th><th>Juftlik</th><th>Fan</th><th>Guruh</th><th>Xona</th><th>Hafta</th></tr></thead><tbody>`+
-      t.schedule.map(l=>`<tr><td>${l.day}</td><td>${l.pair}</td><td>${esc(l.subject)}</td><td>${esc(l.group)}</td><td>${roomDisplay(l.room)}</td><td>${l.weekType}</td></tr>`).join("")+
+      t.schedule.map(l=>`<tr><td>${l.day}</td><td>${l.pair}</td><td>${esc(l.subject)}</td><td>${esc(l.group)}</td><td>${esc(l.room)}</td><td>${l.weekType}</td></tr>`).join("")+
       `</tbody></table></div>`;
     } else content+=`<div class="empty">Ismingizga mos o‘qituvchi topilmadi.</div>`;
   } else {
@@ -3068,18 +1726,7 @@ $("cabinetBtn").onclick=()=>{
 };
 
 function allApprovedLessons(){
-  const arr=[];scopedTeachers().forEach(t=>t.schedule.forEach(l=>{if(!l.cancelled&&l.status==="approved")arr.push({...l,teacher:t})}));return arr;
-}
-function calendarLessonTypeClass(type=""){
-  const normalized=String(type).toLowerCase()
-    .replace(/['’]/g,"")
-    .replace(/\s+/g,"-")
-    .replace(/[^a-z0-9\-Ѐ-ӿ]/g,"");
-  if(normalized.includes("maruza")||normalized.includes("ma-ruza")||normalized.includes("ma’ruza")) return "ma-ruza";
-  if(normalized.includes("amaliy")) return "amaliy";
-  if(normalized.includes("laboratoriya")) return "laboratoriya";
-  if(normalized.includes("seminar")) return "seminar";
-  return "ma-ruza";
+  const arr=[];db.teachers.forEach(t=>t.schedule.forEach(l=>{if(!l.cancelled&&l.status==="approved")arr.push({...l,teacher:t})}));return arr;
 }
 $("calendarBtn").onclick=()=>{
   const days=["Dushanba","Seshanba","Chorshanba","Payshanba","Juma","Shanba"];
@@ -3089,14 +1736,7 @@ $("calendarBtn").onclick=()=>{
     html+=`<div class="calendar-cell calendar-head">${p}-juftlik<br>${pairTimes[p].start}–${pairTimes[p].end}</div>`;
     days.forEach(d=>{
       const ls=allApprovedLessons().filter(l=>l.day===d&&l.pair===p&&(l.weekType==="doim"||l.weekType===currentWeek));
-      html+=`<div class="calendar-cell">${ls.length?ls.map(l=>`
-        <div class="calendar-lesson">
-          <span class="calendar-lesson-type ${calendarLessonTypeClass(l.type)}">${esc(l.type||"Dars")}</span>
-          <span class="calendar-lesson-subject">${esc(l.subject)}</span>
-          <span class="calendar-lesson-meta">${esc(l.teacher.name)}</span>
-          <span class="calendar-lesson-meta">${esc(l.group)}</span>
-          <span class="calendar-lesson-room">${roomDisplay(l.room)}</span>
-        </div>`).join(""):`<div class="calendar-empty">—</div>`}</div>`;
+      html+=`<div class="calendar-cell">${ls.map(l=>`<b>${esc(l.subject)}</b><br>${esc(l.teacher.name)}<br>${esc(l.group)} · ${esc(l.room)}-xona<hr>`).join("")||"—"}</div>`;
     });
   }
   html+=`</div>`;
@@ -3107,7 +1747,8 @@ $("freeRoomBtn").onclick=()=>{
   const {day,minutes}=nowInfo();
   let pair=Object.entries(pairTimes).find(([p,t])=>minutes>=mins(t.start)&&minutes<=mins(t.end));
   pair=pair?Number(pair[0]):1;
-  const free=db.rooms.filter(r=>!globalRoomOccupied(r,day,pair,currentWeek));
+  const occupied=new Set(allApprovedLessons().filter(l=>l.day===day&&l.pair===pair&&(l.weekType==="doim"||l.weekType===currentWeek)).map(l=>l.room));
+  const free=db.rooms.filter(r=>!occupied.has(r.name));
   const html=`<div class="form"><div><label>Joriy juftlik<input value="${pair}-juftlik" readonly></label></div></div>
   <div class="section-title"><h3>Bo‘sh xonalar</h3></div>
   <div class="grid">${free.map(r=>`<div class="card"><h3>${esc(r.name)}-xona</h3><div class="mini">${esc(r.type)} · ${r.capacity} o‘rin · ${esc(r.building)}</div></div>`).join("")||'<div class="empty">Bo‘sh xona yo‘q.</div>'}</div>`;
@@ -3118,7 +1759,8 @@ $("freeTeacherBtn").onclick=()=>{
   const {day,minutes}=nowInfo();
   let pair=Object.entries(pairTimes).find(([p,t])=>minutes>=mins(t.start)&&minutes<=mins(t.end));
   pair=pair?Number(pair[0]):1;
-  const free=scopedTeachers().filter(t=>t.availability==="available"&&!globalTeacherBusy(t,day,pair,currentWeek));
+  const busy=new Set(allApprovedLessons().filter(l=>l.day===day&&l.pair===pair&&(l.weekType==="doim"||l.weekType===currentWeek)).map(l=>String(l.substituteTeacherId||l.teacher.id)));
+  const free=db.teachers.filter(t=>t.availability==="available"&&!busy.has(String(t.id)));
   openAdvanced("Bo‘sh o‘qituvchilar",`${day}, ${pair}-juftlik`,
     `<div class="grid">${free.map(t=>`<div class="card"><h3>${esc(t.name)}</h3><div class="mini">${esc(t.position)} · ${esc(t.degree)}</div></div>`).join("")||'<div class="empty">Bo‘sh o‘qituvchi yo‘q.</div>'}</div>`);
 };
@@ -3128,7 +1770,7 @@ $("statsBtn").onclick=()=>{
   const totalHours=lessons.length*80/60;
   const lecture=lessons.filter(l=>l.type==="Ma’ruza").length;
   const practical=lessons.filter(l=>l.type==="Amaliy").length;
-  const roomUse={};lessons.forEach(l=>{const r=roomById(l.roomId)||db.rooms.find(x=>normalizePhysicalRoom(x.name)===normalizePhysicalRoom(l.room)&&normalizeBuilding(x.building)===normalizeBuilding(l.roomBuilding));const label=`${r?.name||l.room}-xona${r?.building||l.roomBuilding?` · ${r?.building||l.roomBuilding}`:""}`;roomUse[label]=(roomUse[label]||0)+1;});
+  const roomUse={};lessons.forEach(l=>roomUse[l.room]=(roomUse[l.room]||0)+1);
   const busiest=Object.entries(roomUse).sort((a,b)=>b[1]-a[1])[0];
   let html=`<div class="kpi-grid">
     <div class="kpi">Tasdiqlangan dars<b>${lessons.length}</b></div>
@@ -3150,13 +1792,12 @@ $("monitorBtn").onclick=()=>{
     const {day}=nowInfo();
     const live=[];
     db.teachers.forEach(t=>{const st=getStatus(t);if(st.key==="inclass")live.push({t,l:st.lesson})});
-    const currentPairEntry=Object.entries(pairTimes).find(([p,t])=>{const m=nowInfo().minutes;return m>=mins(t.start)&&m<=mins(t.end)});
-    const currentPair=currentPairEntry?Number(currentPairEntry[0]):1;
-    const freeRooms=db.rooms.filter(r=>!globalRoomOccupied(r,day,currentPair,currentWeek)).slice(0,12);
-    wrap.innerHTML=`<div class="monitor-header"><div><h1 style="margin:0">Darslar monitoringi</h1><div>${day} · ${currentWeek.toUpperCase()} hafta</div></div><button class="close universal-monitor-close" type="button" aria-label="Yopish">×</button></div>
+    const occupied=new Set(live.map(x=>x.l.room));
+    const freeRooms=db.rooms.filter(r=>!occupied.has(r.name)).slice(0,12);
+    wrap.innerHTML=`<div class="monitor-header"><div><h1 style="margin:0">Darslar monitoringi</h1><div>${day} · ${currentWeek.toUpperCase()} hafta</div></div><button class="btn danger" onclick="document.getElementById('monitorMode').remove()">Yopish</button></div>
     <div class="monitor-grid">
-      <div class="monitor-card"><h3>Hozir darsda</h3>${live.map(x=>`<p><b>${esc(x.t.name)}</b><br>${esc(x.l.subject)} · ${roomDisplay(x.l.room)}</p>`).join("")||"Hozir dars yo‘q."}</div>
-      <div class="monitor-card"><h3>Bo‘sh xonalar</h3>${freeRooms.map(r=>`<p>${roomDisplay(r.name)} · ${r.capacity} o‘rin</p>`).join("")||"Bo‘sh xona yo‘q."}</div>
+      <div class="monitor-card"><h3>Hozir darsda</h3>${live.map(x=>`<p><b>${esc(x.t.name)}</b><br>${esc(x.l.subject)} · ${esc(x.l.room)}-xona</p>`).join("")||"Hozir dars yo‘q."}</div>
+      <div class="monitor-card"><h3>Bo‘sh xonalar</h3>${freeRooms.map(r=>`<p>${esc(r.name)}-xona · ${r.capacity} o‘rin</p>`).join("")||"Bo‘sh xona yo‘q."}</div>
       <div class="monitor-card"><h3>Vaqt</h3><div style="font-size:42px;font-weight:800">${new Date().toLocaleTimeString("uz-UZ",{hour12:false})}</div></div>
     </div>`;
   };
@@ -3279,15 +1920,20 @@ renderAdvanced();
     <div class="modal-top">
       <div>
         <h2 style="margin:0;color:var(--navy)">Tizimga kirish</h2>
-        <p class="note">Super admin yoki kafedra mudiri o‘z login-paroli orqali kiradi.</p>
+        <p class="note">Demo rollar: superadmin / admin / mudir / oqituvchi / foydalanuvchi</p>
       </div>
       <button class="close" id="closeLogin">×</button>
     </div>
     <div class="form" style="margin-top:12px">
-      <div class="full"><label>Login<input id="loginUser" placeholder="Login"></label></div>
-      <div class="full"><label>Parol<input id="loginPassword" type="password" placeholder="Parol"></label></div>
+      <div class="full"><label>Foydalanuvchi nomi<input id="loginUser" placeholder="admin"></label></div>
+      <div class="full"><label>Rol<select id="loginRole">
+        <option value="superadmin">Super admin</option>
+        <option value="admin">Admin</option>
+        <option value="mudiri">Kafedra mudiri</option>
+        <option value="teacher">O‘qituvchi</option>
+        <option value="viewer">Oddiy foydalanuvchi</option>
+      </select></label></div>
       <div class="full"><button class="btn primary" id="doLoginBtn">Kirish</button></div>
-      <div class="full"><div id="loginError" class="alert"></div></div>
     </div>
   </div>
 </div>
@@ -3308,229 +1954,10 @@ renderAdvanced();
 (function(){
   const g=id=>document.getElementById(id);
   function sEsc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
-  function ensureDepartmentWorkspaces(){
-    if(!db.departmentWorkspaces || typeof db.departmentWorkspaces!=='object') db.departmentWorkspaces={};
-
-    // Mavjud asosiy kafedra ma'lumotlarini birinchi marta alohida workspace sifatida saqlab qoladi.
-    const existingDeps=[...new Set((db.teachers||[]).map(t=>String(t.department||'').trim()).filter(Boolean))];
-    existingDeps.forEach(dep=>{
-      if(!db.departmentWorkspaces[dep]){
-        const teachers=(db.teachers||[]).filter(t=>String(t.department||'').trim()===dep);
-        db.departmentWorkspaces[dep]={
-          teachers:JSON.parse(JSON.stringify(teachers)),
-          rooms:[],
-          history:[],
-          dayExceptions:[]
-        };
-      }
-    });
-
-    // Eski versiyadan o'tishda top-level xonalarni faqat hozirgi yagona kafedraga bir marta biriktiradi.
-    // Shu sabab yangi kafedralarga boshqa kafedraning xonalari ko'chib o'tmaydi.
-    const topTeacherDeps=[...new Set((db.teachers||[]).map(t=>String(t.department||'').trim()).filter(Boolean))];
-    if(topTeacherDeps.length===1){
-      const dep=topTeacherDeps[0];
-      const ws=db.departmentWorkspaces[dep];
-      if(ws && (!Array.isArray(ws.rooms) || ws.rooms.length===0) && Array.isArray(db.rooms) && db.rooms.length){
-        ws.rooms=JSON.parse(JSON.stringify(db.rooms));
-      }
-    }
-  }
-
-  function ensureDepartmentWorkspace(department){
-    const dep=String(department||'').trim();
-    if(!dep) return null;
-    ensureDepartmentWorkspaces();
-    if(!db.departmentWorkspaces[dep]){
-      db.departmentWorkspaces[dep]={
-        teachers:[],
-        rooms:[],
-        history:[],
-        dayExceptions:[]
-      };
-    }
-    return db.departmentWorkspaces[dep];
-  }
-
-  function activateDepartmentWorkspace(department){
-    const ws=ensureDepartmentWorkspace(department);
-    if(!ws) return;
-    db.teachers=Array.isArray(ws.teachers)?ws.teachers:[];
-    db.rooms=Array.isArray(ws.rooms)?ws.rooms:[];
-    db.history=Array.isArray(ws.history)?ws.history:[];
-    db.dayExceptions=Array.isArray(ws.dayExceptions)?ws.dayExceptions:[];
-  }
-
-  function syncActiveDepartmentWorkspace(){
-    const u=db.currentUser||{};
-    if(u.role!=='mudiri' || !u.department) return;
-    const ws=ensureDepartmentWorkspace(u.department);
-    ws.teachers=db.teachers;
-    ws.rooms=db.rooms;
-    ws.history=db.history;
-    ws.dayExceptions=db.dayExceptions;
-  }
-
-  // Asosiy save() funksiyasi kafedra ma'lumotlarini Firestore'ga yozishdan oldin
-  // aynan faol kafedra workspace'iga ko'chira olishi uchun globalga chiqariladi.
-  window.syncActiveDepartmentWorkspace=syncActiveDepartmentWorkspace;
-  window.activateDepartmentWorkspace=activateDepartmentWorkspace;
-
-  function ensureUsers(){
-    if(!Array.isArray(db.users)) db.users=[];
-    if(!db.users.some(u=>u.role==='superadmin')){
-      db.users.push({id:1,name:'Super admin',username:'admin',password:'admin123',role:'superadmin',department:''});
-    }
-  }
-
-  function departmentOptions(){
-    const deps=[...new Set([
-      ...(db.orgStructure||[]).map(x=>String(x.department||'').trim()),
-      ...(db.teachers||[]).map(t=>String(t.department||'').trim())
-    ].filter(Boolean))].sort();
-    return deps;
-  }
-
-  function refreshManagerDepartments(){
-    const el=g('managerDepartment'); if(!el)return;
-    el.innerHTML=departmentOptions().map(d=>`<option value="${sEsc(d)}">${sEsc(d)}</option>`).join('');
-  }
-
-  function renderManagers(){
-    const box=g('managerList'); if(!box)return;
-    const managers=(db.users||[]).filter(u=>u.role==='mudiri');
-    box.innerHTML=managers.length?managers.map(u=>`
-      <div class="admin-row">
-        <strong>${sEsc(u.name)}</strong>
-        <div class="mini">${sEsc(u.department)} · login: ${sEsc(u.username)}</div>
-        <div class="actions" style="margin-top:8px">
-          <button class="btn ghost" onclick="editManagerUser(${u.id})">Tahrirlash</button>
-          <button class="btn danger" onclick="deleteManagerUser(${u.id})">O‘chirish</button>
-        </div>
-      </div>`).join(''):'<div class="empty">Kafedra mudirlari kiritilmagan.</div>';
-  }
-
-  window.editManagerUser=id=>{
-    const u=(db.users||[]).find(x=>String(x.id)===String(id)); if(!u)return;
-    g('managerEditId').value=u.id;
-    g('managerName').value=u.name||'';
-    g('managerLogin').value=u.username||'';
-    g('managerPassword').value=u.password||'';
-    g('managerDepartment').value=u.department||'';
-    g('saveManagerBtn').textContent='O‘zgarishlarni saqlash';
-    switchTab('managerAdminTab');
-  };
-
-  window.deleteManagerUser=id=>{
-    const u=(db.users||[]).find(x=>String(x.id)===String(id)); if(!u)return;
-    if(!confirm(`${u.name} o‘chirilsinmi?`))return;
-    db.users=db.users.filter(x=>String(x.id)!==String(id));
-    save(); renderManagers();
-  };
-
-  function bindManagerAdmin(){
-    const btn=g('saveManagerBtn'); if(!btn)return;
-    btn.onclick=()=>{
-      if(db.currentUser?.role!=='superadmin'){showAlert('Bu bo‘lim faqat Super admin uchun.','error');return;}
-      const id=g('managerEditId').value;
-      const name=g('managerName').value.trim();
-      const username=g('managerLogin').value.trim();
-      const password=g('managerPassword').value;
-      const department=g('managerDepartment').value;
-      if(!name||!username||!password||!department){showAlert('Barcha maydonlarni to‘ldiring.','error');return;}
-      if(password.length<6){showAlert('Parol kamida 6 ta belgidan iborat bo‘lsin.','error');return;}
-      const dup=(db.users||[]).find(u=>u.username.toLowerCase()===username.toLowerCase()&&String(u.id)!==String(id));
-      if(dup){showAlert('Bu login band. Boshqa login kiriting.','error');return;}
-      if(id){
-        const u=db.users.find(x=>String(x.id)===String(id));
-        Object.assign(u,{name,username,password,department,role:'mudiri'});
-      }else{
-        db.users.push({id:Date.now(),name,username,password,department,role:'mudiri'});
-      }
-      ensureDepartmentWorkspace(department);
-      save();
-      g('managerEditId').value='';
-      g('managerName').value=g('managerLogin').value=g('managerPassword').value='';
-      g('saveManagerBtn').textContent='Kafedra mudirini saqlash';
-      renderManagers();
-      showAlert('Kafedra mudiri saqlandi.','ok');
-    };
-  }
-
-  function bindRealLogin(){
-    const loginBtn=g('loginBtn'), close=g('closeLogin'), doBtn=g('doLoginBtn');
-    if(loginBtn) loginBtn.onclick=()=>g('loginModal').classList.add('open');
-    if(close) close.onclick=()=>g('loginModal').classList.remove('open');
-    if(doBtn) doBtn.onclick=()=>{
-      const username=g('loginUser').value.trim().toLowerCase();
-      const password=g('loginPassword').value;
-      const err=g('loginError');
-      let u=(db.users||[]).find(x=>String(x.username||'').toLowerCase()===username&&String(x.password||'')===String(password));
-      if(!u && username==='admin' && password==='admin123'){
-        u={id:1,name:'Super admin',username:'admin',password:'admin123',role:'superadmin',department:''};
-        if(!Array.isArray(db.users)) db.users=[];
-        if(!db.users.some(x=>x.role==='superadmin')) db.users.push(u);
-      }
-      if(!u){
-        err.className='alert show error';
-        err.textContent='Login yoki parol noto‘g‘ri.';
-        return;
-      }
-      db.currentUser={id:u.id,name:u.name,role:u.role,department:u.department||''};
-      if(u.role==='mudiri' && u.department){
-        activateDepartmentWorkspace(u.department);
-        if(g('tDepartment')) g('tDepartment').value=u.department;
-      }
-      audit('Tizimga kirildi',`${u.role}${u.department?' · '+u.department:''}`);
-      document.body.classList.remove('login-required');
-      applyRoleUI();
-      renderAll();
-      g('loginModal').classList.remove('open');
-      g('loginPassword').value='';
-      if(err){err.className='alert';err.textContent='';}
-      if(u.role==='mudiri') openDepartmentManagerCabinet();
-    };
-  }
-
-  function openDepartmentManagerCabinet(){
-    const u=db.currentUser||{};
-    const dep=String(u.department||'').trim();
-    const teachers=(db.teachers||[]).filter(t=>String(t.department||'').trim()===dep);
-    const lessons=[];
-    teachers.forEach(t=>(t.schedule||[]).forEach(l=>{if(!l.cancelled)lessons.push({...l,teacher:t})}));
-    const {day}=nowInfo();
-    const today=lessons.filter(l=>l.day===day&&(l.weekType==='doim'||l.weekType===currentWeek));
-    let html=`<div class="card">
-      <h3>${sEsc(u.name||'Kafedra mudiri')}</h3>
-      <div class="mini"><b>Kafedra:</b> ${sEsc(dep)}</div>
-    </div>
-    <div class="kpi-grid" style="margin-top:12px">
-      <div class="kpi">O‘qituvchilar<b>${teachers.length}</b></div>
-      <div class="kpi">Bugungi darslar<b>${today.length}</b></div>
-      <div class="kpi">Tasdiqlangan darslar<b>${lessons.filter(l=>l.status==='approved').length}</b></div>
-      <div class="kpi">Kutilayotgan tasdiq<b>${lessons.filter(l=>l.status==='pending').length}</b></div>
-    </div>
-    <div class="section-title"><h3>Kafedra o‘qituvchilari</h3></div>
-    <div class="grid">${teachers.map(t=>{
-      const st=getStatus(t);
-      return `<div class="card">
-        <h3>${sEsc(t.name)}</h3>
-        <div class="mini">${sEsc(t.position)} · ${sEsc(t.degree)}</div>
-        <div class="status"><span class="dot" style="background:${st.color}"></span>${sEsc(st.label)}</div>
-        <div class="mini" style="margin-top:6px">Jami dars: ${(t.schedule||[]).length}</div>
-      </div>`;
-    }).join('')||'<div class="empty">Bu kafedrada o‘qituvchi topilmadi.</div>'}</div>
-    <div class="section-title"><h3>Bugungi darslar</h3></div>
-    <div class="today-list">${today.sort((a,b)=>a.pair-b.pair).map(l=>`
-      <div class="today-item"><strong>${l.pair}-juftlik · ${l.start}–${l.end} · ${sEsc(l.teacher.name)}</strong><br>
-      ${sEsc(l.subject)} · ${sEsc(l.group)} · ${roomDisplay(l.room)} · ${sEsc(l.type)}</div>`).join('')||'<div class="empty">Bugun dars yo‘q.</div>'}</div>`;
-    openSmart('Kafedra mudiri kabineti',dep,html);
-  }
-
   function ensureExtraDB(){
     if(typeof db==='undefined') return;
     if(!Array.isArray(db.dayExceptions)) db.dayExceptions=[];
-    if(!Array.isArray(db.orgStructure)) db.orgStructure=[{id:1,building:"1-bino",faculty:"Tabiiy resurslarni boshqarish",department:"Ekologiya, irrigatsiya va gidrotexnika"}];
+    if(!Array.isArray(db.orgStructure)) db.orgStructure=[{id:1,building:"1-bino",faculty:"Muhandislik fakulteti",department:"Ekologiya, irrigatsiya va gidrotexnika"}];
     try{save();}catch(e){}
   }
   function openSmart(title,subtitle,content){
@@ -3542,16 +1969,10 @@ renderAdvanced();
 
   function approvedLessons(){
     const a=[]; if(typeof db==='undefined')return a;
-    scopedTeachers().forEach(t=>(t.schedule||[]).forEach(l=>{if(!l.cancelled&&l.status==='approved')a.push({...l,teacher:t})})); return a;
+    db.teachers.forEach(t=>(t.schedule||[]).forEach(l=>{if(!l.cancelled&&l.status==='approved')a.push({...l,teacher:t})})); return a;
   }
-  function slotOccupiedRoom(room,day,pair,week){
-    const r=typeof room==="object"?room:(db.rooms||[]).find(x=>String(x.id)===String(room))||(db.rooms||[]).find(x=>x.name===room);
-    return r?globalRoomOccupied(r,day,pair,week):false;
-  }
-  function slotTeacherBusy(tid,day,pair,week){
-    const t=teacherById(tid);
-    return t?globalTeacherBusy(t,day,pair,week):false;
-  }
+  function slotOccupiedRoom(room,day,pair,week){return approvedLessons().some(l=>l.room===room&&l.day===day&&Number(l.pair)===Number(pair)&&(l.weekType==='doim'||week==='doim'||l.weekType===week));}
+  function slotTeacherBusy(tid,day,pair,week){return approvedLessons().some(l=>String(l.substituteTeacherId||l.teacher.id)===String(tid)&&l.day===day&&Number(l.pair)===Number(pair)&&(l.weekType==='doim'||week==='doim'||l.weekType===week));}
   function slotGroupBusy(group,day,pair,week){const q=String(group||'').trim().toLowerCase();return approvedLessons().some(l=>String(l.group||'').trim().toLowerCase()===q&&l.day===day&&Number(l.pair)===Number(pair)&&(l.weekType==='doim'||week==='doim'||l.weekType===week));}
   function roomTypeFit(roomType,lessonType){
     if(lessonType==='Laboratoriya') return roomType==='Laboratoriya';
@@ -3575,7 +1996,7 @@ renderAdvanced();
       </div><div id="srResult" class="smart-result"></div>`);
     g('srFind').onclick=()=>{
       const day=g('srDay').value,week=g('srWeek').value,pair=Number(g('srPair').value),type=g('srType').value,size=Number(g('srSize').value||0),building=g('srBuilding').value.trim().toLowerCase();
-      const list=(db.rooms||[]).filter(r=>Number(r.capacity)>=size&&roomTypeFit(r.type,type)&&!slotOccupiedRoom(r,day,pair,week)).map(r=>{
+      const list=(db.rooms||[]).filter(r=>Number(r.capacity)>=size&&roomTypeFit(r.type,type)&&!slotOccupiedRoom(r.name,day,pair,week)).map(r=>{
         let score=100; if(building&&String(r.building||'').toLowerCase()!==building)score-=20; score-=Math.max(0,Number(r.capacity)-size)*0.35;
         return {r,score};
       }).sort((a,b)=>b.score-a.score);
@@ -3587,7 +2008,7 @@ renderAdvanced();
   g('smartTimeBtn')?.addEventListener('click',()=>{
     openSmart('Avtomatik bo‘sh vaqt tavsiyasi','O‘qituvchi va guruh bir vaqtda bo‘sh bo‘lgan juftliklar topiladi.',`
       <div class="form">
-        <div class="full"><label>O‘qituvchi<select id="stTeacher">${scopedTeachers().map(t=>`<option value="${t.id}">${sEsc(t.name)}</option>`).join('')}</select></label></div>
+        <div class="full"><label>O‘qituvchi<select id="stTeacher">${db.teachers.map(t=>`<option value="${t.id}">${sEsc(t.name)}</option>`).join('')}</select></label></div>
         <div><label>Guruh<input id="stGroup" placeholder="GTI-31"></label></div>
         <div><label>Hafta<select id="stWeek"><option value="surat">Surat</option><option value="maxraj">Maxraj</option></select></label></div>
         <div><label>Talabalar soni<input type="number" min="1" id="stSize" value="25"></label></div>
@@ -3599,7 +2020,7 @@ renderAdvanced();
       if(!group){g('stResult').innerHTML='<div class="alert show error">Guruh nomini kiriting.</div>';return;}
       const out=[]; ['Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba'].forEach(day=>{for(let pair=1;pair<=8;pair++){
         if(slotTeacherBusy(tid,day,pair,week)||slotGroupBusy(group,day,pair,week))continue;
-        const freeRooms=(db.rooms||[]).filter(r=>Number(r.capacity)>=size&&roomTypeFit(r.type,type)&&!slotOccupiedRoom(r,day,pair,week));
+        const freeRooms=(db.rooms||[]).filter(r=>Number(r.capacity)>=size&&roomTypeFit(r.type,type)&&!slotOccupiedRoom(r.name,day,pair,week));
         if(freeRooms.length) out.push({day,pair,rooms:freeRooms.slice(0,3)});
       }});
       g('stResult').innerHTML=out.length?out.slice(0,24).map(x=>`<div class="card"><b>${x.day} · ${x.pair}-juftlik (${pairTimes[x.pair].start}–${pairTimes[x.pair].end})</b><div class="mini">Mos xonalar: ${x.rooms.map(r=>sEsc(r.name)).join(', ')}</div></div>`).join(''):'<div class="empty">O‘qituvchi, guruh va mos xona bir vaqtda bo‘sh bo‘lgan juftlik topilmadi.</div>';
@@ -3614,7 +2035,7 @@ renderAdvanced();
     const teacherGaps=db.teachers.reduce((n,t)=>n+calcGaps((t.schedule||[]).filter(l=>!l.cancelled&&l.status==='approved')),0);
     const groups=groupSchedules(); const groupGaps=Object.values(groups).reduce((n,l)=>n+calcGaps(l),0);
     const heavy=[]; Object.entries(groups).forEach(([gr,ls])=>{const days={};ls.forEach(l=>days[l.day]=(days[l.day]||0)+1);Object.entries(days).forEach(([d,n])=>{if(n>=6)heavy.push(`${gr}: ${d} kuni ${n} juftlik`)})});
-    let cross=0;db.teachers.forEach(t=>{const ls=(t.schedule||[]).filter(l=>!l.cancelled&&l.status==='approved');ls.forEach(a=>ls.forEach(b=>{if(a.id<b.id&&a.day===b.day&&Math.abs(Number(a.pair)-Number(b.pair))===1){const ra=roomById(a.roomId)||db.rooms.find(r=>normalizePhysicalRoom(r.name)===normalizePhysicalRoom(a.room)&&normalizeBuilding(r.building)===normalizeBuilding(a.roomBuilding));const rb=roomById(b.roomId)||db.rooms.find(r=>normalizePhysicalRoom(r.name)===normalizePhysicalRoom(b.room)&&normalizeBuilding(r.building)===normalizeBuilding(b.roomBuilding));const ba=ra?.building||a.roomBuilding,bb=rb?.building||b.roomBuilding;if(ba&&bb&&normalizeBuilding(ba)!==normalizeBuilding(bb))cross++;}}))});
+    let cross=0;db.teachers.forEach(t=>{const ls=(t.schedule||[]).filter(l=>!l.cancelled&&l.status==='approved');ls.forEach(a=>ls.forEach(b=>{if(a.id<b.id&&a.day===b.day&&Math.abs(Number(a.pair)-Number(b.pair))===1){const ra=roomByName(a.room),rb=roomByName(b.room);if(ra&&rb&&ra.building&&rb.building&&ra.building!==rb.building)cross++;}}))});
     score-=Math.min(25,teacherGaps*2); score-=Math.min(25,groupGaps*2); score-=Math.min(20,heavy.length*5); score-=Math.min(15,cross*3); score=Math.max(0,Math.round(score));
     if(teacherGaps)issues.push(`O‘qituvchilarda jami ${teacherGaps} ta bo‘sh “oyna” mavjud.`);if(groupGaps)issues.push(`Guruhlarda jami ${groupGaps} ta bo‘sh “oyna” mavjud.`);if(heavy.length)issues.push(`Yuklamasi yuqori kunlar: ${heavy.join('; ')}.`);if(cross)issues.push(`Ketma-ket juftliklarda ${cross} ta bino almashishi aniqlandi.`);if(!issues.length)issues.push('Jadvalda asosiy sifat muammolari aniqlanmadi.');
     openSmart('Jadval sifati','Baholash oyna, kunlik yuklama va bino almashishiga asoslanadi.',`<div class="card"><div class="quality-score">${score}/100</div><div class="quality-bar"><span style="width:${score}%"></span></div>${issues.map(x=>`<p>• ${sEsc(x)}</p>`).join('')}</div>`);
@@ -3659,438 +2080,14 @@ renderAdvanced();
   g('languageSelect')?.addEventListener('change',e=>applyLanguage(e.target.value));
 
   function initExtras(){
-    ensureExtraDB();ensureUsers();ensureDepartmentWorkspaces();
-    if(typeof purgeDeletedLessonMirrors==="function") purgeDeletedLessonMirrors();
-    db.currentUser={name:'Mehmon',role:'viewer',department:''};
-    localStorage.removeItem('dispatchCurrentUser');
-    refreshManagerDepartments();renderManagers();bindManagerAdmin();bindRealLogin();
-    const managerTab=g('managerAdminTabBtn');
-    if(managerTab)managerTab.style.display=db.currentUser?.role==='superadmin'?'inline-block':'none';
-    const cabinet=g('cabinetBtn');
-    if(cabinet)cabinet.addEventListener('click',e=>{
-      if(db.currentUser?.role==='mudiri'){
-        e.preventDefault();e.stopImmediatePropagation();openDepartmentManagerCabinet();
-      }
-    },true);
+    ensureExtraDB();
     if(g('exRoom'))g('exRoom').innerHTML='<option value="">O‘zgarmaydi</option>'+(db.rooms||[]).map(r=>`<option value="${sEsc(r.name)}">${sEsc(r.name)}-xona</option>`).join('');
     refreshExTeachers();renderExceptions();renderOrg();
     const lng=localStorage.getItem('uiLanguage')||'uz';if(g('languageSelect'))g('languageSelect').value=lng;applyLanguage(lng);
-    applyRoleUI();
-    document.body.classList.add('login-required');
-    setTimeout(()=>{ if(g('loginModal')) g('loginModal').classList.add('open'); },0);
-    save();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initExtras);else initExtras();
 })();
 </script>
 
-<script>
-(function(){
-  function closeModal(modal){
-    if(modal && modal.classList && modal.classList.contains('modal')){
-      modal.classList.remove('open');
-    }
-  }
-
-  document.addEventListener('click', function(e){
-    const closeBtn = e.target.closest('.close');
-    if(closeBtn){
-      const modal = closeBtn.closest('.modal');
-      if(modal){
-        if(modal.id==='loginModal' && document.body.classList.contains('login-required')){
-          e.preventDefault(); e.stopPropagation(); return;
-        }
-        e.preventDefault();
-        e.stopPropagation();
-        closeModal(modal);
-        return;
-      }
-    }
-
-    const modal = e.target.classList && e.target.classList.contains('modal') ? e.target : null;
-    if(modal){
-      if(modal.id==='loginModal' && document.body.classList.contains('login-required')) return;
-      closeModal(modal);
-    }
-  });
-})();
-</script>
-
-
-<style>
-body.login-required #loginModal .close{display:none!important}
-body.login-required #loginModal{background:rgba(10,31,55,.72)!important}
-</style>
-
-
-<style>
-/* Faqat tizimga kirish oynasi: orqa fon ko‘rinmaydi */
-body.login-required #loginModal{
-  background:#f4f6f8 !important;
-}
-</style>
-
-
-<style>
-/* ===== TIZIMGA KIRISH — RASMIY KO‘RINISH ===== */
-body.login-required #loginModal{
-  background:#eef2f6 !important;
-}
-
-body.login-required #loginModal .modal-card{
-  max-width:430px !important;
-  width:92% !important;
-  padding:26px 28px !important;
-  border-radius:10px !important;
-  border:1px solid #cfd8e3 !important;
-  box-shadow:0 18px 45px rgba(15,23,42,.14) !important;
-}
-
-body.login-required #loginModal .modal-top{
-  padding-bottom:12px;
-  margin-bottom:8px;
-  border-bottom:1px solid #e2e8f0;
-}
-
-body.login-required #loginModal h2{
-  font-size:21px !important;
-  color:#173b5f !important;
-  font-weight:800 !important;
-}
-
-body.login-required #loginModal .note{
-  margin-top:6px !important;
-  color:#667085 !important;
-  font-size:11.5px !important;
-}
-
-body.login-required #loginModal label{
-  color:#344054 !important;
-  font-size:11.5px !important;
-  font-weight:700 !important;
-}
-
-body.login-required #loginModal input{
-  height:42px !important;
-  border:1px solid #c9d3df !important;
-  border-radius:6px !important;
-  background:#fff !important;
-  font-size:13px !important;
-}
-
-body.login-required #loginModal input:focus{
-  border-color:#5f8fb7 !important;
-  box-shadow:0 0 0 3px rgba(59,147,189,.10) !important;
-}
-
-body.login-required #loginModal #doLoginBtn{
-  width:100% !important;
-  height:42px !important;
-  margin-top:4px !important;
-  background:#173b5f !important;
-  border-color:#173b5f !important;
-  border-radius:6px !important;
-  font-size:13px !important;
-  font-weight:800 !important;
-}
-</style>
-
-
-<script>
-(function(){
-  document.addEventListener('keydown', function(e){
-    if(e.key !== 'Enter') return;
-    const loginModal = document.getElementById('loginModal');
-    if(!loginModal || !loginModal.classList.contains('open')) return;
-
-    const active = document.activeElement;
-    if(active && (active.id === 'loginUser' || active.id === 'loginPassword')){
-      e.preventDefault();
-      const btn = document.getElementById('doLoginBtn');
-      if(btn) btn.click();
-    }
-  });
-})();
-</script>
-
-
-<script>
-(function(){
-  document.body.classList.add('hemis-layout');
-
-  const topbar=document.querySelector('.topbar');
-  const main=document.querySelector('main');
-  if(!topbar || !main || document.querySelector('.hemis-sidebar')) return;
-
-  const sidebar=document.createElement('aside');
-  sidebar.className='hemis-sidebar';
-  sidebar.innerHTML=`
-    <div class="hemis-quick">Tezkor menyu</div>
-    <div class="hemis-menu-section"><div class="hemis-menu-title">Asosiy</div><div class="hemis-menu-group" id="hemisGroupMain"></div></div>
-    <div class="hemis-menu-section"><div class="hemis-menu-title">Boshqaruv</div><div class="hemis-menu-group" id="hemisGroupManage"></div></div>
-    <div class="hemis-menu-section"><div class="hemis-menu-title">Monitoring</div><div class="hemis-menu-group" id="hemisGroupFunctions"></div></div>
-    <div class="hemis-menu-section"><div class="hemis-menu-title">Qo‘shimcha</div><div class="hemis-menu-group" id="hemisGroupOther"></div></div>
-  `;
-  document.body.appendChild(sidebar);
-
-  const groupMain=sidebar.querySelector('#hemisGroupMain');
-  const groupManage=sidebar.querySelector('#hemisGroupManage');
-  const groupFunctions=sidebar.querySelector('#hemisGroupFunctions');
-  const groupOther=sidebar.querySelector('#hemisGroupOther');
-
-  const pick=id=>document.getElementById(id);
-  const menuIcons={
-    homeBtn:'⌂', suratBtn:'◐', maxrajBtn:'◑', loginBtn:'⇥', cabinetBtn:'◪', adminBtn:'⚙',
-    calendarBtn:'▦', freeRoomBtn:'▥', freeTeacherBtn:'◔', statsBtn:'◫', monitorBtn:'◷',
-    smartRoomBtn:'▣', smartTimeBtn:'◴', qualityBtn:'☑', groupGapBtn:'◌',
-    exceptionBtn:'✦', structureBtn:'◫'
-  };
-
-  function decorateButton(el, icon){
-    if(!el || el.dataset.hemisDecorated==='1') return;
-    const label=(el.textContent||'').trim();
-    el.dataset.originalLabel=label;
-    el.dataset.hemisDecorated='1';
-    el.classList.add('hemis-side-link');
-    el.innerHTML=`<span class="menu-icon">${icon||'•'}</span><span class="menu-text">${label}</span><span class="menu-arrow">‹</span>`;
-  }
-
-  function decorateLanguageSelect(sel){
-    if(!sel || sel.dataset.hemisDecorated==='1') return;
-    sel.dataset.hemisDecorated='1';
-    const wrap=document.createElement('div');
-    wrap.className='hemis-language-wrap';
-    wrap.innerHTML=`<div class="hemis-language-label"><span class="menu-icon">🌐</span><span class="menu-text">Til</span><span class="menu-arrow">‹</span></div>`;
-    sel.classList.remove('nav-btn');
-    wrap.appendChild(sel);
-    groupOther.appendChild(wrap);
-  }
-
-  [pick('homeBtn'),pick('suratBtn'),pick('maxrajBtn')].filter(Boolean).forEach(el=>{decorateButton(el,menuIcons[el.id]); groupMain.appendChild(el);});
-  [pick('loginBtn'),pick('cabinetBtn'),pick('adminBtn')].filter(Boolean).forEach(el=>{decorateButton(el,menuIcons[el.id]); groupManage.appendChild(el);});
-  [pick('calendarBtn'),pick('freeRoomBtn'),pick('freeTeacherBtn'),pick('statsBtn'),pick('monitorBtn'),pick('smartRoomBtn'),pick('smartTimeBtn'),pick('qualityBtn'),pick('groupGapBtn')].filter(Boolean).forEach(el=>{decorateButton(el,menuIcons[el.id]); groupFunctions.appendChild(el);});
-  [pick('exceptionBtn'),pick('structureBtn')].filter(Boolean).forEach(el=>{decorateButton(el,menuIcons[el.id]); groupOther.appendChild(el);});
-  decorateLanguageSelect(pick('languageSelect'));
-
-  const topbarRight=document.createElement('div');
-  topbarRight.className='topbar-right';
-  const clock=document.querySelector('.clock');
-  if(clock) topbarRight.appendChild(clock);
-
-  const badge=document.createElement('div');
-  badge.className='hemis-user-badge';
-  badge.innerHTML=`<img src="https://ui-avatars.com/api/?name=Inomov+D+I&background=ffffff&color=1f5faa&bold=true" alt="User"><div><b>INOMOV D. I.</b><span>O‘qituvchi</span></div>`;
-  topbarRight.appendChild(badge);
-  topbar.appendChild(topbarRight);
-
-  const breadcrumb=document.createElement('div');
-  breadcrumb.className='hemis-breadcrumb';
-  breadcrumb.innerHTML='Asosiy &nbsp;/&nbsp; <b>Bosh sahifa</b>';
-  main.insertBefore(breadcrumb, main.firstChild);
-
-  const shortcutWrap=document.createElement('section');
-  shortcutWrap.className='hemis-shortcuts';
-  shortcutWrap.innerHTML=`
-    <h3>Mashg‘ulotlar</h3>
-    <div class="shortcut-grid" id="shortcutGrid"></div>
-  `;
-  const hero=main.querySelector('.hero');
-  if(hero && hero.nextSibling) main.insertBefore(shortcutWrap, hero.nextSibling);
-
-  const shortcutGrid=shortcutWrap.querySelector('#shortcutGrid');
-
-  function openInClassPanel(){
-    const {day}=nowInfo();
-    const {minutes}=nowInfo();
-    const currentPairEntry=Object.entries(pairTimes).find(([p,t])=>minutes>=mins(t.start)&&minutes<=mins(t.end));
-    const currentPair=currentPairEntry?Number(currentPairEntry[0]):null;
-
-    const rows=[];
-    db.teachers.forEach(t=>{
-      const lessons=(t.schedule||[]).filter(l=>
-        !l.cancelled &&
-        l.status==="approved" &&
-        l.day===day &&
-        (l.weekType==="doim" || l.weekType===currentWeek) &&
-        (!currentPair || Number(l.pair)===currentPair)
-      );
-      lessons.forEach(l=>rows.push({t,l}));
-    });
-
-    const body=rows.length
-      ? `<div class="admin-list">${rows.map(({t,l})=>`
-          <div class="admin-row">
-            <strong>${esc(t.name)}</strong>
-            <div class="mini">${esc(l.subject)} · ${esc(l.group)} · ${l.pair}-juftlik</div>
-            <div style="margin-top:6px">${roomDisplay(l.room)} · ${esc(l.type)} · ${esc(l.start)}–${esc(l.end)}</div>
-          </div>`).join("")}</div>`
-      : `<div class="empty">Hozir darsda bo‘lgan o‘qituvchi yo‘q.</div>`;
-
-    openAdvanced(
-      "Hozir darsda",
-      currentPair ? `${day}, ${currentPair}-juftlik` : `${day}, hozirgi vaqt`,
-      body
-    );
-  }
-
-  const shortcutItems=[
-    {id:'calendarBtn',title:'Kalendar',icon:'▦',count:'0'},
-    {id:'freeRoomBtn',title:'Bo‘sh xona',icon:'▥',count:'0'},
-    {id:'inClassShortcut',title:'Hozir darsda',icon:'●',count:'0'},
-    {id:'freeTeacherBtn',title:'Bo‘sh o‘qituvchi',icon:'◔',count:'0'},
-    {id:'statsBtn',title:'Statistika',icon:'◫',count:'0'},
-    {id:'monitorBtn',title:'Monitor',icon:'◷',count:'0'}
-  ];
-    shortcutItems.forEach(item=>{
-    const btn=item.id==="inClassShortcut"?true:pick(item.id);
-    if(!btn) return;
-    const card=document.createElement('button');
-    card.type='button';
-    card.className='shortcut-card';
-    card.innerHTML=`<span class="shortcut-count">${item.count}</span><div class="shortcut-title">${item.title}</div><div class="shortcut-icon">${item.icon}</div><div class="shortcut-open">◉ ${item.title}</div>`;
-    card.addEventListener('click',()=>{
-      if(item.id==="inClassShortcut") openInClassPanel();
-      else btn.click();
-    });
-    shortcutGrid.appendChild(card);
-  });
-
-  function updateShortcutCounts(){
-    const cards=[...shortcutGrid.querySelectorAll('.shortcut-card')];
-    const map={};
-    cards.forEach(card=>{ const title=card.querySelector('.shortcut-title')?.textContent||''; map[title]=card; });
-    const totalTeachers=Number(document.getElementById('totalTeachers')?.textContent||0);
-    const inClass=Number(document.getElementById('inClassCount')?.textContent||0);
-    const todayLessons=Number(document.getElementById('todayLessonsCount')?.textContent||0);
-    const pending=Number(document.getElementById('pendingCount')?.textContent||0);
-    const currentDep=String(db?.currentUser?.department||'').trim();
-    let rooms=[];
-    if(currentDep && db?.departmentWorkspaces?.[currentDep]?.rooms) rooms=db.departmentWorkspaces[currentDep].rooms||[];
-    else rooms=db?.rooms||[];
-    const setCount=(title,val)=>{const c=map[title]; if(c) c.querySelector('.shortcut-count').textContent=String(val)};
-    setCount('Kalendar', todayLessons);
-    setCount('Bo‘sh xona', rooms.length);
-    setCount('Hozir darsda', inClass);
-    setCount('Bo‘sh o‘qituvchi', Math.max(totalTeachers-inClass,0));
-    setCount('Statistika', totalTeachers);
-    setCount('Monitor', pending);
-    setCount('Admin', '•');
-  }
-  updateShortcutCounts();
-  setInterval(updateShortcutCounts,2000);
-})();
-</script>
-
-
-<style>
-/* ===== FAQAT JADVAL/KALENDAR OYNASI — EKRANDAN CHIQMASIN ===== */
-body.hemis-layout #advancedModal{
-  padding:12px 14px 12px 242px !important;
-  align-items:center !important;
-  justify-content:center !important;
-}
-body.hemis-layout #advancedModal .modal-card{
-  width:calc(100vw - 256px) !important;
-  max-width:calc(100vw - 256px) !important;
-  max-height:calc(100vh - 82px) !important;
-  margin:0 !important;
-  overflow:auto !important;
-}
-body.hemis-layout #advancedModal .calendar-grid{
-  width:100% !important;
-  max-width:100% !important;
-  overflow-x:auto !important;
-}
-@media(max-width:1200px){
-  body.hemis-layout #advancedModal{
-    padding:12px !important;
-  }
-  body.hemis-layout #advancedModal .modal-card{
-    width:calc(100vw - 24px) !important;
-    max-width:calc(100vw - 24px) !important;
-  }
-}
-
-/* ===== BARCHA OYNA/PANELLARNI QULAY YOPISH ===== */
-.monitor-mode .universal-monitor-close{
-  flex:0 0 auto;
-  background:#fff !important;
-  color:#344054 !important;
-  border:1px solid #d0d5dd !important;
-}
-.monitor-mode .universal-monitor-close:hover{background:#f2f4f7 !important;}
-</style>
-
-
-<script>
-(function(){
-  function canCloseLogin(modal){
-    return !(modal && modal.id==='loginModal' && document.body.classList.contains('login-required'));
-  }
-
-  function closeOverlay(el){
-    if(!el) return;
-    if(el.classList.contains('modal')){
-      if(!canCloseLogin(el)) return;
-      el.classList.remove('open');
-      return;
-    }
-    if(el.classList.contains('side-panel')){
-      el.classList.remove('open');
-      return;
-    }
-    if(el.classList.contains('monitor-mode')){
-      el.remove();
-    }
-  }
-
-  // X tugmasi: modal, yon panel va monitor oynasini yopadi.
-  document.addEventListener('click', function(e){
-    const monitorClose=e.target.closest('.universal-monitor-close');
-    if(monitorClose){
-      e.preventDefault();
-      e.stopPropagation();
-      closeOverlay(monitorClose.closest('.monitor-mode'));
-      return;
-    }
-
-    const closeBtn=e.target.closest('.close');
-    if(closeBtn){
-      const overlay=closeBtn.closest('.modal, .side-panel, .monitor-mode');
-      if(overlay){
-        if(overlay.id==='loginModal' && !canCloseLogin(overlay)) return;
-        e.preventDefault();
-        e.stopPropagation();
-        closeOverlay(overlay);
-        return;
-      }
-    }
-  }, true);
-
-  // Modalning tashqi qoramtir qismi bosilsa yopiladi.
-  document.addEventListener('click', function(e){
-    const modal=e.target.closest('.modal');
-    if(modal && e.target===modal){
-      closeOverlay(modal);
-      return;
-    }
-
-    // Administrator panelidan tashqariga bosilganda yopiladi.
-    const admin=document.getElementById('adminPanel');
-    if(admin && admin.classList.contains('open')){
-      const adminBtn=document.getElementById('adminBtn');
-      if(!admin.contains(e.target) && !(adminBtn && adminBtn.contains(e.target))){
-        closeOverlay(admin);
-      }
-    }
-
-    // Monitorning bo‘sh fon qismiga bosilganda yopiladi.
-    const monitor=document.getElementById('monitorMode');
-    if(monitor && e.target===monitor){
-      closeOverlay(monitor);
-    }
-  });
-})();
-</script>
 </body>
 </html>
