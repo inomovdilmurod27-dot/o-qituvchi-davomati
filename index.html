@@ -4145,5 +4145,67 @@ body.hemis-layout #advancedModal .calendar-grid{
   });
 })();
 </script>
+
+<script>
+/* ===== FAQAT BITTA PANEL OCHIQ TURSIN ===== */
+(function(){
+  let switching=false;
+
+  function closeOthers(current){
+    if(switching) return;
+    switching=true;
+    try{
+      document.querySelectorAll('.modal.open').forEach(el=>{
+        if(el===current) return;
+        if(el.id==='loginModal' && document.body.classList.contains('login-required')) return;
+        el.classList.remove('open');
+      });
+
+      document.querySelectorAll('.side-panel.open').forEach(el=>{
+        if(el!==current) el.classList.remove('open');
+      });
+
+      document.querySelectorAll('.monitor-mode').forEach(el=>{
+        if(el!==current) el.remove();
+      });
+    }finally{
+      switching=false;
+    }
+  }
+
+  const observer=new MutationObserver(mutations=>{
+    for(const m of mutations){
+      if(m.type==='attributes' && m.attributeName==='class'){
+        const el=m.target;
+        if(
+          (el.classList.contains('modal') && el.classList.contains('open')) ||
+          (el.classList.contains('side-panel') && el.classList.contains('open'))
+        ){
+          closeOthers(el);
+        }
+      }
+
+      if(m.type==='childList'){
+        m.addedNodes.forEach(node=>{
+          if(!(node instanceof Element)) return;
+          if(node.classList.contains('monitor-mode')){
+            closeOthers(node);
+          }
+          const opened=node.querySelector?.('.modal.open, .side-panel.open, .monitor-mode');
+          if(opened) closeOthers(opened);
+        });
+      }
+    }
+  });
+
+  observer.observe(document.body,{
+    subtree:true,
+    childList:true,
+    attributes:true,
+    attributeFilter:['class']
+  });
+})();
+</script>
+
 </body>
 </html>
