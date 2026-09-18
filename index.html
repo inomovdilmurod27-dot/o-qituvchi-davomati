@@ -2546,7 +2546,6 @@ function showAlert(msg,type="ok"){
  a.className="alert show "+type;
  a.innerHTML=msg;
  clearTimeout(a._hideTimer);
- a._hideTimer=setTimeout(()=>a.classList.remove("show"),type==="error"?8000:5000);
 }
 
 function availabilityLabel(v){
@@ -7682,6 +7681,19 @@ body.hemis-layout #advancedModal .modal-card{
   }else{
     setTimeout(run,300);
   }
+})();
+</script>
+
+
+<script id="alert-close-on-outside-click">
+(function(){
+  document.addEventListener("click",function(e){
+    const alertBox=document.getElementById("adminAlert");
+    if(!alertBox || !alertBox.classList.contains("show")) return;
+    if(alertBox.contains(e.target)) return;
+    if(e.target.closest("button,input,select,textarea,label,a")) return;
+    alertBox.classList.remove("show");
+  });
 })();
 </script>
 
