@@ -6554,7 +6554,14 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
 
   function refreshBadges(){
     cleanupTrash();
-    const sec=document.querySelector(".ultra-section");if(sec){sec.remove();menu()}
+
+    // Ultra boshqaruv blokini qayta yaratmaymiz.
+    // Aks holda Drag & dropdan keyin accordion/ichma-ich ko‘rinish buzilib qolardi.
+    const sec=document.querySelector(".ultra-section");
+    if(!sec)return;
+
+    const trashBtn=sec.querySelector('[data-ultra="trash"] .ultra-count');
+    if(trashBtn)trashBtn.textContent=db.ultra.trash.length;
   }
 
   /* Permission capture guards for save buttons */
