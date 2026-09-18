@@ -6331,5 +6331,692 @@ body.hemis-layout #advancedModal .modal-card{
 })();
 </script>
 
+
+<style id="mobile-responsive-sidebar-fix">
+/* ===== TELEFON UCHUN MOSLASH =====
+   Faqat responsive joylashuv. Shrift va desktop ko‘rinishiga tegilmaydi. */
+@media(max-width:760px){
+  body.hemis-layout{
+    padding-left:0 !important;
+    padding-top:58px !important;
+  }
+
+  body.hemis-layout .topbar{
+    left:0 !important;
+    right:0 !important;
+    width:100% !important;
+    padding:7px 10px !important;
+    gap:8px !important;
+  }
+
+  body.hemis-layout .brand{
+    min-width:0 !important;
+    flex:1 1 auto !important;
+    margin-right:8px !important;
+  }
+
+  body.hemis-layout .brand h1{
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  body.hemis-layout .topbar-right{
+    gap:6px !important;
+    flex:0 0 auto !important;
+  }
+
+  body.hemis-layout .topbar .clock{
+    display:none !important;
+  }
+
+  body.hemis-layout .hemis-user-badge div{
+    display:none !important;
+  }
+
+  body.hemis-layout .hemis-user-badge img{
+    width:32px !important;
+    height:32px !important;
+  }
+
+  /* Mobil menyu chapdan chiqadi */
+  body.hemis-layout .hemis-sidebar{
+    top:58px !important;
+    left:0 !important;
+    bottom:0 !important;
+    width:min(86vw,280px) !important;
+    height:calc(100vh - 58px) !important;
+    transform:translateX(-100%) !important;
+    transition:transform .22s ease !important;
+    z-index:1600 !important;
+    box-shadow:8px 0 24px rgba(0,0,0,.18) !important;
+  }
+
+  body.hemis-layout.sidebar-open .hemis-sidebar,
+  body.hemis-layout.pro-menu-open .hemis-sidebar{
+    transform:translateX(0) !important;
+  }
+
+  /* Telefon menyu tugmasi */
+  #mobileMenuBtn,
+  #proMobileMenuBtn{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    position:fixed !important;
+    left:10px !important;
+    top:64px !important;
+    z-index:1700 !important;
+    width:36px !important;
+    height:36px !important;
+    padding:0 !important;
+    border-radius:6px !important;
+  }
+
+  body.hemis-layout main{
+    width:100% !important;
+    max-width:none !important;
+    padding:52px 10px 18px !important;
+    margin:0 !important;
+  }
+
+  body.hemis-layout .hero,
+  body.hemis-layout .summary,
+  body.hemis-layout .controls,
+  body.hemis-layout .grid,
+  body.hemis-layout .status-panel,
+  body.hemis-layout .split,
+  body.hemis-layout .smart-toolbar,
+  body.hemis-layout .kpi-grid,
+  body.hemis-layout .qr-box{
+    grid-template-columns:1fr !important;
+  }
+
+  body.hemis-layout .hero-card,
+  body.hemis-layout .summary,
+  body.hemis-layout .card,
+  body.hemis-layout .today-item,
+  body.hemis-layout .empty{
+    width:100% !important;
+    min-width:0 !important;
+  }
+
+  body.hemis-layout .controls{
+    gap:7px !important;
+  }
+
+  body.hemis-layout table{
+    min-width:720px;
+  }
+
+  body.hemis-layout .scrollbox,
+  body.hemis-layout .table-wrap,
+  body.hemis-layout .ultra-table-wrap{
+    overflow-x:auto !important;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  /* Oddiy modal */
+  body.hemis-layout .modal{
+    padding:8px !important;
+    align-items:flex-start !important;
+    overflow-y:auto !important;
+  }
+
+  body.hemis-layout .modal-card{
+    width:100% !important;
+    max-width:100% !important;
+    max-height:none !important;
+    margin:8px 0 !important;
+    border-radius:7px !important;
+  }
+
+  /* Kalendar va keng modallar */
+  body.hemis-layout #advancedModal{
+    padding:8px !important;
+  }
+
+  body.hemis-layout #advancedModal .modal-card{
+    width:100% !important;
+    max-width:100% !important;
+    max-height:none !important;
+    overflow:auto !important;
+  }
+
+  body.hemis-layout #advancedModal .calendar-grid{
+    grid-template-columns:82px repeat(6,145px) !important;
+    overflow-x:auto !important;
+    min-width:max-content !important;
+  }
+
+  body.hemis-layout #advancedModal .calendar-cell{
+    min-width:0 !important;
+  }
+
+  /* Admin panel */
+  body.hemis-layout .side-panel{
+    width:100vw !important;
+    max-width:100vw !important;
+    right:-100vw !important;
+    padding:12px !important;
+    border-left:0 !important;
+  }
+
+  body.hemis-layout .side-panel.open{
+    right:0 !important;
+  }
+
+  body.hemis-layout .form{
+    grid-template-columns:1fr !important;
+  }
+
+  body.hemis-layout .form .full{
+    grid-column:auto !important;
+  }
+
+  /* PRO / Ultra panel ichidagi gridlar */
+  .pro-grid2,
+  .pro-form-row,
+  .pro-kpis,
+  .ultra-grid2,
+  .ultra-grid3,
+  .ultra-grid4,
+  .ultra-form{
+    grid-template-columns:1fr !important;
+  }
+
+  .ultra-full,
+  .pro-form-row .full{
+    grid-column:auto !important;
+  }
+
+  /* Read-only ekran */
+  .ultra-readonly{
+    padding:10px !important;
+  }
+
+  .ultra-readonly-grid{
+    grid-template-columns:1fr !important;
+  }
+}
+
+@media(max-width:420px){
+  body.hemis-layout main{
+    padding-left:8px !important;
+    padding-right:8px !important;
+  }
+
+  body.hemis-layout .hero-card{
+    padding:14px !important;
+  }
+
+  body.hemis-layout .summary{
+    padding:8px !important;
+  }
+
+  body.hemis-layout .hemis-sidebar{
+    width:90vw !important;
+  }
+}
+</style>
+
+<script id="mobile-sidebar-behavior">
+(function(){
+  if(window.__mobileSidebarBehaviorReady) return;
+  window.__mobileSidebarBehaviorReady = true;
+
+  function getSidebar(){
+    return document.querySelector('.hemis-sidebar');
+  }
+
+  function closeMobileSidebar(){
+    document.body.classList.remove('sidebar-open');
+    document.body.classList.remove('pro-menu-open');
+  }
+
+  function ensureMobileButton(){
+    if(window.innerWidth > 760) return;
+
+    var existing = document.getElementById('mobileMenuBtn') || document.getElementById('proMobileMenuBtn');
+    if(existing){
+      existing.onclick = function(){
+        document.body.classList.toggle('sidebar-open');
+      };
+      return;
+    }
+
+    var btn = document.createElement('button');
+    btn.id = 'mobileMenuBtn';
+    btn.type = 'button';
+    btn.textContent = '☰';
+    btn.setAttribute('aria-label','Menyuni ochish');
+    btn.style.cssText = 'background:#22313a;color:#fff;border:0;';
+    btn.onclick = function(){
+      document.body.classList.toggle('sidebar-open');
+    };
+    document.body.appendChild(btn);
+  }
+
+  document.addEventListener('click', function(e){
+    if(window.innerWidth > 760) return;
+    var sidebar = getSidebar();
+    var menuBtn = document.getElementById('mobileMenuBtn') || document.getElementById('proMobileMenuBtn');
+
+    if(sidebar && sidebar.contains(e.target)){
+      var link = e.target.closest('.hemis-side-link,.pro-suite-btn,.ultra-btn');
+      if(link) setTimeout(closeMobileSidebar,80);
+      return;
+    }
+
+    if(menuBtn && menuBtn.contains(e.target)) return;
+
+    if(document.body.classList.contains('sidebar-open') || document.body.classList.contains('pro-menu-open')){
+      closeMobileSidebar();
+    }
+  });
+
+  window.addEventListener('resize', function(){
+    if(window.innerWidth > 760) closeMobileSidebar();
+    else ensureMobileButton();
+  });
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){
+      setTimeout(ensureMobileButton,120);
+    });
+  }else{
+    setTimeout(ensureMobileButton,120);
+  }
+})();
+</script>
+
+
+<style id="mobile-extra-compact">
+/* ===== TELEFONDA YANADA IXCHAM KO‘RINISH =====
+   Faqat 760px va undan kichik ekranlar uchun. Desktopga tegilmaydi. */
+@media(max-width:760px){
+
+  body.hemis-layout{
+    font-size:11px !important;
+  }
+
+  body.hemis-layout main{
+    padding:46px 7px 14px !important;
+  }
+
+  body.hemis-layout .hemis-breadcrumb{
+    font-size:10px !important;
+    margin:2px 0 8px !important;
+  }
+
+  /* Chap menyu mobil ko‘rinishda ixcham */
+  body.hemis-layout .hemis-sidebar{
+    width:min(82vw,250px) !important;
+  }
+
+  body.hemis-layout .hemis-quick{
+    padding:7px 12px !important;
+    font-size:11px !important;
+  }
+
+  body.hemis-layout .sidebar-accordion-title{
+    padding:7px 12px !important;
+    font-size:11px !important;
+  }
+
+  body.hemis-layout .sidebar-accordion-body .hemis-side-link{
+    padding:7px 10px 7px 24px !important;
+    gap:8px !important;
+    font-size:11px !important;
+  }
+
+  body.hemis-layout .sidebar-accordion-body .hemis-side-link .menu-text{
+    font-size:11px !important;
+  }
+
+  body.hemis-layout .sidebar-accordion-body .hemis-side-link .menu-icon{
+    width:13px !important;
+    min-width:13px !important;
+    font-size:11px !important;
+  }
+
+  body.hemis-layout .pro-suite-btn,
+  body.hemis-layout .ultra-btn{
+    padding:6px 10px 6px 24px !important;
+    font-size:10.5px !important;
+  }
+
+  /* Yuqori panel */
+  body.hemis-layout .topbar{
+    height:52px !important;
+    min-height:52px !important;
+    padding:5px 8px !important;
+  }
+
+  body.hemis-layout .logo{
+    width:34px !important;
+    height:34px !important;
+    font-size:12px !important;
+  }
+
+  body.hemis-layout .brand{
+    gap:7px !important;
+  }
+
+  body.hemis-layout .brand h1{
+    font-size:11.5px !important;
+  }
+
+  body.hemis-layout .brand p{
+    font-size:9px !important;
+  }
+
+  body.hemis-layout .hemis-user-badge img{
+    width:28px !important;
+    height:28px !important;
+  }
+
+  #mobileMenuBtn,
+  #proMobileMenuBtn{
+    top:57px !important;
+    left:7px !important;
+    width:32px !important;
+    height:32px !important;
+    font-size:15px !important;
+  }
+
+  /* Kartalar */
+  body.hemis-layout .hero-card{
+    padding:11px 12px !important;
+  }
+
+  body.hemis-layout .hero-card h2{
+    font-size:16px !important;
+    margin-bottom:4px !important;
+  }
+
+  body.hemis-layout .hero-card p{
+    font-size:10px !important;
+    line-height:1.35 !important;
+  }
+
+  body.hemis-layout .week-indicator{
+    margin-top:7px !important;
+    padding:4px 6px !important;
+    font-size:9.5px !important;
+  }
+
+  body.hemis-layout .summary{
+    padding:6px !important;
+    gap:5px !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+
+  body.hemis-layout .stat{
+    padding:7px !important;
+    min-height:58px !important;
+    font-size:9.5px !important;
+  }
+
+  body.hemis-layout .stat b{
+    font-size:18px !important;
+    margin-top:1px !important;
+  }
+
+  body.hemis-layout .section-title{
+    margin:9px 0 5px !important;
+  }
+
+  body.hemis-layout .section-title h3{
+    font-size:13px !important;
+  }
+
+  body.hemis-layout .card{
+    padding:8px !important;
+  }
+
+  body.hemis-layout .teacher-head{
+    gap:7px !important;
+  }
+
+  body.hemis-layout .avatar{
+    width:38px !important;
+    height:38px !important;
+  }
+
+  body.hemis-layout .teacher-name{
+    font-size:11px !important;
+  }
+
+  body.hemis-layout .meta{
+    font-size:9px !important;
+  }
+
+  body.hemis-layout .lesson{
+    padding:5px 6px !important;
+    margin-top:5px !important;
+    font-size:9.5px !important;
+  }
+
+  body.hemis-layout .room{
+    font-size:11px !important;
+    margin-top:4px !important;
+  }
+
+  body.hemis-layout .today-item{
+    padding:7px 8px !important;
+    font-size:10px !important;
+  }
+
+  /* Filtr va formalar */
+  body.hemis-layout .controls{
+    margin:8px 0 !important;
+    gap:5px !important;
+  }
+
+  body.hemis-layout .control,
+  body.hemis-layout .form input,
+  body.hemis-layout .form select,
+  body.hemis-layout .form textarea,
+  .pro-input,
+  .ultra-input{
+    min-height:30px !important;
+    padding:6px 7px !important;
+    font-size:10px !important;
+  }
+
+  body.hemis-layout .form{
+    gap:6px !important;
+  }
+
+  body.hemis-layout .form label,
+  .pro-label,
+  .ultra-label{
+    font-size:9px !important;
+  }
+
+  /* Tugmalar */
+  body.hemis-layout .btn,
+  body.hemis-layout .nav-btn,
+  .pro-mini-btn,
+  .ultra-btn2{
+    min-height:26px !important;
+    padding:5px 7px !important;
+    font-size:9.5px !important;
+  }
+
+  /* Modal va admin panel */
+  body.hemis-layout .modal{
+    padding:5px !important;
+  }
+
+  body.hemis-layout .modal-card{
+    margin:4px 0 !important;
+    padding:9px !important;
+  }
+
+  body.hemis-layout .modal-top h2,
+  body.hemis-layout .modal-top h3{
+    font-size:14px !important;
+  }
+
+  body.hemis-layout .close{
+    width:27px !important;
+    height:27px !important;
+    font-size:15px !important;
+  }
+
+  body.hemis-layout .side-panel{
+    padding:8px !important;
+  }
+
+  body.hemis-layout .tabs{
+    gap:3px !important;
+    margin:6px 0 !important;
+    padding-bottom:5px !important;
+  }
+
+  body.hemis-layout .tabs button{
+    padding:5px 6px !important;
+    font-size:9px !important;
+  }
+
+  /* Oddiy jadvallar ekrandan chiqmasin */
+  body.hemis-layout table,
+  body.hemis-layout .ultra-table{
+    width:100% !important;
+    min-width:0 !important;
+    table-layout:fixed !important;
+    font-size:8.5px !important;
+  }
+
+  body.hemis-layout th,
+  body.hemis-layout td,
+  body.hemis-layout .ultra-table th,
+  body.hemis-layout .ultra-table td{
+    padding:4px 3px !important;
+    font-size:8.5px !important;
+    white-space:normal !important;
+    overflow-wrap:anywhere !important;
+    word-break:break-word !important;
+  }
+
+  body.hemis-layout .table-wrap,
+  body.hemis-layout .scrollbox,
+  body.hemis-layout .ultra-table-wrap{
+    width:100% !important;
+    max-width:100% !important;
+    overflow-x:hidden !important;
+  }
+
+  /* Kalendar ham ekrandan chiqmasin */
+  body.hemis-layout #advancedModal .calendar-grid{
+    width:100% !important;
+    min-width:0 !important;
+    grid-template-columns:52px repeat(6,minmax(0,1fr)) !important;
+    overflow-x:hidden !important;
+  }
+
+  body.hemis-layout #advancedModal .calendar-cell{
+    min-height:58px !important;
+    padding:4px 3px !important;
+    font-size:8px !important;
+    overflow-wrap:anywhere !important;
+  }
+
+  body.hemis-layout #advancedModal .calendar-head{
+    font-size:8px !important;
+    padding:5px 2px !important;
+  }
+
+  body.hemis-layout #advancedModal .calendar-cell b{
+    font-size:8.5px !important;
+  }
+
+  body.hemis-layout #advancedModal .calendar-lesson{
+    padding:4px !important;
+    margin-bottom:4px !important;
+    border-radius:5px !important;
+    border-left-width:2px !important;
+  }
+
+  body.hemis-layout #advancedModal .calendar-lesson-type{
+    padding:1px 3px !important;
+    font-size:7px !important;
+    margin-bottom:2px !important;
+  }
+
+  body.hemis-layout #advancedModal .calendar-lesson-subject{
+    font-size:8px !important;
+    margin-bottom:2px !important;
+  }
+
+  body.hemis-layout #advancedModal .calendar-lesson-meta,
+  body.hemis-layout #advancedModal .calendar-lesson-room{
+    font-size:7.5px !important;
+  }
+
+  /* PRO / Ultra kartalar */
+  .pro-kpi,
+  .ultra-kpi,
+  .pro-panel-card,
+  .ultra-card{
+    padding:7px !important;
+    min-height:0 !important;
+  }
+
+  .pro-kpi small,
+  .ultra-kpi small,
+  .pro-muted,
+  .ultra-muted{
+    font-size:8.5px !important;
+  }
+
+  .pro-kpi b,
+  .ultra-kpi b{
+    font-size:17px !important;
+  }
+
+  .pro-result{
+    padding:7px !important;
+  }
+
+  .pro-result-title{
+    font-size:10px !important;
+  }
+
+  .pro-result-meta,
+  .pro-result-kind{
+    font-size:8px !important;
+  }
+}
+
+@media(max-width:420px){
+  body.hemis-layout{
+    font-size:10.5px !important;
+  }
+
+  body.hemis-layout main{
+    padding-left:5px !important;
+    padding-right:5px !important;
+  }
+
+  body.hemis-layout #advancedModal .calendar-grid{
+    grid-template-columns:46px repeat(6,minmax(0,1fr)) !important;
+  }
+
+  body.hemis-layout #advancedModal .calendar-cell{
+    padding:3px 2px !important;
+    font-size:7.5px !important;
+  }
+
+  body.hemis-layout th,
+  body.hemis-layout td{
+    padding:3px 2px !important;
+    font-size:8px !important;
+  }
+}
+</style>
+
 </body>
 </html>
