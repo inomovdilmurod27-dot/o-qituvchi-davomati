@@ -5968,7 +5968,8 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
       DAYS.forEach(day=>{
         const arr=lessons(false).filter(x=>x.l.day===day&&Number(x.l.pair)===pair&&weekOk(x.l));
         html+=`<div class="ultra-dnd-cell" data-drop-day="${day}" data-drop-pair="${pair}">${arr.map(({t,l})=>`
-          <div class="ultra-dnd-card" draggable="${permission("edit")?"true":"false"}" data-drag-tid="${t.id}" data-drag-lid="${l.id}">
+          <div class="ultra-dnd-card" data-drag-tid="${t.id}" data-drag-lid="${l.id}">
+            <div class="ultra-drag-handle" draggable="${permission("edit")?"true":"false"}" data-handle-tid="${t.id}" data-handle-lid="${l.id}" title="Sudrab ko‘chirish">↕ Sudrash</div>
             <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px">
               <span class="calendar-lesson-type">${escU(l.type||"Dars")}</span>
               <span class="badge ${l.weekType==="surat"?"surat":l.weekType==="maxraj"?"maxraj":"doim"}">${dragWeekLabel(l.weekType)}</span>
@@ -5991,16 +5992,77 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
     });
     return html+`</div></div><div class="ultra-muted" style="margin-top:7px">Drag & drop ichida darsning barcha asosiy ma’lumotlarini tahrirlash, xonani almashtirish va darsni o‘chirish mumkin. Konflikt bo‘lsa o‘zgarish saqlanmaydi.</div>`;
   }
+  let dragSelected=null;
+
+  function moveDragLesson(tid,lid,day,pair){
+    if(!permission("edit")) return false;
+
+    const t=teachers().find(x=>String(x.id)===String(tid));
+    const l=t?.schedule?.find(x=>String(x.id)===String(lid));
+    if(!t||!l||!pairTimes[pair]) return false;
+
+    const cand={
+      ...l,
+      day,
+      pair:Number(pair),
+      start:pairTimes[pair].start,
+      end:pairTimes[pair].end
+    };
+
+    const validation=dragValidation(cand,t.id,l.id);
+    const errs=validation.errs||[];
+    if(errs.length){
+      showAlert?.("<b>Dars ko‘chirilmadi:</b><br>• "+errs.join("<br>• "),"error");
+      return false;
+    }
+
+    captureVersion(t,l,"Drag & dropdan oldin");
+    Object.assign(l,cand);
+    saveU();
+    return true;
+  }
+
+  function clearDragSelection(){
+    dragSelected=null;
+    document.querySelectorAll(".ultra-dnd-card.drag-selected").forEach(x=>x.classList.remove("drag-selected"));
+    document.querySelectorAll(".ultra-dnd-cell.drag-target").forEach(x=>x.classList.remove("drag-target"));
+  }
+
   function bindDrag(){
     setTimeout(()=>{
-      document.querySelectorAll("[data-drag-tid]").forEach(c=>c.addEventListener("dragstart",ev=>{
-        if(ev.target.closest(".ultra-drag-room,.ultra-drag-edit,.ultra-actions,button,select,input,textarea")){ev.preventDefault();return}
-        ev.dataTransfer.effectAllowed="move";
-        ev.dataTransfer.setData("text/plain",JSON.stringify({tid:c.dataset.dragTid,lid:c.dataset.dragLid}));
-        c.classList.add("dragging");
-      }));
+      /* Desktop: faqat maxsus ushlagichdan sudraladi. */
+      document.querySelectorAll(".ultra-drag-handle").forEach(handle=>{
+        handle.addEventListener("dragstart",ev=>{
+          if(!permission("edit")){ev.preventDefault();return}
+          ev.stopPropagation();
+          ev.dataTransfer.effectAllowed="move";
+          ev.dataTransfer.setData("text/plain",JSON.stringify({
+            tid:handle.dataset.handleTid,
+            lid:handle.dataset.handleLid
+          }));
+          handle.closest(".ultra-dnd-card")?.classList.add("dragging");
+        });
 
-      document.querySelectorAll("[data-drag-tid]").forEach(c=>c.addEventListener("dragend",()=>c.classList.remove("dragging")));
+        handle.addEventListener("dragend",()=>{
+          handle.closest(".ultra-dnd-card")?.classList.remove("dragging");
+        });
+
+        /* Telefon/planshet: ushlagichni bosing, keyin kerakli katakni bosing. */
+        handle.addEventListener("click",ev=>{
+          ev.preventDefault();
+          ev.stopPropagation();
+          if(!permission("edit")) return;
+
+          clearDragSelection();
+          dragSelected={
+            tid:handle.dataset.handleTid,
+            lid:handle.dataset.handleLid
+          };
+          handle.closest(".ultra-dnd-card")?.classList.add("drag-selected");
+          document.querySelectorAll("[data-drop-day]").forEach(cell=>cell.classList.add("drag-target"));
+          showAlert?.("Dars tanlandi. Endi ko‘chirish uchun kerakli kun va juftlik katagini bosing.","ok");
+        });
+      });
 
       document.querySelectorAll(".ultra-drag-room").forEach(sel=>{
         sel.addEventListener("mousedown",ev=>ev.stopPropagation());
@@ -6117,23 +6179,45 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
       });
 
       document.querySelectorAll("[data-drop-day]").forEach(cell=>{
-        cell.addEventListener("dragover",ev=>{ev.preventDefault();ev.dataTransfer.dropEffect="move";});
+        cell.addEventListener("dragenter",ev=>{
+          ev.preventDefault();
+          cell.classList.add("drag-over");
+        });
+        cell.addEventListener("dragleave",()=>cell.classList.remove("drag-over"));
+        cell.addEventListener("dragover",ev=>{
+          ev.preventDefault();
+          ev.dataTransfer.dropEffect="move";
+        });
+
+        /* Desktop drop */
         cell.addEventListener("drop",ev=>{
-          ev.preventDefault();if(!permission("edit"))return;
-          let d;try{d=JSON.parse(ev.dataTransfer.getData("text/plain"))}catch{return}
-          const t=teachers().find(x=>String(x.id)===String(d.tid)),l=t?.schedule?.find(x=>String(x.id)===String(d.lid));if(!t||!l)return;
-          const pair=Number(cell.dataset.dropPair), cand={...l,day:cell.dataset.dropDay,pair,start:pairTimes[pair].start,end:pairTimes[pair].end};
-          const validation=dragValidation(cand,t.id,l.id);
-          const errs=validation.errs;
-          if(errs.length){
-            showAlert?.("<b>Dars ko‘chirilmadi:</b><br>• "+errs.join("<br>• "),"error");
-            return;
+          ev.preventDefault();
+          cell.classList.remove("drag-over");
+          if(!permission("edit"))return;
+
+          let d;
+          try{d=JSON.parse(ev.dataTransfer.getData("text/plain"))}catch{return}
+
+          if(moveDragLesson(d.tid,d.lid,cell.dataset.dropDay,Number(cell.dataset.dropPair))){
+            openU("Drag & drop jadval","Darslarni to‘liq boshqarish",dragHTML());
+            bindDrag();
           }
-          captureVersion(t,l,"Drag & dropdan oldin");
-          Object.assign(l,cand);
-          saveU();
-          openU("Drag & drop jadval","Darslarni to‘liq boshqarish",dragHTML());
-          bindDrag();
+        });
+
+        /* Telefon/planshet click-to-move */
+        cell.addEventListener("click",ev=>{
+          if(!dragSelected) return;
+          if(ev.target.closest("button,select,input,textarea,.ultra-dnd-card")) return;
+          ev.preventDefault();
+          ev.stopPropagation();
+
+          const selected={...dragSelected};
+          clearDragSelection();
+
+          if(moveDragLesson(selected.tid,selected.lid,cell.dataset.dropDay,Number(cell.dataset.dropPair))){
+            openU("Drag & drop jadval","Darslarni to‘liq boshqarish",dragHTML());
+            bindDrag();
+          }
         });
       });
     },80);
@@ -7384,6 +7468,43 @@ body.hemis-layout #advancedModal .modal-card{
 .ultra-dnd-card.dragging{opacity:.55}
 .ultra-dnd-cell[data-drop-day]{transition:background .12s ease}
 .ultra-dnd-cell[data-drop-day]:hover{background:#f3f8fc}
+</style>
+
+
+<style id="dragdrop-reliable-ui">
+.ultra-drag-handle{
+  user-select:none;
+  -webkit-user-select:none;
+  cursor:grab;
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  margin:0 0 5px 0;
+  padding:2px 6px;
+  border:1px solid #c9d7e2;
+  border-radius:4px;
+  background:#eef5fa;
+  color:#31566d;
+  font-size:9px;
+  font-weight:700;
+}
+.ultra-drag-handle:active{cursor:grabbing}
+.ultra-dnd-card.dragging{opacity:.5}
+.ultra-dnd-card.drag-selected{
+  outline:2px solid #3b93bd;
+  outline-offset:1px;
+}
+.ultra-dnd-cell.drag-over,
+.ultra-dnd-cell.drag-target:hover{
+  background:#eaf6fc !important;
+  box-shadow:inset 0 0 0 2px #79bad9;
+}
+@media(max-width:760px){
+  .ultra-drag-handle{
+    font-size:8px;
+    padding:2px 4px;
+  }
+}
 </style>
 
 </body>
