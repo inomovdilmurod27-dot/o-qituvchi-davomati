@@ -2335,6 +2335,7 @@ async function initCloudSync(){
         });
       }
       if(typeof renderAll === "function") renderAll();
+      if(typeof updateCurrentUserBadge==="function") updateCurrentUserBadge();
     }else{
       if(typeof mergeDeletedLessonsFromLocal==="function") mergeDeletedLessonsFromLocal();
       if(typeof purgeDeletedLessonMirrors==="function") purgeDeletedLessonMirrors();
@@ -2361,6 +2362,7 @@ async function initCloudSync(){
       const removed=typeof purgeDeletedLessonMirrors==="function"?purgeDeletedLessonMirrors():0;
       localStorage.setItem("dispatchDB", JSON.stringify(db));
       if(typeof renderAll === "function") renderAll();
+      if(typeof updateCurrentUserBadge==="function") updateCurrentUserBadge();
       if(removed>0||resetApplied){
         dispatchDoc.set({
           db: db,
@@ -3068,11 +3070,25 @@ function audit(action,details=""){
 function roleCanEdit(){
   return ["superadmin","admin","mudiri"].includes(db.currentUser?.role);
 }
+function updateCurrentUserBadge(){
+  const badge=document.querySelector(".hemis-user-badge");
+  if(!badge)return;
+  const u=db.currentUser||{};
+  const name=String(u.name||"Mehmon");
+  const role=String(u.role||"viewer");
+  const img=badge.querySelector("img");
+  const nameEl=badge.querySelector("b");
+  const roleEl=badge.querySelector("span");
+  if(img)img.src=`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=ffffff&color=1f5faa&bold=true`;
+  if(nameEl)nameEl.textContent=name;
+  if(roleEl)roleEl.textContent=role;
+}
 function applyRoleUI(){
   $("adminBtn").style.display=roleCanEdit()?"inline-block":"none";
   $("loginBtn").textContent=`${db.currentUser?.name||"Mehmon"} · ${db.currentUser?.role||"viewer"}`;
   const mt=document.getElementById("managerAdminTabBtn");
   if(mt)mt.style.display=db.currentUser?.role==="superadmin"?"inline-block":"none";
+  updateCurrentUserBadge();
 }
 $("loginBtn").onclick=()=>{const m=$("loginModal");if(m)m.classList.add("open")};
 if($("closeLogin")) $("closeLogin").onclick=()=>$("loginModal").classList.remove("open");
@@ -3915,11 +3931,10 @@ body.login-required #loginModal #doLoginBtn{
 
   const badge=document.createElement('div');
   badge.className='hemis-user-badge';
-  const badgeUserName=String(db?.currentUser?.name||'Mehmon');
-  const badgeUserRole=String(db?.currentUser?.role||'viewer');
-  badge.innerHTML=`<img src="https://ui-avatars.com/api/?name=${encodeURIComponent(badgeUserName)}&background=ffffff&color=1f5faa&bold=true" alt="User"><div><b>${esc(badgeUserName)}</b><span>${esc(badgeUserRole)}</span></div>`;
+  badge.innerHTML=`<img src="" alt="User"><div><b></b><span></span></div>`;
   topbarRight.appendChild(badge);
   topbar.appendChild(topbarRight);
+  if(typeof updateCurrentUserBadge==="function")updateCurrentUserBadge();
 
   const breadcrumb=document.createElement('div');
   breadcrumb.className='hemis-breadcrumb';
