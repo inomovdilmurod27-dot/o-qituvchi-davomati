@@ -1981,6 +1981,10 @@ body.hemis-layout .shortcut-card:nth-child(n+7){display:none !important}
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-auth-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
 </head>
 <body>
 <header class="topbar">
@@ -2138,11 +2142,11 @@ body.hemis-layout .shortcut-card:nth-child(n+7){display:none !important}
       <h3>Dars jadvalini Excel formatida yuklab olish</h3>
       <p class="note">
         Barcha o‘qituvchilarning dars jadvali .xlsx formatida yuklanadi.
-        Faylni Microsoft Excel, LibreOffice Calc yoki Google Sheets orqali ochish mumkin.
+        Faylni Microsoft Excel, LibreOffice Calc yoki Google Sheets orqali ochish mumkin. Excel yuklanganda darslar avtomatik ravishda tegishli o‘qituvchining haftalik jadvaliga kiritiladi.
       </p>
       <div class="actions">
         <button class="btn success" id="exportExcelBtn">Excel (.xlsx) yuklab olish</button>
-        <button class="btn primary" id="importExcelBtn">Excel import</button>
+        <button class="btn primary" id="importExcelBtn">Excel jadvalni avtomatik kiritish</button>
         <button class="btn ghost" id="printBtn">Chop etish / PDF</button>
         <input type="file" id="excelImportFile" accept=".xlsx,.xls" style="display:none">
       </div>
@@ -2296,7 +2300,85 @@ const dispatchDoc = firestoreDB.collection("appData").doc("main");
 let cloudReady = false;
 let cloudInitStarted = false;
 
+
+/* ===== SEMESTR BO‘YICHA DARS JADVALLARINI ALOHIDA SAQLASH ===== */
+function semesterPeriodKey(year=db.settings?.academicYear, semester=db.settings?.semester){
+  return `${String(year||"2026/2027").trim()}||${String(semester||"I-semestr").trim()}`;
+}
+function ensureSemesterSchedules(){
+  if(!db.settings) db.settings={academicYear:"2026/2027",semester:"I-semestr"};
+  if(!db.semesterSchedules || typeof db.semesterSchedules!=="object") db.semesterSchedules={};
+
+  const key=semesterPeriodKey();
+  if(!db.semesterSchedules[key]){
+    const current={
+      topLevel:{},
+      departments:{}
+    };
+
+    (db.teachers||[]).forEach(t=>{
+      current.topLevel[String(t.id)]=JSON.parse(JSON.stringify(t.schedule||[]));
+    });
+
+    const workspaces=(db.departmentWorkspaces&&typeof db.departmentWorkspaces==="object")
+      ?db.departmentWorkspaces:{};
+    Object.entries(workspaces).forEach(([dep,ws])=>{
+      current.departments[dep]={};
+      (ws?.teachers||[]).forEach(t=>{
+        current.departments[dep][String(t.id)]=JSON.parse(JSON.stringify(t.schedule||[]));
+      });
+    });
+
+    db.semesterSchedules[key]=current;
+  }
+  return db.semesterSchedules[key];
+}
+function captureActiveSemesterSchedules(key=semesterPeriodKey()){
+  if(!db.semesterSchedules || typeof db.semesterSchedules!=="object") db.semesterSchedules={};
+  const snapshot={topLevel:{},departments:{}};
+
+  (db.teachers||[]).forEach(t=>{
+    snapshot.topLevel[String(t.id)]=JSON.parse(JSON.stringify(t.schedule||[]));
+  });
+
+  const workspaces=(db.departmentWorkspaces&&typeof db.departmentWorkspaces==="object")
+    ?db.departmentWorkspaces:{};
+  Object.entries(workspaces).forEach(([dep,ws])=>{
+    snapshot.departments[dep]={};
+    (ws?.teachers||[]).forEach(t=>{
+      snapshot.departments[dep][String(t.id)]=JSON.parse(JSON.stringify(t.schedule||[]));
+    });
+  });
+
+  db.semesterSchedules[key]=snapshot;
+}
+function applySemesterSchedules(key=semesterPeriodKey()){
+  if(!db.semesterSchedules || typeof db.semesterSchedules!=="object") db.semesterSchedules={};
+  const snapshot=db.semesterSchedules[key]||{topLevel:{},departments:{}};
+
+  (db.teachers||[]).forEach(t=>{
+    t.schedule=JSON.parse(JSON.stringify(snapshot.topLevel?.[String(t.id)]||[]));
+  });
+
+  const workspaces=(db.departmentWorkspaces&&typeof db.departmentWorkspaces==="object")
+    ?db.departmentWorkspaces:{};
+  Object.entries(workspaces).forEach(([dep,ws])=>{
+    const depSchedules=snapshot.departments?.[dep]||{};
+    (ws?.teachers||[]).forEach(t=>{
+      t.schedule=JSON.parse(JSON.stringify(depSchedules[String(t.id)]||[]));
+    });
+  });
+
+  // Mudir login qilgan bo‘lsa, faol workspace’ni yana aynan shu semestr ma’lumotiga ulaydi.
+  const u=db.currentUser||{};
+  if(u.role==="mudiri" && u.department && typeof window.activateDepartmentWorkspace==="function"){
+    window.activateDepartmentWorkspace(u.department);
+  }
+}
+ensureSemesterSchedules();
+
 function save(){
+  if(typeof captureActiveSemesterSchedules==="function") captureActiveSemesterSchedules();
   if(typeof mergeDeletedLessonsFromLocal==="function") mergeDeletedLessonsFromLocal();
   if(typeof purgeDeletedLessonMirrors==="function") purgeDeletedLessonMirrors();
   if(typeof window.syncActiveDepartmentWorkspace==="function") window.syncActiveDepartmentWorkspace();
@@ -2318,6 +2400,8 @@ async function initCloudSync(){
     if(snap.exists && snap.data() && snap.data().db){
       const sessionUser=db.currentUser&&db.currentUser.role!=="viewer"?{...db.currentUser}:null;
       db = snap.data().db;
+      if(typeof ensureSemesterSchedules==="function") ensureSemesterSchedules();
+      if(typeof applySemesterSchedules==="function") applySemesterSchedules();
       const resetApplied=clearAllTeacherLessonData(db);
       if(typeof mergeDeletedLessonsFromLocal==="function") mergeDeletedLessonsFromLocal();
       if(sessionUser){
@@ -2351,6 +2435,8 @@ async function initCloudSync(){
       if(!s.exists || !s.data() || !s.data().db) return;
       const sessionUser=db.currentUser&&db.currentUser.role!=="viewer"?{...db.currentUser}:null;
       db = s.data().db;
+      if(typeof ensureSemesterSchedules==="function") ensureSemesterSchedules();
+      if(typeof applySemesterSchedules==="function") applySemesterSchedules();
       const resetApplied=clearAllTeacherLessonData(db);
       if(typeof mergeDeletedLessonsFromLocal==="function") mergeDeletedLessonsFromLocal();
       if(sessionUser){
@@ -3216,14 +3302,30 @@ $("monitorBtn").onclick=()=>{
 };
 
 $("saveSemesterBtn").onclick=()=>{
+  const oldKey=semesterPeriodKey(db.settings.academicYear,db.settings.semester);
+
+  // Hozirgi davr darslarini eski davr nomi ostida saqlab qo‘yadi.
+  captureActiveSemesterSchedules(oldKey);
+
   db.settings.academicYear=$("academicYear").value.trim()||"2026/2027";
   db.settings.semester=$("semesterSelect").value;
+
+  const newKey=semesterPeriodKey(db.settings.academicYear,db.settings.semester);
+
+  // Yangi davr oldin mavjud bo‘lmasa, bo‘sh jadval bilan ochiladi.
+  if(!db.semesterSchedules[newKey]){
+    db.semesterSchedules[newKey]={topLevel:{},departments:{}};
+  }
+
+  applySemesterSchedules(newKey);
   audit("Semestr sozlamasi o‘zgartirildi",`${db.settings.academicYear} · ${db.settings.semester}`);
-  save();renderSemester();
+  renderAll();
+  renderSemester();
+  showAlert(`Faol davr: ${esc(db.settings.academicYear)} · ${esc(db.settings.semester)}`,"ok");
 };
 function renderSemester(){
   if(!$("semesterInfo"))return;
-  $("semesterInfo").innerHTML=`<b>${esc(db.settings.academicYear)}</b><br>${esc(db.settings.semester)}`;
+  $("semesterInfo").innerHTML=`<b>${esc(db.settings.academicYear)}</b><br>${esc(db.settings.semester)}<div class="mini" style="margin-top:6px">Faqat shu davrga tegishli dars jadvali faol.</div>`;
   $("academicYear").value=db.settings.academicYear;$("semesterSelect").value=db.settings.semester;
 }
 $("addHolidayBtn").onclick=()=>{
@@ -3245,40 +3347,242 @@ function renderAudit(){
 $("printBtn").onclick=()=>window.print();
 
 $("importExcelBtn").onclick=()=>$("excelImportFile").click();
+
+function normalizeExcelHeader(v){
+  return String(v||"").trim().toLowerCase()
+    .replace(/[ʻ’‘`']/g,"'")
+    .replace(/\s+/g," ");
+}
+function excelValue(row,aliases){
+  const keys=Object.keys(row||{});
+  for(const alias of aliases){
+    const wanted=normalizeExcelHeader(alias);
+    const key=keys.find(k=>normalizeExcelHeader(k)===wanted);
+    if(key!==undefined && row[key]!==undefined && row[key]!==null && String(row[key]).trim()!=="") return row[key];
+  }
+  return "";
+}
+function normalizeTeacherName(v){
+  return String(v||"").trim().replace(/\s+/g," ").toLowerCase();
+}
+function parseExcelRoom(raw,buildingRaw=""){
+  let txt=String(raw||"").trim();
+  let building=String(buildingRaw||"").trim();
+
+  if(!building){
+    const bm=txt.match(/(?:·|,|\s)\s*(\d+\s*-\s*bino)\b/i);
+    if(bm) building=bm[1].replace(/\s+/g,"");
+  }
+
+  txt=txt
+    .replace(/(?:·|,|\s)\s*\d+\s*-\s*bino\b/ig,"")
+    .replace(/\s*-\s*xona\b/ig,"")
+    .replace(/\bxona\b/ig,"")
+    .trim();
+
+  if(building && /^\d+$/.test(building)) building=`${building}-bino`;
+  if(building) building=building.replace(/\s*-\s*/g,"-");
+
+  return {name:txt,building};
+}
+function normalizeExcelDay(v){
+  const x=String(v||"").trim().toLowerCase();
+  const map={
+    "dushanba":"Dushanba","monday":"Dushanba",
+    "seshanba":"Seshanba","tuesday":"Seshanba",
+    "chorshanba":"Chorshanba","wednesday":"Chorshanba",
+    "payshanba":"Payshanba","thursday":"Payshanba",
+    "juma":"Juma","friday":"Juma",
+    "shanba":"Shanba","saturday":"Shanba"
+  };
+  return map[x]||String(v||"").trim()||"Dushanba";
+}
+function normalizeExcelWeek(v){
+  const x=String(v||"Doimiy").trim().toLowerCase();
+  if(x.includes("surat")) return "surat";
+  if(x.includes("maxraj")) return "maxraj";
+  return "doim";
+}
+function normalizeExcelStatus(v){
+  const x=String(v||"").trim().toLowerCase();
+  return {
+    status:(x.includes("tasdiq")||x.includes("approved"))?"approved":"pending",
+    cancelled:(x.includes("bekor")||x.includes("cancel"))
+  };
+}
+function parsePairNumber(v,timeText=""){
+  const m=String(v||"").match(/\d+/);
+  if(m) return Number(m[0]);
+
+  const t=String(timeText||"").trim();
+  if(t){
+    const start=t.split(/[–—-]/)[0]?.trim();
+    const found=Object.entries(pairTimes).find(([,p])=>p.start===start);
+    if(found) return Number(found[0]);
+  }
+  return 1;
+}
+function excelTeacherFromSheet(sheetName){
+  const target=normalizeTeacherName(sheetName);
+  return db.teachers.find(t=>{
+    const n=normalizeTeacherName(t.name);
+    return n===target || target.includes(n) || n.includes(target);
+  })||null;
+}
+
 $("excelImportFile").onchange=e=>{
   const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
+
   reader.onload=evt=>{
     try{
+      if(typeof XLSX==="undefined") throw new Error("Excel kutubxonasi yuklanmagan.");
+
       const data=new Uint8Array(evt.target.result);
       const wb=XLSX.read(data,{type:"array"});
-      const ws=wb.Sheets[wb.SheetNames[0]];
-      const rows=XLSX.utils.sheet_to_json(ws,{defval:""});
-      let imported=0;
-      rows.forEach(r=>{
-        const teacherName=r["O‘qituvchi"]||r["Ism-familiya"];
-        if(!teacherName)return;
-        let t=db.teachers.find(x=>x.name===teacherName);
-        if(!t){
-          t={id:Date.now()+Math.random(),name:teacherName,degree:r["Ilmiy darajasi"]||"",position:r["Lavozimi"]||"O‘qituvchi",department:"Ekologiya, irrigatsiya va gidrotexnika",phone:"",image:`https://ui-avatars.com/api/?name=${encodeURIComponent(teacherName)}&background=dbeafe&color=1d4ed8&size=256`,availability:"available",availabilityNote:"",schedule:[]};
-          db.teachers.push(t);
-        }
-        const pairNum=parseInt(String(r["Juftlik"]||"1"));
-        const pt=pairTimes[pairNum]||pairTimes[1];
-        const weekTxt=String(r["Hafta turi"]||"Doimiy").toLowerCase();
-        const weekType=weekTxt.includes("surat")?"surat":weekTxt.includes("maxraj")?"maxraj":"doim";
-        const lesson={
-          id:Date.now()+Math.random(),day:r["Hafta kuni"]||"Dushanba",weekType,pair:pairNum,start:r["Boshlanish vaqti"]||pt.start,end:r["Tugash vaqti"]||pt.end,
-          subject:r["Fan nomi"]||"",group:r["Guruh / yo‘nalish"]||"",groupSize:Number(r["Talabalar soni"]||0),room:String(r["Xona"]||""),type:r["Dars turi"]||"Ma’ruza",
-          substituteTeacherId:"",status:String(r["Holati"]||"").toLowerCase().includes("tasdiq")?"approved":"pending",cancelled:String(r["Holati"]||"").toLowerCase().includes("bekor"),note:r["Izoh"]||""
-        };
-        const check=validateLesson(lesson,t.id,null);
-        if(!check.errs.length){t.schedule.push(lesson);imported++}
+
+      let imported=0, skipped=0, createdTeachers=0, createdRooms=0;
+      const skippedReasons=[];
+
+      wb.SheetNames.forEach(sheetName=>{
+        const ws=wb.Sheets[sheetName];
+        const rows=XLSX.utils.sheet_to_json(ws,{defval:""});
+        const sheetTeacher=excelTeacherFromSheet(sheetName);
+
+        rows.forEach((r,rowIndex)=>{
+          const teacherName=String(excelValue(r,[
+            "O‘qituvchi","O'qituvchi","Ism-familiya","F.I.Sh.","FISH","Teacher"
+          ])||sheetTeacher?.name||"").trim();
+
+          const subject=String(excelValue(r,["Fan","Fan nomi","Subject"])||"").trim();
+          const group=String(excelValue(r,["Guruh","Guruh / yo‘nalish","Group"])||"").trim();
+          const day=normalizeExcelDay(excelValue(r,["Kun","Hafta kuni","Day"]));
+          const timeTxt=String(excelValue(r,["Vaqt","Dars vaqti","Time"])||"").trim();
+          const pairNum=parsePairNumber(excelValue(r,["Juftlik","Pair"]),timeTxt);
+          const rawRoom=excelValue(r,["Xona","Auditoriya","Room"]);
+          const rawBuilding=excelValue(r,["Bino","Building"]);
+          const parsedRoom=parseExcelRoom(rawRoom,rawBuilding);
+
+          // Jadvalga aloqasi bo‘lmagan bo‘sh/qisman satrlarni o‘tkazib yuboradi.
+          if(!teacherName && !subject && !group && !rawRoom) return;
+
+          if(!teacherName || !subject || !group || !parsedRoom.name){
+            skipped++;
+            skippedReasons.push(`${sheetName}, ${rowIndex+2}-qator: o‘qituvchi/fan/guruh/xona yetishmaydi`);
+            return;
+          }
+
+          let t=db.teachers.find(x=>normalizeTeacherName(x.name)===normalizeTeacherName(teacherName));
+          if(!t){
+            t={
+              id:Date.now()+Math.random(),
+              name:teacherName,
+              degree:String(excelValue(r,["Ilmiy darajasi","Ilmiy daraja","Degree"])||""),
+              position:String(excelValue(r,["Lavozimi","Lavozim","Position"])||"O‘qituvchi"),
+              department:(db.currentUser?.role==="mudiri"&&db.currentUser?.department)
+                ?db.currentUser.department
+                :"Ekologiya, irrigatsiya va gidrotexnika",
+              phone:String(excelValue(r,["Telefon","Phone"])||""),
+              image:`https://ui-avatars.com/api/?name=${encodeURIComponent(teacherName)}&background=dbeafe&color=1d4ed8&size=256`,
+              availability:"available",
+              availabilityNote:"",
+              schedule:[]
+            };
+            db.teachers.push(t);
+            createdTeachers++;
+          }
+
+          let room=db.rooms.find(rr=>
+            normalizePhysicalRoom(rr.name)===normalizePhysicalRoom(parsedRoom.name) &&
+            (!parsedRoom.building || normalizeBuilding(rr.building)===normalizeBuilding(parsedRoom.building))
+          );
+
+          if(!room){
+            room={
+              id:Date.now()+Math.random(),
+              name:parsedRoom.name,
+              capacity:Number(excelValue(r,["Xona sig‘imi","Sig‘im","Sig'imi","Capacity"])||excelValue(r,["Talabalar soni","Guruh soni"])||30),
+              type:String(excelValue(r,["Xona turi","Auditoriya turi"])||"Oddiy auditoriya"),
+              building:parsedRoom.building||"1-bino"
+            };
+            db.rooms.push(room);
+            createdRooms++;
+          }
+
+          const pt=pairTimes[pairNum]||pairTimes[1];
+          const statusInfo=normalizeExcelStatus(excelValue(r,["Status","Holati","Holat"]));
+          const weekType=normalizeExcelWeek(excelValue(r,["Hafta","Hafta turi","Week"]));
+
+          const lesson={
+            id:Date.now()+Math.random(),
+            day,
+            weekType,
+            pair:pairNum,
+            start:String(excelValue(r,["Boshlanish vaqti","Start"])||"").trim() || (timeTxt?timeTxt.split(/[–—-]/)[0]?.trim():"") || pt.start,
+            end:String(excelValue(r,["Tugash vaqti","End"])||"").trim() || (timeTxt?timeTxt.split(/[–—-]/)[1]?.trim():"") || pt.end,
+            subject,
+            group,
+            groupSize:Number(excelValue(r,["Talabalar soni","Guruh soni","Group size"])||1),
+            room:room.name,
+            roomId:room.id,
+            roomBuilding:room.building||"",
+            type:String(excelValue(r,["Turi","Dars turi","Type"])||"Ma’ruza"),
+            substituteTeacherId:"",
+            status:statusInfo.status,
+            cancelled:statusInfo.cancelled,
+            note:String(excelValue(r,["Izoh","Note"])||"")
+          };
+
+          // Aynan bir xil darsni qayta import qilmaydi.
+          const duplicate=(t.schedule||[]).some(l=>
+            !l.cancelled &&
+            l.day===lesson.day &&
+            Number(l.pair)===Number(lesson.pair) &&
+            l.weekType===lesson.weekType &&
+            String(l.subject||"").trim().toLowerCase()===lesson.subject.toLowerCase() &&
+            String(l.group||"").trim().toLowerCase()===lesson.group.toLowerCase() &&
+            physicalRoomKey(l.room,l.roomBuilding)===physicalRoomKey(lesson.room,lesson.roomBuilding)
+          );
+          if(duplicate){
+            skipped++;
+            skippedReasons.push(`${teacherName}: ${day}, ${pairNum}-juftlik — dublikat`);
+            return;
+          }
+
+          const check=validateLesson(lesson,t.id,null);
+          if(check.errs.length){
+            skipped++;
+            skippedReasons.push(`${teacherName}: ${day}, ${pairNum}-juftlik — ${check.errs.join("; ")}`);
+            return;
+          }
+
+          t.schedule.push(lesson);
+          imported++;
+        });
       });
-      audit("Excel import qilindi",`${imported} ta dars`);
-      save();renderAll();alert(`${imported} ta dars muvaffaqiyatli import qilindi. Konfliktli yozuvlar o'tkazib yuborildi.`);
-    }catch(err){alert("Excel faylni o‘qishda xatolik: "+err.message)}
+
+      audit("Excel jadvali avtomatik import qilindi",
+        `${imported} ta dars · ${createdTeachers} ta yangi o‘qituvchi · ${createdRooms} ta yangi xona`);
+
+      save();
+      renderAll();
+
+      const details=skippedReasons.slice(0,8).map(x=>`• ${esc(x)}`).join("<br>");
+      showAlert(
+        `<b>Excel avtomatik kiritildi.</b><br>`+
+        `${imported} ta dars haftalik jadvalga qo‘shildi.`+
+        `${createdTeachers?`<br>${createdTeachers} ta yangi o‘qituvchi yaratildi.`:""}`+
+        `${createdRooms?`<br>${createdRooms} ta yangi xona yaratildi.`:""}`+
+        `${skipped?`<br>${skipped} ta satr o‘tkazib yuborildi.${details?`<br><br>${details}`:""}`:""}`,
+        skipped?"warn":"ok"
+      );
+    }catch(err){
+      showAlert("Excel faylni o‘qishda xatolik: "+esc(err.message),"error");
+    }finally{
+      e.target.value="";
+    }
   };
+
   reader.readAsArrayBuffer(file);
 };
 
@@ -4204,6 +4508,1638 @@ body.hemis-layout #advancedModal .calendar-grid{
     attributes:true,
     attributeFilter:['class']
   });
+})();
+</script>
+
+
+<style>
+/* ===== PRO QO‘SHIMCHA: mavjud dizayn va funksiyalarga tegmasdan ===== */
+.pro-top-tools{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.pro-search-btn{
+  height:29px;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  padding:0 10px;
+  border:1px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.12);
+  color:#fff;
+  border-radius:4px;
+  font-size:10.5px;
+  font-weight:700;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.pro-search-btn:hover{background:rgba(255,255,255,.2)}
+.pro-search-btn kbd{
+  font:inherit;
+  font-size:8.5px;
+  padding:1px 5px;
+  border-radius:3px;
+  background:rgba(255,255,255,.18);
+  border:1px solid rgba(255,255,255,.2);
+}
+.pro-net-status{
+  height:29px;
+  display:flex;
+  align-items:center;
+  gap:5px;
+  padding:0 8px;
+  color:#fff;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:4px;
+  background:rgba(255,255,255,.08);
+  font-size:9.5px;
+  font-weight:700;
+}
+.pro-net-dot{
+  width:6px;height:6px;border-radius:50%;background:#7ee787;
+  box-shadow:0 0 0 2px rgba(126,231,135,.15);
+}
+.pro-net-status.offline .pro-net-dot{
+  background:#ff8a80;
+  box-shadow:0 0 0 2px rgba(255,138,128,.15);
+}
+#proSearchModal .modal-card{
+  width:min(760px,96vw) !important;
+  max-height:min(720px,88vh) !important;
+  padding:0 !important;
+  overflow:hidden !important;
+}
+.pro-search-head{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:12px 13px;
+  border-bottom:1px solid var(--border);
+  background:#fff;
+  position:sticky;top:0;z-index:2;
+}
+.pro-search-input{
+  flex:1;
+  min-width:0;
+  border:1px solid #cfd8e3;
+  border-radius:5px;
+  padding:9px 10px;
+  outline:none;
+  font-size:12px;
+}
+.pro-search-input:focus{
+  border-color:#65a5ca;
+  box-shadow:0 0 0 2px rgba(65,145,191,.1);
+}
+.pro-search-body{
+  padding:10px;
+  overflow:auto;
+  max-height:calc(88vh - 65px);
+  background:#f7f9fb;
+}
+.pro-search-hint{
+  text-align:center;
+  color:#7b8794;
+  padding:24px 12px;
+  font-size:11px;
+}
+.pro-result{
+  width:100%;
+  display:grid;
+  grid-template-columns:28px minmax(0,1fr) auto;
+  gap:9px;
+  align-items:center;
+  padding:9px 10px;
+  border:1px solid #dfe5ec;
+  background:#fff;
+  border-radius:5px;
+  margin-bottom:6px;
+  text-align:left;
+  color:#344054;
+}
+.pro-result:hover{border-color:#8bbad3;background:#fbfdff}
+.pro-result-icon{
+  width:28px;height:28px;border-radius:5px;
+  display:grid;place-items:center;
+  background:#eef6fa;color:#327ca4;font-weight:800;
+}
+.pro-result-title{font-weight:800;font-size:11.5px;color:#26394d}
+.pro-result-meta{font-size:9.8px;color:#7b8794;margin-top:2px;line-height:1.4}
+.pro-result-kind{
+  font-size:8.8px;font-weight:800;color:#5f7285;
+  background:#f2f4f7;border:1px solid #e0e5ea;
+  border-radius:4px;padding:2px 5px;white-space:nowrap;
+}
+.pro-focus-ring:focus-visible,
+.pro-search-btn:focus-visible,
+.pro-result:focus-visible{
+  outline:2px solid #79bddd;
+  outline-offset:2px;
+}
+@media(max-width:900px){
+  .pro-net-status{display:none}
+  .pro-search-btn kbd{display:none}
+}
+</style>
+
+<script>
+/* ===== PRO QO‘SHIMCHA: global qidiruv + online holat + klaviatura ===== */
+(function(){
+  if(window.__proEnhancementLoaded) return;
+  window.__proEnhancementLoaded=true;
+
+  const escHtml=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+
+  function activeTeachers(){
+    return Array.isArray(db?.teachers)?db.teachers:[];
+  }
+  function activeRooms(){
+    return Array.isArray(db?.rooms)?db.rooms:[];
+  }
+
+  function closeOtherPanels(current){
+    document.querySelectorAll('.modal.open').forEach(el=>{
+      if(el===current) return;
+      if(el.id==='loginModal' && document.body.classList.contains('login-required')) return;
+      el.classList.remove('open');
+    });
+    document.querySelectorAll('.side-panel.open').forEach(el=>el.classList.remove('open'));
+    document.querySelectorAll('.monitor-mode').forEach(el=>el.remove());
+  }
+
+  function createSearchModal(){
+    if(document.getElementById('proSearchModal')) return document.getElementById('proSearchModal');
+    const modal=document.createElement('div');
+    modal.className='modal';
+    modal.id='proSearchModal';
+    modal.innerHTML=`
+      <div class="modal-card">
+        <div class="pro-search-head">
+          <input id="proSearchInput" class="pro-search-input" type="search"
+            placeholder="O‘qituvchi, fan, guruh, xona yoki bino qidiring..." autocomplete="off">
+          <button class="close pro-focus-ring" type="button" aria-label="Yopish">×</button>
+        </div>
+        <div class="pro-search-body" id="proSearchBody">
+          <div class="pro-search-hint">Qidiruvni boshlash uchun kamida 2 ta belgi kiriting.</div>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+
+    modal.querySelector('.close').addEventListener('click',()=>modal.classList.remove('open'));
+    modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('open')});
+    modal.querySelector('#proSearchInput').addEventListener('input',renderSearch);
+    return modal;
+  }
+
+  function roomForLesson(l){
+    return activeRooms().find(r=>String(r.id)===String(l.roomId)) ||
+      activeRooms().find(r=>
+        String(r.name||'').trim().toLowerCase()===String(l.room||'').trim().toLowerCase() &&
+        (!l.roomBuilding || String(r.building||'').trim().toLowerCase()===String(l.roomBuilding||'').trim().toLowerCase())
+      );
+  }
+
+  function collectResults(q){
+    q=q.toLowerCase().trim();
+    const rows=[];
+    activeTeachers().forEach(t=>{
+      const teacherText=[t.name,t.degree,t.position,t.department,t.phone].join(' ').toLowerCase();
+      if(teacherText.includes(q)){
+        rows.push({
+          kind:'O‘qituvchi',icon:'O‘',title:t.name,
+          meta:[t.position,t.department].filter(Boolean).join(' · '),
+          action:()=>{document.getElementById('proSearchModal')?.classList.remove('open'); if(typeof openTeacherModal==='function')openTeacherModal(t.id);}
+        });
+      }
+      (t.schedule||[]).forEach(l=>{
+        if(l.cancelled)return;
+        const r=roomForLesson(l);
+        const hay=[l.subject,l.group,l.type,l.day,l.room,l.roomBuilding,r?.name,r?.building,t.name].join(' ').toLowerCase();
+        if(hay.includes(q)){
+          rows.push({
+            kind:'Dars',icon:'D',title:l.subject||'Dars',
+            meta:`${t.name} · ${l.group||''} · ${l.day||''}, ${l.pair||''}-juftlik · ${(r?.name||l.room||'')}-xona${(r?.building||l.roomBuilding)?' · '+(r?.building||l.roomBuilding):''}`,
+            action:()=>{document.getElementById('proSearchModal')?.classList.remove('open'); if(typeof openTeacherModal==='function')openTeacherModal(t.id);}
+          });
+        }
+      });
+    });
+
+    activeRooms().forEach(r=>{
+      const roomText=[r.name,r.building,r.type,r.capacity].join(' ').toLowerCase();
+      if(roomText.includes(q)){
+        rows.push({
+          kind:'Xona',icon:'X',title:`${r.name}-xona`,
+          meta:[r.building,r.type,r.capacity?`${r.capacity} o‘rin`:'' ].filter(Boolean).join(' · '),
+          action:()=>{
+            document.getElementById('proSearchModal')?.classList.remove('open');
+            const lessons=[];
+            const key=(typeof physicalRoomKey==='function')?physicalRoomKey(r.name,r.building):`${r.name}|${r.building}`;
+            activeTeachers().forEach(t=>(t.schedule||[]).forEach(l=>{
+              if(l.cancelled)return;
+              const lr=roomForLesson(l);
+              const lk=(typeof physicalRoomKey==='function')?physicalRoomKey(lr?.name||l.room,lr?.building||l.roomBuilding):`${lr?.name||l.room}|${lr?.building||l.roomBuilding}`;
+              if(String(l.roomId)===String(r.id)||lk===key)lessons.push({t,l});
+            }));
+            const html=lessons.length
+              ? `<div class="admin-list">${lessons.map(x=>`<div class="admin-row"><strong>${escHtml(x.t.name)}</strong><div class="mini">${escHtml(x.l.subject)} · ${escHtml(x.l.group)} · ${escHtml(x.l.day)}, ${x.l.pair}-juftlik</div></div>`).join('')}</div>`
+              : `<div class="empty">Bu xonada dars yo‘q.</div>`;
+            if(typeof openAdvanced==='function')openAdvanced(`${r.name}-xona`,`${r.building||''} · ${r.type||''}`,html);
+          }
+        });
+      }
+    });
+
+    const seen=new Set();
+    return rows.filter(x=>{
+      const k=x.kind+'|'+x.title+'|'+x.meta;
+      if(seen.has(k))return false;
+      seen.add(k);return true;
+    }).slice(0,50);
+  }
+
+  function renderSearch(){
+    const input=document.getElementById('proSearchInput');
+    const body=document.getElementById('proSearchBody');
+    if(!input||!body)return;
+    const q=input.value.trim();
+    if(q.length<2){
+      body.innerHTML='<div class="pro-search-hint">Qidiruvni boshlash uchun kamida 2 ta belgi kiriting.</div>';
+      return;
+    }
+    const rows=collectResults(q);
+    if(!rows.length){
+      body.innerHTML='<div class="pro-search-hint">Mos ma’lumot topilmadi.</div>';
+      return;
+    }
+    body.innerHTML='';
+    rows.forEach(row=>{
+      const btn=document.createElement('button');
+      btn.type='button';
+      btn.className='pro-result';
+      btn.innerHTML=`<span class="pro-result-icon">${escHtml(row.icon)}</span><span><span class="pro-result-title">${escHtml(row.title)}</span><span class="pro-result-meta">${escHtml(row.meta)}</span></span><span class="pro-result-kind">${escHtml(row.kind)}</span>`;
+      btn.addEventListener('click',row.action);
+      body.appendChild(btn);
+    });
+  }
+
+  function openSearch(){
+    const modal=createSearchModal();
+    closeOtherPanels(modal);
+    modal.classList.add('open');
+    setTimeout(()=>{
+      const inp=document.getElementById('proSearchInput');
+      if(inp){inp.value='';renderSearch();inp.focus();}
+    },0);
+  }
+
+  function installTopTools(){
+    const topRight=document.querySelector('.topbar-right');
+    if(!topRight || topRight.querySelector('.pro-top-tools'))return;
+    const tools=document.createElement('div');
+    tools.className='pro-top-tools';
+    tools.innerHTML=`
+      <button type="button" class="pro-search-btn pro-focus-ring" title="Global qidiruv">
+        <span>⌕ Qidiruv</span>
+      </button>
+      <div class="pro-net-status" id="proNetStatus"><span class="pro-net-dot"></span><span class="pro-net-text">Online</span></div>`;
+    const badge=topRight.querySelector('.hemis-user-badge');
+    topRight.insertBefore(tools,badge||null);
+    tools.querySelector('.pro-search-btn').addEventListener('click',openSearch);
+    updateNet();
+  }
+
+  function updateNet(){
+    const s=document.getElementById('proNetStatus');
+    if(!s)return;
+    const online=navigator.onLine;
+    s.classList.toggle('offline',!online);
+    const txt=s.querySelector('.pro-net-text');
+    if(txt)txt.textContent=online?'Online':'Offline';
+  }
+
+  document.addEventListener('keydown',e=>{
+    if((e.ctrlKey||e.metaKey) && String(e.key).toLowerCase()==='k'){
+      e.preventDefault();openSearch();return;
+    }
+    if(e.key==='Escape'){
+      const login=document.getElementById('loginModal');
+      if(login?.classList.contains('open') && document.body.classList.contains('login-required'))return;
+      const modal=[...document.querySelectorAll('.modal.open')].pop();
+      if(modal){modal.classList.remove('open');return;}
+      const side=[...document.querySelectorAll('.side-panel.open')].pop();
+      if(side){side.classList.remove('open');return;}
+      const monitor=document.querySelector('.monitor-mode');
+      if(monitor)monitor.remove();
+    }
+  });
+
+  window.addEventListener('online',updateNet);
+  window.addEventListener('offline',updateNet);
+
+  const ready=()=>{
+    createSearchModal();
+    installTopTools();
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready);
+  else ready();
+
+  // HEMIS topbar keyinroq qurilsa ham qo‘shimcha tugmalarni o‘rnatadi.
+  const obs=new MutationObserver(()=>installTopTools());
+  obs.observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+
+
+<style>
+/* ===== PRO QO‘SHIMCHA DIZAYNINI YAXSHILASH ===== */
+.pro-top-tools{
+  gap:8px;
+}
+.pro-search-btn{
+  height:32px;
+  padding:0 12px;
+  border:1px solid rgba(255,255,255,.28);
+  background:rgba(255,255,255,.14);
+  border-radius:6px;
+  font-size:11px;
+  font-weight:800;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+  transition:background .18s ease,border-color .18s ease,transform .18s ease;
+}
+.pro-search-btn:hover{
+  background:rgba(255,255,255,.22);
+  border-color:rgba(255,255,255,.4);
+  transform:translateY(-1px);
+}
+.pro-net-status{
+  height:32px;
+  padding:0 10px;
+  border-radius:6px;
+  font-size:10px;
+  background:rgba(255,255,255,.1);
+  border-color:rgba(255,255,255,.2);
+}
+#proSearchModal{
+  backdrop-filter:blur(3px);
+}
+#proSearchModal .modal-card{
+  width:min(820px,95vw) !important;
+  max-height:min(760px,90vh) !important;
+  border:1px solid #d5dee7 !important;
+  border-radius:10px !important;
+  box-shadow:0 24px 70px rgba(15,23,42,.28) !important;
+}
+.pro-search-head{
+  padding:14px;
+  gap:10px;
+  background:#fff;
+}
+.pro-search-input{
+  padding:10px 12px 10px 38px;
+  border-radius:7px;
+  font-size:12px;
+  background:
+    linear-gradient(#fff,#fff) padding-box,
+    linear-gradient(90deg,#d5dde5,#c8dbe7) border-box;
+  position:relative;
+}
+.pro-search-head:before{
+  content:"⌕";
+  position:absolute;
+  left:26px;
+  top:50%;
+  transform:translateY(-50%);
+  z-index:3;
+  color:#6c8192;
+  font-size:17px;
+  pointer-events:none;
+}
+.pro-search-body{
+  padding:12px;
+  background:#f4f7fa;
+}
+.pro-search-hint{
+  background:#fff;
+  border:1px dashed #ccd7e1;
+  border-radius:7px;
+  margin:4px;
+  padding:28px 14px;
+}
+.pro-result{
+  grid-template-columns:32px minmax(0,1fr) auto;
+  gap:10px;
+  padding:10px 11px;
+  border-radius:7px;
+  margin-bottom:7px;
+  transition:border-color .16s ease,box-shadow .16s ease,transform .16s ease,background .16s ease;
+}
+.pro-result:hover{
+  background:#fff;
+  border-color:#9fc6db;
+  box-shadow:0 4px 14px rgba(15,23,42,.07);
+  transform:translateY(-1px);
+}
+.pro-result-icon{
+  width:32px;height:32px;
+  border-radius:7px;
+  background:#eaf4fa;
+  color:#2d779f;
+  border:1px solid #d5e7f0;
+}
+.pro-result-title{
+  font-size:12px;
+}
+.pro-result-meta{
+  font-size:10px;
+}
+.pro-result-kind{
+  border-radius:999px;
+  padding:3px 7px;
+  background:#f5f7f9;
+}
+@media(max-width:720px){
+  .pro-search-btn{
+    width:32px;
+    padding:0;
+    justify-content:center;
+  }
+  .pro-search-btn span{
+    font-size:0;
+  }
+  .pro-search-btn span:before{
+    content:"⌕";
+    font-size:16px;
+  }
+}
+</style>
+
+
+<style>
+/* ===== MUKAMMAL PRO MARKAZ — faqat qo‘shimcha qatlam ===== */
+.pro-suite-section{padding:8px 0;border-top:1px solid rgba(255,255,255,.05)}
+.pro-suite-title{padding:8px 14px 6px;color:#8fa3af;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+.pro-suite-btn{
+  width:100%;border:0;background:transparent;color:#eef5f8;
+  padding:9px 14px;display:flex;align-items:center;gap:9px;
+  font-size:11px;text-align:left;cursor:pointer
+}
+.pro-suite-btn:hover{background:rgba(255,255,255,.06)}
+.pro-suite-btn span:first-child{width:17px;text-align:center;opacity:.9}
+.pro-suite-badge{
+  margin-left:auto;min-width:18px;height:18px;padding:0 5px;border-radius:999px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:8.5px;font-weight:800;background:#3b93bd;color:#fff
+}
+.pro-toolbar{
+  display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 12px
+}
+.pro-chip{
+  border:1px solid #d7e0e8;background:#fff;color:#405264;
+  border-radius:999px;padding:5px 9px;font-size:9.5px;font-weight:700;cursor:pointer
+}
+.pro-chip:hover,.pro-chip.active{border-color:#77b1cf;background:#eef7fb;color:#286c91}
+.pro-kpis{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:8px 0 12px
+}
+.pro-kpi{
+  background:#fff;border:1px solid #dce3ea;border-radius:7px;padding:10px;
+  min-height:74px
+}
+.pro-kpi small{display:block;color:#7a8794;font-size:9.5px}
+.pro-kpi b{display:block;margin-top:4px;color:#2f6f94;font-size:23px;line-height:1}
+.pro-grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.pro-form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:7px 0}
+.pro-form-row .full{grid-column:1/-1}
+.pro-label{font-size:9.5px;font-weight:800;color:#536476;display:block;margin-bottom:3px}
+.pro-input{
+  width:100%;border:1px solid #d1dae3;border-radius:5px;padding:7px 8px;
+  font-size:10.5px;background:#fff;color:#344054
+}
+.pro-panel-card{border:1px solid #dce3ea;border-radius:7px;background:#fff;padding:10px;margin-bottom:8px}
+.pro-panel-card strong{color:#2c4054}
+.pro-warning{border-left:3px solid #e7a93b;background:#fffaf0}
+.pro-danger{border-left:3px solid #d55d5d;background:#fff6f6}
+.pro-ok{border-left:3px solid #3da36c;background:#f6fff9}
+.pro-muted{font-size:9.8px;color:#778491;line-height:1.45}
+.pro-row-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.pro-mini-btn{
+  border:1px solid #d6dee6;background:#fff;color:#435566;
+  padding:4px 7px;border-radius:4px;font-size:9px;font-weight:700;cursor:pointer
+}
+.pro-mini-btn:hover{border-color:#82b5d0;color:#2b7197}
+.pro-mini-btn.danger{border-color:#efcaca;color:#b42318;background:#fff7f7}
+.pro-banner{
+  display:none;position:fixed;left:242px;right:14px;top:60px;z-index:1300;
+  padding:8px 12px;border:1px solid #efd697;border-radius:5px;
+  background:#fff8e8;color:#7b5b15;font-size:10.5px;font-weight:700;
+  box-shadow:0 4px 14px rgba(15,23,42,.08)
+}
+.pro-banner.show{display:block}
+.pro-banner button{float:right;border:0;background:transparent;color:inherit;font-weight:900}
+.pro-mobile-menu-btn{
+  display:none;position:fixed;left:10px;top:66px;z-index:1400;width:34px;height:34px;
+  border:0;border-radius:6px;background:#22313a;color:#fff;font-size:18px
+}
+body.pro-dark{
+  --bg:#111820;--surface:#18222c;--surface-2:#1d2934;--text:#e9eef3;--muted:#9fb0bd;--border:#34424e
+}
+body.pro-dark,body.pro-dark main{background:#111820!important;color:#e9eef3!important}
+body.pro-dark .card,body.pro-dark .today-item,body.pro-dark .summary,body.pro-dark .stat,
+body.pro-dark .modal-card,body.pro-dark .side-panel,body.pro-dark .admin-row,
+body.pro-dark .pro-panel-card,body.pro-dark .pro-kpi{background:#18222c!important;color:#e9eef3!important;border-color:#34424e!important}
+body.pro-dark input,body.pro-dark select,body.pro-dark textarea,body.pro-dark .control,
+body.pro-dark .pro-input{background:#1d2934!important;color:#e9eef3!important;border-color:#40505d!important}
+body.pro-dark th{background:#22313a!important;color:#e9eef3!important}
+body.pro-dark td{color:#dce5eb}
+body.pro-dark .mini,body.pro-dark .meta,body.pro-dark .pro-muted{color:#9fb0bd!important}
+body.pro-dark .pro-chip,body.pro-dark .pro-mini-btn{background:#1d2934;color:#dbe6ed;border-color:#40505d}
+body.pro-dark .pro-search-body{background:#111820}
+body.pro-dark .pro-result{background:#18222c;color:#e9eef3;border-color:#34424e}
+body.pro-dark .pro-result-title{color:#e9eef3}
+body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
+@media(max-width:900px){
+  .pro-kpis{grid-template-columns:1fr 1fr}
+  .pro-grid2,.pro-form-row{grid-template-columns:1fr}
+  .pro-form-row .full{grid-column:auto}
+}
+@media(max-width:760px){
+  body.hemis-layout{padding-left:0!important}
+  body.hemis-layout .hemis-sidebar{transform:translateX(-100%);transition:transform .2s ease}
+  body.hemis-layout.pro-menu-open .hemis-sidebar{transform:translateX(0)}
+  .pro-mobile-menu-btn{display:block}
+  .pro-banner{left:10px;right:10px;top:104px}
+}
+</style>
+
+<script>
+(function(){
+  if(window.__completeProSuiteLoaded)return;
+  window.__completeProSuiteLoaded=true;
+
+  const $p=id=>document.getElementById(id);
+  const e=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+  const days=["Dushanba","Seshanba","Chorshanba","Payshanba","Juma","Shanba"];
+
+  function teachers(){return Array.isArray(db?.teachers)?db.teachers:[]}
+  function rooms(){return Array.isArray(db?.rooms)?db.rooms:[]}
+  function allLessons(includeCancelled=true){
+    const out=[];
+    teachers().forEach(t=>(t.schedule||[]).forEach(l=>{
+      if(!includeCancelled&&l.cancelled)return;
+      out.push({t,l});
+    }));
+    return out;
+  }
+  function activeWeek(l){return l.weekType==="doim"||l.weekType===currentWeek}
+  function todayName(){return typeof nowInfo==="function"?nowInfo().day:""}
+  function localISO(){
+    const d=new Date(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");
+    return `${d.getFullYear()}-${m}-${day}`;
+  }
+  function physKey(r,l){
+    if(typeof physicalRoomKey==="function")return physicalRoomKey(r?.name||l?.room,r?.building||l?.roomBuilding);
+    return `${String(r?.name||l?.room||"").toLowerCase()}|${String(r?.building||l?.roomBuilding||"").toLowerCase()}`;
+  }
+  function lessonRoom(l){
+    return rooms().find(r=>String(r.id)===String(l.roomId))||
+      rooms().find(r=>physKey(r)===physKey(null,l));
+  }
+  function roleEdit(){return typeof roleCanEdit==="function"?roleCanEdit():false}
+
+  function showPro(title,subtitle,html){
+    if(typeof openAdvanced==="function"){openAdvanced(title,subtitle,html);return}
+    const m=$p("genericModal"),tt=$p("genericTitle"),b=$p("genericBody");
+    if(tt)tt.textContent=title;if(b)b.innerHTML=html;if(m)m.classList.add("open");
+  }
+
+  function exactDuplicateCandidate(){
+    const tId=$p("lTeacher")?.value;
+    const subject=$p("lSubject")?.value.trim();
+    const group=$p("lGroup")?.value.trim();
+    const day=$p("lDay")?.value;
+    const pair=Number($p("lPair")?.value);
+    const week=$p("lWeek")?.value;
+    const roomId=$p("lRoom")?.value;
+    const editId=$p("editLessonId")?.value;
+    if(!tId||!subject||!group||!day||!pair)return null;
+    const t=typeof teacherById==="function"?teacherById(tId):teachers().find(x=>String(x.id)===String(tId));
+    if(!t)return null;
+    return (t.schedule||[]).find(l=>
+      String(l.id)!==String(editId||"") && !l.cancelled &&
+      String(l.subject||"").trim().toLowerCase()===subject.toLowerCase() &&
+      String(l.group||"").trim().toLowerCase()===group.toLowerCase() &&
+      l.day===day && Number(l.pair)===pair &&
+      l.weekType===week && String(l.roomId||"")===String(roomId||"")
+    )||null;
+  }
+
+  function installDuplicateGuard(){
+    const btn=$p("saveLessonBtn");
+    if(!btn||btn.dataset.proDuplicateGuard)return;
+    btn.dataset.proDuplicateGuard="1";
+    btn.addEventListener("click",ev=>{
+      const dup=exactDuplicateCandidate();
+      if(!dup)return;
+      ev.preventDefault();ev.stopImmediatePropagation();
+      if(typeof showAlert==="function")showAlert("Bu dars aynan shu ko‘rinishda allaqachon mavjud.","error");
+      else alert("Bu dars aynan shu ko‘rinishda allaqachon mavjud.");
+    },true);
+  }
+
+  function dashboardHTML(){
+    const day=todayName();
+    const live=allLessons(false).filter(x=>x.l.status==="approved"&&activeWeek(x.l)&&x.l.day===day);
+    const usedRooms=new Set(live.map(x=>physKey(lessonRoom(x.l),x.l)));
+    const issues=countIssues();
+    return `<div class="pro-kpis">
+      <div class="pro-kpi"><small>O‘qituvchilar</small><b>${teachers().length}</b></div>
+      <div class="pro-kpi"><small>Bugungi darslar</small><b>${live.length}</b></div>
+      <div class="pro-kpi"><small>Band xonalar</small><b>${usedRooms.size}</b></div>
+      <div class="pro-kpi"><small>Muammolar</small><b>${issues}</b></div>
+    </div>
+    <div class="pro-grid2">
+      <div class="pro-panel-card"><strong>Bugungi holat</strong><div class="pro-muted" style="margin-top:6px">${day} · ${currentWeek==="surat"?"Surat":currentWeek==="maxraj"?"Maxraj":"Doimiy"} hafta</div></div>
+      <div class="pro-panel-card"><strong>Tezkor imkoniyatlar</strong><div class="pro-row-actions">
+        <button class="pro-mini-btn" onclick="window.proOpenIssues()">Muammolar</button>
+        <button class="pro-mini-btn" onclick="window.proOpenBackup()">Zaxira</button>
+        <button class="pro-mini-btn" onclick="window.proOpenReports()">Hisobot</button>
+      </div></div>
+    </div>`;
+  }
+
+  function countIssues(){
+    let n=0;
+    const day=todayName();
+    const ls=allLessons(false).filter(x=>x.l.status==="approved"&&activeWeek(x.l)&&x.l.day===day);
+    ls.forEach(({t,l})=>{
+      if(!l.room&&!l.roomId)n++;
+      if(!l.subject||!l.group)n++;
+    });
+    const seenRoom=new Map(),seenTeacher=new Map();
+    ls.forEach(({t,l})=>{
+      const rk=`${l.pair}|${physKey(lessonRoom(l),l)}`;
+      const tk=`${l.pair}|${String(t.phone||t.name).toLowerCase()}`;
+      if(seenRoom.has(rk))n++;else seenRoom.set(rk,1);
+      if(seenTeacher.has(tk))n++;else seenTeacher.set(tk,1);
+    });
+    return n;
+  }
+
+  function issuesHTML(){
+    const day=todayName();
+    const ls=allLessons(false).filter(x=>x.l.status==="approved"&&activeWeek(x.l)&&x.l.day===day);
+    const issues=[];
+    const rmap=new Map(),tmap=new Map();
+    ls.forEach(({t,l})=>{
+      if(!l.room&&!l.roomId)issues.push({type:"danger",title:"Xona ko‘rsatilmagan",meta:`${t.name} · ${l.subject||"Fan ko‘rsatilmagan"} · ${l.pair}-juftlik`});
+      if(!l.subject||!l.group)issues.push({type:"warning",title:"Dars ma’lumoti to‘liq emas",meta:`${t.name} · ${l.pair}-juftlik`});
+      const rk=`${l.pair}|${physKey(lessonRoom(l),l)}`;
+      const tk=`${l.pair}|${String(t.phone||t.name).toLowerCase()}`;
+      (rmap.get(rk)||rmap.set(rk,[]).get(rk)).push({t,l});
+      (tmap.get(tk)||tmap.set(tk,[]).get(tk)).push({t,l});
+    });
+    rmap.forEach(arr=>{if(arr.length>1)issues.push({type:"danger",title:"Xona konflikti",meta:arr.map(x=>`${x.t.name} — ${x.l.room}-xona, ${x.l.pair}-juftlik`).join(" · ")})});
+    tmap.forEach(arr=>{if(arr.length>1)issues.push({type:"danger",title:"O‘qituvchi konflikti",meta:arr.map(x=>`${x.t.name} — ${x.l.subject}, ${x.l.pair}-juftlik`).join(" · ")})});
+    return issues.length?issues.map(x=>`<div class="pro-panel-card pro-${x.type}"><strong>${e(x.title)}</strong><div class="pro-muted">${e(x.meta)}</div></div>`).join("")
+      :`<div class="pro-panel-card pro-ok"><strong>Muammo aniqlanmadi</strong><div class="pro-muted">${e(day)} uchun joriy darslar tekshirildi.</div></div>`;
+  }
+
+  function recentHTML(){
+    const h=Array.isArray(db.history)?db.history.slice(0,60):[];
+    return h.length?h.map(x=>`<div class="pro-panel-card"><strong>${e(x.action||"O‘zgarish")}</strong><div class="pro-muted">${e(x.detail||x.info||"")} ${x.time?`· ${e(x.time)}`:""}</div></div>`).join("")
+      :`<div class="pro-panel-card"><div class="pro-muted">Hozircha tarix yo‘q.</div></div>`;
+  }
+
+  function cancelledHTML(){
+    const arr=allLessons(true).filter(x=>x.l.cancelled);
+    return arr.length?arr.map(({t,l})=>`<div class="pro-panel-card"><strong>${e(l.subject||"Dars")}</strong><div class="pro-muted">${e(t.name)} · ${e(l.day)} · ${l.pair}-juftlik · ${e(l.group||"")}</div></div>`).join("")
+      :`<div class="pro-panel-card"><div class="pro-muted">Bekor qilingan darslar yo‘q.</div></div>`;
+  }
+
+  function backupHTML(){
+    return `<div class="pro-panel-card">
+      <strong>Zaxira nusxa</strong>
+      <div class="pro-muted" style="margin:5px 0 9px">Barcha joriy ma’lumotlarni JSON faylga eksport qilish yoki avvalgi nusxani tiklash.</div>
+      <div class="pro-row-actions">
+        <button class="pro-mini-btn" onclick="window.proExportBackup()">JSON eksport</button>
+        <button class="pro-mini-btn" onclick="document.getElementById('proBackupFile').click()">JSON import</button>
+        <input id="proBackupFile" type="file" accept=".json,application/json" style="display:none">
+      </div>
+    </div>`;
+  }
+
+  function triggerDownload(name,content,type){
+    const blob=new Blob([content],{type:type||"text/plain;charset=utf-8"});
+    const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;
+    document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+  }
+
+  window.proExportBackup=()=>triggerDownload(`jadval_backup_${localISO()}.json`,JSON.stringify(db,null,2),"application/json");
+  function bindBackupImport(){
+    setTimeout(()=>{
+      const inp=$p("proBackupFile");if(!inp||inp.dataset.bound)return;inp.dataset.bound="1";
+      inp.addEventListener("change",async()=>{
+        const f=inp.files?.[0];if(!f)return;
+        try{
+          const parsed=JSON.parse(await f.text());
+          if(!parsed||typeof parsed!=="object")throw new Error();
+          if(!confirm("Zaxira nusxadagi ma’lumotlar joriy bazani almashtirsinmi?"))return;
+          db=parsed;
+          if(typeof save==="function")save();
+          if(typeof renderAll==="function")renderAll();
+          if(typeof showAlert==="function")showAlert("Zaxira nusxa tiklandi.","ok");
+          document.querySelectorAll(".modal.open").forEach(m=>m.classList.remove("open"));
+        }catch(err){alert("JSON fayl yaroqsiz yoki o‘qib bo‘lmadi.");}
+      });
+    },50);
+  }
+
+  function reportsHTML(){
+    return `<div class="pro-panel-card">
+      <strong>Hisobot eksporti</strong>
+      <div class="pro-muted" style="margin:5px 0 9px">Joriy kafedra ma’lumotlarini chop etish/PDF yoki Excel bilan ochiladigan CSV formatda chiqarish.</div>
+      <div class="pro-row-actions">
+        <button class="pro-mini-btn" onclick="window.proPrintReport()">PDF / Chop etish</button>
+        <button class="pro-mini-btn" onclick="window.proExportCSV()">Excel (CSV)</button>
+      </div>
+    </div>`;
+  }
+  window.proPrintReport=()=>{
+    const w=window.open("","_blank");
+    const rows=allLessons(false).map(({t,l})=>`<tr><td>${e(t.name)}</td><td>${e(l.subject)}</td><td>${e(l.group)}</td><td>${e(l.day)}</td><td>${l.pair}</td><td>${e(l.room)} ${e(l.roomBuilding||"")}</td><td>${e(l.type)}</td></tr>`).join("");
+    w.document.write(`<html><head><title>Jadval hisoboti</title><style>body{font-family:Arial;padding:24px}table{border-collapse:collapse;width:100%;font-size:11px}th,td{border:1px solid #ccc;padding:6px}th{background:#eee}</style></head><body><h2>Universitet dars jadvali hisoboti</h2><p>${e(localISO())}</p><table><thead><tr><th>O‘qituvchi</th><th>Fan</th><th>Guruh</th><th>Kun</th><th>Juftlik</th><th>Xona</th><th>Turi</th></tr></thead><tbody>${rows}</tbody></table>
+</body></html>`);
+    w.document.close();w.focus();setTimeout(()=>w.print(),250);
+  };
+  window.proExportCSV=()=>{
+    const escCsv=v=>`"${String(v??"").replace(/"/g,'""')}"`;
+    const lines=[["O‘qituvchi","Fan","Guruh","Kun","Juftlik","Xona","Bino","Turi"].map(escCsv).join(",")];
+    allLessons(false).forEach(({t,l})=>lines.push([t.name,l.subject,l.group,l.day,l.pair,l.room,l.roomBuilding,l.type].map(escCsv).join(",")));
+    triggerDownload(`jadval_${localISO()}.csv`,"\ufeff"+lines.join("\n"),"text/csv;charset=utf-8");
+  };
+
+  function quickFilterHTML(){
+    return `<div class="pro-panel-card">
+      <div class="pro-form-row">
+        <div><label class="pro-label">Kun</label><select id="proFilterDay" class="pro-input"><option value="">Barchasi</option>${days.map(d=>`<option>${d}</option>`).join("")}</select></div>
+        <div><label class="pro-label">Bino</label><select id="proFilterBuilding" class="pro-input"><option value="">Barchasi</option>${[...new Set(rooms().map(r=>r.building).filter(Boolean))].sort().map(x=>`<option>${e(x)}</option>`).join("")}</select></div>
+        <div><label class="pro-label">Juftlik</label><select id="proFilterPair" class="pro-input"><option value="">Barchasi</option>${[1,2,3,4,5,6].map(x=>`<option value="${x}">${x}-juftlik</option>`).join("")}</select></div>
+        <div><label class="pro-label">Qidiruv</label><input id="proFilterText" class="pro-input" placeholder="Fan, guruh, o‘qituvchi..."></div>
+      </div>
+      <div class="pro-row-actions"><button class="pro-mini-btn" onclick="window.proApplyFilter()">Ko‘rsatish</button></div>
+    </div><div id="proFilterResult"></div>`;
+  }
+  window.proApplyFilter=()=>{
+    const day=$p("proFilterDay")?.value||"",building=$p("proFilterBuilding")?.value||"",pair=$p("proFilterPair")?.value||"",q=($p("proFilterText")?.value||"").trim().toLowerCase();
+    const arr=allLessons(false).filter(({t,l})=>{
+      const r=lessonRoom(l);
+      const txt=[t.name,l.subject,l.group,l.type,l.room,l.roomBuilding].join(" ").toLowerCase();
+      return (!day||l.day===day)&&(!building||(r?.building||l.roomBuilding)===building)&&(!pair||Number(l.pair)===Number(pair))&&(!q||txt.includes(q));
+    });
+    const box=$p("proFilterResult");if(!box)return;
+    box.innerHTML=arr.length?arr.map(({t,l})=>`<div class="pro-panel-card"><strong>${e(l.subject)}</strong><div class="pro-muted">${e(t.name)} · ${e(l.group)} · ${e(l.day)}, ${l.pair}-juftlik · ${e(l.room)}-xona ${e(l.roomBuilding||"")}</div></div>`).join(""):`<div class="pro-panel-card"><div class="pro-muted">Mos dars topilmadi.</div></div>`;
+  };
+
+  function detailsHTML(){
+    const arr=allLessons(false).slice().sort((a,b)=>days.indexOf(a.l.day)-days.indexOf(b.l.day)||Number(a.l.pair)-Number(b.l.pair));
+    return arr.length?arr.map(({t,l})=>`<div class="pro-panel-card">
+      <strong>${e(l.subject||"Dars")}</strong>
+      <div class="pro-muted">${e(t.name)} · ${e(l.group||"")} · ${e(l.day)} · ${l.pair}-juftlik · ${e(l.start||"")}–${e(l.end||"")} · ${e(l.room||"")}-xona ${e(l.roomBuilding||"")} · ${e(l.type||"")}</div>
+      ${roleEdit()?`<div class="pro-row-actions"><button class="pro-mini-btn" onclick="window.proMoveLesson('${String(t.id)}','${String(l.id)}')">Ko‘chirish</button></div>`:""}
+    </div>`).join(""):`<div class="pro-panel-card"><div class="pro-muted">Darslar yo‘q.</div></div>`;
+  }
+
+  window.proMoveLesson=(tid,lid)=>{
+    const t=teachers().find(x=>String(x.id)===String(tid));
+    const l=t?.schedule?.find(x=>String(x.id)===String(lid));if(!l)return;
+    const html=`<div class="pro-panel-card">
+      <strong>${e(l.subject)}</strong><div class="pro-muted">${e(t.name)} · ${e(l.group)}</div>
+      <div class="pro-form-row">
+        <div><label class="pro-label">Kun</label><select id="proMoveDay" class="pro-input">${days.map(d=>`<option ${d===l.day?"selected":""}>${d}</option>`).join("")}</select></div>
+        <div><label class="pro-label">Juftlik</label><select id="proMovePair" class="pro-input">${[1,2,3,4,5,6].map(p=>`<option value="${p}" ${Number(l.pair)===p?"selected":""}>${p}-juftlik</option>`).join("")}</select></div>
+        <div class="full"><label class="pro-label">Xona</label><select id="proMoveRoom" class="pro-input">${rooms().map(r=>`<option value="${e(r.id)}" ${String(r.id)===String(l.roomId)?"selected":""}>${e(r.name)}-xona · ${e(r.building||"")}</option>`).join("")}</select></div>
+      </div>
+      <div class="pro-row-actions"><button class="pro-mini-btn" onclick="window.proCommitMove('${String(tid)}','${String(lid)}')">Ko‘chirishni saqlash</button></div>
+    </div>`;
+    showPro("Darsni ko‘chirish","Kun, juftlik yoki xonani o‘zgartirish",html);
+  };
+  window.proCommitMove=(tid,lid)=>{
+    const t=teachers().find(x=>String(x.id)===String(tid)),l=t?.schedule?.find(x=>String(x.id)===String(lid));if(!l)return;
+    const nr=rooms().find(r=>String(r.id)===String($p("proMoveRoom")?.value));
+    const candidate={...l,day:$p("proMoveDay")?.value,pair:Number($p("proMovePair")?.value),room:nr?.name||l.room,roomId:nr?.id||l.roomId,roomBuilding:nr?.building||l.roomBuilding};
+    if(typeof validateLesson==="function"){
+      const errs=validateLesson(candidate,t.id,l.id);
+      if(errs?.length){if(typeof showAlert==="function")showAlert(errs.map(x=>"• "+x).join("<br>"),"error");return}
+    }
+    Object.assign(l,candidate);
+    if(typeof addHistory==="function")addHistory("Dars ko‘chirildi",`${t.name} · ${l.subject} · ${l.day} ${l.pair}-juftlik`);
+    if(typeof save==="function")save();if(typeof renderAll==="function")renderAll();
+    document.querySelectorAll(".modal.open").forEach(m=>m.classList.remove("open"));
+    if(typeof showAlert==="function")showAlert("Dars ko‘chirildi.","ok");
+  };
+
+  function suggestionsHTML(){
+    const teacherOpts=teachers().map(t=>`<option value="${e(t.id)}">${e(t.name)}</option>`).join("");
+    return `<div class="pro-panel-card">
+      <div class="pro-form-row">
+        <div><label class="pro-label">O‘qituvchi</label><select id="proSugTeacher" class="pro-input">${teacherOpts}</select></div>
+        <div><label class="pro-label">Guruh soni</label><input id="proSugSize" type="number" value="25" min="1" class="pro-input"></div>
+        <div><label class="pro-label">Kun</label><select id="proSugDay" class="pro-input">${days.map(d=>`<option>${d}</option>`).join("")}</select></div>
+        <div><label class="pro-label">Juftlik</label><select id="proSugPair" class="pro-input">${[1,2,3,4,5,6].map(p=>`<option value="${p}">${p}-juftlik</option>`).join("")}</select></div>
+      </div>
+      <div class="pro-row-actions">
+        <button class="pro-mini-btn" onclick="window.proSuggestRooms()">Mos xona</button>
+        <button class="pro-mini-btn" onclick="window.proSuggestTimes()">Bo‘sh vaqt</button>
+      </div>
+    </div><div id="proSugResult"></div>`;
+  }
+  window.proSuggestRooms=()=>{
+    const day=$p("proSugDay")?.value,pair=Number($p("proSugPair")?.value),size=Number($p("proSugSize")?.value||0);
+    const free=rooms().filter(r=>Number(r.capacity||0)>=size && (typeof globalRoomOccupied!=="function"||!globalRoomOccupied(r,day,pair,currentWeek))).sort((a,b)=>Number(a.capacity)-Number(b.capacity)).slice(0,15);
+    $p("proSugResult").innerHTML=free.length?free.map(r=>`<div class="pro-panel-card pro-ok"><strong>${e(r.name)}-xona</strong><div class="pro-muted">${e(r.building||"")} · ${e(r.type||"")} · ${r.capacity||0} o‘rin</div></div>`).join(""):`<div class="pro-panel-card pro-warning"><strong>Mos bo‘sh xona topilmadi</strong></div>`;
+  };
+  window.proSuggestTimes=()=>{
+    const tid=$p("proSugTeacher")?.value,t=teachers().find(x=>String(x.id)===String(tid));if(!t)return;
+    const out=[];
+    days.forEach(day=>[1,2,3,4,5,6].forEach(pair=>{
+      const busy=typeof globalTeacherBusy==="function"?globalTeacherBusy(t,day,pair,currentWeek):(t.schedule||[]).some(l=>!l.cancelled&&l.day===day&&Number(l.pair)===pair&&activeWeek(l));
+      if(!busy)out.push(`${day}, ${pair}-juftlik`);
+    }));
+    $p("proSugResult").innerHTML=out.slice(0,24).map(x=>`<span class="pro-chip">${e(x)}</span>`).join("")||`<div class="pro-panel-card pro-warning">Bo‘sh vaqt topilmadi.</div>`;
+  };
+
+  function bannerCheck(){
+    let msg="";
+    const today=allLessons(true).filter(x=>x.l.cancelled&&x.l.day===todayName()&&activeWeek(x.l));
+    if(today.length)msg=`Bugun ${today.length} ta dars bekor qilingan.`;
+    const b=$p("proEmergencyBanner");if(!b)return;
+    if(msg){b.querySelector(".pro-banner-text").textContent=msg;b.classList.add("show")}else b.classList.remove("show");
+  }
+
+  function installBanner(){
+    if($p("proEmergencyBanner"))return;
+    const b=document.createElement("div");b.id="proEmergencyBanner";b.className="pro-banner";
+    b.innerHTML=`<span class="pro-banner-text"></span><button type="button" aria-label="Yopish">×</button>`;
+    b.querySelector("button").onclick=()=>b.classList.remove("show");
+    document.body.appendChild(b);bannerCheck();
+  }
+
+  function installMobile(){
+    if($p("proMobileMenuBtn"))return;
+    const b=document.createElement("button");b.id="proMobileMenuBtn";b.className="pro-mobile-menu-btn";b.type="button";b.textContent="☰";
+    b.onclick=()=>document.body.classList.toggle("pro-menu-open");
+    document.body.appendChild(b);
+  }
+
+  function toggleDark(){
+    document.body.classList.toggle("pro-dark");
+    localStorage.setItem("proDarkMode",document.body.classList.contains("pro-dark")?"1":"0");
+  }
+  window.proToggleDark=toggleDark;
+
+  function addSuite(){
+    const sidebar=document.querySelector(".hemis-sidebar");
+    if(!sidebar||sidebar.querySelector(".pro-suite-section"))return;
+    const sec=document.createElement("div");sec.className="pro-suite-section";
+    sec.innerHTML=`
+      <div class="pro-suite-title">PRO vositalar</div>
+      <button class="pro-suite-btn" data-pro="dashboard"><span>▦</span><span>Dashboard</span></button>
+      <button class="pro-suite-btn" data-pro="issues"><span>!</span><span>Bugungi muammolar</span><span class="pro-suite-badge">${countIssues()}</span></button>
+      <button class="pro-suite-btn" data-pro="details"><span>≣</span><span>Dars tafsilotlari</span></button>
+      <button class="pro-suite-btn" data-pro="suggest"><span>◇</span><span>Aqlli tavsiyalar</span></button>
+      <button class="pro-suite-btn" data-pro="filter"><span>⌕</span><span>Tez filtr</span></button>
+      <button class="pro-suite-btn" data-pro="cancel"><span>×</span><span>Bekor qilinganlar</span></button>
+      <button class="pro-suite-btn" data-pro="recent"><span>↺</span><span>So‘nggi o‘zgarishlar</span></button>
+      <button class="pro-suite-btn" data-pro="backup"><span>⇩</span><span>Zaxira nusxa</span></button>
+      <button class="pro-suite-btn" data-pro="reports"><span>▤</span><span>Hisobotlar</span></button>
+      <button class="pro-suite-btn" data-pro="dark"><span>◐</span><span>Tungi rejim</span></button>`;
+    sidebar.appendChild(sec);
+    sec.addEventListener("click",ev=>{
+      const b=ev.target.closest("[data-pro]");if(!b)return;
+      const a=b.dataset.pro;
+      if(a==="dark"){toggleDark();return}
+      if(a==="dashboard")showPro("PRO Dashboard","Tizimning umumiy holati",dashboardHTML());
+      if(a==="issues")showPro("Bugungi muammolar",todayName(),issuesHTML());
+      if(a==="details")showPro("Dars tafsilotlari","Barcha faol darslar",detailsHTML());
+      if(a==="suggest")showPro("Aqlli tavsiyalar","Mos xona va bo‘sh vaqt",suggestionsHTML());
+      if(a==="filter")showPro("Tez filtr","Darslarni tez saralash",quickFilterHTML());
+      if(a==="cancel")showPro("Bekor qilingan darslar","Tarix",cancelledHTML());
+      if(a==="recent")showPro("So‘nggi o‘zgarishlar","Amallar tarixi",recentHTML());
+      if(a==="backup"){showPro("Zaxira nusxa","Eksport / import",backupHTML());bindBackupImport()}
+      if(a==="reports")showPro("Hisobotlar","PDF va Excel eksport",reportsHTML());
+    });
+  }
+
+  window.proOpenIssues=()=>showPro("Bugungi muammolar",todayName(),issuesHTML());
+  window.proOpenBackup=()=>{showPro("Zaxira nusxa","Eksport / import",backupHTML());bindBackupImport()};
+  window.proOpenReports=()=>showPro("Hisobotlar","PDF va Excel eksport",reportsHTML());
+
+  function init(){
+    installDuplicateGuard();
+    installBanner();
+    installMobile();
+    addSuite();
+    if(localStorage.getItem("proDarkMode")==="1")document.body.classList.add("pro-dark");
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+
+  const obs=new MutationObserver(()=>{installDuplicateGuard();addSuite();bannerCheck()});
+  obs.observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+
+<style>
+/* ===== ULTRA PRO 21 FUNKSIYA — faqat qo‘shimcha qatlam ===== */
+.ultra-section{padding:8px 0;border-top:1px solid rgba(255,255,255,.05)}
+.ultra-title{padding:8px 14px 6px;color:#8fa3af;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+.ultra-btn{width:100%;border:0;background:transparent;color:#eef5f8;padding:8px 14px;display:flex;align-items:center;gap:9px;font-size:10.5px;text-align:left;cursor:pointer}
+.ultra-btn:hover{background:rgba(255,255,255,.06)}
+.ultra-btn .ico{width:17px;text-align:center}
+.ultra-count{margin-left:auto;min-width:18px;height:18px;padding:0 5px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:#3b93bd;color:#fff;font-size:8px;font-weight:800}
+.ultra-card{background:#fff;border:1px solid #dbe3ea;border-radius:7px;padding:10px;margin-bottom:8px}
+.ultra-card h4{margin:0 0 5px;color:#2f4357;font-size:11px}
+.ultra-muted{color:#758391;font-size:9.8px;line-height:1.45}
+.ultra-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.ultra-btn2{border:1px solid #d4dde5;background:#fff;color:#3f5264;border-radius:5px;padding:5px 8px;font-size:9px;font-weight:750;cursor:pointer}
+.ultra-btn2:hover{border-color:#86b8d2;color:#2d7196}
+.ultra-btn2.danger{border-color:#edcaca;color:#b42318;background:#fff8f8}
+.ultra-grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ultra-grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ultra-grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.ultra-kpi{border:1px solid #dce3ea;background:#fff;border-radius:7px;padding:10px;min-height:74px}
+.ultra-kpi small{display:block;color:#788693;font-size:9.5px}
+.ultra-kpi b{display:block;font-size:23px;color:#367ea5;line-height:1.05;margin-top:4px}
+.ultra-input{width:100%;border:1px solid #d2dce5;border-radius:5px;background:#fff;color:#344054;padding:7px 8px;font-size:10px}
+.ultra-label{display:block;font-size:9px;color:#526476;font-weight:800;margin:0 0 3px}
+.ultra-form{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.ultra-full{grid-column:1/-1}
+.ultra-table-wrap{overflow:auto;border:1px solid #dce3ea;border-radius:6px;background:#fff}
+.ultra-table{min-width:720px;border:0!important}
+.ultra-table th,.ultra-table td{font-size:9.5px;padding:6px}
+.ultra-good{border-left:3px solid #39a06b}
+.ultra-warn{border-left:3px solid #dfa637}
+.ultra-bad{border-left:3px solid #d15a5a}
+.ultra-bar{height:7px;background:#e7edf2;border-radius:999px;overflow:hidden;margin-top:5px}
+.ultra-bar span{display:block;height:100%;background:#3b93bd}
+.ultra-heat{display:grid;grid-template-columns:86px repeat(6,1fr);gap:2px;min-width:700px}
+.ultra-heat>div{padding:7px;text-align:center;font-size:9px;border:1px solid #e0e6eb;background:#fff}
+.ultra-heat .head{background:#edf5f9;font-weight:800;color:#335b73}
+.ultra-heat .level1{background:#fff5dc}
+.ultra-heat .level2{background:#ffe0c2}
+.ultra-heat .level3{background:#ffd0cf;color:#8e2525;font-weight:800}
+.ultra-dnd{display:grid;grid-template-columns:80px repeat(6,minmax(130px,1fr));gap:2px;overflow:auto;min-width:920px}
+.ultra-dnd-cell{min-height:92px;border:1px solid #dde5ec;background:#fff;padding:5px}
+.ultra-dnd-head{background:#eef6fa;font-weight:800;color:#365b72;min-height:auto;text-align:center}
+.ultra-dnd-card{border:1px solid #cadbe6;border-left:3px solid #56a0c8;border-radius:5px;background:#fff;padding:5px;margin-bottom:4px;font-size:8.8px;cursor:grab}
+.ultra-dnd-card:active{cursor:grabbing}
+.ultra-favorite{cursor:pointer;border:0;background:transparent;font-size:15px;color:#c5ccd3}
+.ultra-favorite.on{color:#d89b15}
+.ultra-notice{position:relative}
+.ultra-notice-dot{position:absolute;right:-3px;top:-3px;min-width:14px;height:14px;border-radius:999px;background:#d94848;color:#fff;font-size:7px;display:flex;align-items:center;justify-content:center;padding:0 3px}
+.ultra-qr{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.ultra-readonly{position:fixed;inset:0;background:#071a2b;color:#fff;z-index:7000;overflow:auto;padding:18px}
+.ultra-readonly-head{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.15);padding-bottom:10px;margin-bottom:12px}
+.ultra-readonly-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.ultra-readonly-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13);border-radius:7px;padding:12px}
+.ultra-security{background:#f8fafc;border:1px solid #dce3ea;border-radius:7px;padding:10px}
+.ultra-security.ok{background:#f2fff7;border-color:#cdebd8}
+.ultra-security.warn{background:#fffaf0;border-color:#eed9a3}
+@media print{
+  body>*{display:none!important}
+  #ultraPrintArea{display:block!important;position:absolute;inset:0;background:#fff;color:#000}
+  #ultraPrintArea *{display:revert!important}
+  #ultraPrintArea table{font-size:9pt}
+}
+@media(max-width:900px){
+  .ultra-grid4,.ultra-grid3,.ultra-grid2,.ultra-form{grid-template-columns:1fr}
+  .ultra-full{grid-column:auto}
+  .ultra-readonly-grid{grid-template-columns:1fr}
+}
+</style>
+
+<script>
+(function(){
+  if(window.__ultra21Loaded)return;
+  window.__ultra21Loaded=true;
+
+  const U=id=>document.getElementById(id);
+  const escU=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+  const clone=v=>JSON.parse(JSON.stringify(v));
+  const DAYS=["Dushanba","Seshanba","Chorshanba","Payshanba","Juma","Shanba"];
+  const nowISO=()=>new Date().toISOString();
+  const dateISO=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`};
+
+  function ensureUltraDB(){
+    if(!db.ultra || typeof db.ultra!=="object")db.ultra={};
+    if(!Array.isArray(db.ultra.trash))db.ultra.trash=[];
+    if(!Array.isArray(db.ultra.lessonVersions))db.ultra.lessonVersions=[];
+    if(!Array.isArray(db.ultra.notifications))db.ultra.notifications=[];
+    if(!db.ultra.permissions || typeof db.ultra.permissions!=="object"){
+      db.ultra.permissions={
+        superadmin:{view:true,create:true,edit:true,delete:true,restore:true,import:true,export:true,manageUsers:true},
+        admin:{view:true,create:true,edit:true,delete:true,restore:true,import:true,export:true,manageUsers:false},
+        mudiri:{view:true,create:true,edit:true,delete:true,restore:true,import:true,export:true,manageUsers:false},
+        viewer:{view:true,create:false,edit:false,delete:false,restore:false,import:false,export:false,manageUsers:false}
+      };
+    }
+    if(!Array.isArray(db.ultra.favoriteKeys))db.ultra.favoriteKeys=[];
+  }
+  ensureUltraDB();
+
+  function permission(action){
+    ensureUltraDB();
+    const role=String(db.currentUser?.role||"viewer");
+    return !!(db.ultra.permissions[role]?.[action]);
+  }
+  window.ultraCan=permission;
+
+  function notify(title,detail,type="info"){
+    ensureUltraDB();
+    db.ultra.notifications.unshift({id:Date.now()+Math.random(),time:nowISO(),title,detail,type,read:false});
+    if(db.ultra.notifications.length>200)db.ultra.notifications.length=200;
+  }
+
+  function teachers(){return Array.isArray(db.teachers)?db.teachers:[]}
+  function rooms(){return Array.isArray(db.rooms)?db.rooms:[]}
+  function lessons(includeCancelled=true){
+    const arr=[];teachers().forEach(t=>(t.schedule||[]).forEach(l=>{if(includeCancelled||!l.cancelled)arr.push({t,l})}));return arr;
+  }
+  function roomOf(l){
+    return rooms().find(r=>String(r.id)===String(l.roomId))||
+      rooms().find(r=>String(r.name||"").trim().toLowerCase()===String(l.room||"").trim().toLowerCase() &&
+      (!l.roomBuilding||String(r.building||"").trim().toLowerCase()===String(l.roomBuilding||"").trim().toLowerCase()));
+  }
+  function weekOk(l){return l.weekType==="doim"||l.weekType===currentWeek}
+  function openU(title,sub,html){
+    if(typeof openAdvanced==="function")return openAdvanced(title,sub,html);
+    if(U("genericTitle"))U("genericTitle").textContent=title;
+    if(U("genericBody"))U("genericBody").innerHTML=html;
+    U("genericModal")?.classList.add("open");
+  }
+  function saveU(){
+    if(typeof save==="function")save();
+    if(typeof renderAll==="function")renderAll();
+    refreshBadges();
+  }
+
+  /* 1. Role based permissions */
+  function permissionsHTML(){
+    const roles=["superadmin","admin","mudiri","viewer"],acts=[
+      ["create","Qo‘shish"],["edit","Tahrirlash"],["delete","O‘chirish"],["restore","Tiklash"],["import","Import"],["export","Eksport"],["manageUsers","Foydalanuvchilar"]
+    ];
+    return `<div class="ultra-card"><h4>Rol bo‘yicha huquqlar</h4><div class="ultra-muted">Super admin huquqlarni boshqaradi. Viewer faqat ko‘radi.</div></div>
+    <div class="ultra-table-wrap"><table class="ultra-table"><thead><tr><th>Rol</th>${acts.map(a=>`<th>${a[1]}</th>`).join("")}</tr></thead><tbody>
+    ${roles.map(r=>`<tr><td><b>${r}</b></td>${acts.map(([a])=>`<td><input type="checkbox" data-role="${r}" data-act="${a}" ${db.ultra.permissions[r]?.[a]?"checked":""} ${db.currentUser?.role!=="superadmin"?"disabled":""}></td>`).join("")}</tr>`).join("")}
+    </tbody></table></div>
+    ${db.currentUser?.role==="superadmin"?`<div class="ultra-actions"><button class="ultra-btn2" onclick="window.ultraSavePermissions()">Huquqlarni saqlash</button></div>`:""}`;
+  }
+  window.ultraSavePermissions=()=>{
+    document.querySelectorAll("[data-role][data-act]").forEach(x=>{db.ultra.permissions[x.dataset.role][x.dataset.act]=x.checked});
+    notify("Huquqlar yangilandi",db.currentUser?.name||"","security");saveU();
+    typeof showAlert==="function"&&showAlert("Rol huquqlari saqlandi.","ok");
+  };
+
+  /* 2. Soft delete / Trash */
+  function trashAdd(kind,data,meta={}){
+    ensureUltraDB();
+    db.ultra.trash.unshift({id:"trash_"+Date.now()+"_"+Math.random().toString(36).slice(2),kind,data:clone(data),meta:clone(meta),deletedAt:nowISO(),deletedBy:clone(db.currentUser||{})});
+    cleanupTrash();
+  }
+  function cleanupTrash(){
+    ensureUltraDB();
+    const cut=Date.now()-30*24*60*60*1000;
+    db.ultra.trash=db.ultra.trash.filter(x=>new Date(x.deletedAt).getTime()>=cut);
+  }
+  function trashHTML(){
+    cleanupTrash();
+    return db.ultra.trash.length?db.ultra.trash.map(x=>`<div class="ultra-card">
+      <h4>${x.kind==="teacher"?"O‘qituvchi":"Dars"} — ${escU(x.kind==="teacher"?x.data.name:x.data.subject)}</h4>
+      <div class="ultra-muted">${escU(new Date(x.deletedAt).toLocaleString("uz-UZ"))} · ${escU(x.deletedBy?.name||"")}</div>
+      <div class="ultra-actions"><button class="ultra-btn2" onclick="window.ultraRestoreTrash('${x.id}')">Tiklash</button><button class="ultra-btn2 danger" onclick="window.ultraPurgeTrash('${x.id}')">Butunlay o‘chirish</button></div>
+    </div>`).join(""):`<div class="ultra-card"><div class="ultra-muted">Savat bo‘sh.</div></div>`;
+  }
+  window.ultraRestoreTrash=id=>{
+    if(!permission("restore"))return showAlert?.("Tiklash uchun ruxsat yo‘q.","error");
+    const x=db.ultra.trash.find(z=>z.id===id);if(!x)return;
+    if(x.kind==="teacher"){
+      if(!teachers().some(t=>String(t.id)===String(x.data.id)))db.teachers.push(clone(x.data));
+    }else{
+      const tid=x.meta.teacherId, t=teachers().find(z=>String(z.id)===String(tid));
+      if(!t)return showAlert?.("Dars egasi bo‘lgan o‘qituvchi topilmadi.","error");
+      const cand=clone(x.data);
+      const errs=typeof validateLesson==="function"?validateLesson(cand,t.id,null):[];
+      if(errs?.length)return showAlert?.(errs.map(z=>"• "+z).join("<br>"),"error");
+      t.schedule=t.schedule||[];t.schedule.push(cand);
+    }
+    db.ultra.trash=db.ultra.trash.filter(z=>z.id!==id);
+    notify("Savatdan tiklandi",x.kind,"restore");saveU();openU("Savat","30 kunlik tiklash",trashHTML());
+  };
+  window.ultraPurgeTrash=id=>{
+    if(!permission("delete"))return;
+    db.ultra.trash=db.ultra.trash.filter(z=>z.id!==id);saveU();openU("Savat","30 kunlik tiklash",trashHTML());
+  };
+
+  // Wrap deletes but preserve original behavior.
+  const originalDeleteTeacher=window.deleteTeacher;
+  if(typeof originalDeleteTeacher==="function"){
+    window.deleteTeacher=function(id){
+      if(!permission("delete"))return showAlert?.("O‘chirish uchun ruxsat yo‘q.","error");
+      const t=teachers().find(x=>String(x.id)===String(id));
+      if(t)trashAdd("teacher",t,{teacherId:t.id});
+      const before=teachers().length;
+      originalDeleteTeacher(id);
+      if(teachers().length<before){notify("O‘qituvchi o‘chirildi",t?.name||"","delete");saveU();}
+      else if(t)db.ultra.trash.shift();
+    };
+  }
+  const originalDeleteLesson=window.deleteLesson;
+  if(typeof originalDeleteLesson==="function"){
+    window.deleteLesson=function(tid,lid){
+      if(!permission("delete"))return showAlert?.("O‘chirish uchun ruxsat yo‘q.","error");
+      const t=teachers().find(x=>String(x.id)===String(tid)), l=t?.schedule?.find(x=>String(x.id)===String(lid));
+      if(l)trashAdd("lesson",l,{teacherId:t.id,teacherName:t.name});
+      const before=t?.schedule?.length||0;
+      originalDeleteLesson(tid,lid);
+      if((t?.schedule?.length||0)<before){notify("Dars o‘chirildi",`${t?.name||""} · ${l?.subject||""}`,"delete");saveU();}
+      else if(l)db.ultra.trash.shift();
+    };
+  }
+
+  /* 3. Lesson versions */
+  function captureVersion(t,l,reason="Tahrirlashdan oldin"){
+    if(!t||!l)return;
+    db.ultra.lessonVersions.unshift({id:"ver_"+Date.now()+"_"+Math.random().toString(36).slice(2),teacherId:t.id,teacherName:t.name,lessonId:l.id,lesson:clone(l),time:nowISO(),reason,user:clone(db.currentUser||{})});
+    if(db.ultra.lessonVersions.length>500)db.ultra.lessonVersions.length=500;
+  }
+  function versionsHTML(){
+    return db.ultra.lessonVersions.length?db.ultra.lessonVersions.slice(0,100).map(v=>`<div class="ultra-card">
+      <h4>${escU(v.lesson.subject||"Dars")} — ${escU(v.teacherName)}</h4>
+      <div class="ultra-muted">${escU(v.lesson.day)} · ${v.lesson.pair}-juftlik · ${escU(v.lesson.room)}-xona · ${escU(new Date(v.time).toLocaleString("uz-UZ"))}</div>
+      <div class="ultra-actions"><button class="ultra-btn2" onclick="window.ultraRestoreVersion('${v.id}')">Shu versiyaga qaytarish</button></div>
+    </div>`).join(""):`<div class="ultra-card"><div class="ultra-muted">Versiyalar hali yo‘q.</div></div>`;
+  }
+  window.ultraRestoreVersion=id=>{
+    if(!permission("edit"))return;
+    const v=db.ultra.lessonVersions.find(x=>x.id===id),t=teachers().find(x=>String(x.id)===String(v?.teacherId));if(!v||!t)return;
+    const current=t.schedule?.find(x=>String(x.id)===String(v.lessonId));
+    if(current)captureVersion(t,current,"Versiyani qaytarishdan oldin");
+    t.schedule=(t.schedule||[]).filter(x=>String(x.id)!==String(v.lessonId));
+    t.schedule.push(clone(v.lesson));
+    notify("Dars versiyasi tiklandi",`${t.name} · ${v.lesson.subject}`,"restore");saveU();
+    openU("Versiyalar tarixi","Oldingi holatlarni tiklash",versionsHTML());
+  };
+  function installVersionCapture(){
+    const btn=U("saveLessonBtn");if(!btn||btn.dataset.ultraVersion)return;
+    btn.dataset.ultraVersion="1";
+    btn.addEventListener("click",()=>{
+      const tid=U("editLessonTeacherId")?.value,lid=U("editLessonId")?.value;
+      if(!tid||!lid)return;
+      const t=teachers().find(x=>String(x.id)===String(tid)),l=t?.schedule?.find(x=>String(x.id)===String(lid));
+      if(t&&l)captureVersion(t,l);
+    },true);
+  }
+
+  /* 4. Automatic snapshots kept outside Firestore to avoid document bloat */
+  const SNAP_KEY="dispatchAutoSnapshotsV2";
+  function loadSnaps(){try{return JSON.parse(localStorage.getItem(SNAP_KEY)||"[]")}catch{return []}}
+  function makeSnapshot(reason="Avtomatik"){
+    const arr=loadSnaps(), last=arr[0];
+    const today=dateISO();
+    if(reason==="Kunlik" && last?.date===today)return;
+    arr.unshift({id:Date.now(),date:today,time:nowISO(),reason,db:clone(db)});
+    while(arr.length>7)arr.pop();
+    try{localStorage.setItem(SNAP_KEY,JSON.stringify(arr))}catch(e){while(arr.length>2)arr.pop();try{localStorage.setItem(SNAP_KEY,JSON.stringify(arr))}catch{}}
+  }
+  makeSnapshot("Kunlik");
+  const oldSaveU=window.save;
+  if(typeof oldSaveU==="function"&&!window.__ultraSaveWrapped){
+    window.__ultraSaveWrapped=true;
+    window.save=function(){makeSnapshot("Muhim o‘zgarish");return oldSaveU.apply(this,arguments)};
+    try{save=window.save}catch{}
+  }
+  function snapshotHTML(){
+    const a=loadSnaps();
+    return `<div class="ultra-actions"><button class="ultra-btn2" onclick="window.ultraSnapshotNow()">Hozir snapshot</button></div><br>`+
+    (a.length?a.map(s=>`<div class="ultra-card"><h4>${escU(s.reason)} — ${escU(s.date)}</h4><div class="ultra-muted">${escU(new Date(s.time).toLocaleString("uz-UZ"))}</div><div class="ultra-actions"><button class="ultra-btn2" onclick="window.ultraRestoreSnapshot(${s.id})">Tiklash</button></div></div>`).join(""):`<div class="ultra-card">Snapshot yo‘q.</div>`);
+  }
+  window.ultraSnapshotNow=()=>{makeSnapshot("Qo‘lda");openU("Snapshotlar","Oxirgi 7 ta nusxa",snapshotHTML())};
+  window.ultraRestoreSnapshot=id=>{
+    const s=loadSnaps().find(x=>x.id===id);if(!s||!confirm("Shu snapshotdagi holat tiklansinmi?"))return;
+    db=clone(s.db);saveU();location.reload();
+  };
+
+  /* 5. Excel bulk import */
+  function normalizeHeader(s){return String(s||"").trim().toLowerCase().replace(/[ʻ’‘`']/g,"'").replace(/\s+/g," ")}
+  function pickCol(row,names){
+    const keys=Object.keys(row);
+    for(const n of names){const k=keys.find(x=>normalizeHeader(x)===normalizeHeader(n));if(k!=null)return row[k]}
+    return "";
+  }
+  function importHTML(){
+    return `<div class="ultra-card"><h4>Excel bulk import</h4><div class="ultra-form">
+      <div><label class="ultra-label">Ma’lumot turi</label><select id="ultraImportType" class="ultra-input"><option value="teacher">O‘qituvchilar</option><option value="room">Xonalar</option><option value="lesson">Darslar</option></select></div>
+      <div><label class="ultra-label">Excel / CSV fayl</label><input id="ultraImportFile" type="file" accept=".xlsx,.xls,.csv" class="ultra-input"></div>
+    </div><div class="ultra-actions"><button class="ultra-btn2" onclick="window.ultraDoImport()">Import qilish</button></div>
+    <div class="ultra-muted" style="margin-top:8px">O‘qituvchi: Ism-familiya, Kafedra, Lavozim, Telefon. Xona: Xona, Bino, Sig‘im, Tur. Dars: O‘qituvchi, Fan, Guruh, Kun, Hafta, Juftlik, Xona, Bino, Turi.</div></div>`;
+  }
+  window.ultraDoImport=async()=>{
+    if(!permission("import"))return showAlert?.("Import uchun ruxsat yo‘q.","error");
+    const f=U("ultraImportFile")?.files?.[0],type=U("ultraImportType")?.value;if(!f)return;
+    if(typeof XLSX==="undefined")return alert("Excel kutubxonasi yuklanmadi. Internet aloqasini tekshiring.");
+    const wb=XLSX.read(await f.arrayBuffer(),{type:"array"}), ws=wb.Sheets[wb.SheetNames[0]], rows=XLSX.utils.sheet_to_json(ws,{defval:""});
+    let ok=0,skip=0;
+    rows.forEach(r=>{
+      if(type==="teacher"){
+        const name=pickCol(r,["Ism-familiya","O'qituvchi","O‘qituvchi","Name"]);if(!name){skip++;return}
+        if(teachers().some(t=>String(t.name).trim().toLowerCase()===String(name).trim().toLowerCase())){skip++;return}
+        db.teachers.push({id:Date.now()+Math.random(),name:String(name).trim(),degree:String(pickCol(r,["Ilmiy daraja","Degree"])||""),position:String(pickCol(r,["Lavozim","Position"])||"O‘qituvchi"),department:String(pickCol(r,["Kafedra","Department"])||db.currentUser?.department||""),phone:String(pickCol(r,["Telefon","Phone"])||""),image:"",availability:"available",availabilityNote:"",schedule:[]});ok++;
+      }else if(type==="room"){
+        const name=String(pickCol(r,["Xona","Room","Xona raqami"])||"").replace(/-?xona/gi,"").trim(),building=String(pickCol(r,["Bino","Building"])||"").trim();if(!name){skip++;return}
+        if(rooms().some(x=>String(x.name)===name&&String(x.building||"")===building)){skip++;return}
+        db.rooms.push({id:Date.now()+Math.random(),name,building,capacity:Number(pickCol(r,["Sig'im","Sig‘im","Capacity"])||0),type:String(pickCol(r,["Tur","Turi","Type"])||"Oddiy auditoriya")});ok++;
+      }else{
+        const teacherName=String(pickCol(r,["O'qituvchi","O‘qituvchi","Teacher"])||"").trim(), t=teachers().find(x=>String(x.name).trim().toLowerCase()===teacherName.toLowerCase());
+        const roomName=String(pickCol(r,["Xona","Room"])||"").replace(/-?xona/gi,"").trim(), building=String(pickCol(r,["Bino","Building"])||"").trim();
+        const rr=rooms().find(x=>String(x.name)===roomName&&(!building||String(x.building||"")===building));
+        if(!t||!rr){skip++;return}
+        const pair=Number(pickCol(r,["Juftlik","Pair"])||0), p=pairTimes[pair];if(!pair||!p){skip++;return}
+        const l={id:Date.now()+Math.random(),day:String(pickCol(r,["Kun","Day"])||""),weekType:String(pickCol(r,["Hafta","Week"])||"doim").toLowerCase(),pair,start:p.start,end:p.end,subject:String(pickCol(r,["Fan","Subject"])||""),group:String(pickCol(r,["Guruh","Group"])||""),groupSize:Number(pickCol(r,["Guruh soni","Group size"])||0),room:rr.name,roomId:rr.id,roomBuilding:rr.building||"",type:String(pickCol(r,["Turi","Tur","Type"])||"Ma'ruza"),substituteTeacherId:"",status:"approved",cancelled:false,note:""};
+        const errs=typeof validateLesson==="function"?validateLesson(l,t.id,null):[];
+        if(errs?.length){skip++;return}t.schedule.push(l);ok++;
+      }
+    });
+    notify("Bulk import",`${ok} ta qo‘shildi, ${skip} ta o‘tkazildi`,"import");saveU();showAlert?.(`${ok} ta yozuv import qilindi. ${skip} ta o‘tkazib yuborildi.`,"ok");
+  };
+
+  /* 6. Bulk edit */
+  function bulkEditHTML(){
+    const rows=lessons(false).slice(0,250);
+    return `<div class="ultra-card"><div class="ultra-form">
+      <div><label class="ultra-label">Yangi kun (ixtiyoriy)</label><select id="ultraBulkDay" class="ultra-input"><option value="">O‘zgarmasin</option>${DAYS.map(d=>`<option>${d}</option>`).join("")}</select></div>
+      <div><label class="ultra-label">Yangi juftlik (ixtiyoriy)</label><select id="ultraBulkPair" class="ultra-input"><option value="">O‘zgarmasin</option>${[1,2,3,4,5,6].map(p=>`<option value="${p}">${p}-juftlik</option>`).join("")}</select></div>
+      <div class="ultra-full"><label class="ultra-label">Yangi xona (ixtiyoriy)</label><select id="ultraBulkRoom" class="ultra-input"><option value="">O‘zgarmasin</option>${rooms().map(r=>`<option value="${r.id}">${escU(r.name)}-xona · ${escU(r.building||"")}</option>`).join("")}</select></div>
+    </div><div class="ultra-actions"><button class="ultra-btn2" onclick="window.ultraApplyBulk()">Tanlanganlarni o‘zgartirish</button></div></div>
+    <div class="ultra-table-wrap"><table class="ultra-table"><thead><tr><th></th><th>O‘qituvchi</th><th>Fan</th><th>Guruh</th><th>Kun</th><th>Juftlik</th><th>Xona</th></tr></thead><tbody>
+    ${rows.map(({t,l})=>`<tr><td><input type="checkbox" class="ultraBulkCheck" data-tid="${t.id}" data-lid="${l.id}"></td><td>${escU(t.name)}</td><td>${escU(l.subject)}</td><td>${escU(l.group)}</td><td>${escU(l.day)}</td><td>${l.pair}</td><td>${escU(l.room)}</td></tr>`).join("")}
+    </tbody></table></div>`;
+  }
+  window.ultraApplyBulk=()=>{
+    if(!permission("edit"))return;
+    const day=U("ultraBulkDay")?.value,pair=Number(U("ultraBulkPair")?.value||0),rid=U("ultraBulkRoom")?.value,rr=rooms().find(r=>String(r.id)===String(rid));
+    let ok=0,skip=0;
+    document.querySelectorAll(".ultraBulkCheck:checked").forEach(ch=>{
+      const t=teachers().find(x=>String(x.id)===ch.dataset.tid),l=t?.schedule?.find(x=>String(x.id)===ch.dataset.lid);if(!t||!l)return;
+      const cand={...l};if(day)cand.day=day;if(pair){cand.pair=pair;cand.start=pairTimes[pair].start;cand.end=pairTimes[pair].end}if(rr){cand.room=rr.name;cand.roomId=rr.id;cand.roomBuilding=rr.building||""}
+      const errs=typeof validateLesson==="function"?validateLesson(cand,t.id,l.id):[];
+      if(errs?.length){skip++;return}
+      captureVersion(t,l,"Bulk editdan oldin");Object.assign(l,cand);ok++;
+    });
+    notify("Bulk edit",`${ok} ta dars o‘zgardi, ${skip} ta konflikt sabab o‘tmadi`,"edit");saveU();showAlert?.(`${ok} ta dars o‘zgartirildi. ${skip} ta o‘tkazildi.`,"ok");
+  };
+
+  /* 7. Drag & drop */
+  function dragHTML(){
+    let html=`<div class="ultra-table-wrap"><div class="ultra-dnd"><div class="ultra-dnd-cell ultra-dnd-head">Juftlik</div>${DAYS.map(d=>`<div class="ultra-dnd-cell ultra-dnd-head">${d}</div>`).join("")}`;
+    [1,2,3,4,5,6].forEach(pair=>{
+      html+=`<div class="ultra-dnd-cell ultra-dnd-head">${pair}</div>`;
+      DAYS.forEach(day=>{
+        const arr=lessons(false).filter(x=>x.l.day===day&&Number(x.l.pair)===pair&&weekOk(x.l));
+        html+=`<div class="ultra-dnd-cell" data-drop-day="${day}" data-drop-pair="${pair}">${arr.map(({t,l})=>`<div class="ultra-dnd-card" draggable="${permission("edit")?"true":"false"}" data-drag-tid="${t.id}" data-drag-lid="${l.id}"><b>${escU(t.name)}</b><br>${escU(l.subject)}<br>${escU(l.room)}-xona</div>`).join("")}</div>`;
+      });
+    });
+    return html+`</div></div><div class="ultra-muted" style="margin-top:7px">Dars kartasini boshqa kun/juftlik katagiga sudrab o‘tkazing. Konflikt bo‘lsa o‘zgarish saqlanmaydi.</div>`;
+  }
+  function bindDrag(){
+    setTimeout(()=>{
+      document.querySelectorAll("[data-drag-tid]").forEach(c=>c.addEventListener("dragstart",ev=>ev.dataTransfer.setData("text/plain",JSON.stringify({tid:c.dataset.dragTid,lid:c.dataset.dragLid}))));
+      document.querySelectorAll("[data-drop-day]").forEach(cell=>{
+        cell.addEventListener("dragover",ev=>ev.preventDefault());
+        cell.addEventListener("drop",ev=>{
+          ev.preventDefault();if(!permission("edit"))return;
+          let d;try{d=JSON.parse(ev.dataTransfer.getData("text/plain"))}catch{return}
+          const t=teachers().find(x=>String(x.id)===String(d.tid)),l=t?.schedule?.find(x=>String(x.id)===String(d.lid));if(!t||!l)return;
+          const pair=Number(cell.dataset.dropPair), cand={...l,day:cell.dataset.dropDay,pair,start:pairTimes[pair].start,end:pairTimes[pair].end};
+          const errs=typeof validateLesson==="function"?validateLesson(cand,t.id,l.id):[];
+          if(errs?.length)return showAlert?.(errs.map(x=>"• "+x).join("<br>"),"error");
+          captureVersion(t,l,"Drag & dropdan oldin");Object.assign(l,cand);notify("Dars ko‘chirildi",`${t.name} · ${l.subject}`,"edit");saveU();openU("Drag & drop jadval","Darsni sudrab ko‘chirish",dragHTML());bindDrag();
+        });
+      });
+    },80);
+  }
+
+  /* 8. Conflict heatmap */
+  function conflictMatrix(){
+    const counts={};DAYS.forEach(d=>[1,2,3,4,5,6].forEach(p=>counts[`${d}|${p}`]=0));
+    DAYS.forEach(day=>[1,2,3,4,5,6].forEach(pair=>{
+      const arr=lessons(false).filter(x=>x.l.status==="approved"&&weekOk(x.l)&&x.l.day===day&&Number(x.l.pair)===pair);
+      const rm=new Map(),tm=new Map(),gm=new Map();
+      arr.forEach(({t,l})=>{
+        const rk=typeof physicalRoomKey==="function"?physicalRoomKey(roomOf(l)?.name||l.room,roomOf(l)?.building||l.roomBuilding):`${l.room}|${l.roomBuilding}`;
+        const tk=String(t.phone||t.name).toLowerCase(),gk=String(l.group||"").toLowerCase();
+        rm.set(rk,(rm.get(rk)||0)+1);tm.set(tk,(tm.get(tk)||0)+1);gm.set(gk,(gm.get(gk)||0)+1);
+      });
+      [...rm.values(),...tm.values(),...gm.values()].forEach(n=>{if(n>1)counts[`${day}|${pair}`]+=n-1});
+    }));
+    return counts;
+  }
+  function heatHTML(){
+    const c=conflictMatrix();let h=`<div class="ultra-table-wrap"><div class="ultra-heat"><div class="head">Juftlik</div>${DAYS.map(d=>`<div class="head">${d}</div>`).join("")}`;
+    [1,2,3,4,5,6].forEach(p=>{h+=`<div class="head">${p}</div>`;DAYS.forEach(d=>{const n=c[`${d}|${p}`],cl=n>=3?"level3":n>=2?"level2":n>=1?"level1":"";h+=`<div class="${cl}">${n}</div>`})});
+    return h+`</div></div>`;
+  }
+
+  /* 9. Room occupancy */
+  function roomLoadHTML(){
+    return rooms().map(r=>{
+      const n=lessons(false).filter(({l})=>weekOk(l)&&(String(l.roomId)===String(r.id)||(String(l.room)===String(r.name)&&String(l.roomBuilding||"")===String(r.building||"")))).length;
+      const pct=Math.min(100,Math.round(n/36*100));
+      return `<div class="ultra-card"><h4>${escU(r.name)}-xona · ${escU(r.building||"")}</h4><div class="ultra-muted">${n} / 36 haftalik slot · ${pct}% band</div><div class="ultra-bar"><span style="width:${pct}%"></span></div></div>`;
+    }).join("")||`<div class="ultra-card">Xonalar yo‘q.</div>`;
+  }
+
+  /* 10. Teacher load */
+  function teacherLoadHTML(){
+    return teachers().map(t=>{
+      const arr=(t.schedule||[]).filter(l=>!l.cancelled&&l.status==="approved"&&weekOk(l)),pairs=arr.length,hours=pairs*2;
+      const busy=new Set(arr.map(l=>`${l.day}|${l.pair}`)).size,free=36-busy;
+      return `<div class="ultra-card"><h4>${escU(t.name)}</h4><div class="ultra-muted">${pairs} juftlik · ≈${hours} akademik soat · ${free} bo‘sh slot</div><div class="ultra-bar"><span style="width:${Math.min(100,Math.round(busy/36*100))}%"></span></div></div>`;
+    }).join("");
+  }
+
+  /* 11. Group load / gaps */
+  function groupStats(){
+    const m=new Map();
+    lessons(false).filter(x=>x.l.status==="approved"&&weekOk(x.l)).forEach(({l})=>{
+      const g=String(l.group||"").trim();if(!g)return;
+      if(!m.has(g))m.set(g,[]);m.get(g).push(l);
+    });
+    return [...m.entries()].map(([g,arr])=>{
+      let gaps=0;DAYS.forEach(d=>{const ps=arr.filter(l=>l.day===d).map(l=>Number(l.pair)).sort((a,b)=>a-b);if(ps.length>1)for(let i=1;i<ps.length;i++)gaps+=Math.max(0,ps[i]-ps[i-1]-1)});
+      return {g,count:arr.length,gaps};
+    }).sort((a,b)=>b.count-a.count);
+  }
+  function groupLoadHTML(){return groupStats().map(x=>`<div class="ultra-card"><h4>${escU(x.g)}</h4><div class="ultra-muted">${x.count} juftlik · ${x.gaps} ta “oyna”</div></div>`).join("")||`<div class="ultra-card">Guruhlar yo‘q.</div>`}
+
+  /* 12. Schedule quality heuristic */
+  function qualityHTML(){
+    const conflicts=Object.values(conflictMatrix()).reduce((a,b)=>a+b,0);
+    const gs=groupStats(),gaps=gs.reduce((a,b)=>a+b.gaps,0);
+    let buildingChanges=0;
+    teachers().forEach(t=>DAYS.forEach(d=>{
+      const a=(t.schedule||[]).filter(l=>!l.cancelled&&weekOk(l)&&l.day===d).sort((x,y)=>x.pair-y.pair);
+      for(let i=1;i<a.length;i++){if(Number(a[i].pair)-Number(a[i-1].pair)===1&&String(a[i].roomBuilding||"")!==String(a[i-1].roomBuilding||"")&&a[i].roomBuilding&&a[i-1].roomBuilding)buildingChanges++}
+    }));
+    const score=Math.max(0,100-conflicts*12-gaps*2-buildingChanges*3);
+    return `<div class="ultra-grid4">
+      <div class="ultra-kpi"><small>Ichki sifat balli</small><b>${score}</b></div>
+      <div class="ultra-kpi"><small>Konflikt</small><b>${conflicts}</b></div>
+      <div class="ultra-kpi"><small>Guruh oynasi</small><b>${gaps}</b></div>
+      <div class="ultra-kpi"><small>Bino almashinuvi</small><b>${buildingChanges}</b></div>
+    </div><div class="ultra-card"><div class="ultra-muted">Bu 0–100 ko‘rsatkich dastur ichidagi yordamchi heuristika: konfliktlar, guruh “oyna”lari va ketma-ket juftliklarda bino almashinuvi asosida hisoblanadi; rasmiy universitet mezoni emas.</div></div>`;
+  }
+
+  /* 13. Notifications */
+  function derivedNotifications(){
+    const out=[...db.ultra.notifications];
+    const conf=Object.values(conflictMatrix()).reduce((a,b)=>a+b,0);
+    if(conf)out.unshift({id:"conf",time:nowISO(),title:"Jadval konflikti",detail:`${conf} ta konflikt aniqlandi`,type:"conflict",read:false});
+    const canc=lessons(true).filter(x=>x.l.cancelled&&x.l.day===(typeof nowInfo==="function"?nowInfo().day:"")).length;
+    if(canc)out.unshift({id:"canc",time:nowISO(),title:"Bekor qilingan darslar",detail:`Bugun ${canc} ta`,type:"cancel",read:false});
+    return out;
+  }
+  function noticesHTML(){
+    const arr=derivedNotifications();
+    return `<div class="ultra-actions"><button class="ultra-btn2" onclick="window.ultraMarkRead()">Hammasini o‘qilgan qilish</button></div><br>`+
+    (arr.length?arr.slice(0,100).map(n=>`<div class="ultra-card ${n.read?"":"ultra-warn"}"><h4>${escU(n.title)}</h4><div class="ultra-muted">${escU(n.detail||"")} · ${escU(new Date(n.time).toLocaleString("uz-UZ"))}</div></div>`).join(""):`<div class="ultra-card">Bildirishnoma yo‘q.</div>`);
+  }
+  window.ultraMarkRead=()=>{db.ultra.notifications.forEach(n=>n.read=true);saveU();openU("Bildirishnomalar","Tizim xabarlari",noticesHTML())};
+
+  /* 14. Search history */
+  const SEARCH_KEY="dispatchSearchHistory";
+  function searchHist(){try{return JSON.parse(localStorage.getItem(SEARCH_KEY)||"[]")}catch{return []}}
+  function addSearch(q){q=String(q||"").trim();if(q.length<2)return;let a=searchHist().filter(x=>x.q.toLowerCase()!==q.toLowerCase());a.unshift({q,time:nowISO()});a=a.slice(0,20);localStorage.setItem(SEARCH_KEY,JSON.stringify(a))}
+  function searchHTML(){const a=searchHist();return a.length?a.map(x=>`<div class="ultra-card"><h4>${escU(x.q)}</h4><div class="ultra-muted">${escU(new Date(x.time).toLocaleString("uz-UZ"))}</div></div>`).join(""):`<div class="ultra-card">Qidiruv tarixi yo‘q.</div>`}
+  function bindSearchHistory(){
+    const inp=U("proSearchInput");if(!inp||inp.dataset.ultraHist)return;inp.dataset.ultraHist="1";
+    inp.addEventListener("keydown",ev=>{if(ev.key==="Enter")addSearch(inp.value)});
+    inp.addEventListener("change",()=>addSearch(inp.value));
+  }
+
+  /* 15. Favorites */
+  const FAV_KEY="dispatchFavoritesV2";
+  function favs(){try{return JSON.parse(localStorage.getItem(FAV_KEY)||"[]")}catch{return []}}
+  function setFav(k,label,type){let a=favs(),i=a.findIndex(x=>x.k===k);if(i>=0)a.splice(i,1);else a.unshift({k,label,type,time:nowISO()});localStorage.setItem(FAV_KEY,JSON.stringify(a));}
+  function favoritesHTML(){
+    const a=favs();
+    const teacherRows=teachers().map(t=>({k:`t:${t.id}`,label:t.name,type:"O‘qituvchi"}));
+    const roomRows=rooms().map(r=>({k:`r:${r.id}`,label:`${r.name}-xona · ${r.building||""}`,type:"Xona"}));
+    const rows=[...teacherRows,...roomRows];
+    return `<div class="ultra-grid2">${rows.map(x=>{const on=a.some(f=>f.k===x.k);return `<div class="ultra-card"><button class="ultra-favorite ${on?"on":""}" onclick="window.ultraFav('${x.k}',decodeURIComponent('${encodeURIComponent(x.label)}'),'${x.type}')">★</button> <b>${escU(x.label)}</b><div class="ultra-muted">${x.type}</div></div>`}).join("")}</div>`;
+  }
+  window.ultraFav=(k,label,type)=>{setFav(k,label,type);openU("Sevimlilar","O‘qituvchi va xonalar",favoritesHTML())};
+
+  /* 16. QR */
+  function qrHTML(){
+    return `<div class="ultra-card"><div class="ultra-form">
+      <div><label class="ultra-label">Tur</label><select id="ultraQRType" class="ultra-input"><option value="teacher">O‘qituvchi</option><option value="room">Xona</option></select></div>
+      <div><label class="ultra-label">Tanlash</label><select id="ultraQREntity" class="ultra-input"></select></div>
+    </div><div class="ultra-actions"><button class="ultra-btn2" onclick="window.ultraMakeQR()">QR yaratish</button></div></div><div id="ultraQRResult" class="ultra-card"></div>`;
+  }
+  function fillQREntities(){
+    const type=U("ultraQRType")?.value,sel=U("ultraQREntity");if(!sel)return;
+    sel.innerHTML=(type==="teacher"?teachers().map(t=>`<option value="${t.id}">${escU(t.name)}</option>`):rooms().map(r=>`<option value="${r.id}">${escU(r.name)}-xona · ${escU(r.building||"")}</option>`)).join("");
+  }
+  window.ultraMakeQR=()=>{
+    const type=U("ultraQRType")?.value,id=U("ultraQREntity")?.value,box=U("ultraQRResult");if(!box)return;
+    const url=location.href.split("#")[0]+`#schedule=${encodeURIComponent(type)}:${encodeURIComponent(id)}`;
+    box.innerHTML=`<div class="ultra-qr"><div id="ultraQRCode"></div><div><b>${type==="teacher"?"O‘qituvchi":"Xona"} jadvali</b><div class="ultra-muted">${escU(url)}</div></div></div>`;
+    if(typeof QRCode!=="undefined")new QRCode(U("ultraQRCode"),{text:url,width:150,height:150});
+    else U("ultraQRCode").textContent="QR kutubxonasi yuklanmadi.";
+  };
+  function bindQR(){setTimeout(()=>{const t=U("ultraQRType");if(t&&!t.dataset.bound){t.dataset.bound="1";t.addEventListener("change",fillQREntities);fillQREntities()}},50)}
+
+  /* 17. Read-only public board */
+  function readOnlyOpen(){
+    document.querySelector(".ultra-readonly")?.remove();
+    const el=document.createElement("div");el.className="ultra-readonly";
+    const day=typeof nowInfo==="function"?nowInfo().day:"";
+    const arr=lessons(false).filter(x=>x.l.day===day&&x.l.status==="approved"&&weekOk(x.l)).sort((a,b)=>a.l.pair-b.l.pair);
+    el.innerHTML=`<div class="ultra-readonly-head"><div><h2 style="margin:0">Bugungi darslar</h2><div>${escU(day)} · ${escU(currentWeek)}</div></div><button class="ultra-btn2" onclick="this.closest('.ultra-readonly').remove()">Yopish</button></div>
+      <div class="ultra-readonly-grid">${arr.map(({t,l})=>`<div class="ultra-readonly-card"><b>${l.pair}-juftlik · ${escU(t.name)}</b><div>${escU(l.subject)}</div><div>${escU(l.group)} · ${escU(l.room)}-xona · ${escU(l.roomBuilding||"")}</div></div>`).join("")||"<div>Dars yo‘q.</div>"}</div>`;
+    document.body.appendChild(el);
+  }
+  window.ultraReadOnly=readOnlyOpen;
+
+  /* 18. A4 print layout */
+  function printHTML(){
+    let grid=`<table style="width:100%;border-collapse:collapse"><thead><tr><th style="border:1px solid #aaa;padding:5px">Juftlik</th>${DAYS.map(d=>`<th style="border:1px solid #aaa;padding:5px">${d}</th>`).join("")}</tr></thead><tbody>`;
+    [1,2,3,4,5,6].forEach(p=>{grid+=`<tr><th style="border:1px solid #aaa;padding:5px">${p}</th>`;DAYS.forEach(d=>{const a=lessons(false).filter(x=>x.l.day===d&&Number(x.l.pair)===p&&weekOk(x.l));grid+=`<td style="border:1px solid #aaa;padding:5px;vertical-align:top">${a.map(x=>`<b>${escU(x.t.name)}</b><br>${escU(x.l.subject)}<br>${escU(x.l.group)} · ${escU(x.l.room)}<hr>`).join("")}</td>`});grid+="</tr>"});
+    return grid+"</tbody></table>";
+  }
+  window.ultraPrint=()=>{
+    let area=U("ultraPrintArea");if(!area){area=document.createElement("div");area.id="ultraPrintArea";area.style.display="none";document.body.appendChild(area)}
+    area.innerHTML=`<h2>Haftalik dars jadvali</h2><p>${escU(currentWeek)} hafta</p>${printHTML()}`;
+    window.print();
+  };
+
+  /* 19. University global dashboard */
+  function globalDashboardHTML(){
+    const ws=(db.departmentWorkspaces&&typeof db.departmentWorkspaces==="object")?db.departmentWorkspaces:{};
+    const rows=Object.entries(ws).map(([dep,w])=>{
+      const ts=Array.isArray(w.teachers)?w.teachers:[],rs=Array.isArray(w.rooms)?w.rooms:[];
+      let ls=0;ts.forEach(t=>ls+=(t.schedule||[]).filter(l=>!l.cancelled).length);
+      return {dep,teachers:ts.length,rooms:rs.length,lessons:ls};
+    });
+    const total=rows.reduce((a,x)=>({teachers:a.teachers+x.teachers,rooms:a.rooms+x.rooms,lessons:a.lessons+x.lessons}),{teachers:0,rooms:0,lessons:0});
+    return `<div class="ultra-grid3"><div class="ultra-kpi"><small>Kafedralar</small><b>${rows.length}</b></div><div class="ultra-kpi"><small>O‘qituvchilar</small><b>${total.teachers}</b></div><div class="ultra-kpi"><small>Darslar</small><b>${total.lessons}</b></div></div>
+    <div class="ultra-table-wrap"><table class="ultra-table"><thead><tr><th>Kafedra</th><th>O‘qituvchi</th><th>Xona</th><th>Dars</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${escU(x.dep)}</td><td>${x.teachers}</td><td>${x.rooms}</td><td>${x.lessons}</td></tr>`).join("")}</tbody></table></div>`;
+  }
+
+  /* 20. Firebase Auth integration (activates when Auth is enabled + user has email) */
+  let auth=null;
+  try{if(firebase?.auth)auth=firebase.auth()}catch{}
+  function authStatus(){
+    const cur=auth?.currentUser, email=cur?.email||"";
+    return {available:!!auth,signed:!!cur,email};
+  }
+  function securityHTML(){
+    const s=authStatus(), secureUsers=(db.users||[]).filter(u=>u.email).length;
+    return `<div class="ultra-security ${s.available?"ok":"warn"}"><b>Firebase Auth SDK:</b> ${s.available?"ulangan":"mavjud emas"}<br><span class="ultra-muted">Auth foydalanuvchi: ${escU(s.email||"kirish qilinmagan")} · email biriktirilgan lokal foydalanuvchilar: ${secureUsers}</span></div>
+    <div class="ultra-card"><h4>Secure login</h4><div class="ultra-muted">Real xavfsizlik ishlashi uchun Firebase Console → Authentication’da Email/Password yoqilishi va Firestore rules o‘rnatilishi kerak. Dastur email biriktirilgan foydalanuvchilar uchun Auth loginni qo‘llashga tayyor.</div>
+    <div class="ultra-form" style="margin-top:8px"><div><label class="ultra-label">Email</label><input id="ultraAuthEmail" class="ultra-input" type="email"></div><div><label class="ultra-label">Parol</label><input id="ultraAuthPass" class="ultra-input" type="password"></div></div>
+    <div class="ultra-actions"><button class="ultra-btn2" onclick="window.ultraAuthLogin()">Firebase Auth orqali kirish</button><button class="ultra-btn2" onclick="window.ultraAuthLogout()">Auth chiqish</button></div></div>`;
+  }
+  window.ultraAuthLogin=async()=>{
+    if(!auth)return alert("Firebase Auth SDK mavjud emas.");
+    try{
+      const cred=await auth.signInWithEmailAndPassword(U("ultraAuthEmail").value,U("ultraAuthPass").value);
+      const local=(db.users||[]).find(u=>String(u.email||"").toLowerCase()===String(cred.user.email||"").toLowerCase());
+      if(local){db.currentUser={id:local.id,name:local.name,role:local.role,department:local.department||"",email:local.email};typeof window.activateDepartmentWorkspace==="function"&&local.role==="mudiri"&&window.activateDepartmentWorkspace(local.department);saveU();}
+      notify("Secure login",cred.user.email,"security");showAlert?.("Firebase Auth orqali kirildi.","ok");
+    }catch(err){showAlert?.("Firebase Auth: "+err.message,"error")}
+  };
+  window.ultraAuthLogout=async()=>{try{await auth?.signOut();showAlert?.("Firebase Auth sessiyasi yopildi.","ok")}catch{}};
+
+  /* 21. Split Firestore collections — dual-write migration */
+  let splitSyncBusy=false;
+  async function splitSync(){
+    if(splitSyncBusy||typeof firestoreDB==="undefined")return;
+    splitSyncBusy=true;
+    try{
+      const batch=firestoreDB.batch();
+      teachers().forEach(t=>{
+        const ref=firestoreDB.collection("teachers").doc(String(t.id));
+        const {schedule,...teacherData}=t;batch.set(ref,{...teacherData,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+        (schedule||[]).forEach(l=>batch.set(firestoreDB.collection("lessons").doc(String(l.id)),{...l,teacherId:t.id,teacherName:t.name,department:t.department||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}));
+      });
+      rooms().forEach(r=>batch.set(firestoreDB.collection("rooms").doc(String(r.id)),{...r,department:db.currentUser?.department||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}));
+      (db.users||[]).forEach(u=>batch.set(firestoreDB.collection("users").doc(String(u.id)),{...u,password:undefined,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}));
+      await batch.commit();
+      localStorage.setItem("splitCollectionsLastSync",nowISO());
+    }catch(err){console.warn("Split collection sync:",err)}
+    finally{splitSyncBusy=false}
+  }
+  window.ultraSplitSync=async()=>{await splitSync();showAlert?.("teachers / rooms / lessons / users kolleksiyalariga sinxronlandi.","ok")};
+  function migrationHTML(){
+    const last=localStorage.getItem("splitCollectionsLastSync");
+    return `<div class="ultra-card"><h4>Bo‘lingan Firestore arxitekturasi</h4><div class="ultra-muted">Mavjud appData/main buzilmasligi uchun hozir dual-write migratsiya ishlatiladi: eski baza saqlanadi, yangi teachers, rooms, lessons, users kolleksiyalari parallel yoziladi. To‘liq o‘tishdan keyin appData/main’ni o‘chirish mumkin.</div><div class="ultra-actions"><button class="ultra-btn2" onclick="window.ultraSplitSync()">Hozir kolleksiyalarga sinxronlash</button></div><div class="ultra-muted" style="margin-top:6px">Oxirgi sinxron: ${escU(last?new Date(last).toLocaleString("uz-UZ"):"hali yo‘q")}</div></div>`;
+  }
+
+  /* Optional automatic dual-write after save, throttled */
+  let splitTimer=null;
+  document.addEventListener("click",()=>{clearTimeout(splitTimer);splitTimer=setTimeout(splitSync,2000)},true);
+
+  function menu(){
+    const sidebar=document.querySelector(".hemis-sidebar");if(!sidebar||sidebar.querySelector(".ultra-section"))return;
+    const s=document.createElement("div");s.className="ultra-section";
+    const unread=derivedNotifications().filter(n=>!n.read).length;
+    s.innerHTML=`<div class="ultra-title">Ultra boshqaruv</div>
+      <button class="ultra-btn" data-ultra="perm"><span class="ico">⚿</span>Huquqlar</button>
+      <button class="ultra-btn" data-ultra="trash"><span class="ico">♲</span>Savat <span class="ultra-count">${db.ultra.trash.length}</span></button>
+      <button class="ultra-btn" data-ultra="versions"><span class="ico">↶</span>Versiyalar</button>
+      <button class="ultra-btn" data-ultra="snap"><span class="ico">◫</span>Snapshotlar</button>
+      <button class="ultra-btn" data-ultra="import"><span class="ico">⇧</span>Excel import</button>
+      <button class="ultra-btn" data-ultra="bulk"><span class="ico">☷</span>Bulk edit</button>
+      <button class="ultra-btn" data-ultra="drag"><span class="ico">↔</span>Drag & drop</button>
+      <button class="ultra-btn" data-ultra="heat"><span class="ico">▦</span>Konflikt xaritasi</button>
+      <button class="ultra-btn" data-ultra="roomload"><span class="ico">▥</span>Xona bandligi</button>
+      <button class="ultra-btn" data-ultra="teacherload"><span class="ico">◉</span>O‘qituvchi yuklamasi</button>
+      <button class="ultra-btn" data-ultra="groupload"><span class="ico">◎</span>Guruh yuklamasi</button>
+      <button class="ultra-btn" data-ultra="quality"><span class="ico">✓</span>Jadval sifati</button>
+      <button class="ultra-btn ultra-notice" data-ultra="notice"><span class="ico">●</span>Bildirishnomalar ${unread?`<span class="ultra-notice-dot">${unread}</span>`:""}</button>
+      <button class="ultra-btn" data-ultra="search"><span class="ico">⌕</span>Qidiruv tarixi</button>
+      <button class="ultra-btn" data-ultra="fav"><span class="ico">★</span>Sevimlilar</button>
+      <button class="ultra-btn" data-ultra="qr"><span class="ico">▣</span>QR jadval</button>
+      <button class="ultra-btn" data-ultra="screen"><span class="ico">▰</span>Read-only ekran</button>
+      <button class="ultra-btn" data-ultra="print"><span class="ico">▤</span>A4 print</button>
+      <button class="ultra-btn" data-ultra="global"><span class="ico">◆</span>Global dashboard</button>
+      <button class="ultra-btn" data-ultra="security"><span class="ico">🔒</span>Firebase Auth</button>
+      <button class="ultra-btn" data-ultra="migration"><span class="ico">⇄</span>Bo‘lingan baza</button>`;
+    sidebar.appendChild(s);
+    s.addEventListener("click",ev=>{
+      const b=ev.target.closest("[data-ultra]");if(!b)return;const a=b.dataset.ultra;
+      if(a==="perm")openU("Rol huquqlari","Aniq ruxsatlar",permissionsHTML());
+      if(a==="trash")openU("Savat","30 kun ichida tiklash",trashHTML());
+      if(a==="versions")openU("Versiyalar tarixi","Darsning oldingi holatlari",versionsHTML());
+      if(a==="snap")openU("Snapshotlar","Avtomatik zaxira",snapshotHTML());
+      if(a==="import")openU("Excel bulk import","Ko‘p yozuvni birdan qo‘shish",importHTML());
+      if(a==="bulk")openU("Bulk edit","Bir nechta darsni bir vaqtda o‘zgartirish",bulkEditHTML());
+      if(a==="drag"){openU("Drag & drop jadval","Darsni sudrab ko‘chirish",dragHTML());bindDrag()}
+      if(a==="heat")openU("Konflikt xaritasi","Kun va juftlik kesimida",heatHTML());
+      if(a==="roomload")openU("Xona bandligi","Haftalik bandlik foizi",roomLoadHTML());
+      if(a==="teacherload")openU("O‘qituvchi yuklamasi","Juftlik va bo‘sh slotlar",teacherLoadHTML());
+      if(a==="groupload")openU("Guruh yuklamasi","Darslar va “oyna”lar",groupLoadHTML());
+      if(a==="quality")openU("Jadval sifati","Ichki yordamchi baholash",qualityHTML());
+      if(a==="notice")openU("Bildirishnomalar","Konflikt, bekor qilish va o‘zgarishlar",noticesHTML());
+      if(a==="search")openU("Qidiruv tarixi","Oxirgi qidiruvlar",searchHTML());
+      if(a==="fav")openU("Sevimlilar","O‘qituvchi va xonalar",favoritesHTML());
+      if(a==="qr"){openU("QR orqali jadval","QR kod yaratish",qrHTML());bindQR()}
+      if(a==="screen")readOnlyOpen();
+      if(a==="print")window.ultraPrint();
+      if(a==="global")openU("Universitet global dashboard","Kafedralar kesimida",globalDashboardHTML());
+      if(a==="security")openU("Firebase Auth","Secure login holati",securityHTML());
+      if(a==="migration")openU("Bo‘lingan baza","Firestore kolleksiyalariga migratsiya",migrationHTML());
+    });
+  }
+
+  function refreshBadges(){
+    cleanupTrash();
+    const sec=document.querySelector(".ultra-section");if(sec){sec.remove();menu()}
+  }
+
+  /* Permission capture guards for save buttons */
+  function guards(){
+    [["saveTeacherBtn","create","editTeacherId"],["saveRoomBtn","create","editRoomId"],["saveLessonBtn","create","editLessonId"]].forEach(([bid,createAct,eid])=>{
+      const b=U(bid);if(!b||b.dataset.ultraGuard)return;b.dataset.ultraGuard="1";
+      b.addEventListener("click",ev=>{
+        const editing=!!U(eid)?.value,act=editing?"edit":createAct;
+        if(!permission(act)){ev.preventDefault();ev.stopImmediatePropagation();showAlert?.(`${editing?"Tahrirlash":"Qo‘shish"} uchun ruxsat yo‘q.`,"error")}
+      },true);
+    });
+  }
+
+  /* Deep links from QR */
+  function handleHash(){
+    const m=location.hash.match(/^#schedule=(teacher|room):(.+)$/);if(!m)return;
+    const type=m[1],id=decodeURIComponent(m[2]);
+    setTimeout(()=>{
+      if(type==="teacher"){const t=teachers().find(x=>String(x.id)===id);if(t&&typeof openTeacherModal==="function")openTeacherModal(t.id)}
+      else{
+        const r=rooms().find(x=>String(x.id)===id);if(!r)return;
+        const arr=lessons(false).filter(({l})=>String(l.roomId)===String(r.id));
+        openU(`${r.name}-xona`,r.building||"",arr.map(({t,l})=>`<div class="ultra-card"><b>${escU(t.name)}</b><div class="ultra-muted">${escU(l.day)} · ${l.pair}-juftlik · ${escU(l.subject)} · ${escU(l.group)}</div></div>`).join(""));
+      }
+    },800);
+  }
+
+  function init(){
+    ensureUltraDB();cleanupTrash();menu();guards();installVersionCapture();bindSearchHistory();handleHash();
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+  const mo=new MutationObserver(()=>{menu();guards();installVersionCapture();bindSearchHistory()});
+  mo.observe(document.body,{childList:true,subtree:true});
 })();
 </script>
 
