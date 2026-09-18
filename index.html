@@ -5796,6 +5796,67 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
   };
 
   /* 7. Drag & drop */
+  function dragValidation(candidate,teacherId,editingLessonId){
+    const base=typeof validateLesson==="function"
+      ?validateLesson(candidate,teacherId,editingLessonId)
+      :{errs:[],warns:[]};
+
+    const errs=Array.isArray(base)?[...base]:[...(base?.errs||[])];
+    const warns=Array.isArray(base)?[]:[...(base?.warns||[])];
+
+    const candRoom=rooms().find(r=>String(r.id)===String(candidate.roomId))||
+      rooms().find(r=>r.name===candidate.room && (!candidate.roomBuilding || r.building===candidate.roomBuilding));
+    const candRoomKey=typeof physicalRoomKey==="function"
+      ?physicalRoomKey(candRoom?.name||candidate.room,candRoom?.building||candidate.roomBuilding)
+      :`${candidate.room||""}|${candidate.roomBuilding||""}`;
+
+    const candTeacher=teachers().find(t=>String(t.id)===String(candidate.substituteTeacherId||teacherId));
+    const candTeacherName=String(candTeacher?.name||"").trim().toLowerCase().replace(/\s+/g," ");
+    const candTeacherPhone=String(candTeacher?.phone||"").replace(/\D/g,"");
+    const candGroup=String(candidate.group||"").trim().toLowerCase();
+
+    teachers().forEach(other=>{
+      (other.schedule||[]).forEach(existing=>{
+        if(existing.cancelled) return;
+        if(editingLessonId && String(existing.id)===String(editingLessonId)) return;
+        if(existing.day!==candidate.day) return;
+        if(Number(existing.pair)!==Number(candidate.pair)) return;
+        if(!weekOverlap(existing.weekType,candidate.weekType)) return;
+
+        const existingEffective=teachers().find(t=>String(t.id)===String(existing.substituteTeacherId))||other;
+        const existingName=String(existingEffective?.name||"").trim().toLowerCase().replace(/\s+/g," ");
+        const existingPhone=String(existingEffective?.phone||"").replace(/\D/g,"");
+        const sameTeacher=
+          (candTeacherName && existingName===candTeacherName) ||
+          (candTeacherPhone.length>=7 && existingPhone===candTeacherPhone);
+
+        if(sameTeacher){
+          errs.push(`O‘qituvchi konflikti: ${candidate.day}, ${candidate.pair}-juftlikda boshqa dars mavjud (${existing.subject}).`);
+        }
+
+        const existingRoom=rooms().find(r=>String(r.id)===String(existing.roomId))||
+          rooms().find(r=>r.name===existing.room && (!existing.roomBuilding || r.building===existing.roomBuilding));
+        const existingRoomKey=typeof physicalRoomKey==="function"
+          ?physicalRoomKey(existingRoom?.name||existing.room,existingRoom?.building||existing.roomBuilding)
+          :`${existing.room||""}|${existing.roomBuilding||""}`;
+
+        if(candRoomKey && existingRoomKey===candRoomKey){
+          errs.push(`Xona konflikti: ${candidate.room}-xona ${candidate.day}, ${candidate.pair}-juftlikda band (${other.name}, ${existing.subject}).`);
+        }
+
+        const existingGroup=String(existing.group||"").trim().toLowerCase();
+        if(candGroup && existingGroup===candGroup){
+          errs.push(`Guruh konflikti: ${candidate.group} shu vaqtda boshqa darsga biriktirilgan (${existing.subject}).`);
+        }
+      });
+    });
+
+    return {
+      errs:[...new Set(errs)],
+      warns:[...new Set(warns)]
+    };
+  }
+
   function dragRoomOptions(l){
     return rooms().map(r=>`<option value="${escU(String(r.id))}" ${String(r.id)===String(l.roomId) || (r.name===l.room && (!l.roomBuilding || r.building===l.roomBuilding))?"selected":""}>${escU(r.name)}-xona${r.building?` · ${escU(r.building)}`:""}</option>`).join("");
   }
@@ -5847,7 +5908,6 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
             <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px">
               <span class="calendar-lesson-type">${escU(l.type||"Dars")}</span>
               <span class="badge ${l.weekType==="surat"?"surat":l.weekType==="maxraj"?"maxraj":"doim"}">${dragWeekLabel(l.weekType)}</span>
-              <span class="badge ${l.status==="approved"?"approved":"pending"}">${l.status==="approved"?"Tasdiqlangan":"Kutilmoqda"}</span>
             </div>
             <b>${escU(l.subject)}</b>
             <div class="mini" style="margin-top:3px">${escU(t.name)}</div>
@@ -5871,8 +5931,12 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
     setTimeout(()=>{
       document.querySelectorAll("[data-drag-tid]").forEach(c=>c.addEventListener("dragstart",ev=>{
         if(ev.target.closest(".ultra-drag-room,.ultra-drag-edit,.ultra-actions,button,select,input,textarea")){ev.preventDefault();return}
-        ev.dataTransfer.setData("text/plain",JSON.stringify({tid:c.dataset.dragTid,lid:c.dataset.dragLid}))
+        ev.dataTransfer.effectAllowed="move";
+        ev.dataTransfer.setData("text/plain",JSON.stringify({tid:c.dataset.dragTid,lid:c.dataset.dragLid}));
+        c.classList.add("dragging");
       }));
+
+      document.querySelectorAll("[data-drag-tid]").forEach(c=>c.addEventListener("dragend",()=>c.classList.remove("dragging")));
 
       document.querySelectorAll(".ultra-drag-room").forEach(sel=>{
         sel.addEventListener("mousedown",ev=>ev.stopPropagation());
@@ -5884,9 +5948,10 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
           const r=rooms().find(x=>String(x.id)===String(sel.value));
           if(!t||!l||!r)return;
           const cand={...l,room:r.name,roomId:r.id,roomBuilding:r.building||""};
-          const errs=typeof validateLesson==="function"?validateLesson(cand,t.id,l.id):[];
-          if(errs?.length){
-            showAlert?.(errs.map(x=>"• "+x).join("<br>"),"error");
+          const validation=dragValidation(cand,t.id,l.id);
+          const errs=validation.errs;
+          if(errs.length){
+            showAlert?.("<b>Xona almashtirilmadi:</b><br>• "+errs.join("<br>• "),"error");
             openU("Drag & drop jadval","Darslarni to‘liq boshqarish",dragHTML());bindDrag();
             return;
           }
@@ -5953,8 +6018,8 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
             showAlert?.("Fan, guruh va talabalar sonini to‘liq kiriting.","error");return;
           }
 
-          const validation=typeof validateLesson==="function"?validateLesson(cand,newT.id,l.id):{errs:[],warns:[]};
-          const errs=validation?.errs||validation||[];
+          const validation=dragValidation(cand,newT.id,l.id);
+          const errs=validation.errs;
           if(errs.length){
             showAlert?.("<b>Dars saqlanmadi:</b><br>• "+errs.join("<br>• "),"error");return;
           }
@@ -5988,15 +6053,23 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
       });
 
       document.querySelectorAll("[data-drop-day]").forEach(cell=>{
-        cell.addEventListener("dragover",ev=>ev.preventDefault());
+        cell.addEventListener("dragover",ev=>{ev.preventDefault();ev.dataTransfer.dropEffect="move";});
         cell.addEventListener("drop",ev=>{
           ev.preventDefault();if(!permission("edit"))return;
           let d;try{d=JSON.parse(ev.dataTransfer.getData("text/plain"))}catch{return}
           const t=teachers().find(x=>String(x.id)===String(d.tid)),l=t?.schedule?.find(x=>String(x.id)===String(d.lid));if(!t||!l)return;
           const pair=Number(cell.dataset.dropPair), cand={...l,day:cell.dataset.dropDay,pair,start:pairTimes[pair].start,end:pairTimes[pair].end};
-          const errs=typeof validateLesson==="function"?validateLesson(cand,t.id,l.id):[];
-          if(errs?.length)return showAlert?.(errs.map(x=>"• "+x).join("<br>"),"error");
-          captureVersion(t,l,"Drag & dropdan oldin");Object.assign(l,cand);saveU();openU("Drag & drop jadval","Darslarni to‘liq boshqarish",dragHTML());bindDrag();
+          const validation=dragValidation(cand,t.id,l.id);
+          const errs=validation.errs;
+          if(errs.length){
+            showAlert?.("<b>Dars ko‘chirilmadi:</b><br>• "+errs.join("<br>• "),"error");
+            return;
+          }
+          captureVersion(t,l,"Drag & dropdan oldin");
+          Object.assign(l,cand);
+          saveU();
+          openU("Drag & drop jadval","Darslarni to‘liq boshqarish",dragHTML());
+          bindDrag();
         });
       });
     },80);
@@ -7233,6 +7306,13 @@ body.hemis-layout #advancedModal .modal-card{
   .ultra-drag-edit .ultra-form{grid-template-columns:1fr !important}
   .ultra-drag-edit .ultra-full{grid-column:auto !important}
 }
+</style>
+
+
+<style id="dragdrop-fix-only">
+.ultra-dnd-card.dragging{opacity:.55}
+.ultra-dnd-cell[data-drop-day]{transition:background .12s ease}
+.ultra-dnd-cell[data-drop-day]:hover{background:#f3f8fc}
 </style>
 
 </body>
