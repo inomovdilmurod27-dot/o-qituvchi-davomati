@@ -6143,5 +6143,193 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
 })();
 </script>
 
+
+<style id="sidebar-nested-fullscreen">
+/* ===== CHAP MENYU: ICHMA-ICH + TO‘LIQ EKRANGA JOYLASH =====
+   Shrift o‘lchami va font-family o‘zgartirilmaydi. */
+body.hemis-layout{
+  padding-left:240px !important;
+}
+body.hemis-layout .hemis-sidebar{
+  width:240px !important;
+  height:calc(100vh - 58px) !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+}
+
+body.hemis-layout .hemis-quick{
+  padding-top:8px !important;
+  padding-bottom:8px !important;
+}
+body.hemis-layout .hemis-menu-section,
+body.hemis-layout .pro-suite-section,
+body.hemis-layout .ultra-section{
+  padding:0 !important;
+  border-top:1px solid rgba(255,255,255,.05) !important;
+}
+
+body.hemis-layout .sidebar-accordion-title{
+  width:100%;
+  border:0;
+  background:transparent;
+  color:inherit;
+  font:inherit;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  cursor:pointer;
+  text-align:left;
+  padding:8px 16px !important;
+}
+body.hemis-layout .sidebar-accordion-title:hover{
+  background:rgba(255,255,255,.045);
+}
+body.hemis-layout .sidebar-accordion-arrow{
+  flex:0 0 auto;
+  transition:transform .18s ease;
+}
+body.hemis-layout .sidebar-accordion-section.open .sidebar-accordion-arrow{
+  transform:rotate(90deg);
+}
+body.hemis-layout .sidebar-accordion-body{
+  display:none;
+}
+body.hemis-layout .sidebar-accordion-section.open .sidebar-accordion-body{
+  display:block;
+}
+
+body.hemis-layout .sidebar-accordion-body .hemis-menu-group{
+  gap:0 !important;
+}
+body.hemis-layout .sidebar-accordion-body .hemis-side-link{
+  padding-top:8px !important;
+  padding-bottom:8px !important;
+  padding-left:28px !important;
+  min-height:0 !important;
+}
+body.hemis-layout .sidebar-accordion-body .hemis-language-wrap{
+  padding-top:7px !important;
+  padding-bottom:7px !important;
+}
+body.hemis-layout .sidebar-accordion-body .pro-suite-btn,
+body.hemis-layout .sidebar-accordion-body .ultra-btn{
+  padding-top:7px !important;
+  padding-bottom:7px !important;
+  padding-left:28px !important;
+}
+
+/* Sidebar torayganda qolgan ekran to‘liq ishlatiladi */
+body.hemis-layout main{
+  width:100% !important;
+  max-width:none !important;
+}
+body.hemis-layout #advancedModal{
+  padding-left:252px !important;
+}
+body.hemis-layout #advancedModal .modal-card{
+  width:calc(100vw - 266px) !important;
+  max-width:calc(100vw - 266px) !important;
+}
+
+@media(max-width:760px){
+  body.hemis-layout{
+    padding-left:0 !important;
+  }
+  body.hemis-layout .hemis-sidebar{
+    width:240px !important;
+  }
+  body.hemis-layout #advancedModal{
+    padding-left:10px !important;
+  }
+  body.hemis-layout #advancedModal .modal-card{
+    width:100% !important;
+    max-width:100% !important;
+  }
+}
+</style>
+
+<script id="sidebar-nested-fullscreen-script">
+(function(){
+  if(window.__nestedSidebarReady) return;
+  window.__nestedSidebarReady = true;
+
+  function accordionizeSection(section, titleText, isOpen){
+    if(!section || section.dataset.accordionized === '1') return;
+
+    var titleNode = section.querySelector(':scope > .hemis-menu-title, :scope > .pro-suite-title, :scope > .ultra-title');
+    var title = titleText || (titleNode ? titleNode.textContent.trim() : 'Bo‘lim');
+    var body = document.createElement('div');
+    body.className = 'sidebar-accordion-body';
+
+    Array.prototype.slice.call(section.children).forEach(function(ch){
+      if(ch !== titleNode) body.appendChild(ch);
+    });
+
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'sidebar-accordion-title';
+    button.innerHTML = '<span>' + title + '</span><span class="sidebar-accordion-arrow">›</span>';
+
+    if(titleNode) titleNode.remove();
+    section.insertBefore(button, section.firstChild);
+    section.appendChild(body);
+
+    section.classList.add('sidebar-accordion-section');
+    if(isOpen) section.classList.add('open');
+    section.dataset.accordionized = '1';
+
+    button.addEventListener('click', function(){
+      var sidebar = section.closest('.hemis-sidebar');
+      var willOpen = !section.classList.contains('open');
+
+      if(sidebar){
+        sidebar.querySelectorAll('.sidebar-accordion-section.open').forEach(function(s){
+          if(s !== section) s.classList.remove('open');
+        });
+      }
+      section.classList.toggle('open', willOpen);
+    });
+  }
+
+  function buildNestedSidebar(){
+    var sidebar = document.querySelector('.hemis-sidebar');
+    if(!sidebar) return;
+
+    var sections = Array.prototype.slice.call(sidebar.querySelectorAll(':scope > .hemis-menu-section'));
+    sections.forEach(function(section, i){
+      var node = section.querySelector(':scope > .hemis-menu-title');
+      var title = node ? node.textContent.trim() : ('Bo‘lim ' + (i+1));
+      accordionizeSection(section, title, i===0);
+    });
+
+    var pro = sidebar.querySelector(':scope > .pro-suite-section');
+    if(pro){
+      var proTitle = pro.querySelector(':scope > .pro-suite-title');
+      accordionizeSection(pro, proTitle ? proTitle.textContent.trim() : 'PRO vositalar', false);
+    }
+
+    var ultra = sidebar.querySelector(':scope > .ultra-section');
+    if(ultra){
+      var ultraTitle = ultra.querySelector(':scope > .ultra-title');
+      accordionizeSection(ultra, ultraTitle ? ultraTitle.textContent.trim() : 'Ultra boshqaruv', false);
+    }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){
+      setTimeout(buildNestedSidebar,120);
+    });
+  }else{
+    setTimeout(buildNestedSidebar,120);
+  }
+
+  var observer = new MutationObserver(function(){
+    buildNestedSidebar();
+  });
+  observer.observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+
 </body>
 </html>
