@@ -2801,7 +2801,7 @@ function validateLesson(candidate,teacherId,editingLessonId=null){
    const effectiveExistingRoom=roomById(l.roomId)||db.rooms.find(r=>physicalRoomKey(r.name,r.building)===physicalRoomKey(l.room,l.roomBuilding));
    if(isDeletedLesson(l,effectiveExistingTeacher,effectiveExistingRoom))return;
    if(l.id==editingLessonId || l.cancelled) return;
-   if(l.day!==candidate.day || l.pair!==candidate.pair || !weekOverlap(l.weekType,candidate.weekType)) return;
+   if(l.day!==candidate.day || Number(l.pair)!==Number(candidate.pair) || !weekOverlap(l.weekType,candidate.weekType)) return;
    const effectiveTeacher=l.substituteTeacherId||other.id;
    const candidateEffective=candidate.substituteTeacherId||teacherId;
    if(String(effectiveTeacher)===String(candidateEffective)) errs.push(`O‘qituvchi konflikti: ${candidate.day}, ${candidate.pair}-juftlikda boshqa dars mavjud (${l.subject}, ${l.room}-xona).`);
@@ -5799,29 +5799,78 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
   function dragRoomOptions(l){
     return rooms().map(r=>`<option value="${escU(String(r.id))}" ${String(r.id)===String(l.roomId) || (r.name===l.room && (!l.roomBuilding || r.building===l.roomBuilding))?"selected":""}>${escU(r.name)}-xona${r.building?` · ${escU(r.building)}`:""}</option>`).join("");
   }
+  function dragWeekLabel(v){
+    if(v==="surat") return "Surat";
+    if(v==="maxraj") return "Maxraj";
+    return "Doimiy";
+  }
+  function dragTypeOptions(v){
+    return ["Ma’ruza","Amaliy","Laboratoriya","Seminar"].map(x=>`<option ${x===v?"selected":""}>${x}</option>`).join("");
+  }
+  function dragTeacherOptions(v){
+    return teachers().map(t=>`<option value="${escU(String(t.id))}" ${String(t.id)===String(v)?"selected":""}>${escU(t.name)}</option>`).join("");
+  }
+  function dragSubstituteOptions(v,teacherId){
+    return `<option value="">Yo‘q</option>`+teachers().filter(t=>String(t.id)!==String(teacherId)).map(t=>`<option value="${escU(String(t.id))}" ${String(t.id)===String(v)?"selected":""}>${escU(t.name)}</option>`).join("");
+  }
+  function dragEditFormHTML(t,l){
+    return `<div class="ultra-drag-edit" data-edit-wrap="${l.id}" style="display:none;margin-top:7px;border-top:1px solid var(--border);padding-top:7px">
+      <div class="ultra-form">
+        <div class="ultra-full"><label class="ultra-label">O‘qituvchi</label><select class="ultra-input" data-f="teacher">${dragTeacherOptions(t.id)}</select></div>
+        <div class="ultra-full"><label class="ultra-label">Fan</label><input class="ultra-input" data-f="subject" value="${escU(l.subject||"")}"></div>
+        <div><label class="ultra-label">Guruh</label><input class="ultra-input" data-f="group" value="${escU(l.group||"")}"></div>
+        <div><label class="ultra-label">Talabalar soni</label><input class="ultra-input" data-f="groupSize" type="number" min="1" value="${Number(l.groupSize||1)}"></div>
+        <div><label class="ultra-label">Kun</label><select class="ultra-input" data-f="day">${DAYS.map(d=>`<option ${d===l.day?"selected":""}>${d}</option>`).join("")}</select></div>
+        <div><label class="ultra-label">Juftlik</label><select class="ultra-input" data-f="pair">${[1,2,3,4,5,6,7,8].map(p=>`<option value="${p}" ${Number(l.pair)===p?"selected":""}>${p}-juftlik</option>`).join("")}</select></div>
+        <div><label class="ultra-label">Xona</label><select class="ultra-input" data-f="room">${dragRoomOptions(l)}</select></div>
+        <div><label class="ultra-label">Dars turi</label><select class="ultra-input" data-f="type">${dragTypeOptions(l.type)}</select></div>
+        <div><label class="ultra-label">Hafta turi</label><select class="ultra-input" data-f="weekType"><option value="surat" ${l.weekType==="surat"?"selected":""}>Surat</option><option value="maxraj" ${l.weekType==="maxraj"?"selected":""}>Maxraj</option><option value="doim" ${l.weekType==="doim"?"selected":""}>Doimiy</option></select></div>
+        <div><label class="ultra-label">Holat</label><select class="ultra-input" data-f="status"><option value="pending" ${l.status!=="approved"?"selected":""}>Kutilmoqda</option><option value="approved" ${l.status==="approved"?"selected":""}>Tasdiqlangan</option></select></div>
+        <div class="ultra-full"><label class="ultra-label">Almashtiruvchi o‘qituvchi</label><select class="ultra-input" data-f="substituteTeacherId">${dragSubstituteOptions(l.substituteTeacherId,t.id)}</select></div>
+        <div class="ultra-full"><label class="ultra-label">Izoh</label><textarea class="ultra-input" data-f="note" rows="2">${escU(l.note||"")}</textarea></div>
+        <div class="ultra-full"><label style="display:flex;align-items:center;gap:6px"><input type="checkbox" data-f="cancelled" ${l.cancelled?"checked":""}> Dars bekor qilingan</label></div>
+      </div>
+      <div class="ultra-actions" style="margin-top:7px">
+        <button class="ultra-btn2 ultra-drag-save" data-tid="${t.id}" data-lid="${l.id}">Saqlash</button>
+        <button class="ultra-btn2 ultra-drag-cancel-edit" type="button">Bekor qilish</button>
+      </div>
+    </div>`;
+  }
   function dragHTML(){
     let html=`<div class="ultra-table-wrap"><div class="ultra-dnd"><div class="ultra-dnd-cell ultra-dnd-head">Juftlik</div>${DAYS.map(d=>`<div class="ultra-dnd-cell ultra-dnd-head">${d}</div>`).join("")}`;
-    [1,2,3,4,5,6].forEach(pair=>{
-      html+=`<div class="ultra-dnd-cell ultra-dnd-head">${pair}</div>`;
+    [1,2,3,4,5,6,7,8].forEach(pair=>{
+      html+=`<div class="ultra-dnd-cell ultra-dnd-head">${pair}<br><span style="font-weight:400">${pairTimes[pair].start}–${pairTimes[pair].end}</span></div>`;
       DAYS.forEach(day=>{
         const arr=lessons(false).filter(x=>x.l.day===day&&Number(x.l.pair)===pair&&weekOk(x.l));
         html+=`<div class="ultra-dnd-cell" data-drop-day="${day}" data-drop-pair="${pair}">${arr.map(({t,l})=>`
           <div class="ultra-dnd-card" draggable="${permission("edit")?"true":"false"}" data-drag-tid="${t.id}" data-drag-lid="${l.id}">
-            <b>${escU(t.name)}</b><br>${escU(l.subject)}
+            <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px">
+              <span class="calendar-lesson-type">${escU(l.type||"Dars")}</span>
+              <span class="badge ${l.weekType==="surat"?"surat":l.weekType==="maxraj"?"maxraj":"doim"}">${dragWeekLabel(l.weekType)}</span>
+              <span class="badge ${l.status==="approved"?"approved":"pending"}">${l.status==="approved"?"Tasdiqlangan":"Kutilmoqda"}</span>
+            </div>
+            <b>${escU(l.subject)}</b>
+            <div class="mini" style="margin-top:3px">${escU(t.name)}</div>
+            <div class="mini">${escU(l.group)} · ${escU(l.start)}–${escU(l.end)}</div>
             <div style="margin-top:5px">
               <select class="ultra-input ultra-drag-room" draggable="false" data-room-tid="${t.id}" data-room-lid="${l.id}" ${permission("edit")?"":"disabled"}>
                 ${dragRoomOptions(l)}
               </select>
             </div>
+            <div class="ultra-actions" style="margin-top:6px">
+              <button class="ultra-btn2 ultra-drag-edit-btn" type="button" data-tid="${t.id}" data-lid="${l.id}">Tahrirlash</button>
+              <button class="ultra-btn2 ultra-drag-delete-btn" type="button" data-tid="${t.id}" data-lid="${l.id}" style="color:#b42318">O‘chirish</button>
+            </div>
+            ${dragEditFormHTML(t,l)}
           </div>`).join("")}</div>`;
       });
     });
-    return html+`</div></div><div class="ultra-muted" style="margin-top:7px">Darsni boshqa kun/juftlikka sudrang yoki kartadagi xona ro‘yxatidan xonani almashtiring. Konflikt bo‘lsa o‘zgarish saqlanmaydi.</div>`;
+    return html+`</div></div><div class="ultra-muted" style="margin-top:7px">Drag & drop ichida darsning barcha asosiy ma’lumotlarini tahrirlash, xonani almashtirish va darsni o‘chirish mumkin. Konflikt bo‘lsa o‘zgarish saqlanmaydi.</div>`;
   }
   function bindDrag(){
     setTimeout(()=>{
       document.querySelectorAll("[data-drag-tid]").forEach(c=>c.addEventListener("dragstart",ev=>{
-        if(ev.target.closest(".ultra-drag-room")){ev.preventDefault();return}
+        if(ev.target.closest(".ultra-drag-room,.ultra-drag-edit,.ultra-actions,button,select,input,textarea")){ev.preventDefault();return}
         ev.dataTransfer.setData("text/plain",JSON.stringify({tid:c.dataset.dragTid,lid:c.dataset.dragLid}))
       }));
 
@@ -5838,14 +5887,103 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
           const errs=typeof validateLesson==="function"?validateLesson(cand,t.id,l.id):[];
           if(errs?.length){
             showAlert?.(errs.map(x=>"• "+x).join("<br>"),"error");
-            openU("Drag & drop jadval","Darsni sudrab ko‘chirish va xonani almashtirish",dragHTML());bindDrag();
+            openU("Drag & drop jadval","Darslarni to‘liq boshqarish",dragHTML());bindDrag();
             return;
           }
           captureVersion(t,l,"Xona almashtirishdan oldin");
           Object.assign(l,cand);
           saveU();
           showAlert?.(`${escU(t.name)} darsi uchun xona ${escU(r.name)}-xonaga almashtirildi.`,"ok");
-          openU("Drag & drop jadval","Darsni sudrab ko‘chirish va xonani almashtirish",dragHTML());bindDrag();
+          openU("Drag & drop jadval","Darslarni to‘liq boshqarish",dragHTML());bindDrag();
+        });
+      });
+
+      document.querySelectorAll(".ultra-drag-edit-btn").forEach(btn=>{
+        btn.addEventListener("click",ev=>{
+          ev.stopPropagation();
+          const card=btn.closest(".ultra-dnd-card");
+          const form=card?.querySelector(".ultra-drag-edit");
+          if(form) form.style.display=form.style.display==="none"?"block":"none";
+        });
+      });
+
+      document.querySelectorAll(".ultra-drag-cancel-edit").forEach(btn=>{
+        btn.addEventListener("click",ev=>{
+          ev.stopPropagation();
+          const form=btn.closest(".ultra-drag-edit");
+          if(form) form.style.display="none";
+        });
+      });
+
+      document.querySelectorAll(".ultra-drag-save").forEach(btn=>{
+        btn.addEventListener("click",ev=>{
+          ev.preventDefault();ev.stopPropagation();if(!permission("edit"))return;
+          const oldT=teachers().find(x=>String(x.id)===String(btn.dataset.tid));
+          const l=oldT?.schedule?.find(x=>String(x.id)===String(btn.dataset.lid));
+          const form=btn.closest(".ultra-drag-edit");
+          if(!oldT||!l||!form)return;
+
+          const val=name=>form.querySelector(`[data-f="${name}"]`);
+          const newT=teachers().find(x=>String(x.id)===String(val("teacher")?.value));
+          const rr=rooms().find(x=>String(x.id)===String(val("room")?.value));
+          const pair=Number(val("pair")?.value||l.pair);
+          if(!newT||!rr||!pairTimes[pair])return;
+
+          const cand={
+            ...l,
+            subject:String(val("subject")?.value||"").trim(),
+            group:String(val("group")?.value||"").trim(),
+            groupSize:Number(val("groupSize")?.value||0),
+            day:val("day")?.value||l.day,
+            pair,
+            start:pairTimes[pair].start,
+            end:pairTimes[pair].end,
+            room:rr.name,
+            roomId:rr.id,
+            roomBuilding:rr.building||"",
+            type:val("type")?.value||l.type,
+            weekType:val("weekType")?.value||l.weekType,
+            status:val("status")?.value||l.status,
+            substituteTeacherId:val("substituteTeacherId")?.value||"",
+            note:String(val("note")?.value||"").trim(),
+            cancelled:!!val("cancelled")?.checked
+          };
+
+          if(!cand.subject||!cand.group||!cand.groupSize){
+            showAlert?.("Fan, guruh va talabalar sonini to‘liq kiriting.","error");return;
+          }
+
+          const validation=typeof validateLesson==="function"?validateLesson(cand,newT.id,l.id):{errs:[],warns:[]};
+          const errs=validation?.errs||validation||[];
+          if(errs.length){
+            showAlert?.("<b>Dars saqlanmadi:</b><br>• "+errs.join("<br>• "),"error");return;
+          }
+
+          captureVersion(oldT,l,"Drag & drop tahriridan oldin");
+
+          if(String(newT.id)!==String(oldT.id)){
+            oldT.schedule=oldT.schedule.filter(x=>String(x.id)!==String(l.id));
+            newT.schedule=newT.schedule||[];
+            newT.schedule.push(cand);
+          }else{
+            Object.assign(l,cand);
+          }
+
+          saveU();
+          showAlert?.("Darsdagi o‘zgarishlar saqlandi.","ok");
+          openU("Drag & drop jadval","Darslarni to‘liq boshqarish",dragHTML());bindDrag();
+        });
+      });
+
+      document.querySelectorAll(".ultra-drag-delete-btn").forEach(btn=>{
+        btn.addEventListener("click",ev=>{
+          ev.preventDefault();ev.stopPropagation();if(!permission("delete"))return;
+          const t=teachers().find(x=>String(x.id)===String(btn.dataset.tid));
+          const l=t?.schedule?.find(x=>String(x.id)===String(btn.dataset.lid));
+          if(!t||!l)return;
+          if(!confirm(`${t.name} — ${l.subject} darsini o‘chirasizmi?`))return;
+          if(typeof window.deleteLesson==="function") window.deleteLesson(t.id,l.id);
+          setTimeout(()=>{openU("Drag & drop jadval","Darslarni to‘liq boshqarish",dragHTML());bindDrag();},80);
         });
       });
 
@@ -5858,7 +5996,7 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
           const pair=Number(cell.dataset.dropPair), cand={...l,day:cell.dataset.dropDay,pair,start:pairTimes[pair].start,end:pairTimes[pair].end};
           const errs=typeof validateLesson==="function"?validateLesson(cand,t.id,l.id):[];
           if(errs?.length)return showAlert?.(errs.map(x=>"• "+x).join("<br>"),"error");
-          captureVersion(t,l,"Drag & dropdan oldin");Object.assign(l,cand);saveU();openU("Drag & drop jadval","Darsni sudrab ko‘chirish va xonani almashtirish",dragHTML());bindDrag();
+          captureVersion(t,l,"Drag & dropdan oldin");Object.assign(l,cand);saveU();openU("Drag & drop jadval","Darslarni to‘liq boshqarish",dragHTML());bindDrag();
         });
       });
     },80);
@@ -6112,7 +6250,7 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
       if(a==="snap")openU("Snapshotlar","Avtomatik zaxira",snapshotHTML());
       if(a==="import")openU("Excel bulk import","Ko‘p yozuvni birdan qo‘shish",importHTML());
       if(a==="bulk")openU("Bulk edit","Bir nechta darsni bir vaqtda o‘zgartirish",bulkEditHTML());
-      if(a==="drag"){openU("Drag & drop jadval","Darsni sudrab ko‘chirish va xonani almashtirish",dragHTML());bindDrag()}
+      if(a==="drag"){openU("Drag & drop jadval","Darslarni to‘liq boshqarish",dragHTML());bindDrag()}
       if(a==="heat")openU("Konflikt xaritasi","Kun va juftlik kesimida",heatHTML());
       if(a==="roomload")openU("Xona bandligi","Haftalik bandlik foizi",roomLoadHTML());
       if(a==="teacherload")openU("O‘qituvchi yuklamasi","Juftlik va bo‘sh slotlar",teacherLoadHTML());
@@ -7041,6 +7179,59 @@ body.hemis-layout #advancedModal .modal-card{
     padding:3px 2px !important;
     font-size:8px !important;
   }
+}
+</style>
+
+
+<style id="dragdrop-calendar-like-view">
+.ultra-dnd-card .calendar-lesson-type{
+  display:inline-block;
+  margin:0;
+  padding:2px 6px;
+  border:1px solid #c9d3de;
+  border-radius:4px;
+  background:#f4f6f8;
+  color:#344054;
+  font-size:9.5px;
+  font-weight:700;
+  line-height:1.3;
+}
+.ultra-dnd-card .badge{
+  padding:2px 6px;
+  font-size:9px;
+}
+@media(max-width:760px){
+  .ultra-dnd-card{
+    padding:5px !important;
+    font-size:8.5px !important;
+  }
+  .ultra-dnd-card .calendar-lesson-type,
+  .ultra-dnd-card .badge{
+    font-size:7.5px !important;
+    padding:1px 3px !important;
+  }
+  .ultra-dnd-card .mini{
+    font-size:7.5px !important;
+  }
+  .ultra-dnd-card .ultra-input{
+    font-size:8px !important;
+    padding:3px 4px !important;
+    min-height:24px !important;
+  }
+}
+</style>
+
+
+<style id="dragdrop-full-edit-style">
+.ultra-drag-edit .ultra-form{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:6px;
+}
+.ultra-drag-edit .ultra-full{grid-column:1/-1}
+.ultra-drag-edit textarea{resize:vertical}
+@media(max-width:760px){
+  .ultra-drag-edit .ultra-form{grid-template-columns:1fr !important}
+  .ultra-drag-edit .ultra-full{grid-column:auto !important}
 }
 </style>
 
