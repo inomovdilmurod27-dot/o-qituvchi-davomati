@@ -1981,7 +1981,6 @@ body.hemis-layout .shortcut-card:nth-child(n+7){display:none !important}
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-auth-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
@@ -2002,8 +2001,6 @@ body.hemis-layout .shortcut-card:nth-child(n+7){display:none !important}
 <button class="nav-btn" id="monitorBtn">Monitor</button>
 <button class="nav-btn" id="smartRoomBtn">Mos xona</button>
 <button class="nav-btn" id="smartTimeBtn">Bo‘sh vaqt</button>
-<button class="nav-btn" id="qualityBtn">Jadval sifati</button>
-<button class="nav-btn" id="groupGapBtn">Guruh “oyna”si</button>
 <button class="nav-btn" id="exceptionBtn">Istisno</button>
 <button class="nav-btn" id="structureBtn">Tuzilma</button>
 <select id="languageSelect" class="nav-btn" style="min-width:105px"><option value="uz">O‘zbekcha</option><option value="ru">Русский</option><option value="en">English</option></select>
@@ -4224,7 +4221,7 @@ body.login-required #loginModal #doLoginBtn{
 
   [pick('homeBtn'),pick('suratBtn'),pick('maxrajBtn')].filter(Boolean).forEach(el=>{decorateButton(el,menuIcons[el.id]); groupMain.appendChild(el);});
   [pick('loginBtn'),pick('cabinetBtn'),pick('adminBtn')].filter(Boolean).forEach(el=>{decorateButton(el,menuIcons[el.id]); groupManage.appendChild(el);});
-  [pick('calendarBtn'),pick('freeRoomBtn'),pick('freeTeacherBtn'),pick('statsBtn'),pick('monitorBtn'),pick('smartRoomBtn'),pick('smartTimeBtn'),pick('qualityBtn'),pick('groupGapBtn')].filter(Boolean).forEach(el=>{decorateButton(el,menuIcons[el.id]); groupFunctions.appendChild(el);});
+  [pick('calendarBtn'),pick('freeRoomBtn'),pick('freeTeacherBtn'),pick('statsBtn'),pick('monitorBtn'),pick('smartRoomBtn'),pick('smartTimeBtn')].filter(Boolean).forEach(el=>{decorateButton(el,menuIcons[el.id]); groupFunctions.appendChild(el);});
   [pick('exceptionBtn'),pick('structureBtn')].filter(Boolean).forEach(el=>{decorateButton(el,menuIcons[el.id]); groupOther.appendChild(el);});
   decorateLanguageSelect(pick('languageSelect'));
 
@@ -5412,7 +5409,6 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
       <button class="pro-suite-btn" data-pro="filter"><span>⌕</span><span>Tez filtr</span></button>
       <button class="pro-suite-btn" data-pro="cancel"><span>×</span><span>Bekor qilinganlar</span></button>
       <button class="pro-suite-btn" data-pro="recent"><span>↺</span><span>So‘nggi o‘zgarishlar</span></button>
-      <button class="pro-suite-btn" data-pro="backup"><span>⇩</span><span>Zaxira nusxa</span></button>
       <button class="pro-suite-btn" data-pro="reports"><span>▤</span><span>Hisobotlar</span></button>
       <button class="pro-suite-btn" data-pro="dark"><span>◐</span><span>Tungi rejim</span></button>`;
     sidebar.appendChild(sec);
@@ -5800,20 +5796,59 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
   };
 
   /* 7. Drag & drop */
+  function dragRoomOptions(l){
+    return rooms().map(r=>`<option value="${escU(String(r.id))}" ${String(r.id)===String(l.roomId) || (r.name===l.room && (!l.roomBuilding || r.building===l.roomBuilding))?"selected":""}>${escU(r.name)}-xona${r.building?` · ${escU(r.building)}`:""}</option>`).join("");
+  }
   function dragHTML(){
     let html=`<div class="ultra-table-wrap"><div class="ultra-dnd"><div class="ultra-dnd-cell ultra-dnd-head">Juftlik</div>${DAYS.map(d=>`<div class="ultra-dnd-cell ultra-dnd-head">${d}</div>`).join("")}`;
     [1,2,3,4,5,6].forEach(pair=>{
       html+=`<div class="ultra-dnd-cell ultra-dnd-head">${pair}</div>`;
       DAYS.forEach(day=>{
         const arr=lessons(false).filter(x=>x.l.day===day&&Number(x.l.pair)===pair&&weekOk(x.l));
-        html+=`<div class="ultra-dnd-cell" data-drop-day="${day}" data-drop-pair="${pair}">${arr.map(({t,l})=>`<div class="ultra-dnd-card" draggable="${permission("edit")?"true":"false"}" data-drag-tid="${t.id}" data-drag-lid="${l.id}"><b>${escU(t.name)}</b><br>${escU(l.subject)}<br>${escU(l.room)}-xona</div>`).join("")}</div>`;
+        html+=`<div class="ultra-dnd-cell" data-drop-day="${day}" data-drop-pair="${pair}">${arr.map(({t,l})=>`
+          <div class="ultra-dnd-card" draggable="${permission("edit")?"true":"false"}" data-drag-tid="${t.id}" data-drag-lid="${l.id}">
+            <b>${escU(t.name)}</b><br>${escU(l.subject)}
+            <div style="margin-top:5px">
+              <select class="ultra-input ultra-drag-room" draggable="false" data-room-tid="${t.id}" data-room-lid="${l.id}" ${permission("edit")?"":"disabled"}>
+                ${dragRoomOptions(l)}
+              </select>
+            </div>
+          </div>`).join("")}</div>`;
       });
     });
-    return html+`</div></div><div class="ultra-muted" style="margin-top:7px">Dars kartasini boshqa kun/juftlik katagiga sudrab o‘tkazing. Konflikt bo‘lsa o‘zgarish saqlanmaydi.</div>`;
+    return html+`</div></div><div class="ultra-muted" style="margin-top:7px">Darsni boshqa kun/juftlikka sudrang yoki kartadagi xona ro‘yxatidan xonani almashtiring. Konflikt bo‘lsa o‘zgarish saqlanmaydi.</div>`;
   }
   function bindDrag(){
     setTimeout(()=>{
-      document.querySelectorAll("[data-drag-tid]").forEach(c=>c.addEventListener("dragstart",ev=>ev.dataTransfer.setData("text/plain",JSON.stringify({tid:c.dataset.dragTid,lid:c.dataset.dragLid}))));
+      document.querySelectorAll("[data-drag-tid]").forEach(c=>c.addEventListener("dragstart",ev=>{
+        if(ev.target.closest(".ultra-drag-room")){ev.preventDefault();return}
+        ev.dataTransfer.setData("text/plain",JSON.stringify({tid:c.dataset.dragTid,lid:c.dataset.dragLid}))
+      }));
+
+      document.querySelectorAll(".ultra-drag-room").forEach(sel=>{
+        sel.addEventListener("mousedown",ev=>ev.stopPropagation());
+        sel.addEventListener("click",ev=>ev.stopPropagation());
+        sel.addEventListener("change",ev=>{
+          ev.stopPropagation();if(!permission("edit"))return;
+          const t=teachers().find(x=>String(x.id)===String(sel.dataset.roomTid));
+          const l=t?.schedule?.find(x=>String(x.id)===String(sel.dataset.roomLid));
+          const r=rooms().find(x=>String(x.id)===String(sel.value));
+          if(!t||!l||!r)return;
+          const cand={...l,room:r.name,roomId:r.id,roomBuilding:r.building||""};
+          const errs=typeof validateLesson==="function"?validateLesson(cand,t.id,l.id):[];
+          if(errs?.length){
+            showAlert?.(errs.map(x=>"• "+x).join("<br>"),"error");
+            openU("Drag & drop jadval","Darsni sudrab ko‘chirish va xonani almashtirish",dragHTML());bindDrag();
+            return;
+          }
+          captureVersion(t,l,"Xona almashtirishdan oldin");
+          Object.assign(l,cand);
+          saveU();
+          showAlert?.(`${escU(t.name)} darsi uchun xona ${escU(r.name)}-xonaga almashtirildi.`,"ok");
+          openU("Drag & drop jadval","Darsni sudrab ko‘chirish va xonani almashtirish",dragHTML());bindDrag();
+        });
+      });
+
       document.querySelectorAll("[data-drop-day]").forEach(cell=>{
         cell.addEventListener("dragover",ev=>ev.preventDefault());
         cell.addEventListener("drop",ev=>{
@@ -5823,7 +5858,7 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
           const pair=Number(cell.dataset.dropPair), cand={...l,day:cell.dataset.dropDay,pair,start:pairTimes[pair].start,end:pairTimes[pair].end};
           const errs=typeof validateLesson==="function"?validateLesson(cand,t.id,l.id):[];
           if(errs?.length)return showAlert?.(errs.map(x=>"• "+x).join("<br>"),"error");
-          captureVersion(t,l,"Drag & dropdan oldin");Object.assign(l,cand);notify("Dars ko‘chirildi",`${t.name} · ${l.subject}`,"edit");saveU();openU("Drag & drop jadval","Darsni sudrab ko‘chirish",dragHTML());bindDrag();
+          captureVersion(t,l,"Drag & dropdan oldin");Object.assign(l,cand);saveU();openU("Drag & drop jadval","Darsni sudrab ko‘chirish va xonani almashtirish",dragHTML());bindDrag();
         });
       });
     },80);
@@ -6047,36 +6082,27 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
     return `<div class="ultra-card"><h4>Bo‘lingan Firestore arxitekturasi</h4><div class="ultra-muted">Mavjud appData/main buzilmasligi uchun hozir dual-write migratsiya ishlatiladi: eski baza saqlanadi, yangi teachers, rooms, lessons, users kolleksiyalari parallel yoziladi. To‘liq o‘tishdan keyin appData/main’ni o‘chirish mumkin.</div><div class="ultra-actions"><button class="ultra-btn2" onclick="window.ultraSplitSync()">Hozir kolleksiyalarga sinxronlash</button></div><div class="ultra-muted" style="margin-top:6px">Oxirgi sinxron: ${escU(last?new Date(last).toLocaleString("uz-UZ"):"hali yo‘q")}</div></div>`;
   }
 
-  /* Optional automatic dual-write after save, throttled */
-  let splitTimer=null;
-  document.addEventListener("click",()=>{clearTimeout(splitTimer);splitTimer=setTimeout(splitSync,2000)},true);
+  /* Bo‘lingan baza avtomatik sinxronizatsiyasi o‘chirildi. */
 
   function menu(){
     const sidebar=document.querySelector(".hemis-sidebar");if(!sidebar||sidebar.querySelector(".ultra-section"))return;
     const s=document.createElement("div");s.className="ultra-section";
     const unread=derivedNotifications().filter(n=>!n.read).length;
     s.innerHTML=`<div class="ultra-title">Ultra boshqaruv</div>
+      <button class="ultra-btn" data-ultra="drag"><span class="ico">↔</span>Drag & drop</button>
       <button class="ultra-btn" data-ultra="perm"><span class="ico">⚿</span>Huquqlar</button>
       <button class="ultra-btn" data-ultra="trash"><span class="ico">♲</span>Savat <span class="ultra-count">${db.ultra.trash.length}</span></button>
       <button class="ultra-btn" data-ultra="versions"><span class="ico">↶</span>Versiyalar</button>
       <button class="ultra-btn" data-ultra="snap"><span class="ico">◫</span>Snapshotlar</button>
       <button class="ultra-btn" data-ultra="import"><span class="ico">⇧</span>Excel import</button>
       <button class="ultra-btn" data-ultra="bulk"><span class="ico">☷</span>Bulk edit</button>
-      <button class="ultra-btn" data-ultra="drag"><span class="ico">↔</span>Drag & drop</button>
-      <button class="ultra-btn" data-ultra="heat"><span class="ico">▦</span>Konflikt xaritasi</button>
       <button class="ultra-btn" data-ultra="roomload"><span class="ico">▥</span>Xona bandligi</button>
       <button class="ultra-btn" data-ultra="teacherload"><span class="ico">◉</span>O‘qituvchi yuklamasi</button>
       <button class="ultra-btn" data-ultra="groupload"><span class="ico">◎</span>Guruh yuklamasi</button>
-      <button class="ultra-btn" data-ultra="quality"><span class="ico">✓</span>Jadval sifati</button>
-      <button class="ultra-btn ultra-notice" data-ultra="notice"><span class="ico">●</span>Bildirishnomalar ${unread?`<span class="ultra-notice-dot">${unread}</span>`:""}</button>
-      <button class="ultra-btn" data-ultra="search"><span class="ico">⌕</span>Qidiruv tarixi</button>
       <button class="ultra-btn" data-ultra="fav"><span class="ico">★</span>Sevimlilar</button>
       <button class="ultra-btn" data-ultra="qr"><span class="ico">▣</span>QR jadval</button>
       <button class="ultra-btn" data-ultra="screen"><span class="ico">▰</span>Read-only ekran</button>
-      <button class="ultra-btn" data-ultra="print"><span class="ico">▤</span>A4 print</button>
-      <button class="ultra-btn" data-ultra="global"><span class="ico">◆</span>Global dashboard</button>
-      <button class="ultra-btn" data-ultra="security"><span class="ico">🔒</span>Firebase Auth</button>
-      <button class="ultra-btn" data-ultra="migration"><span class="ico">⇄</span>Bo‘lingan baza</button>`;
+      <button class="ultra-btn" data-ultra="global"><span class="ico">◆</span>Global dashboard</button>`;
     sidebar.appendChild(s);
     s.addEventListener("click",ev=>{
       const b=ev.target.closest("[data-ultra]");if(!b)return;const a=b.dataset.ultra;
@@ -6086,7 +6112,7 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
       if(a==="snap")openU("Snapshotlar","Avtomatik zaxira",snapshotHTML());
       if(a==="import")openU("Excel bulk import","Ko‘p yozuvni birdan qo‘shish",importHTML());
       if(a==="bulk")openU("Bulk edit","Bir nechta darsni bir vaqtda o‘zgartirish",bulkEditHTML());
-      if(a==="drag"){openU("Drag & drop jadval","Darsni sudrab ko‘chirish",dragHTML());bindDrag()}
+      if(a==="drag"){openU("Drag & drop jadval","Darsni sudrab ko‘chirish va xonani almashtirish",dragHTML());bindDrag()}
       if(a==="heat")openU("Konflikt xaritasi","Kun va juftlik kesimida",heatHTML());
       if(a==="roomload")openU("Xona bandligi","Haftalik bandlik foizi",roomLoadHTML());
       if(a==="teacherload")openU("O‘qituvchi yuklamasi","Juftlik va bo‘sh slotlar",teacherLoadHTML());
