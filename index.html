@@ -1231,6 +1231,490 @@ th{
   .hero-card h2{font-size:19px}
   .nav-btn{font-size:11px;padding:6px 8px}
 }
+
+
+/* ===== HEMIS uslubidagi rasmiy ko‘rinish (faqat dizayn) ===== */
+body.hemis-layout{
+  background:#e9edf2;
+  padding-top:58px;
+  padding-left:270px;
+}
+body.hemis-layout .topbar{
+  position:fixed;
+  left:0; right:0; top:0;
+  min-height:58px;
+  height:58px;
+  padding:8px 18px;
+  background:#4191bf;
+  border-bottom:none;
+  box-shadow:none;
+  z-index:1200;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:nowrap;
+}
+body.hemis-layout .brand{
+  min-width:auto;
+  margin-right:18px;
+  gap:12px;
+}
+body.hemis-layout .logo{
+  width:42px;
+  height:42px;
+  border-radius:6px;
+  background:rgba(0,0,0,.16);
+  border:none;
+  font-size:15px;
+}
+body.hemis-layout .brand h1,
+body.hemis-layout .brand p{
+  color:#fff;
+}
+body.hemis-layout .brand h1{font-size:15px}
+body.hemis-layout .brand p{font-size:11px; opacity:.92}
+body.hemis-layout .topbar .clock{
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.2);
+  color:#fff;
+  min-width:132px;
+  padding:6px 10px;
+}
+body.hemis-layout .topbar .clock .d,
+body.hemis-layout .topbar .clock .t{color:#fff}
+body.hemis-layout .topbar #languageSelect,
+body.hemis-layout .topbar .week-btn,
+body.hemis-layout .topbar #homeBtn,
+body.hemis-layout .topbar #adminBtn,
+body.hemis-layout .topbar #loginBtn,
+body.hemis-layout .topbar #cabinetBtn,
+body.hemis-layout .topbar #calendarBtn,
+body.hemis-layout .topbar #freeRoomBtn,
+body.hemis-layout .topbar #freeTeacherBtn,
+body.hemis-layout .topbar #statsBtn,
+body.hemis-layout .topbar #monitorBtn,
+body.hemis-layout .topbar #smartRoomBtn,
+body.hemis-layout .topbar #smartTimeBtn,
+body.hemis-layout .topbar #qualityBtn,
+body.hemis-layout .topbar #groupGapBtn,
+body.hemis-layout .topbar #exceptionBtn,
+body.hemis-layout .topbar #structureBtn{
+  display:none;
+}
+body.hemis-layout .topbar-right{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-left:auto;
+}
+body.hemis-layout .hemis-user-badge{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:#fff;
+}
+body.hemis-layout .hemis-user-badge img{
+  width:34px; height:34px; border-radius:50%; object-fit:cover;
+  border:2px solid rgba(255,255,255,.4);
+}
+body.hemis-layout .hemis-user-badge b{display:block; font-size:12px; line-height:1.2}
+body.hemis-layout .hemis-user-badge span{display:block; font-size:11px; opacity:.9}
+body.hemis-layout .hemis-sidebar{
+  position:fixed;
+  top:58px; left:0; bottom:0;
+  width:270px;
+  background:linear-gradient(180deg,#20323c 0%, #1b2a33 100%);
+  color:#fff;
+  overflow:auto;
+  z-index:1100;
+  box-shadow:inset -1px 0 0 rgba(255,255,255,.05);
+}
+body.hemis-layout .hemis-quick{
+  padding:12px 16px;
+  background:rgba(255,255,255,.04);
+  color:#c8d2d9;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  font-size:13px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+body.hemis-layout .hemis-quick:after{content:'▾'; color:#c8d2d9; font-size:12px}
+body.hemis-layout .hemis-menu-section{padding:8px 0; border-top:1px solid rgba(255,255,255,.04)}
+body.hemis-layout .hemis-menu-title{
+  padding:8px 18px 6px;
+  color:#8fa3af;
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+body.hemis-layout .hemis-menu-group{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+body.hemis-layout .hemis-side-link,
+body.hemis-layout .hemis-language-wrap{
+  width:100%;
+  text-align:left;
+  background:transparent;
+  border:none;
+  border-radius:0;
+  color:#eef5f8;
+  padding:13px 16px;
+  margin:0;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-weight:500;
+  font-size:15px;
+  transition:background .18s ease, color .18s ease;
+}
+body.hemis-layout .hemis-side-link:hover,
+body.hemis-layout .hemis-language-wrap:hover{
+  background:#29404c;
+  color:#fff;
+}
+body.hemis-layout .hemis-side-link.active{
+  background:#2b424e;
+  color:#fff;
+  box-shadow:inset 3px 0 0 #3eb3e6;
+}
+body.hemis-layout .hemis-side-link .menu-icon{
+  width:18px;
+  min-width:18px;
+  text-align:center;
+  color:#dbe8ef;
+  opacity:.95;
+  font-size:16px;
+}
+body.hemis-layout .hemis-side-link .menu-text{
+  flex:1;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+body.hemis-layout .hemis-side-link .menu-arrow{
+  margin-left:auto;
+  color:#d8e3ea;
+  font-size:18px;
+  line-height:1;
+  opacity:.95;
+}
+body.hemis-layout .hemis-language-wrap{
+  flex-direction:column;
+  align-items:stretch;
+  gap:8px;
+}
+body.hemis-layout .hemis-language-label{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  color:#eef5f8;
+  font-size:15px;
+}
+body.hemis-layout .hemis-language-wrap select{
+  width:100%;
+  background:#f7fafc;
+  color:#22313a;
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:4px;
+  padding:10px 12px;
+  font-weight:600;
+}
+body.hemis-layout main{
+  max-width:none;
+  padding:18px 16px 26px;
+}
+body.hemis-layout .hemis-breadcrumb{
+  font-size:13px;
+  color:#73808d;
+  margin:4px 0 14px;
+}
+body.hemis-layout .hemis-breadcrumb b{color:#4c5b68}
+body.hemis-layout .hero-card,
+body.hemis-layout .summary,
+body.hemis-layout .card,
+body.hemis-layout .today-item,
+body.hemis-layout .empty{
+  border-radius:3px;
+  box-shadow:none;
+}
+body.hemis-layout .hero-card{
+  background:#fff;
+  color:#364152;
+  border:1px solid #d8dee6;
+  border-top:3px solid #27b5e8;
+}
+body.hemis-layout .hero-card:after{display:none}
+body.hemis-layout .hero-card h2{font-size:21px; color:#334155}
+body.hemis-layout .hero-card p{color:#667085}
+body.hemis-layout .week-indicator{
+  background:#f2f7fb;
+  color:#2c6d94;
+  border:1px solid #d9eaf5;
+}
+body.hemis-layout .summary{
+  background:#fff;
+  border:1px solid #d8dee6;
+  padding:10px;
+}
+body.hemis-layout .stat{
+  background:#fff;
+  border-radius:3px;
+  border:1px solid #dfe4ea;
+  min-height:86px;
+}
+body.hemis-layout .stat b{color:#4191bf; font-size:34px; line-height:1}
+body.hemis-layout .controls{margin:16px 0}
+body.hemis-layout .control{
+  border-radius:3px;
+  border:1px solid #cfd8e3;
+}
+body.hemis-layout .section-title h3:before{background:#27b5e8}
+body.hemis-layout .today-item{border-left-color:#35b8ea}
+
+body.hemis-layout .hemis-shortcuts{
+  background:#fff;
+  border:1px solid #d8dee6;
+  border-top:3px solid #27b5e8;
+  border-radius:3px;
+  padding:14px 12px 16px;
+  margin:16px 0;
+}
+body.hemis-layout .hemis-shortcuts h3{
+  margin:0 0 12px;
+  font-size:18px;
+  color:#3a4651;
+  font-weight:600;
+}
+body.hemis-layout .shortcut-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:16px;
+}
+body.hemis-layout .shortcut-card{
+  position:relative;
+  min-height:152px;
+  background:#fff;
+  border:1px solid #35b8ea;
+  border-radius:3px;
+  overflow:hidden;
+  padding:18px 14px 0;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+body.hemis-layout .shortcut-card .shortcut-count{
+  font-size:40px;
+  font-weight:700;
+  color:#4191bf;
+  line-height:1;
+  margin-bottom:10px;
+}
+body.hemis-layout .shortcut-card .shortcut-title{
+  font-size:14px;
+  color:#4191bf;
+  margin-bottom:8px;
+}
+body.hemis-layout .shortcut-card .shortcut-icon{
+  position:absolute;
+  right:16px;
+  top:14px;
+  font-size:64px;
+  color:#d7d7d7;
+  line-height:1;
+  font-weight:300;
+}
+body.hemis-layout .shortcut-card .shortcut-open{
+  margin:0 -14px;
+  padding:8px 14px;
+  background:#ececec;
+  color:#4191bf;
+  border-top:1px solid #d4d4d4;
+  font-weight:500;
+  text-align:center;
+}
+body.hemis-layout .shortcut-card:hover{box-shadow:0 4px 12px rgba(65,145,191,.12)}
+body.hemis-layout .shortcut-card:hover .shortcut-open{background:#e6eef3}
+
+@media (max-width:1200px){
+  body.hemis-layout{padding-left:0}
+  body.hemis-layout .hemis-sidebar{transform:translateX(-100%); transition:.25s}
+  body.hemis-layout.sidebar-open .hemis-sidebar{transform:translateX(0)}
+  body.hemis-layout main{padding:16px}
+  body.hemis-layout .topbar{padding:8px 12px}
+}
+@media (max-width:900px){
+  body.hemis-layout .shortcut-grid{grid-template-columns:1fr}
+  body.hemis-layout .hero{grid-template-columns:1fr}
+}
+
+
+
+/* ===== HEMIS BSTU uslubiga yaqin IXCHAM RASMIY DIZAYN ===== */
+:root{
+  --hemis-blue:#3f93bf;
+  --hemis-cyan:#19b9ec;
+  --hemis-sidebar:#22313a;
+  --hemis-sidebar-hover:#2b3e48;
+  --hemis-sidebar-active:#314650;
+  --hemis-page:#e9eef3;
+  --hemis-border:#d4dde5;
+  --hemis-text:#364152;
+}
+body.hemis-layout{
+  background:var(--hemis-page) !important;
+  padding-top:52px !important;
+  padding-left:228px !important;
+  min-height:100vh;
+}
+body.hemis-layout .topbar{
+  height:52px !important;
+  min-height:52px !important;
+  padding:5px 12px !important;
+  background:var(--hemis-blue) !important;
+  border:0 !important;
+  box-shadow:0 1px 3px rgba(0,0,0,.12) !important;
+}
+body.hemis-layout .brand{min-width:0 !important;gap:8px !important;margin-right:8px !important}
+body.hemis-layout .logo{width:34px !important;height:34px !important;font-size:12px !important;border-radius:4px !important}
+body.hemis-layout .brand h1{font-size:13px !important;line-height:1.15 !important;white-space:nowrap}
+body.hemis-layout .brand p{font-size:9px !important;margin-top:1px !important;white-space:nowrap}
+body.hemis-layout .topbar-right{gap:7px !important}
+body.hemis-layout .topbar .clock{min-width:104px !important;padding:3px 7px !important;border-radius:3px !important}
+body.hemis-layout .topbar .clock .d{font-size:8.5px !important}
+body.hemis-layout .topbar .clock .t{font-size:13px !important}
+body.hemis-layout .hemis-user-badge{gap:6px !important}
+body.hemis-layout .hemis-user-badge img{width:28px !important;height:28px !important;border-width:1px !important}
+body.hemis-layout .hemis-user-badge b{font-size:10px !important}
+body.hemis-layout .hemis-user-badge span{font-size:9px !important}
+
+body.hemis-layout .hemis-sidebar{
+  top:52px !important;
+  width:228px !important;
+  background:var(--hemis-sidebar) !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  scrollbar-width:thin;
+  scrollbar-color:#50636e transparent;
+}
+body.hemis-layout .hemis-sidebar::-webkit-scrollbar{width:5px}
+body.hemis-layout .hemis-sidebar::-webkit-scrollbar-thumb{background:#50636e;border-radius:8px}
+body.hemis-layout .hemis-quick{
+  padding:8px 12px !important;
+  min-height:34px;
+  font-size:11px !important;
+  background:var(--hemis-sidebar) !important;
+  color:#d8e1e7 !important;
+  border-bottom:1px solid rgba(255,255,255,.05) !important;
+}
+body.hemis-layout .hemis-menu-section{padding:2px 0 !important;border-top:1px solid rgba(255,255,255,.035) !important}
+body.hemis-layout .hemis-menu-title{
+  padding:6px 12px 3px !important;
+  font-size:8.5px !important;
+  color:#82949f !important;
+}
+body.hemis-layout .hemis-menu-group{gap:0 !important;padding:0 !important}
+body.hemis-layout .hemis-side-link{
+  min-height:35px !important;
+  padding:7px 10px 7px 13px !important;
+  gap:8px !important;
+  font-size:11.5px !important;
+  font-weight:500 !important;
+  border-left:2px solid transparent !important;
+}
+body.hemis-layout .hemis-side-link:hover{background:var(--hemis-sidebar-hover) !important}
+body.hemis-layout .hemis-side-link.active{
+  background:var(--hemis-sidebar-active) !important;
+  border-left-color:var(--hemis-cyan) !important;
+  box-shadow:none !important;
+}
+body.hemis-layout .hemis-side-link .menu-icon{width:15px !important;min-width:15px !important;font-size:12px !important}
+body.hemis-layout .hemis-side-link .menu-arrow{font-size:13px !important}
+body.hemis-layout .hemis-language-wrap{padding:7px 10px 9px !important;gap:5px !important}
+body.hemis-layout .hemis-language-label{font-size:11.5px !important;gap:8px !important}
+body.hemis-layout .hemis-language-wrap select{padding:6px 7px !important;font-size:10.5px !important;border-radius:3px !important}
+
+body.hemis-layout main{
+  max-width:none !important;
+  padding:12px 14px 18px !important;
+}
+body.hemis-layout .hemis-breadcrumb{
+  margin:0 0 8px !important;
+  padding:4px 0 !important;
+  font-size:10px !important;
+}
+body.hemis-layout .hero{
+  grid-template-columns:minmax(0,1.7fr) minmax(280px,.75fr) !important;
+  gap:8px !important;
+}
+body.hemis-layout .hero-card{
+  padding:12px 14px !important;
+  min-height:112px !important;
+  border-top:2px solid var(--hemis-cyan) !important;
+}
+body.hemis-layout .hero-card h2{font-size:17px !important;margin-bottom:4px !important}
+body.hemis-layout .hero-card p{font-size:10.5px !important;line-height:1.4 !important}
+body.hemis-layout .week-indicator{margin-top:7px !important;padding:4px 7px !important;font-size:9.5px !important;border-radius:3px !important}
+body.hemis-layout .summary{padding:6px !important;gap:5px !important}
+body.hemis-layout .stat{min-height:49px !important;padding:7px 8px !important;font-size:9.5px !important}
+body.hemis-layout .stat b{font-size:18px !important;margin-top:1px !important}
+
+body.hemis-layout .hemis-shortcuts{
+  margin:8px 0 !important;
+  padding:8px 9px 10px !important;
+  border-top:2px solid var(--hemis-cyan) !important;
+}
+body.hemis-layout .hemis-shortcuts h3{font-size:14px !important;margin-bottom:7px !important}
+body.hemis-layout .shortcut-grid{
+  grid-template-columns:repeat(6,minmax(0,1fr)) !important;
+  gap:7px !important;
+}
+body.hemis-layout .shortcut-card{
+  min-height:94px !important;
+  padding:10px 9px 0 !important;
+  border-color:#32b9e9 !important;
+  border-radius:2px !important;
+}
+body.hemis-layout .shortcut-card .shortcut-count{font-size:24px !important;margin-bottom:4px !important}
+body.hemis-layout .shortcut-card .shortcut-title{font-size:10.5px !important;margin-bottom:4px !important;line-height:1.25 !important;padding-right:24px}
+body.hemis-layout .shortcut-card .shortcut-icon{right:7px !important;top:8px !important;font-size:30px !important}
+body.hemis-layout .shortcut-card .shortcut-open{margin:0 -9px !important;padding:4px 5px !important;font-size:9px !important}
+
+body.hemis-layout .controls{
+  grid-template-columns:minmax(180px,1.4fr) repeat(4,minmax(105px,.55fr)) !important;
+  gap:5px !important;
+  margin:8px 0 9px !important;
+}
+body.hemis-layout .control{padding:6px 7px !important;min-height:29px !important;font-size:10.5px !important;border-radius:2px !important}
+body.hemis-layout .section-title{margin:9px 0 5px !important}
+body.hemis-layout .section-title h3{font-size:13px !important;padding-left:7px !important}
+body.hemis-layout .section-title h3:before{width:2px !important}
+body.hemis-layout .grid{gap:6px !important}
+body.hemis-layout .card{padding:8px !important}
+body.hemis-layout .teacher-card .avatar{width:38px !important;height:38px !important}
+body.hemis-layout .teacher-name{font-size:10.5px !important}
+body.hemis-layout .meta{font-size:9px !important}
+body.hemis-layout .status{font-size:9.5px !important;margin-top:5px !important}
+body.hemis-layout .lesson{padding:5px 6px !important;margin-top:5px !important;font-size:9px !important}
+body.hemis-layout .room{font-size:11.5px !important;margin-top:4px !important}
+body.hemis-layout .today-list{gap:4px !important}
+body.hemis-layout .today-item{padding:6px 8px !important;font-size:9.5px !important;border-left-width:2px !important}
+
+/* Faqat eng muhim 6 ta funksiya Bosh sahifadagi kartalarda qoladi */
+body.hemis-layout .shortcut-card:nth-child(n+7){display:none !important}
+
+@media(max-width:1350px){
+  body.hemis-layout .shortcut-grid{grid-template-columns:repeat(3,minmax(0,1fr)) !important}
+}
+@media(max-width:1100px){
+  body.hemis-layout{padding-left:0 !important}
+  body.hemis-layout .hemis-sidebar{transform:translateX(-100%)}
+  body.hemis-layout.sidebar-open .hemis-sidebar{transform:translateX(0)}
+  body.hemis-layout .hero{grid-template-columns:1fr !important}
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
@@ -1347,7 +1831,59 @@ th{
       <div><label>Xona nomi/raqami<input id="rName" placeholder="305"></label></div>
       <div><label>Sig‘imi<input id="rCapacity" type="number" min="1" placeholder="30"></label></div>
       <div><label>Xona turi<select id="rType"><option>Oddiy auditoriya</option><option>Laboratoriya</option><option>Kompyuter xonasi</option><option>Ma’ruza zali</option><option>Seminar xonasi</option></select></label></div>
-      <div><label>Bino<input id="rBuilding" placeholder="1-bino"></label></div>
+      <div><label>Bino<select id="rBuilding">
+      <option value="">Binoni tanlang</option>
+      <option value="1-bino">1-bino</option>
+      <option value="2-bino">2-bino</option>
+      <option value="3-bino">3-bino</option>
+      <option value="4-bino">4-bino</option>
+      <option value="5-bino">5-bino</option>
+      <option value="6-bino">6-bino</option>
+      <option value="7-bino">7-bino</option>
+      <option value="8-bino">8-bino</option>
+      <option value="9-bino">9-bino</option>
+      <option value="10-bino">10-bino</option>
+      <option value="11-bino">11-bino</option>
+      <option value="12-bino">12-bino</option>
+      <option value="13-bino">13-bino</option>
+      <option value="14-bino">14-bino</option>
+      <option value="15-bino">15-bino</option>
+      <option value="16-bino">16-bino</option>
+      <option value="17-bino">17-bino</option>
+      <option value="18-bino">18-bino</option>
+      <option value="19-bino">19-bino</option>
+      <option value="20-bino">20-bino</option>
+      <option value="21-bino">21-bino</option>
+      <option value="22-bino">22-bino</option>
+      <option value="23-bino">23-bino</option>
+      <option value="24-bino">24-bino</option>
+      <option value="25-bino">25-bino</option>
+      <option value="26-bino">26-bino</option>
+      <option value="27-bino">27-bino</option>
+      <option value="28-bino">28-bino</option>
+      <option value="29-bino">29-bino</option>
+      <option value="30-bino">30-bino</option>
+      <option value="31-bino">31-bino</option>
+      <option value="32-bino">32-bino</option>
+      <option value="33-bino">33-bino</option>
+      <option value="34-bino">34-bino</option>
+      <option value="35-bino">35-bino</option>
+      <option value="36-bino">36-bino</option>
+      <option value="37-bino">37-bino</option>
+      <option value="38-bino">38-bino</option>
+      <option value="39-bino">39-bino</option>
+      <option value="40-bino">40-bino</option>
+      <option value="41-bino">41-bino</option>
+      <option value="42-bino">42-bino</option>
+      <option value="43-bino">43-bino</option>
+      <option value="44-bino">44-bino</option>
+      <option value="45-bino">45-bino</option>
+      <option value="46-bino">46-bino</option>
+      <option value="47-bino">47-bino</option>
+      <option value="48-bino">48-bino</option>
+      <option value="49-bino">49-bino</option>
+      <option value="50-bino">50-bino</option>
+      </select></label></div>
       <div class="full"><button class="btn primary" id="saveRoomBtn">Xonani saqlash</button></div>
     </div>
     <div class="section-title"><h3>Xonalar</h3></div><div class="admin-list" id="roomAdminList"></div>
@@ -2089,5 +2625,173 @@ renderAdvanced();
 })();
 </script>
 
+
+
+<script>
+(function(){
+  document.body.classList.add('hemis-layout');
+
+  const topbar=document.querySelector('.topbar');
+  const main=document.querySelector('main');
+  if(!topbar || !main || document.querySelector('.hemis-sidebar')) return;
+
+  const sidebar=document.createElement('aside');
+  sidebar.className='hemis-sidebar';
+  sidebar.innerHTML=`
+    <div class="hemis-quick">Tezkor menyu</div>
+    <div class="hemis-menu-section"><div class="hemis-menu-title">Asosiy</div><div class="hemis-menu-group" id="hemisGroupMain"></div></div>
+    <div class="hemis-menu-section"><div class="hemis-menu-title">Boshqaruv</div><div class="hemis-menu-group" id="hemisGroupManage"></div></div>
+    <div class="hemis-menu-section"><div class="hemis-menu-title">Monitoring</div><div class="hemis-menu-group" id="hemisGroupFunctions"></div></div>
+    <div class="hemis-menu-section"><div class="hemis-menu-title">Qo‘shimcha</div><div class="hemis-menu-group" id="hemisGroupOther"></div></div>
+  `;
+  document.body.appendChild(sidebar);
+
+  const groupMain=sidebar.querySelector('#hemisGroupMain');
+  const groupManage=sidebar.querySelector('#hemisGroupManage');
+  const groupFunctions=sidebar.querySelector('#hemisGroupFunctions');
+  const groupOther=sidebar.querySelector('#hemisGroupOther');
+
+  const pick=id=>document.getElementById(id);
+  const menuIcons={
+    homeBtn:'⌂', suratBtn:'◐', maxrajBtn:'◑', loginBtn:'⇥', cabinetBtn:'◪', adminBtn:'⚙',
+    calendarBtn:'▦', freeRoomBtn:'▥', freeTeacherBtn:'◔', statsBtn:'◫', monitorBtn:'◷',
+    smartRoomBtn:'▣', smartTimeBtn:'◴', qualityBtn:'☑', groupGapBtn:'◌',
+    exceptionBtn:'✦', structureBtn:'◫'
+  };
+
+  function decorateButton(el, icon){
+    if(!el || el.dataset.hemisDecorated==='1') return;
+    const label=(el.textContent||'').trim();
+    el.dataset.originalLabel=label;
+    el.dataset.hemisDecorated='1';
+    el.classList.add('hemis-side-link');
+    el.innerHTML=`<span class="menu-icon">${icon||'•'}</span><span class="menu-text">${label}</span><span class="menu-arrow">‹</span>`;
+  }
+
+  function decorateLanguageSelect(sel){
+    if(!sel || sel.dataset.hemisDecorated==='1') return;
+    sel.dataset.hemisDecorated='1';
+    const wrap=document.createElement('div');
+    wrap.className='hemis-language-wrap';
+    wrap.innerHTML=`<div class="hemis-language-label"><span class="menu-icon">🌐</span><span class="menu-text">Til</span><span class="menu-arrow">‹</span></div>`;
+    sel.classList.remove('nav-btn');
+    wrap.appendChild(sel);
+    groupOther.appendChild(wrap);
+  }
+
+  [pick('homeBtn'),pick('suratBtn'),pick('maxrajBtn')].filter(Boolean).forEach(el=>{decorateButton(el,menuIcons[el.id]); groupMain.appendChild(el);});
+  [pick('loginBtn'),pick('cabinetBtn'),pick('adminBtn')].filter(Boolean).forEach(el=>{decorateButton(el,menuIcons[el.id]); groupManage.appendChild(el);});
+  [pick('calendarBtn'),pick('freeRoomBtn'),pick('freeTeacherBtn'),pick('statsBtn'),pick('monitorBtn'),pick('smartRoomBtn'),pick('smartTimeBtn'),pick('qualityBtn'),pick('groupGapBtn')].filter(Boolean).forEach(el=>{decorateButton(el,menuIcons[el.id]); groupFunctions.appendChild(el);});
+  [pick('exceptionBtn'),pick('structureBtn')].filter(Boolean).forEach(el=>{decorateButton(el,menuIcons[el.id]); groupOther.appendChild(el);});
+  decorateLanguageSelect(pick('languageSelect'));
+
+  const topbarRight=document.createElement('div');
+  topbarRight.className='topbar-right';
+  const clock=document.querySelector('.clock');
+  if(clock) topbarRight.appendChild(clock);
+
+  const badge=document.createElement('div');
+  badge.className='hemis-user-badge';
+  badge.innerHTML=`<img src="https://ui-avatars.com/api/?name=Inomov+D+I&background=ffffff&color=1f5faa&bold=true" alt="User"><div><b>INOMOV D. I.</b><span>O‘qituvchi</span></div>`;
+  topbarRight.appendChild(badge);
+  topbar.appendChild(topbarRight);
+
+  const breadcrumb=document.createElement('div');
+  breadcrumb.className='hemis-breadcrumb';
+  breadcrumb.innerHTML='Asosiy &nbsp;/&nbsp; <b>Bosh sahifa</b>';
+  main.insertBefore(breadcrumb, main.firstChild);
+
+  const shortcutWrap=document.createElement('section');
+  shortcutWrap.className='hemis-shortcuts';
+  shortcutWrap.innerHTML=`
+    <h3>Mashg‘ulotlar</h3>
+    <div class="shortcut-grid" id="shortcutGrid"></div>
+  `;
+  const hero=main.querySelector('.hero');
+  if(hero && hero.nextSibling) main.insertBefore(shortcutWrap, hero.nextSibling);
+
+  const shortcutGrid=shortcutWrap.querySelector('#shortcutGrid');
+
+  function openInClassPanel(){
+    const {day}=nowInfo();
+    const {minutes}=nowInfo();
+    const currentPairEntry=Object.entries(pairTimes).find(([p,t])=>minutes>=mins(t.start)&&minutes<=mins(t.end));
+    const currentPair=currentPairEntry?Number(currentPairEntry[0]):null;
+
+    const rows=[];
+    db.teachers.forEach(t=>{
+      const lessons=(t.schedule||[]).filter(l=>
+        !l.cancelled &&
+        l.status==="approved" &&
+        l.day===day &&
+        (l.weekType==="doim" || l.weekType===currentWeek) &&
+        (!currentPair || Number(l.pair)===currentPair)
+      );
+      lessons.forEach(l=>rows.push({t,l}));
+    });
+
+    const body=rows.length
+      ? `<div class="admin-list">${rows.map(({t,l})=>`
+          <div class="admin-row">
+            <strong>${esc(t.name)}</strong>
+            <div class="mini">${esc(l.subject)} · ${esc(l.group)} · ${l.pair}-juftlik</div>
+            <div style="margin-top:6px">${roomDisplay(l.room)} · ${esc(l.type)} · ${esc(l.start)}–${esc(l.end)}</div>
+          </div>`).join("")}</div>`
+      : `<div class="empty">Hozir darsda bo‘lgan o‘qituvchi yo‘q.</div>`;
+
+    openAdvanced(
+      "Hozir darsda",
+      currentPair ? `${day}, ${currentPair}-juftlik` : `${day}, hozirgi vaqt`,
+      body
+    );
+  }
+
+  const shortcutItems=[
+    {id:'calendarBtn',title:'Kalendar',icon:'▦',count:'0'},
+    {id:'freeRoomBtn',title:'Bo‘sh xona',icon:'▥',count:'0'},
+    {id:'inClassShortcut',title:'Hozir darsda',icon:'●',count:'0'},
+    {id:'freeTeacherBtn',title:'Bo‘sh o‘qituvchi',icon:'◔',count:'0'},
+    {id:'statsBtn',title:'Statistika',icon:'◫',count:'0'},
+    {id:'monitorBtn',title:'Monitor',icon:'◷',count:'0'}
+  ];
+    shortcutItems.forEach(item=>{
+    const btn=item.id==="inClassShortcut"?true:pick(item.id);
+    if(!btn) return;
+    const card=document.createElement('button');
+    card.type='button';
+    card.className='shortcut-card';
+    card.innerHTML=`<span class="shortcut-count">${item.count}</span><div class="shortcut-title">${item.title}</div><div class="shortcut-icon">${item.icon}</div><div class="shortcut-open">◉ ${item.title}</div>`;
+    card.addEventListener('click',()=>{
+      if(item.id==="inClassShortcut") openInClassPanel();
+      else btn.click();
+    });
+    shortcutGrid.appendChild(card);
+  });
+
+  function updateShortcutCounts(){
+    const cards=[...shortcutGrid.querySelectorAll('.shortcut-card')];
+    const map={};
+    cards.forEach(card=>{ const title=card.querySelector('.shortcut-title')?.textContent||''; map[title]=card; });
+    const totalTeachers=Number(document.getElementById('totalTeachers')?.textContent||0);
+    const inClass=Number(document.getElementById('inClassCount')?.textContent||0);
+    const todayLessons=Number(document.getElementById('todayLessonsCount')?.textContent||0);
+    const pending=Number(document.getElementById('pendingCount')?.textContent||0);
+    const currentDep=String(db?.currentUser?.department||'').trim();
+    let rooms=[];
+    if(currentDep && db?.departmentWorkspaces?.[currentDep]?.rooms) rooms=db.departmentWorkspaces[currentDep].rooms||[];
+    else rooms=db?.rooms||[];
+    const setCount=(title,val)=>{const c=map[title]; if(c) c.querySelector('.shortcut-count').textContent=String(val)};
+    setCount('Kalendar', todayLessons);
+    setCount('Bo‘sh xona', rooms.length);
+    setCount('Hozir darsda', inClass);
+    setCount('Bo‘sh o‘qituvchi', Math.max(totalTeachers-inClass,0));
+    setCount('Statistika', totalTeachers);
+    setCount('Monitor', pending);
+    setCount('Admin', '•');
+  }
+  updateShortcutCounts();
+  setInterval(updateShortcutCounts,2000);
+})();
+</script>
 </body>
 </html>
