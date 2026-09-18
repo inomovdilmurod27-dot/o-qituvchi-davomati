@@ -5983,6 +5983,7 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
               </select>
             </div>
             <div class="ultra-actions" style="margin-top:6px">
+              <button class="ultra-btn2 ultra-drag-copy-btn" type="button" data-tid="${t.id}" data-lid="${l.id}">Kopirovat</button>
               <button class="ultra-btn2 ultra-drag-edit-btn" type="button" data-tid="${t.id}" data-lid="${l.id}">Tahrirlash</button>
               <button class="ultra-btn2 ultra-drag-delete-btn" type="button" data-tid="${t.id}" data-lid="${l.id}" style="color:#b42318">O‘chirish</button>
             </div>
@@ -5993,6 +5994,7 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
     return html+`</div></div><div class="ultra-muted" style="margin-top:7px">Drag & drop ichida darsning barcha asosiy ma’lumotlarini tahrirlash, xonani almashtirish va darsni o‘chirish mumkin. Konflikt bo‘lsa o‘zgarish saqlanmaydi.</div>`;
   }
   let dragSelected=null;
+  let dragCopySelected=null;
 
   function moveDragLesson(tid,lid,day,pair){
     if(!permission("edit")) return false;
@@ -6022,9 +6024,41 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
     return true;
   }
 
+  function copyDragLesson(tid,lid,day,pair){
+    if(!permission("create")) return false;
+
+    const t=teachers().find(x=>String(x.id)===String(tid));
+    const l=t?.schedule?.find(x=>String(x.id)===String(lid));
+    if(!t||!l||!pairTimes[pair]) return false;
+
+    const newLesson={
+      ...l,
+      id:(typeof crypto!=="undefined"&&crypto.randomUUID)?crypto.randomUUID():("l"+Date.now()+Math.random().toString(36).slice(2)),
+      day,
+      pair:Number(pair),
+      start:pairTimes[pair].start,
+      end:pairTimes[pair].end
+    };
+
+    const validation=dragValidation(newLesson,t.id,null);
+    const errs=validation.errs||[];
+    if(errs.length){
+      showAlert?.("<b>Dars nusxalanmadi:</b><br>• "+errs.join("<br>• "),"error");
+      return false;
+    }
+
+    t.schedule=t.schedule||[];
+    t.schedule.push(newLesson);
+    saveU();
+    showAlert?.("Dars nusxasi yangi joyga qo‘yildi.","ok");
+    return true;
+  }
+
   function clearDragSelection(){
     dragSelected=null;
+    dragCopySelected=null;
     document.querySelectorAll(".ultra-dnd-card.drag-selected").forEach(x=>x.classList.remove("drag-selected"));
+    document.querySelectorAll(".ultra-dnd-card.copy-selected").forEach(x=>x.classList.remove("copy-selected"));
     document.querySelectorAll(".ultra-dnd-cell.drag-target").forEach(x=>x.classList.remove("drag-target"));
   }
 
@@ -6086,6 +6120,24 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
           saveU();
           showAlert?.(`${escU(t.name)} darsi uchun xona ${escU(r.name)}-xonaga almashtirildi.`,"ok");
           openU("Drag & drop jadval","Darslarni to‘liq boshqarish",dragHTML());bindDrag();
+        });
+      });
+
+      document.querySelectorAll(".ultra-drag-copy-btn").forEach(btn=>{
+        btn.addEventListener("click",ev=>{
+          ev.preventDefault();
+          ev.stopPropagation();
+          if(!permission("create")) return;
+
+          clearDragSelection();
+          dragCopySelected={
+            tid:btn.dataset.tid,
+            lid:btn.dataset.lid
+          };
+
+          btn.closest(".ultra-dnd-card")?.classList.add("copy-selected");
+          document.querySelectorAll("[data-drop-day]").forEach(cell=>cell.classList.add("drag-target"));
+          showAlert?.("Dars nusxalash uchun tanlandi. Endi nusxani qo‘yish kerak bo‘lgan kun va juftlik katagini bosing.","ok");
         });
       });
 
@@ -6204,12 +6256,23 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
           }
         });
 
-        /* Telefon/planshet click-to-move */
+        /* Telefon/planshet click-to-move yoki kopirovat */
         cell.addEventListener("click",ev=>{
-          if(!dragSelected) return;
+          if(!dragSelected && !dragCopySelected) return;
           if(ev.target.closest("button,select,input,textarea,.ultra-dnd-card")) return;
           ev.preventDefault();
           ev.stopPropagation();
+
+          if(dragCopySelected){
+            const selected={...dragCopySelected};
+            clearDragSelection();
+
+            if(copyDragLesson(selected.tid,selected.lid,cell.dataset.dropDay,Number(cell.dataset.dropPair))){
+              openU("Drag & drop jadval","Darslarni to‘liq boshqarish",dragHTML());
+              bindDrag();
+            }
+            return;
+          }
 
           const selected={...dragSelected};
           clearDragSelection();
@@ -7504,6 +7567,14 @@ body.hemis-layout #advancedModal .modal-card{
     font-size:8px;
     padding:2px 4px;
   }
+}
+</style>
+
+
+<style id="dragdrop-copy-only">
+.ultra-dnd-card.copy-selected{
+  outline:2px dashed #3b93bd;
+  outline-offset:1px;
 }
 </style>
 
