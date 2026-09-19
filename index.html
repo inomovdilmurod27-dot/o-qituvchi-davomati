@@ -1983,7 +1983,7 @@ body.hemis-layout .shortcut-card:nth-child(n+7){display:none !important}
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-compat.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 </head>
@@ -2271,40 +2271,6 @@ let db=JSON.parse(localStorage.getItem("dispatchDB")||"null")||{
  history:[]
 };
 
-(function clearAllTeacherRoomDataOnce(){
-  const KEY="dispatch_clear_teacher_room_v1";
-  if(localStorage.getItem(KEY)==="1")return;
-  try{
-    if(Array.isArray(db.teachers))db.teachers=[];
-    if(Array.isArray(db.rooms))db.rooms=[];
-    if(db.departmentWorkspaces && typeof db.departmentWorkspaces==="object"){
-      Object.values(db.departmentWorkspaces).forEach(ws=>{
-        if(ws && typeof ws==="object"){
-          ws.teachers=[];
-          ws.rooms=[];
-        }
-      });
-    }
-    // Darslar o‘qituvchilarning schedule ichida saqlanadigan joylarda ham tozalanadi,
-    // chunki o‘qituvchilar butunlay o‘chirilyapti.
-    localStorage.setItem(KEY,"1");
-    localStorage.setItem("dispatchDB",JSON.stringify(db));
-  }catch(e){console.error("O‘qituvchi/xona ma’lumotlarini tozalash xatosi:",e)}
-})();
-
-
-// ===== O‘QITUVCHI VA DARSLARNI BIR MARTALIK TO‘LIQ TOZALASH =====
-// Versiya belgisi tufayli tozalash faqat bir marta bajariladi.
-// Keyin yangidan kiritilgan o‘qituvchi va darslar odatdagidek saqlanadi.
-const TEACHER_LESSON_RESET_VERSION="2026-09-18-empty-teachers-rooms-v2";
-
-function clearAllTeacherLessonData(targetDb){
-  // Eski bir martalik tozalash vazifasi yakunlangan.
-  // Endi yangi kiritilgan ma’lumotlar avtomatik o‘chirilmaydi.
-  return false;
-}
-
-
 // ===== Firebase / Firestore sinxronizatsiyasi =====
 const firebaseConfig = {
   apiKey: "AIzaSyCsa6R4ozs0PkMpZkXhCeEi3qFOa1yfiNI",
@@ -2406,6 +2372,8 @@ function applySemesterSchedules(key=semesterPeriodKey()){
   const u=db.currentUser||{};
   if(u.role==="mudiri" && u.department && typeof window.activateDepartmentWorkspace==="function"){
     window.activateDepartmentWorkspace(u.department);
+  }else if(["superadmin","admin"].includes(u.role) && db.adminActiveDepartment && typeof window.activateDepartmentWorkspace==="function"){
+    window.activateDepartmentWorkspace(db.adminActiveDepartment);
   }
 }
 ensureSemesterSchedules();
@@ -2500,9 +2468,21 @@ async function applyRemoteCloudState(remote){
     db.currentUser={name:"Mehmon",role:"viewer",department:""};
   }
 
+  if(typeof ensureExtraDB==="function")ensureExtraDB();
+  if(typeof ensureUsers==="function")ensureUsers();
+  if(typeof ensureDepartmentWorkspaces==="function")ensureDepartmentWorkspaces();
   if(typeof purgeDeletedLessonMirrors==="function")purgeDeletedLessonMirrors();
+
   localStorage.setItem("dispatchDB",JSON.stringify(db));
+
   if(typeof renderAll==="function")renderAll();
+  if(typeof renderManagers==="function")renderManagers();
+  if(typeof refreshManagerDepartments==="function")refreshManagerDepartments();
+  if(typeof refreshExTeachers==="function")refreshExTeachers();
+  if(typeof renderExceptions==="function")renderExceptions();
+  if(typeof renderOrg==="function")renderOrg();
+  if(typeof renderAdminFacultyDepartments==="function")renderAdminFacultyDepartments();
+  if(typeof renderBuildingDistances==="function")renderBuildingDistances();
   if(typeof updateCurrentUserBadge==="function")updateCurrentUserBadge();
   if(typeof window.syncLoginGate==="function")window.syncLoginGate();
 }
@@ -2539,6 +2519,24 @@ function flushCloudSave(){
       cloudSaveTimer=setTimeout(flushCloudSave,250);
     }
   });
+}
+
+
+function save(){
+  if(typeof captureActiveSemesterSchedules==="function") captureActiveSemesterSchedules();
+  if(typeof mergeDeletedLessonsFromLocal==="function") mergeDeletedLessonsFromLocal();
+  if(typeof purgeDeletedLessonMirrors==="function") purgeDeletedLessonMirrors();
+  if(typeof window.syncActiveDepartmentWorkspace==="function") window.syncActiveDepartmentWorkspace();
+
+  localStorage.setItem("dispatchDB",JSON.stringify(db));
+
+  if(!cloudReady){
+    localDirtyBeforeCloudReady=true;
+    return;
+  }
+
+  clearTimeout(cloudSaveTimer);
+  cloudSaveTimer=setTimeout(flushCloudSave,300);
 }
 
 async function initCloudSync(){
@@ -2603,26 +2601,32 @@ function scopedTeachers(){
 }
 function roomByName(name){return db.rooms.find(r=>r.name===name)}
 function roomById(id){return db.rooms.find(r=>String(r.id)===String(id))}
-function roomDisplay(name){
-  const r=roomByName(name);
-  return `${esc(name)}-xona${r&&r.building?` · ${esc(r.building)}`:""}`;
+function roomDisplay(name,building="",roomId=null){
+  const r=(roomId!=null?roomById(roomId):null)||
+    db.rooms.find(x=>String(x.name)===String(name)&&(!building||String(x.building||"")===String(building)))||
+    roomByName(name);
+  const b=building||r?.building||"";
+  return `${esc(name)}-xona${b?` · ${esc(b)}`:""}`;
 }
 function addHistory(action,details){db.history.unshift({id:Date.now(),time:new Date().toLocaleString("uz-UZ"),action,details});save()}
 function showAlert(msg,type="ok"){
  const a=document.getElementById("adminAlert");
  if(!a)return;
 
- // Ogohlantirish panel ichida yashirinib qolmasligi uchun
- // har safar body darajasiga chiqariladi.
  if(a.parentElement!==document.body){
    document.body.appendChild(a);
  }
 
  clearTimeout(a._hideTimer);
  a.className="alert";
- a.textContent=msg;
 
- // Klass qayta qo‘shilishi brauzerda xabarni ishonchli ko‘rsatadi.
+ const clean=String(msg??"")
+   .replace(/<br\s*\/?>/gi,"\n")
+   .replace(/<\/?b>/gi,"")
+   .replace(/<[^>]*>/g,"");
+ a.textContent=clean;
+ a.style.whiteSpace="pre-line";
+
  void a.offsetWidth;
  a.className="alert show "+type;
 }
@@ -3066,7 +3070,7 @@ function renderTeachers(){
    const mainLesson=st.lesson||st.next||null;
    if(mainLesson){
     const prefix=st.key==="inclass"?"":st.key==="soon"?"Yaqin dars: ":st.key==="break"?"Keyingi dars: ":"Keyingi dars: ";
-    body=`${prefix?`<b>${prefix}${mainLesson.pair}-juftlik</b><br>`:`<b>${mainLesson.pair}-juftlik · ${esc(mainLesson.subject)}</b><br>`}${prefix?`${esc(mainLesson.subject)}<br>`:""}${esc(mainLesson.group)} · ${esc(mainLesson.type)}<br>${mainLesson.start}–${mainLesson.end}<br>${roomDisplay(mainLesson.room)}`;
+    body=`${prefix?`<b>${prefix}${mainLesson.pair}-juftlik</b><br>`:`<b>${mainLesson.pair}-juftlik · ${esc(mainLesson.subject)}</b><br>`}${prefix?`${esc(mainLesson.subject)}<br>`:""}${esc(mainLesson.group)} · ${esc(mainLesson.type)}<br>${mainLesson.start}–${mainLesson.end}<br>${roomDisplay(mainLesson.room,mainLesson.roomBuilding,mainLesson.roomId)}`;
     const later=lessons.filter(l=>l.pair>mainLesson.pair);
     if(later.length){
      body+=`<br><span class="mini"><b>Bugun yana ${later.length} ta darsi bor:</b> ${later.map(l=>`${l.pair}-juftlik`).join(", ")}</span>`;
@@ -3079,21 +3083,21 @@ function renderTeachers(){
     body="Bugun dars yo‘q.";
    }
   }
-  return `<article class="card teacher-card" onclick="openTeacher(${t.id})"><div class="teacher-head"><img class="avatar" src="${esc(t.image)}"><div><div class="teacher-name">${esc(t.name)}</div><div class="meta">${esc(t.position)} · ${esc(t.degree)}</div></div></div><div class="status"><span class="dot" style="background:${st.color}"></span>${st.label}</div><div class="lesson">${body}</div>${st.key==="inclass"?`<div class="room">${roomDisplay(st.lesson.room).replace("-xona","-XONA")}</div>`:""}</article>`;
+  return `<article class="card teacher-card" onclick="openTeacher(${t.id})"><div class="teacher-head"><img class="avatar" src="${esc(t.image)}"><div><div class="teacher-name">${esc(t.name)}</div><div class="meta">${esc(t.position)} · ${esc(t.degree)}</div></div></div><div class="status"><span class="dot" style="background:${st.color}"></span>${st.label}</div><div class="lesson">${body}</div>${st.key==="inclass"?`<div class="room">${roomDisplay(st.lesson.room,st.lesson.roomBuilding,st.lesson.roomId).replace("-xona","-XONA")}</div>`:""}</article>`;
  }).join(""):`<div class="empty">Mos o‘qituvchi topilmadi.</div>`
 }
-function renderToday(){const list=[];scopedTeachers().forEach(t=>todayLessonsFor(t).forEach(l=>list.push({...l,teacher:t})));list.sort((a,b)=>a.pair-b.pair);$("todayList").innerHTML=list.length?list.map(x=>`<div class="today-item" onclick="openTeacher(${x.teacher.id})"><strong>${x.pair}-juftlik · ${x.start}–${x.end} · ${esc(x.teacher.name)}</strong><br>${esc(x.subject)} · ${esc(x.group)} · ${roomDisplay(x.room)} · ${esc(x.type)} · ${x.weekType==="doim"?"Doimiy":x.weekType}</div>`).join(""):`<div class="empty">Bugun joriy hafta bo‘yicha tasdiqlangan dars yo‘q.</div>`}
+function renderToday(){const list=[];scopedTeachers().forEach(t=>todayLessonsFor(t).forEach(l=>list.push({...l,teacher:t})));list.sort((a,b)=>a.pair-b.pair);$("todayList").innerHTML=list.length?list.map(x=>`<div class="today-item" onclick="openTeacher(${x.teacher.id})"><strong>${x.pair}-juftlik · ${x.start}–${x.end} · ${esc(x.teacher.name)}</strong><br>${esc(x.subject)} · ${esc(x.group)} · ${roomDisplay(x.room,x.roomBuilding,x.roomId)} · ${esc(x.type)} · ${x.weekType==="doim"?"Doimiy":x.weekType}</div>`).join(""):`<div class="empty">Bugun joriy hafta bo‘yicha tasdiqlangan dars yo‘q.</div>`}
 function renderStats(){const ts=scopedTeachers(),inc=ts.filter(t=>getStatus(t).key==="inclass").length,pending=ts.reduce((n,t)=>n+t.schedule.filter(l=>l.status==="pending"&&!l.cancelled).length,0);$("totalTeachers").textContent=ts.length;$("inClassCount").textContent=inc;$("todayLessonsCount").textContent=ts.reduce((n,t)=>n+todayLessonsFor(t).length,0);$("pendingCount").textContent=pending}
 function populateFilters(){const rooms=new Set(),groups=new Set(),subs=new Set();scopedTeachers().forEach(t=>t.schedule.forEach(l=>{rooms.add(l.room);groups.add(l.group);subs.add(l.subject)}));$("roomFilter").innerHTML='<option value="">Barcha xonalar</option>'+[...rooms].sort().map(x=>`<option>${esc(x)}</option>`).join("");$("groupFilter").innerHTML='<option value="">Barcha guruhlar</option>'+[...groups].sort().map(x=>`<option>${esc(x)}</option>`).join("");$("subjectFilter").innerHTML='<option value="">Barcha fanlar</option>'+[...subs].sort().map(x=>`<option>${esc(x)}</option>`).join("")}
 
-function openTeacher(id){const t=teacherById(id),st=getStatus(t);$("profile").innerHTML=`<img src="${esc(t.image)}"><div><h2>${esc(t.name)}</h2><div class="info"><div><b>Ilmiy daraja:</b> ${esc(t.degree)}</div><div><b>Lavozim:</b> ${esc(t.position)}</div><div><b>Kafedra:</b> ${esc(t.department)}</div><div><b>Telefon:</b> ${esc(t.phone)}</div><div><b>Holat:</b> ${esc(availabilityLabel(t.availability))}</div></div></div>`;let h=`<div class="status"><span class="dot" style="background:${st.color}"></span>${st.label.toUpperCase()}</div>`;if(st.key==="inclass"){const sub=st.lesson.substituteTeacherId?teacherById(st.lesson.substituteTeacherId):null;h+=`<p><b>Fan:</b> ${esc(st.lesson.subject)}<br><b>Guruh:</b> ${esc(st.lesson.group)}<br><b>Xona:</b> ${roomDisplay(st.lesson.room)}<br><b>Dars turi:</b> ${esc(st.lesson.type)}<br><b>Juftlik:</b> ${st.lesson.pair}<br><b>Vaqt:</b> ${st.lesson.start}–${st.lesson.end}${sub?`<br><b>Almashtiruvchi:</b> ${esc(sub.name)}`:""}</p><b>Dars tugashiga ${st.remaining} daqiqa qoldi.</b>`}else if(st.next){h+=`<p><b>Keyingi dars:</b> ${st.next.start}<br><b>Fan:</b> ${esc(st.next.subject)}<br><b>Guruh:</b> ${esc(st.next.group)}<br><b>Xona:</b> ${roomDisplay(st.next.room)}</p>`}else h+=`<p>Bugun joriy hafta bo‘yicha boshqa dars mavjud emas.</p>`;$("statusCard").innerHTML=h;$("roomCard").innerHTML=st.key==="inclass"?`<b>${roomDisplay(st.lesson.room).replace("-xona","-XONA")}</b><span>Joriy dars xonasi</span>`:st.next?`<b>${roomDisplay(st.next.room).replace("-xona","-XONA")}</b><span>Keyingi dars xonasi</span>`:`<b style="font-size:24px">DARS YO‘Q</b>`;$("teacherScheduleBody").innerHTML=[...t.schedule].sort((a,b)=>dayOrder[a.day]-dayOrder[b.day]||a.pair-b.pair).map(l=>`<tr><td>${l.day}</td><td>${l.pair}</td><td>${l.start}–${l.end}</td><td>${esc(l.subject)}</td><td>${esc(l.group)}</td><td>${roomDisplay(l.room)}</td><td>${esc(l.type)}</td><td><span class="badge ${l.weekType}">${l.weekType==="doim"?"Doimiy":l.weekType}</span></td><td><span class="badge ${l.cancelled?"cancelled":l.status}">${l.cancelled?"Bekor qilingan":l.status==="approved"?"Tasdiqlangan":"Kutilmoqda"}</span></td></tr>`).join("");$("teacherModal").classList.add("open")}
+function openTeacher(id){const t=teacherById(id),st=getStatus(t);$("profile").innerHTML=`<img src="${esc(t.image)}"><div><h2>${esc(t.name)}</h2><div class="info"><div><b>Ilmiy daraja:</b> ${esc(t.degree)}</div><div><b>Lavozim:</b> ${esc(t.position)}</div><div><b>Kafedra:</b> ${esc(t.department)}</div><div><b>Telefon:</b> ${esc(t.phone)}</div><div><b>Holat:</b> ${esc(availabilityLabel(t.availability))}</div></div></div>`;let h=`<div class="status"><span class="dot" style="background:${st.color}"></span>${st.label.toUpperCase()}</div>`;if(st.key==="inclass"){const sub=st.lesson.substituteTeacherId?teacherById(st.lesson.substituteTeacherId):null;h+=`<p><b>Fan:</b> ${esc(st.lesson.subject)}<br><b>Guruh:</b> ${esc(st.lesson.group)}<br><b>Xona:</b> ${roomDisplay(st.lesson.room,st.lesson.roomBuilding,st.lesson.roomId)}<br><b>Dars turi:</b> ${esc(st.lesson.type)}<br><b>Juftlik:</b> ${st.lesson.pair}<br><b>Vaqt:</b> ${st.lesson.start}–${st.lesson.end}${sub?`<br><b>Almashtiruvchi:</b> ${esc(sub.name)}`:""}</p><b>Dars tugashiga ${st.remaining} daqiqa qoldi.</b>`}else if(st.next){h+=`<p><b>Keyingi dars:</b> ${st.next.start}<br><b>Fan:</b> ${esc(st.next.subject)}<br><b>Guruh:</b> ${esc(st.next.group)}<br><b>Xona:</b> ${roomDisplay(st.next.room,st.next.roomBuilding,st.next.roomId)}</p>`}else h+=`<p>Bugun joriy hafta bo‘yicha boshqa dars mavjud emas.</p>`;$("statusCard").innerHTML=h;$("roomCard").innerHTML=st.key==="inclass"?`<b>${roomDisplay(st.lesson.room,st.lesson.roomBuilding,st.lesson.roomId).replace("-xona","-XONA")}</b><span>Joriy dars xonasi</span>`:st.next?`<b>${roomDisplay(st.next.room,st.next.roomBuilding,st.next.roomId).replace("-xona","-XONA")}</b><span>Keyingi dars xonasi</span>`:`<b style="font-size:24px">DARS YO‘Q</b>`;$("teacherScheduleBody").innerHTML=[...t.schedule].sort((a,b)=>dayOrder[a.day]-dayOrder[b.day]||a.pair-b.pair).map(l=>`<tr><td>${l.day}</td><td>${l.pair}</td><td>${l.start}–${l.end}</td><td>${esc(l.subject)}</td><td>${esc(l.group)}</td><td>${roomDisplay(l.room,l.roomBuilding,l.roomId)}</td><td>${esc(l.type)}</td><td><span class="badge ${l.weekType}">${l.weekType==="doim"?"Doimiy":l.weekType}</span></td><td><span class="badge ${l.cancelled?"cancelled":l.status}">${l.cancelled?"Bekor qilingan":l.status==="approved"?"Tasdiqlangan":"Kutilmoqda"}</span></td></tr>`).join("");$("teacherModal").classList.add("open")}
 window.openTeacher=openTeacher;
 
 function renderAdminSelectors(){$("lTeacher").innerHTML=db.teachers.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join("");$("lSubstitute").innerHTML='<option value="">Yo‘q</option>'+db.teachers.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join("");$("lRoom").innerHTML=db.rooms.map(r=>`<option value="${r.id}">${esc(r.name)}-xona · ${esc(r.building||"")} · ${esc(r.type)} · ${r.capacity} o‘rin</option>`).join("")}
-function renderTeacherAdmin(){$("teacherAdminList").innerHTML=db.teachers.map(t=>`<div class="admin-row"><strong>${esc(t.name)}</strong><div class="mini">${esc(t.position)} · ${esc(t.availability)} · Darslar: ${t.schedule.length}</div><div class="actions" style="margin-top:8px"><button class="btn ghost" onclick="editTeacher(${t.id})">Tahrirlash</button><button class="btn danger" onclick="deleteTeacher(${t.id})">O‘chirish</button></div></div>`).join("")}
+function renderTeacherAdmin(){$("teacherAdminList").innerHTML=db.teachers.map(t=>`<div class="admin-row"><strong>${esc(t.name)}</strong><div class="mini">${esc(t.position)} · ${esc(t.availability)} · Darslar: ${(t.schedule||[]).length}</div><div class="actions" style="margin-top:8px"><button class="btn ghost" onclick="editTeacher(${t.id})">Tahrirlash</button><button class="btn danger" onclick="deleteTeacher(${t.id})">O‘chirish</button></div></div>`).join("")}
 function renderRoomAdmin(){$("roomAdminList").innerHTML=db.rooms.map(r=>`<div class="admin-row"><strong>${esc(r.name)}-xona</strong><div class="mini">${esc(r.type)} · ${r.capacity} o‘rin · ${esc(r.building)}</div><div class="actions" style="margin-top:8px"><button class="btn ghost" onclick="editRoom(${r.id})">Tahrirlash</button><button class="btn danger" onclick="deleteRoom(${r.id})">O‘chirish</button></div></div>`).join("")}
-function renderLessonAdmin(){const rows=[];db.teachers.forEach(t=>t.schedule.forEach(l=>rows.push({t,l})));$("lessonAdminList").innerHTML=rows.length?rows.map(({t,l})=>`<div class="admin-row"><strong>${esc(t.name)} · ${l.day} · ${l.pair}-juftlik</strong><div class="mini">${esc(l.subject)} · ${esc(l.group)} · ${roomDisplay(l.room)} · ${esc(l.type)} · ${l.weekType==="doim"?"Doimiy":l.weekType}${lessonEducationType(l)==="sirtqi"?` · Sirtqi · ${lessonWeekRange(l).start}–${lessonWeekRange(l).end}-hafta`:""}</div><div style="margin-top:6px"><span class="badge ${l.cancelled?"cancelled":l.status}">${l.cancelled?"Bekor qilingan":l.status==="approved"?"Tasdiqlangan":"Kutilmoqda"}</span></div><div class="actions" style="margin-top:8px"><button class="btn ghost" onclick="editLesson(${t.id},${l.id})">Tahrirlash</button><button class="btn warn" onclick="toggleCancel(${t.id},${l.id})">${l.cancelled?"Qayta faollashtirish":"Bekor qilish"}</button><button class="btn danger" onclick="deleteLesson(${t.id},${l.id})">O‘chirish</button></div></div>`).join(""):`<div class="empty">Darslar yo‘q.</div>`}
-function renderApproval(){$("approvalList").innerHTML=db.teachers.flatMap(t=>t.schedule.filter(l=>l.status==="pending"&&!l.cancelled).map(l=>({t,l}))).map(({t,l})=>`<div class="admin-row"><strong>${esc(t.name)} · ${l.day}, ${l.pair}-juftlik</strong><div class="mini">${esc(l.subject)} · ${esc(l.group)} · ${roomDisplay(l.room)}</div><div class="actions" style="margin-top:8px"><button class="btn success" onclick="approveLesson(${t.id},${l.id})">Tasdiqlash</button><button class="btn danger" onclick="rejectLesson(${t.id},${l.id})">Rad etish</button></div></div>`).join("")||'<div class="empty">Tasdiqlash kutilayotgan dars yo‘q.</div>'}
+function renderLessonAdmin(){const rows=[];db.teachers.forEach(t=>(t.schedule||[]).forEach(l=>rows.push({t,l})));$("lessonAdminList").innerHTML=rows.length?rows.map(({t,l})=>`<div class="admin-row"><strong>${esc(t.name)} · ${l.day} · ${l.pair}-juftlik</strong><div class="mini">${esc(l.subject)} · ${esc(l.group)} · ${roomDisplay(l.room,l.roomBuilding,l.roomId)} · ${esc(l.type)} · ${l.weekType==="doim"?"Doimiy":l.weekType}${lessonEducationType(l)==="sirtqi"?` · Sirtqi · ${lessonWeekRange(l).start}–${lessonWeekRange(l).end}-hafta`:""}</div><div style="margin-top:6px"><span class="badge ${l.cancelled?"cancelled":l.status}">${l.cancelled?"Bekor qilingan":l.status==="approved"?"Tasdiqlangan":"Kutilmoqda"}</span></div><div class="actions" style="margin-top:8px"><button class="btn ghost" onclick="editLesson(${t.id},${l.id})">Tahrirlash</button><button class="btn warn" onclick="toggleCancel(${t.id},${l.id})">${l.cancelled?"Qayta faollashtirish":"Bekor qilish"}</button><button class="btn danger" onclick="deleteLesson(${t.id},${l.id})">O‘chirish</button></div></div>`).join(""):`<div class="empty">Darslar yo‘q.</div>`}
+function renderApproval(){$("approvalList").innerHTML=db.teachers.flatMap(t=>(t.schedule||[]).filter(l=>l.status==="pending"&&!l.cancelled).map(l=>({t,l}))).map(({t,l})=>`<div class="admin-row"><strong>${esc(t.name)} · ${l.day}, ${l.pair}-juftlik</strong><div class="mini">${esc(l.subject)} · ${esc(l.group)} · ${roomDisplay(l.room,l.roomBuilding,l.roomId)}</div><div class="actions" style="margin-top:8px"><button class="btn success" onclick="approveLesson(${t.id},${l.id})">Tasdiqlash</button><button class="btn danger" onclick="rejectLesson(${t.id},${l.id})">Rad etish</button></div></div>`).join("")||'<div class="empty">Tasdiqlash kutilayotgan dars yo‘q.</div>'}
 function renderHistory(){$("historyList").innerHTML=db.history.length?db.history.map(h=>`<div class="admin-row"><strong>${esc(h.action)}</strong><div class="mini">${esc(h.time)}</div><div style="margin-top:5px">${esc(h.details)}</div></div>`).join(""):'<div class="empty">Tarix bo‘sh.</div>'}
 
 function clearTeacherForm(){$("editTeacherId").value="";["tName","tDegree","tPosition","tPhone","tImage","tAvailabilityNote"].forEach(id=>$(id).value="");$("tDepartment").value=(db.currentUser?.role==="mudiri"&&db.currentUser?.department)?db.currentUser.department:"Ekologiya, irrigatsiya va gidrotexnika";$("tAvailability").value="available";$("saveTeacherBtn").textContent="O‘qituvchini saqlash"}
@@ -3288,7 +3292,7 @@ function switchTab(id){document.querySelectorAll(".tab-section").forEach(s=>s.st
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
 
 $("roomViewBtn").onclick=()=>{const rows=db.rooms.map(r=>{const lessons=[];const key=physicalRoomKey(r.name,r.building);db.teachers.forEach(t=>(t.schedule||[]).filter(l=>!l.cancelled&&((l.roomId!=null&&String(l.roomId)===String(r.id))||physicalRoomKey(l.room,l.roomBuilding)===key)).forEach(l=>lessons.push({...l,teacher:t.name})));return `<div class="card"><h3>${esc(r.name)}-xona</h3><div class="mini">${esc(r.type)} · ${r.capacity} o‘rin · ${esc(r.building)}</div><div style="margin-top:10px">${lessons.length?lessons.sort((a,b)=>dayOrder[a.day]-dayOrder[b.day]||a.pair-b.pair).map(l=>`${l.day}, ${l.pair}-juftlik — ${esc(l.teacher)} / ${esc(l.subject)} / ${esc(l.group)}<br>`).join(""):"Dars yo‘q"}</div></div>`}).join("");$("genericTitle").textContent="Xonalar bo‘yicha jadval";$("genericBody").innerHTML=`<div class="grid">${rows}</div>`;$("genericModal").classList.add("open")}
-$("groupViewBtn").onclick=()=>{const groups={};db.teachers.forEach(t=>t.schedule.filter(l=>!l.cancelled).forEach(l=>(groups[l.group]??=[]).push({...l,teacher:t.name})));$("genericTitle").textContent="Guruhlar bo‘yicha jadval";$("genericBody").innerHTML=Object.keys(groups).sort().map(g=>`<div class="card" style="margin-bottom:10px"><h3>${esc(g)}</h3>${groups[g].sort((a,b)=>dayOrder[a.day]-dayOrder[b.day]||a.pair-b.pair).map(l=>`${l.day}, ${l.pair}-juftlik — ${esc(l.subject)} / ${esc(l.teacher)} / ${roomDisplay(l.room)}<br>`).join("")}</div>`).join("")||'<div class="empty">Guruhlar yo‘q.</div>';$("genericModal").classList.add("open")}
+$("groupViewBtn").onclick=()=>{const groups={};db.teachers.forEach(t=>t.schedule.filter(l=>!l.cancelled).forEach(l=>(groups[l.group]??=[]).push({...l,teacher:t.name})));$("genericTitle").textContent="Guruhlar bo‘yicha jadval";$("genericBody").innerHTML=Object.keys(groups).sort().map(g=>`<div class="card" style="margin-bottom:10px"><h3>${esc(g)}</h3>${groups[g].sort((a,b)=>dayOrder[a.day]-dayOrder[b.day]||a.pair-b.pair).map(l=>`${l.day}, ${l.pair}-juftlik — ${esc(l.subject)} / ${esc(l.teacher)} / ${roomDisplay(l.room,l.roomBuilding,l.roomId)}<br>`).join("")}</div>`).join("")||'<div class="empty">Guruhlar yo‘q.</div>';$("genericModal").classList.add("open")}
 
 
 $("exportExcelBtn").onclick=()=>{
@@ -3460,7 +3464,7 @@ $("cabinetBtn").onclick=()=>{
     if(t){
       content+=`<div class="section-title"><h3>Mening jadvalim</h3></div>`;
       content+=`<div style="overflow:auto"><table><thead><tr><th>Kun</th><th>Juftlik</th><th>Fan</th><th>Guruh</th><th>Xona</th><th>Hafta</th></tr></thead><tbody>`+
-      t.schedule.map(l=>`<tr><td>${l.day}</td><td>${l.pair}</td><td>${esc(l.subject)}</td><td>${esc(l.group)}</td><td>${roomDisplay(l.room)}</td><td>${l.weekType}</td></tr>`).join("")+
+      t.schedule.map(l=>`<tr><td>${l.day}</td><td>${l.pair}</td><td>${esc(l.subject)}</td><td>${esc(l.group)}</td><td>${roomDisplay(l.room,l.roomBuilding,l.roomId)}</td><td>${l.weekType}</td></tr>`).join("")+
       `</tbody></table></div>`;
     } else content+=`<div class="empty">Ismingizga mos o‘qituvchi topilmadi.</div>`;
   } else {
@@ -3497,7 +3501,7 @@ $("calendarBtn").onclick=()=>{
           <span class="calendar-lesson-subject">${esc(l.subject)}</span>
           <span class="calendar-lesson-meta">${esc(l.teacher.name)}</span>
           <span class="calendar-lesson-meta">${esc(l.group)}</span>
-          <span class="calendar-lesson-room">${roomDisplay(l.room)}</span>
+          <span class="calendar-lesson-room">${roomDisplay(l.room,l.roomBuilding,l.roomId)}</span>
         </div>`).join(""):`<div class="calendar-empty">—</div>`}</div>`;
     });
   }
@@ -4055,8 +4059,10 @@ const _oldValidateLesson=validateLesson;
 validateLesson=function(candidate,teacherId,editingLessonId=null){
   const res=_oldValidateLesson(candidate,teacherId,editingLessonId);
   const c=buildingTravelChecks(candidate,teacherId,editingLessonId);
-  res.errors.push(...c.errors);
+  res.errs.push(...c.errors);
   res.warns.push(...c.warns);
+  res.errs=[...new Set(res.errs)];
+  res.warns=[...new Set(res.warns)];
   return res;
 };
 
@@ -4209,7 +4215,7 @@ renderAdvanced();
     try{refreshExTeachers();renderExceptions();}catch(e){}
     try{renderAdminFacultyDepartments();}catch(e){}
 
-    if(typeof switchTab==="function") switchTab("teacherAdminTab");
+    if(typeof switchTab==="function") switchTab("teacherTab");
     showAlert(`${dep} kafedrasi boshqaruv uchun ochildi.`,"ok");
   };
 
@@ -4486,7 +4492,7 @@ renderAdvanced();
     <div class="section-title"><h3>Bugungi darslar</h3></div>
     <div class="today-list">${today.sort((a,b)=>a.pair-b.pair).map(l=>`
       <div class="today-item"><strong>${l.pair}-juftlik · ${l.start}–${l.end} · ${sEsc(l.teacher.name)}</strong><br>
-      ${sEsc(l.subject)} · ${sEsc(l.group)} · ${roomDisplay(l.room)} · ${sEsc(l.type)}</div>`).join('')||'<div class="empty">Bugun dars yo‘q.</div>'}</div>`;
+      ${sEsc(l.subject)} · ${sEsc(l.group)} · ${roomDisplay(l.room,l.roomBuilding,l.roomId)} · ${sEsc(l.type)}</div>`).join('')||'<div class="empty">Bugun dars yo‘q.</div>'}</div>`;
     openSmart('Kafedra mudiri kabineti',dep,html);
   }
 
@@ -4495,7 +4501,6 @@ renderAdvanced();
     if(!Array.isArray(db.dayExceptions)) db.dayExceptions=[];
     if(!Array.isArray(db.orgStructure)) db.orgStructure=[{id:1,building:"1-bino",faculty:"Tabiiy resurslarni boshqarish",department:"Ekologiya, irrigatsiya va gidrotexnika",room:""}];
     if(!Array.isArray(db.buildingDistances)) db.buildingDistances=[];
-    try{save();}catch(e){}
   }
   function openSmart(title,subtitle,content){
     g('smartTitle').textContent=title; g('smartSubtitle').textContent=subtitle||''; g('smartBody').innerHTML=content; g('smartModal').classList.add('open');
@@ -4972,7 +4977,8 @@ renderAdvanced();
       window.syncLoginGate();
     }
 
-    save();
+    // Boshlang‘ich UI init cloud yuklanishini to‘sib qo‘ymasligi kerak.
+    localStorage.setItem("dispatchDB",JSON.stringify(db));
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initExtras);else initExtras();
 })();
@@ -5202,7 +5208,7 @@ body.login-required #loginModal #doLoginBtn{
           <div class="admin-row">
             <strong>${esc(t.name)}</strong>
             <div class="mini">${esc(l.subject)} · ${esc(l.group)} · ${l.pair}-juftlik</div>
-            <div style="margin-top:6px">${roomDisplay(l.room)} · ${esc(l.type)} · ${esc(l.start)}–${esc(l.end)}</div>
+            <div style="margin-top:6px">${roomDisplay(l.room,l.roomBuilding,l.roomId)} · ${esc(l.type)} · ${esc(l.start)}–${esc(l.end)}</div>
           </div>`).join("")}</div>`
       : `<div class="empty">Hozir darsda bo‘lgan o‘qituvchi yo‘q.</div>`;
 
@@ -5632,7 +5638,7 @@ body.hemis-layout #advancedModal .calendar-grid{
         rows.push({
           kind:'O‘qituvchi',icon:'O‘',title:t.name,
           meta:[t.position,t.department].filter(Boolean).join(' · '),
-          action:()=>{document.getElementById('proSearchModal')?.classList.remove('open'); if(typeof openTeacherModal==='function')openTeacherModal(t.id);}
+          action:()=>{document.getElementById('proSearchModal')?.classList.remove('open'); if(typeof openTeacher==='function')openTeacher(t.id);}
         });
       }
       (t.schedule||[]).forEach(l=>{
@@ -5643,7 +5649,7 @@ body.hemis-layout #advancedModal .calendar-grid{
           rows.push({
             kind:'Dars',icon:'D',title:l.subject||'Dars',
             meta:`${t.name} · ${l.group||''} · ${l.day||''}, ${l.pair||''}-juftlik · ${(r?.name||l.room||'')}-xona${(r?.building||l.roomBuilding)?' · '+(r?.building||l.roomBuilding):''}`,
-            action:()=>{document.getElementById('proSearchModal')?.classList.remove('open'); if(typeof openTeacherModal==='function')openTeacherModal(t.id);}
+            action:()=>{document.getElementById('proSearchModal')?.classList.remove('open'); if(typeof openTeacher==='function')openTeacher(t.id);}
           });
         }
       });
@@ -6243,7 +6249,7 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
       <div class="pro-form-row">
         <div><label class="pro-label">Kun</label><select id="proFilterDay" class="pro-input"><option value="">Barchasi</option>${days.map(d=>`<option>${d}</option>`).join("")}</select></div>
         <div><label class="pro-label">Bino</label><select id="proFilterBuilding" class="pro-input"><option value="">Barchasi</option>${[...new Set(rooms().map(r=>r.building).filter(Boolean))].sort().map(x=>`<option>${e(x)}</option>`).join("")}</select></div>
-        <div><label class="pro-label">Juftlik</label><select id="proFilterPair" class="pro-input"><option value="">Barchasi</option>${[1,2,3,4,5,6].map(x=>`<option value="${x}">${x}-juftlik</option>`).join("")}</select></div>
+        <div><label class="pro-label">Juftlik</label><select id="proFilterPair" class="pro-input"><option value="">Barchasi</option>${[1,2,3,4,5,6,7,8].map(x=>`<option value="${x}">${x}-juftlik</option>`).join("")}</select></div>
         <div><label class="pro-label">Qidiruv</label><input id="proFilterText" class="pro-input" placeholder="Fan, guruh, o‘qituvchi..."></div>
       </div>
       <div class="pro-row-actions"><button class="pro-mini-btn" onclick="window.proApplyFilter()">Ko‘rsatish</button></div>
@@ -6276,7 +6282,7 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
       <strong>${e(l.subject)}</strong><div class="pro-muted">${e(t.name)} · ${e(l.group)}</div>
       <div class="pro-form-row">
         <div><label class="pro-label">Kun</label><select id="proMoveDay" class="pro-input">${days.map(d=>`<option ${d===l.day?"selected":""}>${d}</option>`).join("")}</select></div>
-        <div><label class="pro-label">Juftlik</label><select id="proMovePair" class="pro-input">${[1,2,3,4,5,6].map(p=>`<option value="${p}" ${Number(l.pair)===p?"selected":""}>${p}-juftlik</option>`).join("")}</select></div>
+        <div><label class="pro-label">Juftlik</label><select id="proMovePair" class="pro-input">${[1,2,3,4,5,6,7,8].map(p=>`<option value="${p}" ${Number(l.pair)===p?"selected":""}>${p}-juftlik</option>`).join("")}</select></div>
         <div class="full"><label class="pro-label">Xona</label><select id="proMoveRoom" class="pro-input">${rooms().map(r=>`<option value="${e(r.id)}" ${String(r.id)===String(l.roomId)?"selected":""}>${e(r.name)}-xona · ${e(r.building||"")}</option>`).join("")}</select></div>
       </div>
       <div class="pro-row-actions"><button class="pro-mini-btn" onclick="window.proCommitMove('${String(tid)}','${String(lid)}')">Ko‘chirishni saqlash</button></div>
@@ -6288,8 +6294,9 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
     const nr=rooms().find(r=>String(r.id)===String($p("proMoveRoom")?.value));
     const candidate={...l,day:$p("proMoveDay")?.value,pair:Number($p("proMovePair")?.value),room:nr?.name||l.room,roomId:nr?.id||l.roomId,roomBuilding:nr?.building||l.roomBuilding};
     if(typeof validateLesson==="function"){
-      const errs=validateLesson(candidate,t.id,l.id);
-      if(errs?.length){if(typeof showAlert==="function")showAlert(errs.map(x=>"• "+x).join("<br>"),"error");return}
+      const validation=validateLesson(candidate,t.id,l.id);
+      const errs=Array.isArray(validation)?validation:(validation?.errs||[]);
+      if(errs.length){if(typeof showAlert==="function")showAlert(errs.map(x=>"• "+x).join("\n"),"error");return}
     }
     Object.assign(l,candidate);
     if(typeof addHistory==="function")addHistory("Dars ko‘chirildi",`${t.name} · ${l.subject} · ${l.day} ${l.pair}-juftlik`);
@@ -6305,7 +6312,7 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
         <div><label class="pro-label">O‘qituvchi</label><select id="proSugTeacher" class="pro-input">${teacherOpts}</select></div>
         <div><label class="pro-label">Guruh soni</label><input id="proSugSize" type="number" value="25" min="1" class="pro-input"></div>
         <div><label class="pro-label">Kun</label><select id="proSugDay" class="pro-input">${days.map(d=>`<option>${d}</option>`).join("")}</select></div>
-        <div><label class="pro-label">Juftlik</label><select id="proSugPair" class="pro-input">${[1,2,3,4,5,6].map(p=>`<option value="${p}">${p}-juftlik</option>`).join("")}</select></div>
+        <div><label class="pro-label">Juftlik</label><select id="proSugPair" class="pro-input">${[1,2,3,4,5,6,7,8].map(p=>`<option value="${p}">${p}-juftlik</option>`).join("")}</select></div>
       </div>
       <div class="pro-row-actions">
         <button class="pro-mini-btn" onclick="window.proSuggestRooms()">Mos xona</button>
@@ -6321,7 +6328,7 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
   window.proSuggestTimes=()=>{
     const tid=$p("proSugTeacher")?.value,t=teachers().find(x=>String(x.id)===String(tid));if(!t)return;
     const out=[];
-    days.forEach(day=>[1,2,3,4,5,6].forEach(pair=>{
+    days.forEach(day=>[1,2,3,4,5,6,7,8].forEach(pair=>{
       const busy=typeof globalTeacherBusy==="function"?globalTeacherBusy(t,day,pair,currentWeek):(t.schedule||[]).some(l=>!l.cancelled&&l.day===day&&Number(l.pair)===pair&&activeWeek(l));
       if(!busy)out.push(`${day}, ${pair}-juftlik`);
     }));
@@ -6588,8 +6595,9 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
       const tid=x.meta.teacherId, t=teachers().find(z=>String(z.id)===String(tid));
       if(!t)return showAlert?.("Dars egasi bo‘lgan o‘qituvchi topilmadi.","error");
       const cand=clone(x.data);
-      const errs=typeof validateLesson==="function"?validateLesson(cand,t.id,null):[];
-      if(errs?.length)return showAlert?.(errs.map(z=>"• "+z).join("<br>"),"error");
+      const validation=typeof validateLesson==="function"?validateLesson(cand,t.id,null):{errs:[]};
+      const errs=Array.isArray(validation)?validation:(validation?.errs||[]);
+      if(errs.length)return showAlert?.(errs.map(z=>"• "+z).join("\n"),"error");
       t.schedule=t.schedule||[];t.schedule.push(cand);
     }
     db.ultra.trash=db.ultra.trash.filter(z=>z.id!==id);
@@ -6720,8 +6728,9 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
         if(!t||!rr){skip++;return}
         const pair=Number(pickCol(r,["Juftlik","Pair"])||0), p=pairTimes[pair];if(!pair||!p){skip++;return}
         const l={id:Date.now()+Math.random(),day:String(pickCol(r,["Kun","Day"])||""),weekType:String(pickCol(r,["Hafta","Week"])||"doim").toLowerCase(),pair,start:p.start,end:p.end,subject:String(pickCol(r,["Fan","Subject"])||""),group:String(pickCol(r,["Guruh","Group"])||""),groupSize:Number(pickCol(r,["Guruh soni","Group size"])||0),room:rr.name,roomId:rr.id,roomBuilding:rr.building||"",type:String(pickCol(r,["Turi","Tur","Type"])||"Ma'ruza"),substituteTeacherId:"",status:"approved",cancelled:false,note:""};
-        const errs=typeof validateLesson==="function"?validateLesson(l,t.id,null):[];
-        if(errs?.length){skip++;return}t.schedule.push(l);ok++;
+        const validation=typeof validateLesson==="function"?validateLesson(l,t.id,null):{errs:[]};
+        const errs=Array.isArray(validation)?validation:(validation?.errs||[]);
+        if(errs.length){skip++;return}t.schedule.push(l);ok++;
       }
     });
     notify("Bulk import",`${ok} ta qo‘shildi, ${skip} ta o‘tkazildi`,"import");saveU();showAlert?.(`${ok} ta yozuv import qilindi. ${skip} ta o‘tkazib yuborildi.`,"ok");
@@ -6732,7 +6741,7 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
     const rows=lessons(false).slice(0,250);
     return `<div class="ultra-card"><div class="ultra-form">
       <div><label class="ultra-label">Yangi kun (ixtiyoriy)</label><select id="ultraBulkDay" class="ultra-input"><option value="">O‘zgarmasin</option>${DAYS.map(d=>`<option>${d}</option>`).join("")}</select></div>
-      <div><label class="ultra-label">Yangi juftlik (ixtiyoriy)</label><select id="ultraBulkPair" class="ultra-input"><option value="">O‘zgarmasin</option>${[1,2,3,4,5,6].map(p=>`<option value="${p}">${p}-juftlik</option>`).join("")}</select></div>
+      <div><label class="ultra-label">Yangi juftlik (ixtiyoriy)</label><select id="ultraBulkPair" class="ultra-input"><option value="">O‘zgarmasin</option>${[1,2,3,4,5,6,7,8].map(p=>`<option value="${p}">${p}-juftlik</option>`).join("")}</select></div>
       <div class="ultra-full"><label class="ultra-label">Yangi xona (ixtiyoriy)</label><select id="ultraBulkRoom" class="ultra-input"><option value="">O‘zgarmasin</option>${rooms().map(r=>`<option value="${r.id}">${escU(r.name)}-xona · ${escU(r.building||"")}</option>`).join("")}</select></div>
     </div><div class="ultra-actions"><button class="ultra-btn2" onclick="window.ultraApplyBulk()">Tanlanganlarni o‘zgartirish</button></div></div>
     <div class="ultra-table-wrap"><table class="ultra-table"><thead><tr><th></th><th>O‘qituvchi</th><th>Fan</th><th>Guruh</th><th>Kun</th><th>Juftlik</th><th>Xona</th></tr></thead><tbody>
@@ -6746,8 +6755,9 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
     document.querySelectorAll(".ultraBulkCheck:checked").forEach(ch=>{
       const t=teachers().find(x=>String(x.id)===ch.dataset.tid),l=t?.schedule?.find(x=>String(x.id)===ch.dataset.lid);if(!t||!l)return;
       const cand={...l};if(day)cand.day=day;if(pair){cand.pair=pair;cand.start=pairTimes[pair].start;cand.end=pairTimes[pair].end}if(rr){cand.room=rr.name;cand.roomId=rr.id;cand.roomBuilding=rr.building||""}
-      const errs=typeof validateLesson==="function"?validateLesson(cand,t.id,l.id):[];
-      if(errs?.length){skip++;return}
+      const validation=typeof validateLesson==="function"?validateLesson(cand,t.id,l.id):{errs:[]};
+      const errs=Array.isArray(validation)?validation:(validation?.errs||[]);
+      if(errs.length){skip++;return}
       captureVersion(t,l,"Bulk editdan oldin");Object.assign(l,cand);ok++;
     });
     notify("Bulk edit",`${ok} ta dars o‘zgardi, ${skip} ta konflikt sabab o‘tmadi`,"edit");saveU();showAlert?.(`${ok} ta dars o‘zgartirildi. ${skip} ta o‘tkazildi.`,"ok");
@@ -7140,8 +7150,8 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
 
   /* 8. Conflict heatmap */
   function conflictMatrix(){
-    const counts={};DAYS.forEach(d=>[1,2,3,4,5,6].forEach(p=>counts[`${d}|${p}`]=0));
-    DAYS.forEach(day=>[1,2,3,4,5,6].forEach(pair=>{
+    const counts={};DAYS.forEach(d=>[1,2,3,4,5,6,7,8].forEach(p=>counts[`${d}|${p}`]=0));
+    DAYS.forEach(day=>[1,2,3,4,5,6,7,8].forEach(pair=>{
       const arr=lessons(false).filter(x=>x.l.status==="approved"&&weekOk(x.l)&&x.l.day===day&&Number(x.l.pair)===pair);
       const rm=new Map(),tm=new Map(),gm=new Map();
       arr.forEach(({t,l})=>{
@@ -7155,7 +7165,7 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
   }
   function heatHTML(){
     const c=conflictMatrix();let h=`<div class="ultra-table-wrap"><div class="ultra-heat"><div class="head">Juftlik</div>${DAYS.map(d=>`<div class="head">${d}</div>`).join("")}`;
-    [1,2,3,4,5,6].forEach(p=>{h+=`<div class="head">${p}</div>`;DAYS.forEach(d=>{const n=c[`${d}|${p}`],cl=n>=3?"level3":n>=2?"level2":n>=1?"level1":"";h+=`<div class="${cl}">${n}</div>`})});
+    [1,2,3,4,5,6,7,8].forEach(p=>{h+=`<div class="head">${p}</div>`;DAYS.forEach(d=>{const n=c[`${d}|${p}`],cl=n>=3?"level3":n>=2?"level2":n>=1?"level1":"";h+=`<div class="${cl}">${n}</div>`})});
     return h+`</div></div>`;
   }
 
@@ -7310,7 +7320,7 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
   /* 18. A4 print layout */
   function printHTML(){
     let grid=`<table style="width:100%;border-collapse:collapse"><thead><tr><th style="border:1px solid #aaa;padding:5px">Juftlik</th>${DAYS.map(d=>`<th style="border:1px solid #aaa;padding:5px">${d}</th>`).join("")}</tr></thead><tbody>`;
-    [1,2,3,4,5,6].forEach(p=>{grid+=`<tr><th style="border:1px solid #aaa;padding:5px">${p}</th>`;DAYS.forEach(d=>{const a=lessons(false).filter(x=>x.l.day===d&&Number(x.l.pair)===p&&weekOk(x.l));grid+=`<td style="border:1px solid #aaa;padding:5px;vertical-align:top">${a.map(x=>`<b>${escU(x.t.name)}</b><br>${escU(x.l.subject)}<br>${escU(x.l.group)} · ${escU(x.l.room)}<hr>`).join("")}</td>`});grid+="</tr>"});
+    [1,2,3,4,5,6,7,8].forEach(p=>{grid+=`<tr><th style="border:1px solid #aaa;padding:5px">${p}</th>`;DAYS.forEach(d=>{const a=lessons(false).filter(x=>x.l.day===d&&Number(x.l.pair)===p&&weekOk(x.l));grid+=`<td style="border:1px solid #aaa;padding:5px;vertical-align:top">${a.map(x=>`<b>${escU(x.t.name)}</b><br>${escU(x.l.subject)}<br>${escU(x.l.group)} · ${escU(x.l.room)}<hr>`).join("")}</td>`});grid+="</tr>"});
     return grid+"</tbody></table>";
   }
   window.ultraPrint=()=>{
@@ -7458,7 +7468,7 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
     const m=location.hash.match(/^#schedule=(teacher|room):(.+)$/);if(!m)return;
     const type=m[1],id=decodeURIComponent(m[2]);
     setTimeout(()=>{
-      if(type==="teacher"){const t=teachers().find(x=>String(x.id)===id);if(t&&typeof openTeacherModal==="function")openTeacherModal(t.id)}
+      if(type==="teacher"){const t=teachers().find(x=>String(x.id)===id);if(t&&typeof openTeacher==="function")openTeacher(t.id)}
       else{
         const r=rooms().find(x=>String(x.id)===id);if(!r)return;
         const arr=lessons(false).filter(({l})=>String(l.roomId)===String(r.id));
@@ -8591,6 +8601,12 @@ body.hemis-layout #advancedModal .modal-card{
     width:calc(100vw - 20px) !important;
   }
 }
+</style>
+
+
+<style id="page-overflow-audit-fix">
+html{overflow-x:hidden}
+body.hemis-layout{overflow-x:hidden}
 </style>
 
 </body>
