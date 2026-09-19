@@ -3086,7 +3086,70 @@ function renderApproval(){$("approvalList").innerHTML=db.teachers.flatMap(t=>t.s
 function renderHistory(){$("historyList").innerHTML=db.history.length?db.history.map(h=>`<div class="admin-row"><strong>${esc(h.action)}</strong><div class="mini">${esc(h.time)}</div><div style="margin-top:5px">${esc(h.details)}</div></div>`).join(""):'<div class="empty">Tarix bo‘sh.</div>'}
 
 function clearTeacherForm(){$("editTeacherId").value="";["tName","tDegree","tPosition","tPhone","tImage","tAvailabilityNote"].forEach(id=>$(id).value="");$("tDepartment").value=(db.currentUser?.role==="mudiri"&&db.currentUser?.department)?db.currentUser.department:"Ekologiya, irrigatsiya va gidrotexnika";$("tAvailability").value="available";$("saveTeacherBtn").textContent="O‘qituvchini saqlash"}
-$("saveTeacherBtn").onclick=()=>{const name=$("tName").value.trim();if(!name)return showAlert("Ism-familiya kiritilmagan.","error");const department=(db.currentUser?.role==="mudiri"&&db.currentUser?.department)?db.currentUser.department:$("tDepartment").value.trim();const id=$("editTeacherId").value;let t=id?teacherById(id):null;if(t){Object.assign(t,{name,degree:$("tDegree").value.trim(),position:$("tPosition").value.trim(),department,phone:$("tPhone").value.trim(),image:$("tImage").value.trim()||t.image,availability:$("tAvailability").value,availabilityNote:$("tAvailabilityNote").value.trim()});addHistory("O‘qituvchi tahrirlandi",name)}else{const nid=Date.now();db.teachers.push({id:nid,name,degree:$("tDegree").value.trim(),position:$("tPosition").value.trim()||"O‘qituvchi",department,phone:$("tPhone").value.trim(),image:$("tImage").value.trim()||`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=dbeafe&color=1d4ed8&size=256`,availability:$("tAvailability").value,availabilityNote:$("tAvailabilityNote").value.trim(),schedule:[]});addHistory("O‘qituvchi qo‘shildi",name)}save();clearTeacherForm();renderAll();showAlert("O‘qituvchi ma’lumotlari saqlandi.","ok")}
+$("saveTeacherBtn").onclick=()=>{
+ const name=$("tName").value.trim();
+ if(!name)return showAlert("Ism-familiya kiritilmagan.","error");
+
+ const department=(db.currentUser?.role==="mudiri"&&db.currentUser?.department)
+   ?db.currentUser.department
+   :$("tDepartment").value.trim();
+
+ const id=$("editTeacherId").value;
+ const phone=$("tPhone").value.trim();
+ const normalizedName=name.toLowerCase().replace(/\s+/g," ");
+ const normalizedPhone=phone.replace(/\D/g,"");
+
+ const duplicate=db.teachers.find(x=>{
+   if(String(x.id)===String(id))return false;
+   const sameName=String(x.name||"").trim().toLowerCase().replace(/\s+/g," ")===normalizedName;
+   const xPhone=String(x.phone||"").replace(/\D/g,"");
+   const samePhone=normalizedPhone.length>=7 && xPhone===normalizedPhone;
+   return sameName || samePhone;
+ });
+
+ if(duplicate){
+   return showAlert("Bu o‘qituvchi allaqachon mavjud.","error");
+ }
+
+ let t=id?teacherById(id):null;
+
+ if(t){
+   Object.assign(t,{
+     name,
+     degree:$("tDegree").value.trim(),
+     position:$("tPosition").value.trim(),
+     department,
+     phone,
+     image:$("tImage").value.trim()||t.image,
+     availability:$("tAvailability").value,
+     availabilityNote:$("tAvailabilityNote").value.trim()
+   });
+   addHistory("O‘qituvchi tahrirlandi",name);
+   save();
+   clearTeacherForm();
+   renderAll();
+   showAlert("O‘qituvchi ma’lumotlari yangilandi.","ok");
+ }else{
+   const nid=Date.now();
+   db.teachers.push({
+     id:nid,
+     name,
+     degree:$("tDegree").value.trim(),
+     position:$("tPosition").value.trim()||"O‘qituvchi",
+     department,
+     phone,
+     image:$("tImage").value.trim()||`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=dbeafe&color=1d4ed8&size=256`,
+     availability:$("tAvailability").value,
+     availabilityNote:$("tAvailabilityNote").value.trim(),
+     schedule:[]
+   });
+   addHistory("O‘qituvchi qo‘shildi",name);
+   save();
+   clearTeacherForm();
+   renderAll();
+   showAlert("O‘qituvchi muvaffaqiyatli qo‘shildi.","ok");
+ }
+}
 function editTeacher(id){const t=teacherById(id);if(!t)return;switchTab("teacherTab");$("editTeacherId").value=t.id;$("tName").value=t.name;$("tDegree").value=t.degree;$("tPosition").value=t.position;$("tDepartment").value=t.department;$("tPhone").value=t.phone;$("tImage").value=t.image;$("tAvailability").value=t.availability;$("tAvailabilityNote").value=t.availabilityNote;$("saveTeacherBtn").textContent="O‘zgarishlarni saqlash";$("adminPanel").scrollTo({top:0,behavior:"smooth"})}
 function deleteTeacher(id){const t=teacherById(id);if(!t||!confirm(`${t.name} o‘chirilsinmi?`))return;db.teachers=db.teachers.filter(x=>x.id!==id);addHistory("O‘qituvchi o‘chirildi",t.name);save();renderAll()}
 window.editTeacher=editTeacher;window.deleteTeacher=deleteTeacher;
