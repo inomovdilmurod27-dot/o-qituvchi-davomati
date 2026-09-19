@@ -2474,7 +2474,14 @@ async function writeChunkedCloudState(snapshot,expectedRevision){
 
 async function applyRemoteCloudState(remote){
   if(!remote?.db)return;
-  const sessionUser=db.currentUser&&db.currentUser.role!=="viewer"?{...db.currentUser}:null;
+
+  let sessionUser=null;
+  try{
+    sessionUser=JSON.parse(sessionStorage.getItem("dispatchCurrentUser")||"null");
+  }catch(e){
+    sessionUser=null;
+  }
+
   db=remote.db;
   cloudRevision=Number(remote.revision||cloudRevision||0);
 
@@ -2482,19 +2489,22 @@ async function applyRemoteCloudState(remote){
   if(typeof applySemesterSchedules==="function")applySemesterSchedules();
   if(typeof mergeDeletedLessonsFromLocal==="function")mergeDeletedLessonsFromLocal();
 
-  if(sessionUser){
-    db.currentUser=sessionUser;
+  if(sessionUser && sessionUser.role && sessionUser.role!=="viewer"){
+    db.currentUser={...sessionUser};
     if(sessionUser.role==="mudiri"&&sessionUser.department&&typeof window.activateDepartmentWorkspace==="function"){
       window.activateDepartmentWorkspace(sessionUser.department);
     }else if(["superadmin","admin"].includes(sessionUser.role)&&db.adminActiveDepartment&&typeof window.activateDepartmentWorkspace==="function"){
       window.activateDepartmentWorkspace(db.adminActiveDepartment);
     }
+  }else{
+    db.currentUser={name:"Mehmon",role:"viewer",department:""};
   }
 
   if(typeof purgeDeletedLessonMirrors==="function")purgeDeletedLessonMirrors();
   localStorage.setItem("dispatchDB",JSON.stringify(db));
   if(typeof renderAll==="function")renderAll();
   if(typeof updateCurrentUserBadge==="function")updateCurrentUserBadge();
+  if(typeof window.syncLoginGate==="function")window.syncLoginGate();
 }
 
 function flushCloudSave(){
@@ -4210,81 +4220,161 @@ renderAdvanced();
   function bindRealLogin(){
     const loginBtn=g('loginBtn'), close=g('closeLogin'), doBtn=g('doLoginBtn');
     const userInput=g('loginUser'), passInput=g('loginPassword');
+    const modal=g('loginModal'), card=modal?.querySelector('.modal-card');
+    let loginBusy=false;
+
+    window.syncLoginGate=function(){
+      const logged=!!(db.currentUser?.role && db.currentUser.role!=='viewer');
+      if(logged){
+        document.body.classList.remove('login-required');
+        modal?.classList.remove('open');
+      }else{
+        document.body.classList.add('login-required');
+        modal?.classList.add('open');
+      }
+    };
 
     const openLogin=()=>{
-      const modal=g('loginModal');
-      if(modal)modal.classList.add('open');
+      modal?.classList.add('open');
       setTimeout(()=>userInput?.focus(),0);
     };
 
-    const doLogin=()=>{
+    const clearError=()=>{
+      const err=g('loginError');
+      modal?.classList.remove('login-has-error');
+      card?.classList.remove('login-shake');
+      if(err){err.className='alert';err.textContent='';}
+    };
+
+    const showLoginError=(message)=>{
+      const err=g('loginError');
+      modal?.classList.add('login-has-error');
+      if(err){
+        err.className='alert show error';
+        err.textContent=message;
+      }
+      if(card){
+        card.classList.remove('login-shake');
+        void card.offsetWidth;
+        card.classList.add('login-shake');
+      }
+      setTimeout(()=>card?.classList.remove('login-shake'),420);
+    };
+
+    const waitCloud=async(maxMs=8000)=>{
+      const started=Date.now();
+      while(!cloudReady && Date.now()-started<maxMs){
+        await new Promise(resolve=>setTimeout(resolve,80));
+      }
+    };
+
+    const doLogin=async()=>{
+      if(loginBusy)return;
+
       const username=String(userInput?.value||'').trim().toLowerCase();
       const password=String(passInput?.value||'');
-      const err=g('loginError');
+      clearError();
 
       if(!username || !password){
-        if(err){
-          err.className='alert show error';
-          err.textContent='Login va parolni kiriting.';
-        }
+        showLoginError('Login va parolni kiriting.');
+        (!username?userInput:passInput)?.focus();
         return;
       }
 
-      let u=(db.users||[]).find(x=>
-        String(x.username||'').trim().toLowerCase()===username &&
-        String(x.password||'')===password
-      );
-
-      // Bazada hali birorta superadmin yaratilmagan bo‘lsa, dasturga kirish
-      // butunlay yopilib qolmasligi uchun standart superadmin faqat sessiya
-      // sifatida ishlaydi; users ro‘yxatiga avtomatik yozilmaydi.
-      if(!u && !(db.users||[]).some(x=>x.role==='superadmin') &&
-         username==='admin' && password==='admin123'){
-        u={id:'bootstrap-admin',name:'Super admin',username:'admin',role:'superadmin',department:''};
+      loginBusy=true;
+      if(doBtn){
+        doBtn.disabled=true;
+        doBtn.dataset.oldText=doBtn.textContent;
+        doBtn.textContent='Tekshirilmoqda...';
       }
 
-      if(!u){
-        if(err){
-          err.className='alert show error';
-          err.textContent='Login yoki parol noto‘g‘ri.';
+      try{
+        let u=(db.users||[]).find(x=>
+          String(x.username||'').trim().toLowerCase()===username &&
+          String(x.password||'')===password
+        );
+
+        // Cloud baza hali yuklanayotgan bo‘lsa foydalanuvchini kutib, sahifani
+        // yangilamasdan yana shu urinishning o‘zida tekshiradi.
+        if(!u && !cloudReady){
+          await waitCloud();
+          u=(db.users||[]).find(x=>
+            String(x.username||'').trim().toLowerCase()===username &&
+            String(x.password||'')===password
+          );
         }
-        return;
+
+        // Bazada superadmin umuman bo‘lmagan holatda boshlang‘ich kirish.
+        if(!u && !(db.users||[]).some(x=>x.role==='superadmin') &&
+           username==='admin' && password==='admin123'){
+          u={id:'bootstrap-admin',name:'Super admin',username:'admin',role:'superadmin',department:''};
+        }
+
+        if(!u){
+          showLoginError('Login yoki parol noto‘g‘ri. Ma’lumotlarni tekshirib, qayta urinib ko‘ring.');
+          passInput?.select();
+          return;
+        }
+
+        db.currentUser={
+          id:u.id,
+          name:u.name,
+          role:u.role,
+          department:u.department||''
+        };
+        sessionStorage.setItem('dispatchCurrentUser',JSON.stringify(db.currentUser));
+
+        if(u.role==='mudiri' && u.department){
+          activateDepartmentWorkspace(u.department);
+          if(g('tDepartment'))g('tDepartment').value=u.department;
+        }else if(["superadmin","admin"].includes(u.role) && db.adminActiveDepartment){
+          activateDepartmentWorkspace(db.adminActiveDepartment);
+        }
+
+        // Avval login oynasini darhol yopamiz; audit/cloud saqlash keyin bajariladi.
+        document.body.classList.remove('login-required');
+        modal?.classList.remove('open');
+        clearError();
+        applyRoleUI();
+        renderAll();
+
+        if(passInput)passInput.value='';
+
+        try{
+          audit('Tizimga kirildi',`${u.role}${u.department?' · '+u.department:''}`);
+        }catch(e){
+          console.error('Login audit xatosi:',e);
+        }
+
+        if(u.role==='mudiri')openDepartmentManagerCabinet();
+      }finally{
+        loginBusy=false;
+        if(doBtn){
+          doBtn.disabled=false;
+          doBtn.textContent=doBtn.dataset.oldText||'Kirish';
+        }
       }
-
-      db.currentUser={id:u.id,name:u.name,role:u.role,department:u.department||''};
-      sessionStorage.setItem('dispatchCurrentUser',JSON.stringify(db.currentUser));
-
-      if(u.role==='mudiri' && u.department){
-        activateDepartmentWorkspace(u.department);
-        if(g('tDepartment'))g('tDepartment').value=u.department;
-      }else if(["superadmin","admin"].includes(u.role) && db.adminActiveDepartment){
-        activateDepartmentWorkspace(db.adminActiveDepartment);
-      }
-
-      audit('Tizimga kirildi',`${u.role}${u.department?' · '+u.department:''}`);
-      document.body.classList.remove('login-required');
-      applyRoleUI();
-      renderAll();
-
-      const modal=g('loginModal');
-      if(modal)modal.classList.remove('open');
-      if(passInput)passInput.value='';
-      if(err){err.className='alert';err.textContent='';}
-
-      if(u.role==='mudiri')openDepartmentManagerCabinet();
     };
 
     window.performDispatchLogin=doLogin;
 
     if(loginBtn)loginBtn.onclick=openLogin;
-    if(close)close.onclick=()=>g('loginModal')?.classList.remove('open');
-    if(doBtn)doBtn.onclick=doLogin;
+    if(close)close.onclick=()=>modal?.classList.remove('open');
+    if(doBtn){
+      doBtn.type='button';
+      doBtn.onclick=e=>{
+        e?.preventDefault();
+        doLogin();
+      };
+    }
 
     [userInput,passInput].forEach(el=>{
       if(!el)return;
+      el.addEventListener('input',clearError);
       el.addEventListener('keydown',e=>{
         if(e.key==='Enter'){
           e.preventDefault();
+          e.stopPropagation();
           doLogin();
         }
       });
@@ -4775,26 +4865,16 @@ renderAdvanced();
     }
 
     if(restoredUser && restoredUser.role && restoredUser.role!=='viewer'){
-      let validUser=(db.users||[]).find(u=>String(u.id)===String(restoredUser.id));
-      if(!validUser && restoredUser.role==='superadmin' && String(restoredUser.id)==='1'){
-        validUser={id:1,name:'Super admin',username:'admin',role:'superadmin',department:''};
-      }
-
-      if(validUser){
-        db.currentUser={
-          id:validUser.id,
-          name:validUser.name,
-          role:validUser.role,
-          department:validUser.department||''
-        };
-        if(db.currentUser.role==='mudiri' && db.currentUser.department){
-          activateDepartmentWorkspace(db.currentUser.department);
-        }else if(["superadmin","admin"].includes(db.currentUser.role) && db.adminActiveDepartment){
-          activateDepartmentWorkspace(db.adminActiveDepartment);
-        }
-      }else{
-        sessionStorage.removeItem('dispatchCurrentUser');
-        db.currentUser={name:'Mehmon',role:'viewer',department:''};
+      db.currentUser={
+        id:restoredUser.id,
+        name:restoredUser.name,
+        role:restoredUser.role,
+        department:restoredUser.department||''
+      };
+      if(db.currentUser.role==='mudiri' && db.currentUser.department){
+        activateDepartmentWorkspace(db.currentUser.department);
+      }else if(["superadmin","admin"].includes(db.currentUser.role) && db.adminActiveDepartment){
+        activateDepartmentWorkspace(db.adminActiveDepartment);
       }
     }else{
       db.currentUser={name:'Mehmon',role:'viewer',department:''};
@@ -4814,12 +4894,8 @@ renderAdvanced();
     const lng=localStorage.getItem('uiLanguage')||'uz';if(g('languageSelect'))g('languageSelect').value=lng;applyLanguage(lng);
     applyRoleUI();
 
-    if(db.currentUser?.role==='viewer'){
-      document.body.classList.add('login-required');
-      setTimeout(()=>{ if(g('loginModal')) g('loginModal').classList.add('open'); },0);
-    }else{
-      document.body.classList.remove('login-required');
-      g('loginModal')?.classList.remove('open');
+    if(typeof window.syncLoginGate==="function"){
+      window.syncLoginGate();
     }
 
     save();
@@ -6046,7 +6122,38 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
   window.proPrintReport=()=>{
     const w=window.open("","_blank");
     const rows=allLessons(false).map(({t,l})=>`<tr><td>${e(t.name)}</td><td>${e(l.subject)}</td><td>${e(l.group)}</td><td>${e(l.day)}</td><td>${l.pair}</td><td>${e(l.room)} ${e(l.roomBuilding||"")}</td><td>${e(l.type)}</td></tr>`).join("");
-    w.document.write(`<html><head><title>Jadval hisoboti</title><style>body{font-family:Arial;padding:24px}table{border-collapse:collapse;width:100%;font-size:11px}th,td{border:1px solid #ccc;padding:6px}th{background:#eee}</style></head><body><h2>Universitet dars jadvali hisoboti</h2><p>${e(localISO())}</p><table><thead><tr><th>O‘qituvchi</th><th>Fan</th><th>Guruh</th><th>Kun</th><th>Juftlik</th><th>Xona</th><th>Turi</th></tr></thead><tbody>${rows}</tbody></table>
+    w.document.write(`<html><head><title>Jadval hisoboti</title><style>body{font-family:Arial;padding:24px}table{border-collapse:collapse;width:100%;font-size:11px}th,td{border:1px solid #ccc;padding:6px}th{background:#eee}</style>
+<style id="login-feedback-fix">
+@keyframes loginShake{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-7px)}
+  40%{transform:translateX(7px)}
+  60%{transform:translateX(-5px)}
+  80%{transform:translateX(5px)}
+}
+#loginModal .modal-card.login-shake{
+  animation:loginShake .34s ease;
+}
+#loginError.alert.show.error{
+  display:block !important;
+  margin-top:2px !important;
+  padding:10px 12px !important;
+  border-radius:6px !important;
+  font-size:12px !important;
+  font-weight:600 !important;
+  line-height:1.45 !important;
+}
+#loginModal.login-has-error #loginUser,
+#loginModal.login-has-error #loginPassword{
+  border-color:#dc3545 !important;
+}
+#doLoginBtn:disabled{
+  opacity:.7;
+  cursor:wait;
+}
+</style>
+
+</head><body><h2>Universitet dars jadvali hisoboti</h2><p>${e(localISO())}</p><table><thead><tr><th>O‘qituvchi</th><th>Fan</th><th>Guruh</th><th>Kun</th><th>Juftlik</th><th>Xona</th><th>Turi</th></tr></thead><tbody>${rows}</tbody></table>
 </body></html>`);
     w.document.close();w.focus();setTimeout(()=>w.print(),250);
   };
@@ -8376,50 +8483,7 @@ body.hemis-layout #advancedModal .modal-card{
 </style>
 
 
-<script id="final-alert-login-fix">
-(function(){
-  function moveAlertToBody(){
-    const a=document.getElementById('adminAlert');
-    if(a && a.parentElement!==document.body) document.body.appendChild(a);
-  }
 
-  function tryLogin(){
-    if(typeof window.performDispatchLogin==='function'){
-      window.performDispatchLogin();
-      return;
-    }
-    const btn=document.getElementById('doLoginBtn');
-    if(btn && typeof btn.onclick==='function') btn.onclick();
-    else if(btn) btn.click();
-  }
-
-  moveAlertToBody();
-
-  document.addEventListener('keydown',function(e){
-    if(e.key!=='Enter') return;
-    const modal=document.getElementById('loginModal');
-    if(!modal || !modal.classList.contains('open')) return;
-    const target=e.target;
-    if(!target || !['loginUser','loginPassword'].includes(target.id)) return;
-    e.preventDefault();
-    e.stopPropagation();
-    tryLogin();
-  },true);
-
-  document.addEventListener('click',function(e){
-    const btn=e.target.closest?.('#doLoginBtn');
-    if(!btn) return;
-    if(typeof window.performDispatchLogin==='function'){
-      e.preventDefault();
-      e.stopPropagation();
-      window.performDispatchLogin();
-    }
-  },true);
-
-  const observer=new MutationObserver(moveAlertToBody);
-  observer.observe(document.body,{childList:true,subtree:true});
-})();
-</script>
 
 </body>
 </html>
