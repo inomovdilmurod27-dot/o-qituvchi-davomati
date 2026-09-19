@@ -2609,11 +2609,22 @@ function roomDisplay(name){
 }
 function addHistory(action,details){db.history.unshift({id:Date.now(),time:new Date().toLocaleString("uz-UZ"),action,details});save()}
 function showAlert(msg,type="ok"){
- const a=$("adminAlert");
+ const a=document.getElementById("adminAlert");
  if(!a)return;
- a.className="alert show "+type;
- a.innerHTML=msg;
+
+ // Ogohlantirish panel ichida yashirinib qolmasligi uchun
+ // har safar body darajasiga chiqariladi.
+ if(a.parentElement!==document.body){
+   document.body.appendChild(a);
+ }
+
  clearTimeout(a._hideTimer);
+ a.className="alert";
+ a.textContent=msg;
+
+ // Klass qayta qo‘shilishi brauzerda xabarni ishonchli ko‘rsatadi.
+ void a.offsetWidth;
+ a.className="alert show "+type;
 }
 
 function availabilityLabel(v){
@@ -8547,6 +8558,40 @@ body.hemis-layout #advancedModal .modal-card{
 
 
 
+
+
+<style id="teacher-success-toast-fix">
+#adminAlert.alert.show{
+  position:fixed !important;
+  top:auto !important;
+  bottom:18px !important;
+  right:18px !important;
+  left:auto !important;
+  z-index:100000 !important;
+  width:min(420px,calc(100vw - 36px)) !important;
+  margin:0 !important;
+  padding:13px 15px !important;
+  border-radius:8px !important;
+  font-weight:700 !important;
+  box-shadow:0 12px 32px rgba(15,23,42,.24) !important;
+}
+#adminAlert.alert.show.ok{
+  display:block !important;
+  background:#ecfdf3 !important;
+  color:#067647 !important;
+  border:1px solid #86d9aa !important;
+}
+#adminAlert.alert.show.error{
+  display:block !important;
+}
+@media(max-width:520px){
+  #adminAlert.alert.show{
+    bottom:10px !important;
+    right:10px !important;
+    width:calc(100vw - 20px) !important;
+  }
+}
+</style>
 
 </body>
 </html>
