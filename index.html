@@ -1469,7 +1469,8 @@ th{
 #adminAlert.alert.show{
   display:block !important;
   position:fixed !important;
-  top:68px !important;
+  top:auto !important;
+  bottom:18px !important;
   right:18px !important;
   left:auto !important;
   width:min(420px,calc(100vw - 36px)) !important;
@@ -1486,7 +1487,8 @@ th{
 }
 @media(max-width:520px){
   #adminAlert.alert.show{
-    top:62px !important;
+    top:auto !important;
+    bottom:10px !important;
     right:10px !important;
     width:calc(100vw - 20px) !important;
   }
@@ -4271,6 +4273,8 @@ renderAdvanced();
 
       if(u.role==='mudiri')openDepartmentManagerCabinet();
     };
+
+    window.performDispatchLogin=doLogin;
 
     if(loginBtn)loginBtn.onclick=openLogin;
     if(close)close.onclick=()=>g('loginModal')?.classList.remove('open');
@@ -8286,6 +8290,134 @@ body.hemis-layout #advancedModal .modal-card{
     if(e.target.closest("button,input,select,textarea,label,a")) return;
     alertBox.classList.remove("show");
   });
+})();
+</script>
+
+
+<script>
+(function(){
+  function ensurePanelClose(root){
+    if(!(root instanceof Element)) return;
+
+    const targets=[];
+    if(root.matches?.('.modal, .side-panel, .monitor-mode')) targets.push(root);
+    root.querySelectorAll?.('.modal, .side-panel, .monitor-mode').forEach(x=>targets.push(x));
+
+    targets.forEach(panel=>{
+      if(panel.querySelector(':scope > .universal-panel-close')) return;
+      if(panel.querySelector('.close, .universal-monitor-close')) return;
+
+      const btn=document.createElement('button');
+      btn.type='button';
+      btn.className='close universal-panel-close';
+      btn.setAttribute('aria-label','Yopish');
+      btn.textContent='×';
+      btn.style.position='absolute';
+      btn.style.top='10px';
+      btn.style.right='10px';
+      btn.style.zIndex='50';
+
+      if(getComputedStyle(panel).position==='static') panel.style.position='relative';
+      panel.appendChild(btn);
+    });
+  }
+
+  ensurePanelClose(document.body);
+
+  const observer=new MutationObserver(mutations=>{
+    mutations.forEach(m=>m.addedNodes.forEach(n=>{
+      if(n instanceof Element) ensurePanelClose(n);
+    }));
+  });
+  observer.observe(document.body,{childList:true,subtree:true});
+
+  document.addEventListener('click',e=>{
+    const btn=e.target.closest('.universal-panel-close');
+    if(!btn)return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const panel=btn.closest('.modal, .side-panel, .monitor-mode');
+    if(!panel)return;
+
+    if(panel.classList.contains('modal') || panel.classList.contains('side-panel')){
+      panel.classList.remove('open');
+    }else if(panel.classList.contains('monitor-mode')){
+      panel.remove();
+    }
+  },true);
+})();
+</script>
+
+
+<style id="alert-bottom-fix">
+#adminAlert.alert.show{
+  display:block !important;
+  position:fixed !important;
+  top:auto !important;
+  bottom:18px !important;
+  right:18px !important;
+  left:auto !important;
+  width:min(420px,calc(100vw - 36px)) !important;
+  max-height:55vh !important;
+  overflow:auto !important;
+  margin:0 !important;
+  padding:14px 16px !important;
+  z-index:99999 !important;
+  box-shadow:0 14px 35px rgba(15,23,42,.28) !important;
+}
+@media(max-width:520px){
+  #adminAlert.alert.show{
+    bottom:10px !important;
+    right:10px !important;
+    width:calc(100vw - 20px) !important;
+  }
+}
+</style>
+
+
+<script id="final-alert-login-fix">
+(function(){
+  function moveAlertToBody(){
+    const a=document.getElementById('adminAlert');
+    if(a && a.parentElement!==document.body) document.body.appendChild(a);
+  }
+
+  function tryLogin(){
+    if(typeof window.performDispatchLogin==='function'){
+      window.performDispatchLogin();
+      return;
+    }
+    const btn=document.getElementById('doLoginBtn');
+    if(btn && typeof btn.onclick==='function') btn.onclick();
+    else if(btn) btn.click();
+  }
+
+  moveAlertToBody();
+
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Enter') return;
+    const modal=document.getElementById('loginModal');
+    if(!modal || !modal.classList.contains('open')) return;
+    const target=e.target;
+    if(!target || !['loginUser','loginPassword'].includes(target.id)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    tryLogin();
+  },true);
+
+  document.addEventListener('click',function(e){
+    const btn=e.target.closest?.('#doLoginBtn');
+    if(!btn) return;
+    if(typeof window.performDispatchLogin==='function'){
+      e.preventDefault();
+      e.stopPropagation();
+      window.performDispatchLogin();
+    }
+  },true);
+
+  const observer=new MutationObserver(moveAlertToBody);
+  observer.observe(document.body,{childList:true,subtree:true});
 })();
 </script>
 
