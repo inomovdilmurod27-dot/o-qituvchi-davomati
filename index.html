@@ -2265,14 +2265,31 @@ const dayNames=["Yakshanba","Dushanba","Seshanba","Chorshanba","Payshanba","Juma
 let currentWeek=localStorage.getItem("currentWeek")||"surat";
 let db=JSON.parse(localStorage.getItem("dispatchDB")||"null")||{
  teachers:[],
- rooms:[
-  {id:1,name:"305",capacity:35,type:"Ma’ruza zali",building:"1-bino"},
-  {id:2,name:"204",capacity:30,type:"Oddiy auditoriya",building:"1-bino"},
-  {id:3,name:"207",capacity:25,type:"Laboratoriya",building:"1-bino"},
-  {id:4,name:"IT-3",capacity:25,type:"Kompyuter xonasi",building:"2-bino"}
- ],
+ rooms:[],
  history:[]
 };
+
+(function clearAllTeacherRoomDataOnce(){
+  const KEY="dispatch_clear_teacher_room_v1";
+  if(localStorage.getItem(KEY)==="1")return;
+  try{
+    if(Array.isArray(db.teachers))db.teachers=[];
+    if(Array.isArray(db.rooms))db.rooms=[];
+    if(db.departmentWorkspaces && typeof db.departmentWorkspaces==="object"){
+      Object.values(db.departmentWorkspaces).forEach(ws=>{
+        if(ws && typeof ws==="object"){
+          ws.teachers=[];
+          ws.rooms=[];
+        }
+      });
+    }
+    // Darslar o‘qituvchilarning schedule ichida saqlanadigan joylarda ham tozalanadi,
+    // chunki o‘qituvchilar butunlay o‘chirilyapti.
+    localStorage.setItem(KEY,"1");
+    localStorage.setItem("dispatchDB",JSON.stringify(db));
+  }catch(e){console.error("O‘qituvchi/xona ma’lumotlarini tozalash xatosi:",e)}
+})();
+
 
 // ===== O‘QITUVCHI VA DARSLARNI BIR MARTALIK TO‘LIQ TOZALASH =====
 // Versiya belgisi tufayli tozalash faqat bir marta bajariladi.
@@ -3336,6 +3353,7 @@ function applyRoleUI(){
   if(fd)fd.style.display=["superadmin","admin"].includes(db.currentUser?.role)?"inline-block":"none";
   updateCurrentUserBadge();
 }
+
 $("loginBtn").onclick=()=>{const m=$("loginModal");if(m)m.classList.add("open")};
 if($("closeLogin")) $("closeLogin").onclick=()=>$("loginModal").classList.remove("open");
 if($("doLoginBtn")) $("doLoginBtn").onclick=()=>{};
@@ -4189,33 +4207,84 @@ renderAdvanced();
 
   function bindRealLogin(){
     const loginBtn=g('loginBtn'), close=g('closeLogin'), doBtn=g('doLoginBtn');
-    if(loginBtn) loginBtn.onclick=()=>g('loginModal').classList.add('open');
-    if(close) close.onclick=()=>g('loginModal').classList.remove('open');
-    if(doBtn) doBtn.onclick=()=>{
-      const username=g('loginUser').value.trim().toLowerCase();
-      const password=g('loginPassword').value;
+    const userInput=g('loginUser'), passInput=g('loginPassword');
+
+    const openLogin=()=>{
+      const modal=g('loginModal');
+      if(modal)modal.classList.add('open');
+      setTimeout(()=>userInput?.focus(),0);
+    };
+
+    const doLogin=()=>{
+      const username=String(userInput?.value||'').trim().toLowerCase();
+      const password=String(passInput?.value||'');
       const err=g('loginError');
-      let u=(db.users||[]).find(x=>String(x.username||'').toLowerCase()===username&&String(x.password||'')===String(password));
-      if(!u){
-        err.className='alert show error';
-        err.textContent='Login yoki parol noto‘g‘ri.';
+
+      if(!username || !password){
+        if(err){
+          err.className='alert show error';
+          err.textContent='Login va parolni kiriting.';
+        }
         return;
       }
+
+      let u=(db.users||[]).find(x=>
+        String(x.username||'').trim().toLowerCase()===username &&
+        String(x.password||'')===password
+      );
+
+      // Bazada hali birorta superadmin yaratilmagan bo‘lsa, dasturga kirish
+      // butunlay yopilib qolmasligi uchun standart superadmin faqat sessiya
+      // sifatida ishlaydi; users ro‘yxatiga avtomatik yozilmaydi.
+      if(!u && !(db.users||[]).some(x=>x.role==='superadmin') &&
+         username==='admin' && password==='admin123'){
+        u={id:'bootstrap-admin',name:'Super admin',username:'admin',role:'superadmin',department:''};
+      }
+
+      if(!u){
+        if(err){
+          err.className='alert show error';
+          err.textContent='Login yoki parol noto‘g‘ri.';
+        }
+        return;
+      }
+
       db.currentUser={id:u.id,name:u.name,role:u.role,department:u.department||''};
       sessionStorage.setItem('dispatchCurrentUser',JSON.stringify(db.currentUser));
+
       if(u.role==='mudiri' && u.department){
         activateDepartmentWorkspace(u.department);
-        if(g('tDepartment')) g('tDepartment').value=u.department;
+        if(g('tDepartment'))g('tDepartment').value=u.department;
+      }else if(["superadmin","admin"].includes(u.role) && db.adminActiveDepartment){
+        activateDepartmentWorkspace(db.adminActiveDepartment);
       }
+
       audit('Tizimga kirildi',`${u.role}${u.department?' · '+u.department:''}`);
       document.body.classList.remove('login-required');
       applyRoleUI();
       renderAll();
-      g('loginModal').classList.remove('open');
-      g('loginPassword').value='';
+
+      const modal=g('loginModal');
+      if(modal)modal.classList.remove('open');
+      if(passInput)passInput.value='';
       if(err){err.className='alert';err.textContent='';}
-      if(u.role==='mudiri') openDepartmentManagerCabinet();
+
+      if(u.role==='mudiri')openDepartmentManagerCabinet();
     };
+
+    if(loginBtn)loginBtn.onclick=openLogin;
+    if(close)close.onclick=()=>g('loginModal')?.classList.remove('open');
+    if(doBtn)doBtn.onclick=doLogin;
+
+    [userInput,passInput].forEach(el=>{
+      if(!el)return;
+      el.addEventListener('keydown',e=>{
+        if(e.key==='Enter'){
+          e.preventDefault();
+          doLogin();
+        }
+      });
+    });
   }
 
   function openDepartmentManagerCabinet(){
@@ -4867,22 +4936,7 @@ body.login-required #loginModal #doLoginBtn{
 </style>
 
 
-<script>
-(function(){
-  document.addEventListener('keydown', function(e){
-    if(e.key !== 'Enter') return;
-    const loginModal = document.getElementById('loginModal');
-    if(!loginModal || !loginModal.classList.contains('open')) return;
 
-    const active = document.activeElement;
-    if(active && (active.id === 'loginUser' || active.id === 'loginPassword')){
-      e.preventDefault();
-      const btn = document.getElementById('doLoginBtn');
-      if(btn) btn.click();
-    }
-  });
-})();
-</script>
 
 
 <script>
