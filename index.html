@@ -2070,6 +2070,8 @@ body.hemis-layout .shortcut-card:nth-child(n+7){display:none !important}
     <button data-tab="auditTab">Audit</button>
     <button data-tab="exceptionAdminTab">Istisno jadvali</button>
     <button data-tab="structureAdminTab">Tuzilma</button>
+    <button data-tab="facultyDepartmentAdminTab" id="facultyDepartmentAdminTabBtn" style="display:none">Universitet nazorati</button>
+    <button data-tab="buildingDistanceTab">Bino masofalari</button>
     <button data-tab="managerAdminTab" id="managerAdminTabBtn">Kafedra mudirlari</button>
   </div>
 
@@ -2108,7 +2110,14 @@ body.hemis-layout .shortcut-card:nth-child(n+7){display:none !important}
       <input type="hidden" id="editLessonTeacherId"><input type="hidden" id="editLessonId">
       <div class="full"><label>O‘qituvchi<select id="lTeacher"></select></label></div>
       <div><label>Hafta kuni<select id="lDay"><option>Dushanba</option><option>Seshanba</option><option>Chorshanba</option><option>Payshanba</option><option>Juma</option><option>Shanba</option></select></label></div>
-      <div><label>Hafta turi<select id="lWeek"><option value="surat">Surat</option><option value="maxraj">Maxraj</option><option value="doim">Doimiy</option></select></label></div>
+      <div><label>Hafta turi<select id="lWeek"><option value="doim">Doimiy</option><option value="surat">Surat</option><option value="maxraj">Maxraj</option></select></label></div>
+      <div class="full"><label>Ta’lim shakli<select id="lEducationType"><option value="kunduzgi">Kunduzgi</option><option value="kechki">Kechki</option><option value="sirtqi">Sirtqi</option></select></label></div>
+      <div class="full" id="lSirtqiWeeks" style="display:none">
+        <div class="form" style="padding:0;border:0;box-shadow:none;margin:0">
+          <div><label>Boshlanish haftasi<select id="lStartWeek"><option value="1">1-hafta</option><option value="2">2-hafta</option><option value="3">3-hafta</option><option value="4">4-hafta</option><option value="5">5-hafta</option><option value="6">6-hafta</option><option value="7">7-hafta</option><option value="8">8-hafta</option><option value="9">9-hafta</option><option value="10">10-hafta</option><option value="11">11-hafta</option><option value="12">12-hafta</option><option value="13">13-hafta</option><option value="14">14-hafta</option><option value="15">15-hafta</option><option value="16">16-hafta</option><option value="17">17-hafta</option><option value="18">18-hafta</option><option value="19">19-hafta</option><option value="20">20-hafta</option><option value="21">21-hafta</option><option value="22">22-hafta</option><option value="23">23-hafta</option><option value="24">24-hafta</option><option value="25">25-hafta</option><option value="26">26-hafta</option><option value="27">27-hafta</option><option value="28">28-hafta</option><option value="29">29-hafta</option><option value="30">30-hafta</option><option value="31">31-hafta</option><option value="32">32-hafta</option><option value="33">33-hafta</option><option value="34">34-hafta</option><option value="35">35-hafta</option><option value="36">36-hafta</option><option value="37">37-hafta</option><option value="38">38-hafta</option><option value="39">39-hafta</option><option value="40">40-hafta</option><option value="41">41-hafta</option><option value="42">42-hafta</option><option value="43">43-hafta</option><option value="44">44-hafta</option><option value="45">45-hafta</option><option value="46">46-hafta</option><option value="47">47-hafta</option><option value="48">48-hafta</option><option value="49">49-hafta</option><option value="50">50-hafta</option><option value="51">51-hafta</option><option value="52">52-hafta</option><option value="53">53-hafta</option><option value="54">54-hafta</option><option value="55">55-hafta</option><option value="56">56-hafta</option><option value="57">57-hafta</option><option value="58">58-hafta</option><option value="59">59-hafta</option><option value="60">60-hafta</option></select></label></div>
+          <div><label>Tugash haftasi<select id="lEndWeek"><option value="1">1-hafta</option><option value="2">2-hafta</option><option value="3">3-hafta</option><option value="4">4-hafta</option><option value="5">5-hafta</option><option value="6">6-hafta</option><option value="7">7-hafta</option><option value="8">8-hafta</option><option value="9">9-hafta</option><option value="10">10-hafta</option><option value="11">11-hafta</option><option value="12">12-hafta</option><option value="13">13-hafta</option><option value="14">14-hafta</option><option value="15">15-hafta</option><option value="16">16-hafta</option><option value="17">17-hafta</option><option value="18">18-hafta</option><option value="19">19-hafta</option><option value="20">20-hafta</option><option value="21">21-hafta</option><option value="22">22-hafta</option><option value="23">23-hafta</option><option value="24">24-hafta</option><option value="25">25-hafta</option><option value="26">26-hafta</option><option value="27">27-hafta</option><option value="28">28-hafta</option><option value="29">29-hafta</option><option value="30">30-hafta</option><option value="31">31-hafta</option><option value="32">32-hafta</option><option value="33">33-hafta</option><option value="34">34-hafta</option><option value="35">35-hafta</option><option value="36">36-hafta</option><option value="37">37-hafta</option><option value="38">38-hafta</option><option value="39">39-hafta</option><option value="40">40-hafta</option><option value="41">41-hafta</option><option value="42">42-hafta</option><option value="43">43-hafta</option><option value="44">44-hafta</option><option value="45">45-hafta</option><option value="46">46-hafta</option><option value="47">47-hafta</option><option value="48">48-hafta</option><option value="49">49-hafta</option><option value="50">50-hafta</option><option value="51">51-hafta</option><option value="52">52-hafta</option><option value="53">53-hafta</option><option value="54">54-hafta</option><option value="55">55-hafta</option><option value="56">56-hafta</option><option value="57">57-hafta</option><option value="58">58-hafta</option><option value="59">59-hafta</option><option value="60">60-hafta</option></select></label></div>
+        </div>
+      </div>
       <div class="full"><label>Fan nomi<input id="lSubject" placeholder="Fan nomini kiriting"></label></div>
       <div><label>Guruh / yo‘nalish<input id="lGroup" placeholder="GTI-31"></label></div>
       <div><label>Guruh talabalari soni<input id="lGroupSize" type="number" min="1" placeholder="25"></label></div>
@@ -2154,6 +2163,7 @@ body.hemis-layout .shortcut-card:nth-child(n+7){display:none !important}
     <div class="form">
       <div><label>Akademik yil<input id="academicYear" value="2026/2027"></label></div>
       <div><label>Semestr<select id="semesterSelect"><option>I-semestr</option><option>II-semestr</option></select></label></div>
+      <div><label>Semestr haftalari soni<input id="semesterWeeks" type="number" min="1" max="30" value="16"></label></div>
       <div class="full"><button class="btn primary" id="saveSemesterBtn">Saqlash</button></div>
     </div>
     <div class="section-title"><h3>Faol davr</h3></div>
@@ -2201,10 +2211,34 @@ body.hemis-layout .shortcut-card:nth-child(n+7){display:none !important}
       <div><label>Bino<input id="orgBuilding" placeholder="1-bino"></label></div>
       <div><label>Fakultet<input id="orgFaculty" placeholder="Tabiiy resurslarni boshqarish"></label></div>
       <div class="full"><label>Kafedra<input id="orgDepartment" placeholder="Ekologiya, irrigatsiya va gidrotexnika"></label></div>
+      <div class="full"><label>Kafedra xonasi<input id="orgRoom" placeholder="masalan: 305"></label></div>
       <div class="full"><button class="btn primary" id="saveOrgBtn">Strukturani saqlash</button></div>
     </div>
     <div class="section-title"><h3>Struktura ro‘yxati</h3></div>
     <div class="admin-list" id="orgList"></div>
+  </section>
+
+
+
+  <section id="facultyDepartmentAdminTab" class="tab-section" style="display:none">
+    <div class="section-title"><h3>Universitet bo‘yicha umumiy nazorat</h3></div>
+    <p class="note">Bu bo‘lim faqat admin uchun. Barcha fakultetlar, kafedralar, o‘qituvchilar, xonalar va darslar ko‘rinadi. “Boshqarish” orqali tanlangan kafedraning ma’lumotlarini odatiy Admin bo‘limlarida tahrirlash mumkin.</p>
+    <div id="adminActiveDepartmentInfo" class="note" style="display:none;margin-bottom:10px"></div>
+    <div class="admin-list" id="facultyDepartmentAdminList"></div>
+  </section>
+
+  <section id="buildingDistanceTab" class="tab-section" style="display:none">
+    <div class="section-title"><h3>Bino oraliq masofasi va yo‘l vaqti</h3></div>
+    <p class="note">Ketma-ket darslarda o‘qituvchining boshqa binoga yetib borishi tanaffus vaqti bilan avtomatik solishtiriladi.</p>
+    <div class="form">
+      <div><label>Qaysi binodan<select id="bdFrom"><option value="1-bino">1-bino</option><option value="2-bino">2-bino</option><option value="3-bino">3-bino</option><option value="4-bino">4-bino</option><option value="5-bino">5-bino</option><option value="6-bino">6-bino</option><option value="7-bino">7-bino</option><option value="8-bino">8-bino</option><option value="9-bino">9-bino</option><option value="10-bino">10-bino</option><option value="11-bino">11-bino</option><option value="12-bino">12-bino</option><option value="13-bino">13-bino</option><option value="14-bino">14-bino</option><option value="15-bino">15-bino</option><option value="16-bino">16-bino</option><option value="17-bino">17-bino</option><option value="18-bino">18-bino</option><option value="19-bino">19-bino</option><option value="20-bino">20-bino</option><option value="21-bino">21-bino</option><option value="22-bino">22-bino</option><option value="23-bino">23-bino</option><option value="24-bino">24-bino</option><option value="25-bino">25-bino</option><option value="26-bino">26-bino</option><option value="27-bino">27-bino</option><option value="28-bino">28-bino</option><option value="29-bino">29-bino</option><option value="30-bino">30-bino</option><option value="31-bino">31-bino</option><option value="32-bino">32-bino</option><option value="33-bino">33-bino</option><option value="34-bino">34-bino</option><option value="35-bino">35-bino</option><option value="36-bino">36-bino</option><option value="37-bino">37-bino</option><option value="38-bino">38-bino</option><option value="39-bino">39-bino</option><option value="40-bino">40-bino</option><option value="41-bino">41-bino</option><option value="42-bino">42-bino</option><option value="43-bino">43-bino</option><option value="44-bino">44-bino</option><option value="45-bino">45-bino</option><option value="46-bino">46-bino</option><option value="47-bino">47-bino</option><option value="48-bino">48-bino</option><option value="49-bino">49-bino</option><option value="50-bino">50-bino</option></select></label></div>
+      <div><label>Qaysi binoga<select id="bdTo"><option value="1-bino">1-bino</option><option value="2-bino">2-bino</option><option value="3-bino">3-bino</option><option value="4-bino">4-bino</option><option value="5-bino">5-bino</option><option value="6-bino">6-bino</option><option value="7-bino">7-bino</option><option value="8-bino">8-bino</option><option value="9-bino">9-bino</option><option value="10-bino">10-bino</option><option value="11-bino">11-bino</option><option value="12-bino">12-bino</option><option value="13-bino">13-bino</option><option value="14-bino">14-bino</option><option value="15-bino">15-bino</option><option value="16-bino">16-bino</option><option value="17-bino">17-bino</option><option value="18-bino">18-bino</option><option value="19-bino">19-bino</option><option value="20-bino">20-bino</option><option value="21-bino">21-bino</option><option value="22-bino">22-bino</option><option value="23-bino">23-bino</option><option value="24-bino">24-bino</option><option value="25-bino">25-bino</option><option value="26-bino">26-bino</option><option value="27-bino">27-bino</option><option value="28-bino">28-bino</option><option value="29-bino">29-bino</option><option value="30-bino">30-bino</option><option value="31-bino">31-bino</option><option value="32-bino">32-bino</option><option value="33-bino">33-bino</option><option value="34-bino">34-bino</option><option value="35-bino">35-bino</option><option value="36-bino">36-bino</option><option value="37-bino">37-bino</option><option value="38-bino">38-bino</option><option value="39-bino">39-bino</option><option value="40-bino">40-bino</option><option value="41-bino">41-bino</option><option value="42-bino">42-bino</option><option value="43-bino">43-bino</option><option value="44-bino">44-bino</option><option value="45-bino">45-bino</option><option value="46-bino">46-bino</option><option value="47-bino">47-bino</option><option value="48-bino">48-bino</option><option value="49-bino">49-bino</option><option value="50-bino">50-bino</option></select></label></div>
+      <div><label>Masofa (km)<input id="bdDistance" type="number" min="0" step="0.1" placeholder="masalan: 1.8"></label></div>
+      <div><label>Yo‘l vaqti (daqiqa)<input id="bdMinutes" type="number" min="0" step="1" placeholder="masalan: 18"></label></div>
+      <div class="full"><button class="btn primary" id="saveBuildingDistanceBtn">Saqlash</button></div>
+    </div>
+    <div class="section-title"><h3>Saqlangan bino masofalari</h3></div>
+    <div class="admin-list" id="buildingDistanceList"></div>
   </section>
 
   <section id="managerAdminTab" class="tab-section" style="display:none">
@@ -2264,7 +2298,10 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const firestoreDB = firebase.firestore();
-const dispatchDoc = firestoreDB.collection("appData").doc("main");
+const dispatchDoc = firestoreDB.collection("appData").doc("main"); // eski versiyalarni faqat migratsiya uchun o‘qish
+const chunkCollection = firestoreDB.collection("appDataChunks");
+const chunkMetaDoc = chunkCollection.doc("main_meta");
+let cloudRevision = 0;
 let cloudReady = false;
 let cloudInitStarted = false;
 let localDirtyBeforeCloudReady = false;
@@ -2276,7 +2313,14 @@ function semesterPeriodKey(year=db.settings?.academicYear, semester=db.settings?
   return `${String(year||"2026/2027").trim()}||${String(semester||"I-semestr").trim()}`;
 }
 function ensureSemesterSchedules(){
-  if(!db.settings) db.settings={academicYear:"2026/2027",semester:"I-semestr"};
+  if(!db.settings) db.settings={academicYear:"2026/2027",semester:"I-semestr",semesterWeeks:16,semesterWeeksByPeriod:{}};
+  if(!Number(db.settings.semesterWeeks)) db.settings.semesterWeeks=16;
+  if(!db.settings.semesterWeeksByPeriod || typeof db.settings.semesterWeeksByPeriod!=="object") db.settings.semesterWeeksByPeriod={};
+  {
+    const weeksKey=`${String(db.settings.academicYear||"2026/2027").trim()}||${String(db.settings.semester||"I-semestr").trim()}`;
+    if(!Number(db.settings.semesterWeeksByPeriod[weeksKey])) db.settings.semesterWeeksByPeriod[weeksKey]=Number(db.settings.semesterWeeks||16);
+    db.settings.semesterWeeks=Number(db.settings.semesterWeeksByPeriod[weeksKey]||16);
+  }
   if(!db.semesterSchedules || typeof db.semesterSchedules!=="object") db.semesterSchedules={};
 
   const key=semesterPeriodKey();
@@ -2351,9 +2395,92 @@ let cloudSaveTimer=null;
 let cloudSaveInFlight=false;
 let cloudSaveQueued=false;
 
+function splitCloudJSON(value,limit=120000){
+  const s=JSON.stringify(value);
+  const out=[];
+  for(let i=0;i<s.length;i+=limit)out.push(s.slice(i,i+limit));
+  return out;
+}
+
+async function readChunkedCloudState(){
+  const metaSnap=await chunkMetaDoc.get();
+  if(!metaSnap.exists)return null;
+  const meta=metaSnap.data()||{};
+  const revision=Number(meta.revision||0);
+  const token=String(meta.token||"");
+  const count=Number(meta.count||0);
+  if(!revision||!token||!count)return null;
+
+  const snaps=await Promise.all(
+    Array.from({length:count},(_,i)=>chunkCollection.doc(`${token}_${i}`).get())
+  );
+  if(snaps.some(s=>!s.exists))throw new Error("Cloud bo‘laklari to‘liq emas.");
+  const json=snaps.map(s=>String(s.data()?.data||"")).join("");
+  return {db:JSON.parse(json),revision};
+}
+
+async function writeChunkedCloudState(snapshot,expectedRevision){
+  const chunks=splitCloudJSON(snapshot);
+  const nextRevision=Number(expectedRevision||0)+1;
+  const token=`r${nextRevision}_${Date.now()}_${Math.random().toString(36).slice(2,9)}`;
+
+  for(let offset=0;offset<chunks.length;offset+=400){
+    const batch=firestoreDB.batch();
+    chunks.slice(offset,offset+400).forEach((part,j)=>{
+      const idx=offset+j;
+      batch.set(chunkCollection.doc(`${token}_${idx}`),{data:part});
+    });
+    await batch.commit();
+  }
+
+  await firestoreDB.runTransaction(async tx=>{
+    const metaSnap=await tx.get(chunkMetaDoc);
+    const remoteRevision=metaSnap.exists?Number(metaSnap.data()?.revision||0):0;
+    if(remoteRevision!==Number(expectedRevision||0)){
+      const e=new Error("CLOUD_CONFLICT");
+      e.code="CLOUD_CONFLICT";
+      throw e;
+    }
+    tx.set(chunkMetaDoc,{
+      revision:nextRevision,
+      token,
+      count:chunks.length,
+      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+  });
+
+  cloudRevision=nextRevision;
+  return nextRevision;
+}
+
+async function applyRemoteCloudState(remote){
+  if(!remote?.db)return;
+  const sessionUser=db.currentUser&&db.currentUser.role!=="viewer"?{...db.currentUser}:null;
+  db=remote.db;
+  cloudRevision=Number(remote.revision||cloudRevision||0);
+
+  if(typeof ensureSemesterSchedules==="function")ensureSemesterSchedules();
+  if(typeof applySemesterSchedules==="function")applySemesterSchedules();
+  if(typeof mergeDeletedLessonsFromLocal==="function")mergeDeletedLessonsFromLocal();
+
+  if(sessionUser){
+    db.currentUser=sessionUser;
+    if(sessionUser.role==="mudiri"&&sessionUser.department&&typeof window.activateDepartmentWorkspace==="function"){
+      window.activateDepartmentWorkspace(sessionUser.department);
+    }else if(["superadmin","admin"].includes(sessionUser.role)&&db.adminActiveDepartment&&typeof window.activateDepartmentWorkspace==="function"){
+      window.activateDepartmentWorkspace(db.adminActiveDepartment);
+    }
+  }
+
+  if(typeof purgeDeletedLessonMirrors==="function")purgeDeletedLessonMirrors();
+  localStorage.setItem("dispatchDB",JSON.stringify(db));
+  if(typeof renderAll==="function")renderAll();
+  if(typeof updateCurrentUserBadge==="function")updateCurrentUserBadge();
+}
+
 function flushCloudSave(){
   cloudSaveTimer=null;
-  if(!cloudReady) return;
+  if(!cloudReady)return;
   if(cloudSaveInFlight){
     cloudSaveQueued=true;
     return;
@@ -2361,16 +2488,23 @@ function flushCloudSave(){
 
   cloudSaveInFlight=true;
   suppressRemoteSnapshot=true;
+  const expectedRevision=cloudRevision;
+  const snapshot=JSON.parse(JSON.stringify(db));
 
-  dispatchDoc.set({
-    db: db,
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  }).catch(err=>{
+  writeChunkedCloudState(snapshot,expectedRevision).catch(async err=>{
     console.error("Firestore saqlash xatosi:",err);
+    if(err?.code==="CLOUD_CONFLICT"||String(err?.message)==="CLOUD_CONFLICT"){
+      try{
+        const remote=await readChunkedCloudState();
+        if(remote)cloudRevision=Number(remote.revision||cloudRevision);
+      }catch{}
+      if(typeof showAlert==="function"){
+        showAlert("Boshqa foydalanuvchi bazani sizdan oldin yangiladi. Sizning o‘zgarishingiz ustidan yozilmadi. Sahifani yangilab, amalni qayta bajaring.","error");
+      }
+    }
   }).finally(()=>{
     cloudSaveInFlight=false;
     suppressRemoteSnapshot=false;
-
     if(cloudSaveQueued){
       cloudSaveQueued=false;
       cloudSaveTimer=setTimeout(flushCloudSave,250);
@@ -2378,110 +2512,50 @@ function flushCloudSave(){
   });
 }
 
-function save(){
-  if(typeof captureActiveSemesterSchedules==="function") captureActiveSemesterSchedules();
-  if(typeof mergeDeletedLessonsFromLocal==="function") mergeDeletedLessonsFromLocal();
-  if(typeof purgeDeletedLessonMirrors==="function") purgeDeletedLessonMirrors();
-  if(typeof window.syncActiveDepartmentWorkspace==="function") window.syncActiveDepartmentWorkspace();
-
-  localStorage.setItem("dispatchDB", JSON.stringify(db));
-
-  if(!cloudReady){
-    localDirtyBeforeCloudReady=true;
-    return;
-  }
-
-  clearTimeout(cloudSaveTimer);
-  cloudSaveTimer=setTimeout(flushCloudSave,300);
-}
-
 async function initCloudSync(){
-  if(cloudInitStarted) return;
-  cloudInitStarted = true;
+  if(cloudInitStarted)return;
+  cloudInitStarted=true;
+
   try{
-    const snap = await dispatchDoc.get();
+    let remote=null;
+    try{remote=await readChunkedCloudState()}catch(err){console.warn("Bo‘laklangan bazani o‘qish:",err)}
 
-    if(snap.exists && snap.data() && snap.data().db){
-      const sessionUser=db.currentUser&&db.currentUser.role!=="viewer"?{...db.currentUser}:null;
-
-      if(!localDirtyBeforeCloudReady){
-        db = snap.data().db;
-        if(typeof ensureSemesterSchedules==="function") ensureSemesterSchedules();
-        if(typeof applySemesterSchedules==="function") applySemesterSchedules();
-      }
-
-      const resetApplied=clearAllTeacherLessonData(db);
-      if(typeof mergeDeletedLessonsFromLocal==="function") mergeDeletedLessonsFromLocal();
-
-      if(sessionUser){
-        db.currentUser=sessionUser;
-        if(sessionUser.role==="mudiri" && sessionUser.department && typeof window.activateDepartmentWorkspace==="function"){
-          window.activateDepartmentWorkspace(sessionUser.department);
+    if(remote){
+      if(!localDirtyBeforeCloudReady)await applyRemoteCloudState(remote);
+      else cloudRevision=Number(remote.revision||0);
+    }else{
+      // Eski appData/main mavjud bo‘lsa bir marta migratsiya qilinadi.
+      const legacy=await dispatchDoc.get();
+      if(legacy.exists&&legacy.data()?.db){
+        if(!localDirtyBeforeCloudReady){
+          db=legacy.data().db;
+          if(typeof ensureSemesterSchedules==="function")ensureSemesterSchedules();
+          if(typeof applySemesterSchedules==="function")applySemesterSchedules();
+          localStorage.setItem("dispatchDB",JSON.stringify(db));
         }
       }
-
-      const removed=typeof purgeDeletedLessonMirrors==="function"?purgeDeletedLessonMirrors():0;
-      localStorage.setItem("dispatchDB", JSON.stringify(db));
-
-      if(localDirtyBeforeCloudReady || removed>0 || resetApplied){
-        suppressRemoteSnapshot=true;
-        await dispatchDoc.set({
-          db: db,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        suppressRemoteSnapshot=false;
-        localDirtyBeforeCloudReady=false;
-      }
-
-      if(typeof renderAll === "function") renderAll();
-      if(typeof updateCurrentUserBadge==="function") updateCurrentUserBadge();
-    }else{
-      if(typeof mergeDeletedLessonsFromLocal==="function") mergeDeletedLessonsFromLocal();
-      if(typeof purgeDeletedLessonMirrors==="function") purgeDeletedLessonMirrors();
-      suppressRemoteSnapshot=true;
-      await dispatchDoc.set({
-        db: db,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-      suppressRemoteSnapshot=false;
-      localDirtyBeforeCloudReady=false;
+      // Birinchi bo‘laklangan reviziya.
+      await writeChunkedCloudState(JSON.parse(JSON.stringify(db)),0);
     }
 
-    cloudReady = true;
+    cloudReady=true;
+    localDirtyBeforeCloudReady=false;
 
-    dispatchDoc.onSnapshot(s=>{
-      if(!s.exists || !s.data() || !s.data().db) return;
+    chunkMetaDoc.onSnapshot(async s=>{
+      if(!s.exists||suppressRemoteSnapshot||cloudSaveInFlight||cloudSaveQueued||cloudSaveTimer)return;
+      const rev=Number(s.data()?.revision||0);
+      if(!rev||rev<=cloudRevision)return;
+      try{
+        const latest=await readChunkedCloudState();
+        if(latest&&Number(latest.revision)>cloudRevision)await applyRemoteCloudState(latest);
+      }catch(err){console.error("Firestore yangilanishini o‘qish xatosi:",err)}
+    },err=>console.error("Firestore kuzatuv xatosi:",err));
 
-      // Mahalliy o‘zgarish Firestore'ga yozilayotgan paytda eski snapshot
-      // yangi kiritilgan ma’lumotlarni ustidan bosib ketmasin.
-      if(suppressRemoteSnapshot || cloudSaveInFlight || cloudSaveQueued || cloudSaveTimer) return;
-
-      const sessionUser=db.currentUser&&db.currentUser.role!=="viewer"?{...db.currentUser}:null;
-      db = s.data().db;
-      if(typeof ensureSemesterSchedules==="function") ensureSemesterSchedules();
-      if(typeof applySemesterSchedules==="function") applySemesterSchedules();
-      const resetApplied=clearAllTeacherLessonData(db);
-      if(typeof mergeDeletedLessonsFromLocal==="function") mergeDeletedLessonsFromLocal();
-      if(sessionUser){
-        db.currentUser=sessionUser;
-        if(sessionUser.role==="mudiri" && sessionUser.department && typeof window.activateDepartmentWorkspace==="function"){
-          window.activateDepartmentWorkspace(sessionUser.department);
-        }
-      }
-      const removed=typeof purgeDeletedLessonMirrors==="function"?purgeDeletedLessonMirrors():0;
-      localStorage.setItem("dispatchDB", JSON.stringify(db));
-      if(typeof renderAll === "function") renderAll();
-      if(typeof updateCurrentUserBadge==="function") updateCurrentUserBadge();
-      if(removed>0||resetApplied){
-        dispatchDoc.set({
-          db: db,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }).catch(err=>console.error("Firestore tozalash xatosi:",err));
-      }
-    }, err => console.error("Firestore o‘qish xatosi:", err));
+    if(typeof renderAll==="function")renderAll();
+    if(typeof updateCurrentUserBadge==="function")updateCurrentUserBadge();
 
   }catch(err){
-    console.error("Firebase ulanish xatosi:", err);
+    console.error("Firebase ulanish xatosi:",err);
   }
 }
 
@@ -2782,36 +2856,75 @@ function globalApprovedLessons(){
       physicalRoomKey:physicalRoomKey(
         room?.name||l.room,
         room?.building||l.roomBuilding
-      )
+      ),
+      physicalRoomBuilding:room?.building||l.roomBuilding||""
     });
    });
   });
  });
  return out;
 }
-function globalRoomOccupied(room,day,pair,week){
+function globalRoomOccupied(room,day,pair,week,weekNo=null){
  const key=physicalRoomKey(room?.name,room?.building);
  if(!normalizePhysicalRoom(room?.name))return false;
  return globalApprovedLessons().some(l=>
    l.physicalRoomKey===key &&
    l.day===day &&
    Number(l.pair)===Number(pair) &&
-   weekOverlap(l.weekType,week)
+   (weekNo!==null ? lessonActiveOnWeekNumber(l,weekNo) : weekOverlap(l.weekType,week))
  );
 }
-function globalTeacherBusy(teacher,day,pair,week){
+function globalTeacherBusy(teacher,day,pair,week,weekNo=null){
  const key=teacherIdentityKey(teacher);
  if(!key)return false;
  return globalApprovedLessons().some(l=>
    teacherIdentityKey(l.effectiveTeacher)===key &&
    l.day===day &&
    Number(l.pair)===Number(pair) &&
-   weekOverlap(l.weekType,week)
+   (weekNo!==null ? lessonActiveOnWeekNumber(l,weekNo) : weekOverlap(l.weekType,week))
  );
+}
+
+function lessonEducationType(l){
+ return String(l?.educationType||"kunduzgi").toLowerCase();
+}
+function lessonWeekRange(l){
+ const semesterTotal=Math.max(1,Number(db.settings?.semesterWeeks||16));
+ if(lessonEducationType(l)!=="sirtqi") return {start:1,end:semesterTotal};
+ const start=Math.max(1,Math.min(60,Number(l?.startWeek||1)));
+ const end=Math.max(1,Math.min(60,Number(l?.endWeek||start)));
+ return {start:Math.min(start,end),end:Math.max(start,end)};
+}
+function lessonRunsOnSemesterWeek(l,weekNo){
+ const wt=String(l?.weekType||"doim").toLowerCase();
+ if(wt==="surat") return weekNo%2===1;
+ if(wt==="maxraj") return weekNo%2===0;
+ return true;
+}
+function lessonPeriodsOverlap(a,b){
+ const ar=lessonWeekRange(a), br=lessonWeekRange(b);
+ const start=Math.max(ar.start,br.start), end=Math.min(ar.end,br.end);
+ if(start>end)return false;
+ for(let w=start;w<=end;w++){
+   if(lessonRunsOnSemesterWeek(a,w)&&lessonRunsOnSemesterWeek(b,w))return true;
+ }
+ return false;
+}
+
+function lessonActiveOnWeekNumber(l,weekNo){
+ const w=Number(weekNo);
+ if(!Number.isInteger(w)||w<1||w>60)return false;
+ const r=lessonWeekRange(l);
+ return w>=r.start && w<=r.end && lessonRunsOnSemesterWeek(l,w);
 }
 
 function validateLesson(candidate,teacherId,editingLessonId=null){
  const errs=[], warns=[]; const t=teacherById(teacherId); const room=roomById(candidate.roomId)||roomByName(candidate.room);
+ if(lessonEducationType(candidate)==="sirtqi"){
+   const sw=Number(candidate.startWeek), ew=Number(candidate.endWeek);
+   if(!Number.isInteger(sw)||!Number.isInteger(ew)||sw<1||ew<1||sw>60||ew>60) errs.push("Sirtqi ta’lim haftalari 1–60 oralig‘ida bo‘lishi kerak.");
+   else if(sw>ew) errs.push("Sirtqi ta’limda boshlanish haftasi tugash haftasidan katta bo‘lishi mumkin emas.");
+ }
  if(!t) errs.push("O‘qituvchi topilmadi.");
  if(t && t.availability!=="available") errs.push(`O‘qituvchi hozir "${t.availability}" holatida. ${esc(t.availabilityNote)}`);
  if(!room) errs.push("Tanlangan xona bazada mavjud emas.");
@@ -2825,7 +2938,7 @@ function validateLesson(candidate,teacherId,editingLessonId=null){
    const effectiveExistingRoom=roomById(l.roomId)||db.rooms.find(r=>physicalRoomKey(r.name,r.building)===physicalRoomKey(l.room,l.roomBuilding));
    if(isDeletedLesson(l,effectiveExistingTeacher,effectiveExistingRoom))return;
    if(l.id==editingLessonId || l.cancelled) return;
-   if(l.day!==candidate.day || Number(l.pair)!==Number(candidate.pair) || !weekOverlap(l.weekType,candidate.weekType)) return;
+   if(l.day!==candidate.day || Number(l.pair)!==Number(candidate.pair) || !lessonPeriodsOverlap(l,candidate)) return;
    const effectiveTeacher=l.substituteTeacherId||other.id;
    const candidateEffective=candidate.substituteTeacherId||teacherId;
    if(String(effectiveTeacher)===String(candidateEffective)) errs.push(`O‘qituvchi konflikti: ${candidate.day}, ${candidate.pair}-juftlikda boshqa dars mavjud (${l.subject}, ${l.room}-xona).`);
@@ -2868,7 +2981,7 @@ function validateLesson(candidate,teacherId,editingLessonId=null){
     // Tahrirlanayotgan darsning eski/mirror nusxasi qaysi kafedra workspace'ida qolgan bo‘lsa ham
     // o‘ziga o‘zi konflikt bermaydi.
     if(editingLessonId && String(l.id)===String(editingLessonId)) return;
-    if(l.day!==candidate.day || Number(l.pair)!==Number(candidate.pair) || !weekOverlap(l.weekType,candidate.weekType)) return;
+    if(l.day!==candidate.day || Number(l.pair)!==Number(candidate.pair) || !lessonPeriodsOverlap(l,candidate)) return;
 
     const existingRoom=wsRoomByLesson(l);
     const existingRoomName=normalizePhysicalRoom(existingRoom?.name||l.room);
@@ -2939,7 +3052,7 @@ window.openTeacher=openTeacher;
 function renderAdminSelectors(){$("lTeacher").innerHTML=db.teachers.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join("");$("lSubstitute").innerHTML='<option value="">Yo‘q</option>'+db.teachers.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join("");$("lRoom").innerHTML=db.rooms.map(r=>`<option value="${r.id}">${esc(r.name)}-xona · ${esc(r.building||"")} · ${esc(r.type)} · ${r.capacity} o‘rin</option>`).join("")}
 function renderTeacherAdmin(){$("teacherAdminList").innerHTML=db.teachers.map(t=>`<div class="admin-row"><strong>${esc(t.name)}</strong><div class="mini">${esc(t.position)} · ${esc(t.availability)} · Darslar: ${t.schedule.length}</div><div class="actions" style="margin-top:8px"><button class="btn ghost" onclick="editTeacher(${t.id})">Tahrirlash</button><button class="btn danger" onclick="deleteTeacher(${t.id})">O‘chirish</button></div></div>`).join("")}
 function renderRoomAdmin(){$("roomAdminList").innerHTML=db.rooms.map(r=>`<div class="admin-row"><strong>${esc(r.name)}-xona</strong><div class="mini">${esc(r.type)} · ${r.capacity} o‘rin · ${esc(r.building)}</div><div class="actions" style="margin-top:8px"><button class="btn ghost" onclick="editRoom(${r.id})">Tahrirlash</button><button class="btn danger" onclick="deleteRoom(${r.id})">O‘chirish</button></div></div>`).join("")}
-function renderLessonAdmin(){const rows=[];db.teachers.forEach(t=>t.schedule.forEach(l=>rows.push({t,l})));$("lessonAdminList").innerHTML=rows.length?rows.map(({t,l})=>`<div class="admin-row"><strong>${esc(t.name)} · ${l.day} · ${l.pair}-juftlik</strong><div class="mini">${esc(l.subject)} · ${esc(l.group)} · ${roomDisplay(l.room)} · ${esc(l.type)} · ${l.weekType==="doim"?"Doimiy":l.weekType}</div><div style="margin-top:6px"><span class="badge ${l.cancelled?"cancelled":l.status}">${l.cancelled?"Bekor qilingan":l.status==="approved"?"Tasdiqlangan":"Kutilmoqda"}</span></div><div class="actions" style="margin-top:8px"><button class="btn ghost" onclick="editLesson(${t.id},${l.id})">Tahrirlash</button><button class="btn warn" onclick="toggleCancel(${t.id},${l.id})">${l.cancelled?"Qayta faollashtirish":"Bekor qilish"}</button><button class="btn danger" onclick="deleteLesson(${t.id},${l.id})">O‘chirish</button></div></div>`).join(""):`<div class="empty">Darslar yo‘q.</div>`}
+function renderLessonAdmin(){const rows=[];db.teachers.forEach(t=>t.schedule.forEach(l=>rows.push({t,l})));$("lessonAdminList").innerHTML=rows.length?rows.map(({t,l})=>`<div class="admin-row"><strong>${esc(t.name)} · ${l.day} · ${l.pair}-juftlik</strong><div class="mini">${esc(l.subject)} · ${esc(l.group)} · ${roomDisplay(l.room)} · ${esc(l.type)} · ${l.weekType==="doim"?"Doimiy":l.weekType}${lessonEducationType(l)==="sirtqi"?` · Sirtqi · ${lessonWeekRange(l).start}–${lessonWeekRange(l).end}-hafta`:""}</div><div style="margin-top:6px"><span class="badge ${l.cancelled?"cancelled":l.status}">${l.cancelled?"Bekor qilingan":l.status==="approved"?"Tasdiqlangan":"Kutilmoqda"}</span></div><div class="actions" style="margin-top:8px"><button class="btn ghost" onclick="editLesson(${t.id},${l.id})">Tahrirlash</button><button class="btn warn" onclick="toggleCancel(${t.id},${l.id})">${l.cancelled?"Qayta faollashtirish":"Bekor qilish"}</button><button class="btn danger" onclick="deleteLesson(${t.id},${l.id})">O‘chirish</button></div></div>`).join(""):`<div class="empty">Darslar yo‘q.</div>`}
 function renderApproval(){$("approvalList").innerHTML=db.teachers.flatMap(t=>t.schedule.filter(l=>l.status==="pending"&&!l.cancelled).map(l=>({t,l}))).map(({t,l})=>`<div class="admin-row"><strong>${esc(t.name)} · ${l.day}, ${l.pair}-juftlik</strong><div class="mini">${esc(l.subject)} · ${esc(l.group)} · ${roomDisplay(l.room)}</div><div class="actions" style="margin-top:8px"><button class="btn success" onclick="approveLesson(${t.id},${l.id})">Tasdiqlash</button><button class="btn danger" onclick="rejectLesson(${t.id},${l.id})">Rad etish</button></div></div>`).join("")||'<div class="empty">Tasdiqlash kutilayotgan dars yo‘q.</div>'}
 function renderHistory(){$("historyList").innerHTML=db.history.length?db.history.map(h=>`<div class="admin-row"><strong>${esc(h.action)}</strong><div class="mini">${esc(h.time)}</div><div style="margin-top:5px">${esc(h.details)}</div></div>`).join(""):'<div class="empty">Tarix bo‘sh.</div>'}
 
@@ -2995,9 +3108,17 @@ function deleteRoom(id){
 window.editRoom=editRoom;window.deleteRoom=deleteRoom;
 
 function updatePairTime(){const p=pairTimes[$("lPair").value];$("lTime").value=`${p.start} – ${p.end}`}
-function clearLessonForm(){$("editLessonTeacherId").value=$("editLessonId").value="";$("lSubject").value=$("lGroup").value=$("lGroupSize").value=$("lNote").value="";$("lSubstitute").value="";$("lStatus").value="pending";$("saveLessonBtn").textContent="Darsni saqlash";updatePairTime()}
+function updateEducationFields(){
+ const isSirtqi=$("lEducationType").value==="sirtqi";
+ $("lSirtqiWeeks").style.display=isSirtqi?"block":"none";
+ if(Number($("lStartWeek").value)<1||Number($("lStartWeek").value)>60)$("lStartWeek").value="1";
+ if(Number($("lEndWeek").value)<1||Number($("lEndWeek").value)>60)$("lEndWeek").value="3";
+}
+function clearLessonForm(){$("editLessonTeacherId").value=$("editLessonId").value="";$("lSubject").value=$("lGroup").value=$("lGroupSize").value=$("lNote").value="";$("lSubstitute").value="";$("lStatus").value="pending";$("lWeek").value="doim";$("lEducationType").value="kunduzgi";$("lStartWeek").value="1";$("lEndWeek").value="3";$("saveLessonBtn").textContent="Darsni saqlash";updateEducationFields();updatePairTime()}
 $("lPair").onchange=updatePairTime;
-$("saveLessonBtn").onclick=()=>{const teacherId=$("lTeacher").value, p=pairTimes[$("lPair").value],selectedRoom=roomById($("lRoom").value);if(!teacherId)return showAlert("O‘qituvchini tanlang.","error");if(!selectedRoom)return showAlert("Xonani tanlang.","error");const candidate={id:$("editLessonId").value||Date.now(),day:$("lDay").value,weekType:$("lWeek").value,pair:Number($("lPair").value),start:p.start,end:p.end,subject:$("lSubject").value.trim(),group:$("lGroup").value.trim(),groupSize:Number($("lGroupSize").value),room:selectedRoom.name,roomId:selectedRoom.id,roomBuilding:selectedRoom.building||"",type:$("lType").value,substituteTeacherId:$("lSubstitute").value,status:$("lStatus").value,cancelled:false,note:$("lNote").value.trim()};if(!candidate.subject||!candidate.group||!candidate.groupSize)return showAlert("Fan, guruh va guruh sonini to‘liq kiriting.","error");const validation=validateLesson(candidate,teacherId,$("editLessonId").value||null);if(validation.errs.length)return showAlert("<b>Dars saqlanmadi:</b><br>• "+validation.errs.join("<br>• "),"error");if(validation.warns.length&&!confirm("Ogohlantirishlar:\n- "+validation.warns.join("\n- ")+"\n\nBaribir saqlaysizmi?"))return;const editId=$("editLessonId").value;const editTid=$("editLessonTeacherId").value;if(editId){
+$("lEducationType").onchange=updateEducationFields;
+updateEducationFields();
+$("saveLessonBtn").onclick=()=>{const teacherId=$("lTeacher").value, p=pairTimes[$("lPair").value],selectedRoom=roomById($("lRoom").value);if(!teacherId)return showAlert("O‘qituvchini tanlang.","error");if(!selectedRoom)return showAlert("Xonani tanlang.","error");const candidate={id:$("editLessonId").value||Date.now(),day:$("lDay").value,weekType:$("lWeek").value,educationType:$("lEducationType").value,startWeek:$("lEducationType").value==="sirtqi"?Number($("lStartWeek").value):1,endWeek:$("lEducationType").value==="sirtqi"?Number($("lEndWeek").value):Math.max(1,Number(db.settings?.semesterWeeks||16)),pair:Number($("lPair").value),start:p.start,end:p.end,subject:$("lSubject").value.trim(),group:$("lGroup").value.trim(),groupSize:Number($("lGroupSize").value),room:selectedRoom.name,roomId:selectedRoom.id,roomBuilding:selectedRoom.building||"",type:$("lType").value,substituteTeacherId:$("lSubstitute").value,status:$("lStatus").value,cancelled:false,note:$("lNote").value.trim()};if(!candidate.subject||!candidate.group||!candidate.groupSize)return showAlert("Fan, guruh va guruh sonini to‘liq kiriting.","error");const validation=validateLesson(candidate,teacherId,$("editLessonId").value||null);if(validation.errs.length)return showAlert("<b>Dars saqlanmadi:</b><br>• "+validation.errs.join("<br>• "),"error");if(validation.warns.length&&!confirm("Ogohlantirishlar:\n- "+validation.warns.join("\n- ")+"\n\nBaribir saqlaysizmi?"))return;const editId=$("editLessonId").value;const editTid=$("editLessonTeacherId").value;if(editId){
  const oldT=teacherById(editTid);
  if(oldT) oldT.schedule=(oldT.schedule||[]).filter(l=>String(l.id)!==String(editId));
 
@@ -3020,6 +3141,7 @@ function editLesson(tid,lid){
  const lr=roomById(l.roomId)||db.rooms.find(r=>normalizePhysicalRoom(r.name)===normalizePhysicalRoom(l.room)&&normalizeBuilding(r.building)===normalizeBuilding(l.roomBuilding))||roomByName(l.room);
  switchTab("lessonTab");
  $("editLessonTeacherId").value=tid;$("editLessonId").value=lid;$("lTeacher").value=tid;$("lDay").value=l.day;$("lWeek").value=l.weekType;
+ $("lEducationType").value=lessonEducationType(l);$("lStartWeek").value=lessonWeekRange(l).start;$("lEndWeek").value=lessonWeekRange(l).end;updateEducationFields();
  $("lSubject").value=l.subject;$("lGroup").value=l.group;$("lGroupSize").value=l.groupSize;$("lRoom").value=lr?.id||"";
  $("lType").value=l.type;$("lPair").value=l.pair;$("lSubstitute").value=l.substituteTeacherId||"";$("lStatus").value=l.status;$("lNote").value=l.note||"";
  updatePairTime();$("saveLessonBtn").textContent="Darsdagi o‘zgarishlarni saqlash";$("adminPanel").scrollTo({top:0,behavior:"smooth"});
@@ -3173,7 +3295,14 @@ function renderAll(){populateFilters();renderTeachers();renderToday();renderStat
 updateClock();updatePairTime();renderAll();initCloudSync();setInterval(()=>{updateClock();renderTeachers();renderToday();renderStats()},1000);
 
 // ================= KENGAYTIRILGAN MODULLAR =================
-if(!db.settings) db.settings={academicYear:"2026/2027",semester:"I-semestr"};
+if(!db.settings) db.settings={academicYear:"2026/2027",semester:"I-semestr",semesterWeeks:16,semesterWeeksByPeriod:{}};
+if(!Number(db.settings.semesterWeeks)) db.settings.semesterWeeks=16;
+if(!db.settings.semesterWeeksByPeriod || typeof db.settings.semesterWeeksByPeriod!=="object") db.settings.semesterWeeksByPeriod={};
+{
+  const weeksKey=`${String(db.settings.academicYear||"2026/2027").trim()}||${String(db.settings.semester||"I-semestr").trim()}`;
+  if(!Number(db.settings.semesterWeeksByPeriod[weeksKey])) db.settings.semesterWeeksByPeriod[weeksKey]=Number(db.settings.semesterWeeks||16);
+  db.settings.semesterWeeks=Number(db.settings.semesterWeeksByPeriod[weeksKey]||16);
+}
 if(!db.holidays) db.holidays=[];
 if(!db.audit) db.audit=[];
 if(!db.currentUser) db.currentUser={name:"Mehmon",role:"viewer"};
@@ -3203,6 +3332,8 @@ function applyRoleUI(){
   $("loginBtn").textContent=`${db.currentUser?.name||"Mehmon"} · ${db.currentUser?.role||"viewer"}`;
   const mt=document.getElementById("managerAdminTabBtn");
   if(mt)mt.style.display=db.currentUser?.role==="superadmin"?"inline-block":"none";
+  const fd=document.getElementById("facultyDepartmentAdminTabBtn");
+  if(fd)fd.style.display=["superadmin","admin"].includes(db.currentUser?.role)?"inline-block":"none";
   updateCurrentUserBadge();
 }
 $("loginBtn").onclick=()=>{const m=$("loginModal");if(m)m.classList.add("open")};
@@ -3271,23 +3402,143 @@ $("calendarBtn").onclick=()=>{
 };
 
 $("freeRoomBtn").onclick=()=>{
-  const {day,minutes}=nowInfo();
-  let pair=Object.entries(pairTimes).find(([p,t])=>minutes>=mins(t.start)&&minutes<=mins(t.end));
-  pair=pair?Number(pair[0]):1;
-  const free=db.rooms.filter(r=>!globalRoomOccupied(r,day,pair,currentWeek));
-  const html=`<div class="form"><div><label>Joriy juftlik<input value="${pair}-juftlik" readonly></label></div></div>
-  <div class="section-title"><h3>Bo‘sh xonalar</h3></div>
-  <div class="grid">${free.map(r=>`<div class="card"><h3>${esc(r.name)}-xona</h3><div class="mini">${esc(r.type)} · ${r.capacity} o‘rin · ${esc(r.building)}</div></div>`).join("")||'<div class="empty">Bo‘sh xona yo‘q.</div>'}</div>`;
-  openAdvanced("Bo‘sh xona topish",`${day}, ${pair}-juftlik`,html);
+  const {day:today,minutes}=nowInfo();
+  const workDays=["Dushanba","Seshanba","Chorshanba","Payshanba","Juma","Shanba"];
+  const defaultDay=workDays.includes(today)?today:"Dushanba";
+
+  // Hozir dars ketayotgan bo‘lsa joriy juftlik, tanaffus/oldin bo‘lsa keyingi juftlik.
+  let defaultPair=8;
+  for(let p=1;p<=8;p++){
+    if(minutes<=mins(pairTimes[p].end)){
+      defaultPair=p;
+      break;
+    }
+  }
+
+  const html=`
+    <div class="form">
+      <div>
+        <label>Kun
+          <select id="freeRoomDay">
+            ${workDays.map(d=>`<option value="${d}" ${d===defaultDay?"selected":""}>${d}${d===today?" — bugun":""}</option>`).join("")}
+          </select>
+        </label>
+      </div>
+      <div>
+        <label>Juftlik
+          <select id="freeRoomPair">
+            ${[1,2,3,4,5,6,7,8].map(p=>`<option value="${p}" ${p===defaultPair?"selected":""}>${p}-juftlik · ${pairTimes[p].start}–${pairTimes[p].end}</option>`).join("")}
+          </select>
+        </label>
+      </div>
+      <div>
+        <label>Dars / xona turi
+          <select id="freeRoomLessonType">
+            <option value="all">Barcha xonalar</option>
+            <option value="Ma’ruza">Ma’ruza</option>
+            <option value="Amaliy">Amaliy</option>
+            <option value="Seminar">Seminar</option>
+            <option value="Laboratoriya">Laboratoriya</option>
+          </select>
+        </label>
+      </div>
+      <div>
+        <label>Hafta raqami
+          <select id="freeRoomWeekNo">
+            ${Array.from({length:60},(_,i)=>`<option value="${i+1}">${i+1}-hafta</option>`).join("")}
+          </select>
+        </label>
+      </div>
+      <div>
+        <label>Bino
+          <select id="freeRoomBuilding">
+            <option value="all">Barcha binolar</option>
+            ${[...new Set((db.rooms||[]).map(r=>String(r.building||"").trim()).filter(Boolean))]
+              .sort((a,b)=>a.localeCompare(b,"uz"))
+              .map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join("")}
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <div class="note" id="freeRoomSearchInfo" style="margin-top:8px"></div>
+    <div class="section-title"><h3>Bo‘sh xonalar</h3></div>
+    <div class="grid" id="freeRoomResults"></div>`;
+
+  openAdvanced("Bo‘sh xona topish",`${defaultDay}, ${defaultPair}-juftlik`,html);
+
+  function freeRoomTypeFit(room,type){
+    if(type==="all") return true;
+    if(type==="Ma’ruza") return ["Ma’ruza zali","Oddiy auditoriya"].includes(room.type);
+    if(type==="Amaliy") return ["Oddiy auditoriya","Seminar xonasi","Kompyuter xonasi","Laboratoriya"].includes(room.type);
+    if(type==="Seminar") return ["Seminar xonasi","Oddiy auditoriya"].includes(room.type);
+    // Oldingi talab bo‘yicha laboratoriya darsi uchun laboratoriya xonasi majburiy emas.
+    if(type==="Laboratoriya") return true;
+    return true;
+  }
+
+  function renderFreeRooms(){
+    const day=$("freeRoomDay").value;
+    const pair=Number($("freeRoomPair").value);
+    const type=$("freeRoomLessonType").value;
+    const weekNo=Number($("freeRoomWeekNo").value||1);
+    const week=weekNo%2===1?"surat":"maxraj";
+    const building=$("freeRoomBuilding").value;
+
+    const free=db.rooms
+      .filter(r=>freeRoomTypeFit(r,type))
+      .filter(r=>building==="all" || String(r.building||"")===building)
+      .filter(r=>!globalRoomOccupied(r,day,pair,week,weekNo));
+
+    const typeLabel=type==="all"?"Barcha xona turlari":type;
+    const weekLabel=weekNo%2===1?"Surat":"Maxraj";
+    const buildingLabel=building==="all"?"Barcha binolar":building;
+    $("freeRoomSearchInfo").innerHTML=
+      `<b>${esc(day)}</b> · <b>${pair}-juftlik</b> (${pairTimes[pair].start}–${pairTimes[pair].end}) · ${esc(typeLabel)} · ${weekNo}-hafta (${weekLabel}) · ${esc(buildingLabel)}`;
+
+    $("freeRoomResults").innerHTML=free.length
+      ?free.map(r=>`<div class="card">
+          <h3>${esc(r.name)}-xona</h3>
+          <div class="mini">${esc(r.type)} · ${r.capacity} o‘rin · ${esc(r.building||"Bino ko‘rsatilmagan")}</div>
+        </div>`).join("")
+      :'<div class="empty">Tanlangan kun, juftlik va xona turi bo‘yicha bo‘sh xona yo‘q.</div>';
+  }
+
+  ["freeRoomDay","freeRoomPair","freeRoomLessonType","freeRoomWeekNo","freeRoomBuilding"].forEach(id=>{
+    $(id).addEventListener("change",renderFreeRooms);
+  });
+
+  renderFreeRooms();
 };
 
 $("freeTeacherBtn").onclick=()=>{
-  const {day,minutes}=nowInfo();
-  let pair=Object.entries(pairTimes).find(([p,t])=>minutes>=mins(t.start)&&minutes<=mins(t.end));
-  pair=pair?Number(pair[0]):1;
-  const free=scopedTeachers().filter(t=>t.availability==="available"&&!globalTeacherBusy(t,day,pair,currentWeek));
-  openAdvanced("Bo‘sh o‘qituvchilar",`${day}, ${pair}-juftlik`,
-    `<div class="grid">${free.map(t=>`<div class="card"><h3>${esc(t.name)}</h3><div class="mini">${esc(t.position)} · ${esc(t.degree)}</div></div>`).join("")||'<div class="empty">Bo‘sh o‘qituvchi yo‘q.</div>'}</div>`);
+  const ni=nowInfo();
+  const workDays=["Dushanba","Seshanba","Chorshanba","Payshanba","Juma","Shanba"];
+  const defaultDay=workDays.includes(ni.day)?ni.day:"Dushanba";
+  let defaultPair=Object.entries(pairTimes).find(([p,t])=>ni.minutes>=mins(t.start)&&ni.minutes<=mins(t.end));
+  defaultPair=defaultPair?Number(defaultPair[0]):1;
+
+  const html=`<div class="form">
+    <div><label>Kun<select id="freeTeacherDay">${workDays.map(d=>`<option value="${d}" ${d===defaultDay?"selected":""}>${d}</option>`).join("")}</select></label></div>
+    <div><label>Juftlik<select id="freeTeacherPair">${[1,2,3,4,5,6,7,8].map(p=>`<option value="${p}" ${p===defaultPair?"selected":""}>${p}-juftlik · ${pairTimes[p].start}–${pairTimes[p].end}</option>`).join("")}</select></label></div>
+    <div><label>Hafta raqami<select id="freeTeacherWeekNo">${Array.from({length:60},(_,i)=>`<option value="${i+1}">${i+1}-hafta</option>`).join("")}</select></label></div>
+  </div>
+  <div class="note" id="freeTeacherInfo" style="margin-top:8px"></div>
+  <div class="grid" id="freeTeacherResults"></div>`;
+
+  openAdvanced("Bo‘sh o‘qituvchilar",`${defaultDay}, ${defaultPair}-juftlik`,html);
+
+  function renderFreeTeachers(){
+    const day=$("freeTeacherDay").value;
+    const pair=Number($("freeTeacherPair").value);
+    const weekNo=Number($("freeTeacherWeekNo").value||1);
+    const week=weekNo%2===1?"surat":"maxraj";
+    const free=scopedTeachers().filter(t=>t.availability==="available"&&!globalTeacherBusy(t,day,pair,week,weekNo));
+    $("freeTeacherInfo").innerHTML=`<b>${esc(day)}</b> · <b>${pair}-juftlik</b> · ${weekNo}-hafta (${week==="surat"?"Surat":"Maxraj"})`;
+    $("freeTeacherResults").innerHTML=free.map(t=>`<div class="card"><h3>${esc(t.name)}</h3><div class="mini">${esc(t.position)} · ${esc(t.degree)}</div></div>`).join("")||'<div class="empty">Bo‘sh o‘qituvchi yo‘q.</div>';
+  }
+  ["freeTeacherDay","freeTeacherPair","freeTeacherWeekNo"].forEach(id=>$(id).addEventListener("change",renderFreeTeachers));
+  renderFreeTeachers();
 };
 
 $("statsBtn").onclick=()=>{
@@ -3330,6 +3581,16 @@ $("monitorBtn").onclick=()=>{
   document.body.appendChild(wrap);render();const tm=setInterval(()=>{if(document.body.contains(wrap))render();else clearInterval(tm)},1000);
 };
 
+["academicYear","semesterSelect"].forEach(id=>{
+  $(id)?.addEventListener("change",()=>{
+    if(!db.settings.semesterWeeksByPeriod || typeof db.settings.semesterWeeksByPeriod!=="object") db.settings.semesterWeeksByPeriod={};
+    const year=$("academicYear").value.trim()||"2026/2027";
+    const semester=$("semesterSelect").value;
+    const key=semesterPeriodKey(year,semester);
+    $("semesterWeeks").value=Number(db.settings.semesterWeeksByPeriod[key]||16);
+  });
+});
+
 $("saveSemesterBtn").onclick=()=>{
   const oldKey=semesterPeriodKey(db.settings.academicYear,db.settings.semester);
 
@@ -3341,21 +3602,32 @@ $("saveSemesterBtn").onclick=()=>{
 
   const newKey=semesterPeriodKey(db.settings.academicYear,db.settings.semester);
 
+  if(!db.settings.semesterWeeksByPeriod || typeof db.settings.semesterWeeksByPeriod!=="object") db.settings.semesterWeeksByPeriod={};
+  db.settings.semesterWeeksByPeriod[newKey]=Math.max(1,Number($("semesterWeeks").value||16));
+  db.settings.semesterWeeks=Number(db.settings.semesterWeeksByPeriod[newKey]);
+
   // Yangi davr oldin mavjud bo‘lmasa, bo‘sh jadval bilan ochiladi.
   if(!db.semesterSchedules[newKey]){
     db.semesterSchedules[newKey]={topLevel:{},departments:{}};
   }
 
   applySemesterSchedules(newKey);
-  audit("Semestr sozlamasi o‘zgartirildi",`${db.settings.academicYear} · ${db.settings.semester}`);
+  audit("Semestr sozlamasi o‘zgartirildi",`${db.settings.academicYear} · ${db.settings.semester} · ${db.settings.semesterWeeks} hafta`);
   renderAll();
   renderSemester();
-  showAlert(`Faol davr: ${esc(db.settings.academicYear)} · ${esc(db.settings.semester)}`,"ok");
+  showAlert(`Faol davr: ${esc(db.settings.academicYear)} · ${esc(db.settings.semester)} · ${db.settings.semesterWeeks} hafta`,"ok");
 };
 function renderSemester(){
   if(!$("semesterInfo"))return;
-  $("semesterInfo").innerHTML=`<b>${esc(db.settings.academicYear)}</b><br>${esc(db.settings.semester)}<div class="mini" style="margin-top:6px">Faqat shu davrga tegishli dars jadvali faol.</div>`;
-  $("academicYear").value=db.settings.academicYear;$("semesterSelect").value=db.settings.semester;
+  if(!db.settings.semesterWeeksByPeriod || typeof db.settings.semesterWeeksByPeriod!=="object") db.settings.semesterWeeksByPeriod={};
+  const key=semesterPeriodKey(db.settings.academicYear,db.settings.semester);
+  if(!Number(db.settings.semesterWeeksByPeriod[key])) db.settings.semesterWeeksByPeriod[key]=Number(db.settings.semesterWeeks||16);
+  db.settings.semesterWeeks=Number(db.settings.semesterWeeksByPeriod[key]||16);
+
+  $("semesterInfo").innerHTML=`<b>${esc(db.settings.academicYear)}</b><br>${esc(db.settings.semester)} · ${Number(db.settings.semesterWeeks)} hafta<div class="mini" style="margin-top:6px">Faqat shu davrga tegishli dars jadvali faol.</div>`;
+  $("academicYear").value=db.settings.academicYear;
+  $("semesterSelect").value=db.settings.semester;
+  $("semesterWeeks").value=Number(db.settings.semesterWeeks);
 }
 $("addHolidayBtn").onclick=()=>{
   const date=$("holidayDate").value,name=$("holidayName").value.trim();
@@ -3615,23 +3887,72 @@ $("excelImportFile").onchange=e=>{
   reader.readAsArrayBuffer(file);
 };
 
-function roomDistanceWarning(candidate,teacherId){
-  const room=roomByName(candidate.room);if(!room)return null;
-  const t=teacherById(teacherId);if(!t)return null;
-  const adjacent=t.schedule.find(l=>l.day===candidate.day&&Math.abs(l.pair-candidate.pair)===1&&weekOverlap(l.weekType,candidate.weekType)&&!l.cancelled);
-  if(!adjacent)return null;
-  const other=roomByName(adjacent.room);
-  if(other&&other.building&&room.building&&other.building!==room.building){
-    return `Ogohlantirish: ketma-ket juftliklarda o‘qituvchi ${other.building} dan ${room.building} ga o‘tishi kerak.`;
-  }
-  return null;
+function exactLessonRoom(l){
+  return roomById(l?.roomId) ||
+    (db.rooms||[]).find(r=>String(r.name)===String(l?.room)&&String(r.building||"")===String(l?.roomBuilding||"")) ||
+    roomByName(l?.room);
+}
+function hmToMinutes(v){
+  const m=String(v||"").match(/^(\d{1,2}):(\d{2})$/);
+  return m?Number(m[1])*60+Number(m[2]):null;
+}
+function buildingRoute(a,b){
+  const x=String(a||"").trim().toLowerCase(), y=String(b||"").trim().toLowerCase();
+  return (db.buildingDistances||[]).find(r=>{
+    const f=String(r.from||"").trim().toLowerCase(), t=String(r.to||"").trim().toLowerCase();
+    return (f===x&&t===y)||(f===y&&t===x);
+  })||null;
+}
+function buildingTravelChecks(candidate,teacherId,editingLessonId=null){
+  const errors=[],warns=[];
+  const room=exactLessonRoom(candidate);if(!room?.building)return {errors,warns};
+  const t=teacherById(teacherId);if(!t)return {errors,warns};
+  const candidateTeacher=teacherById(candidate.substituteTeacherId||teacherId)||t;
+  const teacherKey=teacherIdentityKey(candidateTeacher);
+  if(!teacherKey)return {errors,warns};
+
+  const adjacent=globalApprovedLessons().filter(l=>
+    teacherIdentityKey(l.effectiveTeacher)===teacherKey &&
+    String(l.id)!==String(editingLessonId||"") &&
+    l.day===candidate.day &&
+    Math.abs(Number(l.pair)-Number(candidate.pair))===1 &&
+    lessonPeriodsOverlap(l,candidate)
+  );
+
+  adjacent.forEach(l=>{
+    const otherBuilding=String(l.physicalRoomBuilding||l.roomBuilding||"").trim();
+    if(!otherBuilding || String(otherBuilding)===String(room.building))return;
+
+    const previous=Number(l.pair)<Number(candidate.pair);
+    const fromBuilding=previous?otherBuilding:room.building;
+    const toBuilding=previous?room.building:otherBuilding;
+    const breakStart=previous?(l.end||pairTimes[l.pair]?.end):(candidate.end||pairTimes[candidate.pair]?.end);
+    const breakEnd=previous?(candidate.start||pairTimes[candidate.pair]?.start):(l.start||pairTimes[l.pair]?.start);
+    const a=hmToMinutes(breakStart), b=hmToMinutes(breakEnd);
+    const breakMinutes=(a!==null&&b!==null)?Math.max(0,b-a):0;
+    const route=buildingRoute(fromBuilding,toBuilding);
+
+    if(!route){
+      warns.push(`Bino masofasi kiritilmagan: ${fromBuilding} → ${toBuilding}. Ketma-ket darslar orasida ${breakMinutes} daqiqa tanaffus bor.`);
+      return;
+    }
+
+    const travel=Math.max(0,Number(route.minutes||0));
+    const distance=Math.max(0,Number(route.distance||0));
+    if(travel>breakMinutes){
+      errors.push(`Bino almashinuvi uchun vaqt yetmaydi: ${fromBuilding} → ${toBuilding} (${distance} km, ${travel} daqiqa). Tanaffus ${breakMinutes} daqiqa.`);
+    }
+  });
+  return {errors,warns};
 }
 
-// validateLesson funksiyasini kengaytirish uchun wrapper
+// validateLesson funksiyasini faqat bino yo‘li nazorati bilan kengaytirish
 const _oldValidateLesson=validateLesson;
 validateLesson=function(candidate,teacherId,editingLessonId=null){
   const res=_oldValidateLesson(candidate,teacherId,editingLessonId);
-  const w=roomDistanceWarning(candidate,teacherId);if(w)res.warns.push(w);
+  const c=buildingTravelChecks(candidate,teacherId,editingLessonId);
+  res.errors.push(...c.errors);
+  res.warns.push(...c.warns);
   return res;
 };
 
@@ -3748,8 +4069,11 @@ renderAdvanced();
 
   function syncActiveDepartmentWorkspace(){
     const u=db.currentUser||{};
-    if(u.role!=='mudiri' || !u.department) return;
-    const ws=ensureDepartmentWorkspace(u.department);
+    let dep='';
+    if(u.role==='mudiri' && u.department) dep=String(u.department).trim();
+    else if(["superadmin","admin"].includes(u.role) && db.adminActiveDepartment) dep=String(db.adminActiveDepartment).trim();
+    if(!dep) return;
+    const ws=ensureDepartmentWorkspace(dep);
     ws.teachers=db.teachers;
     ws.rooms=db.rooms;
     ws.history=db.history;
@@ -3761,11 +4085,32 @@ renderAdvanced();
   window.syncActiveDepartmentWorkspace=syncActiveDepartmentWorkspace;
   window.activateDepartmentWorkspace=activateDepartmentWorkspace;
 
+  window.adminOpenDepartment=function(department){
+    if(!["superadmin","admin"].includes(db.currentUser?.role)){
+      showAlert("Bu amal faqat admin uchun.","error");return;
+    }
+    const dep=String(department||"").trim();
+    if(!dep)return;
+
+    // Avval oldingi faol kafedra bo‘lsa, undagi o‘zgarishlarni o‘z workspace'iga saqlab qoladi.
+    syncActiveDepartmentWorkspace();
+
+    db.adminActiveDepartment=dep;
+    activateDepartmentWorkspace(dep);
+    localStorage.setItem("dispatchDB",JSON.stringify(db));
+
+    try{renderAll();}catch(e){}
+    try{renderAdminSelectors();}catch(e){}
+    try{renderHistory();}catch(e){}
+    try{refreshExTeachers();renderExceptions();}catch(e){}
+    try{renderAdminFacultyDepartments();}catch(e){}
+
+    if(typeof switchTab==="function") switchTab("teacherAdminTab");
+    showAlert(`${dep} kafedrasi boshqaruv uchun ochildi.`,"ok");
+  };
+
   function ensureUsers(){
     if(!Array.isArray(db.users)) db.users=[];
-    if(!db.users.some(u=>u.role==='superadmin')){
-      db.users.push({id:1,name:'Super admin',username:'admin',password:'admin123',role:'superadmin',department:''});
-    }
   }
 
   function departmentOptions(){
@@ -3851,11 +4196,6 @@ renderAdvanced();
       const password=g('loginPassword').value;
       const err=g('loginError');
       let u=(db.users||[]).find(x=>String(x.username||'').toLowerCase()===username&&String(x.password||'')===String(password));
-      if(!u && username==='admin' && password==='admin123'){
-        u={id:1,name:'Super admin',username:'admin',password:'admin123',role:'superadmin',department:''};
-        if(!Array.isArray(db.users)) db.users=[];
-        if(!db.users.some(x=>x.role==='superadmin')) db.users.push(u);
-      }
       if(!u){
         err.className='alert show error';
         err.textContent='Login yoki parol noto‘g‘ri.';
@@ -3916,7 +4256,8 @@ renderAdvanced();
   function ensureExtraDB(){
     if(typeof db==='undefined') return;
     if(!Array.isArray(db.dayExceptions)) db.dayExceptions=[];
-    if(!Array.isArray(db.orgStructure)) db.orgStructure=[{id:1,building:"1-bino",faculty:"Tabiiy resurslarni boshqarish",department:"Ekologiya, irrigatsiya va gidrotexnika"}];
+    if(!Array.isArray(db.orgStructure)) db.orgStructure=[{id:1,building:"1-bino",faculty:"Tabiiy resurslarni boshqarish",department:"Ekologiya, irrigatsiya va gidrotexnika",room:""}];
+    if(!Array.isArray(db.buildingDistances)) db.buildingDistances=[];
     try{save();}catch(e){}
   }
   function openSmart(title,subtitle,content){
@@ -3970,25 +4311,180 @@ renderAdvanced();
   });
 
   // 2. Avtomatik bo‘sh vaqt tavsiyasi
+  function smartDeptLocation(teacherId){
+    const teacher=teacherById(teacherId);
+    const dep=String(teacher?.department||db.currentUser?.department||'').trim().toLowerCase();
+    if(!dep)return null;
+    const node=(db.orgStructure||[]).find(x=>String(x.department||'').trim().toLowerCase()===dep);
+    return node||null;
+  }
+  function smartRoomNumber(v){
+    const m=String(v||'').match(/\d+/);
+    return m?Number(m[0]):null;
+  }
+  function sortRoomsByDepartmentLocation(list,teacherId,size){
+    const base=smartDeptLocation(teacherId);
+    const baseBuilding=String(base?.building||'').trim().toLowerCase();
+    const baseRoomNo=smartRoomNumber(base?.room);
+    return list.slice().sort((a,b)=>{
+      const aSame=baseBuilding&&String(a.building||'').trim().toLowerCase()===baseBuilding?0:1;
+      const bSame=baseBuilding&&String(b.building||'').trim().toLowerCase()===baseBuilding?0:1;
+      if(aSame!==bSame)return aSame-bSame;
+
+      if(aSame===0&&bSame===0&&baseRoomNo!==null){
+        const an=smartRoomNumber(a.name),bn=smartRoomNumber(b.name);
+        const ad=an===null?99999:Math.abs(an-baseRoomNo);
+        const bd=bn===null?99999:Math.abs(bn-baseRoomNo);
+        if(ad!==bd)return ad-bd;
+      }
+
+      const aExtra=Math.max(0,Number(a.capacity||0)-Number(size||0));
+      const bExtra=Math.max(0,Number(b.capacity||0)-Number(size||0));
+      if(aExtra!==bExtra)return aExtra-bExtra;
+      return String(a.name||'').localeCompare(String(b.name||''),'uz');
+    });
+  }
+  function chooseSmartTimeLesson(btn){
+    const tid=g('stTeacher')?.value;
+    const teacher=teacherById(tid);
+    const subject=g('stSubject')?.value.trim();
+    const group=g('stGroup')?.value.trim();
+    const week=g('stWeek')?.value;
+    const size=Number(g('stSize')?.value||0);
+    const type=g('stType')?.value;
+    const day=btn.dataset.day;
+    const pair=Number(btn.dataset.pair);
+    const room=(db.rooms||[]).find(r=>String(r.id)===String(btn.dataset.roomId));
+
+    if(!teacher||!room)return;
+    if(!subject||!group||!size){
+      showAlert('Fan, guruh va talabalar sonini to‘liq kiriting.','error');
+      return;
+    }
+
+    const lesson={
+      id:Date.now()+Math.random(),
+      day,
+      weekType:week,
+      pair,
+      start:pairTimes[pair].start,
+      end:pairTimes[pair].end,
+      subject,
+      group,
+      groupSize:size,
+      room:room.name,
+      roomId:room.id,
+      roomBuilding:room.building||'',
+      type,
+      substituteTeacherId:'',
+      status:'approved',
+      cancelled:false,
+      note:''
+    };
+
+    const check=validateLesson(lesson,teacher.id,null);
+    if(check.errs.length){
+      showAlert('<b>Dars qo‘shilmadi:</b><br>• '+check.errs.join('<br>• '),'error');
+      return;
+    }
+
+    teacher.schedule=teacher.schedule||[];
+    teacher.schedule.push(lesson);
+    save();
+    renderAll();
+    renderAdminSelectors();
+    renderHistory();
+    showAlert(`${sEsc(teacher.name)} uchun ${sEsc(day)} ${pair}-juftlikka dars jadvalga qo‘shildi.`,'ok');
+    closeSmart();
+  }
+
   g('smartTimeBtn')?.addEventListener('click',()=>{
-    openSmart('Avtomatik bo‘sh vaqt tavsiyasi','O‘qituvchi va guruh bir vaqtda bo‘sh bo‘lgan juftliklar topiladi.',`
+    openSmart('Avtomatik bo‘sh vaqt tavsiyasi','O‘qituvchi, guruh va xona bir vaqtda bo‘sh bo‘lgan variantlar topiladi. Avval kafedra binosi va kafedra xonasiga yaqin xonalar ko‘rsatiladi.',`
       <div class="form">
         <div class="full"><label>O‘qituvchi<select id="stTeacher">${scopedTeachers().map(t=>`<option value="${t.id}">${sEsc(t.name)}</option>`).join('')}</select></label></div>
+        <div class="full"><label>Fan<input id="stSubject" placeholder="Fan nomi"></label></div>
         <div><label>Guruh<input id="stGroup" placeholder="GTI-31"></label></div>
-        <div><label>Hafta<select id="stWeek"><option value="surat">Surat</option><option value="maxraj">Maxraj</option></select></label></div>
+        <div><label>Hafta<select id="stWeek"><option value="surat">Surat</option><option value="maxraj">Maxraj</option><option value="doim">Doimiy</option></select></label></div>
         <div><label>Talabalar soni<input type="number" min="1" id="stSize" value="25"></label></div>
         <div><label>Dars turi<select id="stType"><option>Ma’ruza</option><option>Amaliy</option><option>Laboratoriya</option><option>Seminar</option></select></label></div>
+        <div>
+          <label>Juftlikdan
+            <select id="stPairFrom">
+              <option value="1">1-juftlik · ${pairTimes[1].start}–${pairTimes[1].end}</option>
+              <option value="2">2-juftlik · ${pairTimes[2].start}–${pairTimes[2].end}</option>
+              <option value="3">3-juftlik · ${pairTimes[3].start}–${pairTimes[3].end}</option>
+              <option value="4">4-juftlik · ${pairTimes[4].start}–${pairTimes[4].end}</option>
+              <option value="5">5-juftlik · ${pairTimes[5].start}–${pairTimes[5].end}</option>
+              <option value="6">6-juftlik · ${pairTimes[6].start}–${pairTimes[6].end}</option>
+              <option value="7">7-juftlik · ${pairTimes[7].start}–${pairTimes[7].end}</option>
+              <option value="8">8-juftlik · ${pairTimes[8].start}–${pairTimes[8].end}</option>
+            </select>
+          </label>
+        </div>
+        <div>
+          <label>Juftlikgacha
+            <select id="stPairTo">
+              <option value="1">1-juftlik · ${pairTimes[1].start}–${pairTimes[1].end}</option>
+              <option value="2">2-juftlik · ${pairTimes[2].start}–${pairTimes[2].end}</option>
+              <option value="3">3-juftlik · ${pairTimes[3].start}–${pairTimes[3].end}</option>
+              <option value="4">4-juftlik · ${pairTimes[4].start}–${pairTimes[4].end}</option>
+              <option value="5">5-juftlik · ${pairTimes[5].start}–${pairTimes[5].end}</option>
+              <option value="6">6-juftlik · ${pairTimes[6].start}–${pairTimes[6].end}</option>
+              <option value="7">7-juftlik · ${pairTimes[7].start}–${pairTimes[7].end}</option>
+              <option value="8" selected>8-juftlik · ${pairTimes[8].start}–${pairTimes[8].end}</option>
+            </select>
+          </label>
+        </div>
         <div class="full"><button class="btn primary" id="stFind">Bo‘sh vaqtlarni topish</button></div>
       </div><div id="stResult" class="smart-result"></div>`);
+
     g('stFind').onclick=()=>{
-      const tid=g('stTeacher').value,group=g('stGroup').value.trim(),week=g('stWeek').value,size=Number(g('stSize').value||0),type=g('stType').value;
-      if(!group){g('stResult').innerHTML='<div class="alert show error">Guruh nomini kiriting.</div>';return;}
-      const out=[]; ['Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba'].forEach(day=>{for(let pair=1;pair<=8;pair++){
-        if(slotTeacherBusy(tid,day,pair,week)||slotGroupBusy(group,day,pair,week))continue;
-        const freeRooms=(db.rooms||[]).filter(r=>Number(r.capacity)>=size&&roomTypeFit(r.type,type)&&!slotOccupiedRoom(r,day,pair,week));
-        if(freeRooms.length) out.push({day,pair,rooms:freeRooms.slice(0,3)});
-      }});
-      g('stResult').innerHTML=out.length?out.slice(0,24).map(x=>`<div class="card"><b>${x.day} · ${x.pair}-juftlik (${pairTimes[x.pair].start}–${pairTimes[x.pair].end})</b><div class="mini">Mos xonalar: ${x.rooms.map(r=>sEsc(r.name)).join(', ')}</div></div>`).join(''):'<div class="empty">O‘qituvchi, guruh va mos xona bir vaqtda bo‘sh bo‘lgan juftlik topilmadi.</div>';
+      const tid=g('stTeacher').value,subject=g('stSubject').value.trim(),group=g('stGroup').value.trim(),week=g('stWeek').value,size=Number(g('stSize').value||0),type=g('stType').value;
+      const pairFrom=Number(g('stPairFrom').value||1),pairTo=Number(g('stPairTo').value||8);
+      if(!subject||!group){g('stResult').innerHTML='<div class="alert show error">Fan va guruh nomini kiriting.</div>';return;}
+      if(pairFrom>pairTo){g('stResult').innerHTML='<div class="alert show error">Juftlik oralig‘ini to‘g‘ri tanlang: boshlanish juftligi tugash juftligidan katta bo‘lmasin.</div>';return;}
+
+      const base=smartDeptLocation(tid);
+      const out=[];
+
+      ['Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba'].forEach(day=>{
+        for(let pair=pairFrom;pair<=pairTo;pair++){
+          if(slotTeacherBusy(tid,day,pair,week)||slotGroupBusy(group,day,pair,week))continue;
+
+          const freeRooms=sortRoomsByDepartmentLocation(
+            (db.rooms||[]).filter(r=>Number(r.capacity)>=size&&roomTypeFit(r.type,type)&&!slotOccupiedRoom(r,day,pair,week)),
+            tid,
+            size
+          );
+
+          if(freeRooms.length)out.push({day,pair,rooms:freeRooms});
+        }
+      });
+
+      const baseInfo=(base
+        ?`<div class="note" style="margin-bottom:4px">Kafedra joylashuvi: <b>${sEsc(base.building||'')}</b>${base.room?` · <b>${sEsc(base.room)}-xona</b>`:''}. Tavsiyalar shu joyga yaqinlik bo‘yicha tartiblangan.</div>`
+        :'')+
+        `<div class="note" style="margin-bottom:8px">Qidiruv oralig‘i: <b>${pairFrom}-juftlik (${pairTimes[pairFrom].start}–${pairTimes[pairFrom].end})</b> dan <b>${pairTo}-juftlik (${pairTimes[pairTo].start}–${pairTimes[pairTo].end})</b> gacha.</div>`;
+
+      g('stResult').innerHTML=out.length
+        ?baseInfo+out.slice(0,24).map(x=>`
+          <div class="card">
+            <b>${x.day} · ${x.pair}-juftlik (${pairTimes[x.pair].start}–${pairTimes[x.pair].end})</b>
+            <div class="mini" style="margin:5px 0 7px">Fan: ${sEsc(subject)} · Guruh: ${sEsc(group)} · ${week==='doim'?'Doimiy':week==='surat'?'Surat':'Maxraj'} · ${sEsc(type)}</div>
+            ${x.rooms.slice(0,6).map((r,i)=>`
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-top:1px solid var(--border)">
+                <div>
+                  <b>${sEsc(r.name)}-xona</b>
+                  <div class="mini">Bino: ${sEsc(r.building||'ko‘rsatilmagan')} · ${sEsc(r.type)} · ${r.capacity} o‘rin${i===0&&base&&String(r.building||'').trim().toLowerCase()===String(base.building||'').trim().toLowerCase()?' · kafedraga yaqin tavsiya':''}</div>
+                </div>
+                <button class="btn success stChooseBtn" data-day="${sEsc(x.day)}" data-pair="${x.pair}" data-room-id="${sEsc(String(r.id))}">Tanlash</button>
+              </div>`).join('')}
+          </div>`).join('')
+        :'<div class="empty">O‘qituvchi, guruh va mos xona bir vaqtda bo‘sh bo‘lgan juftlik topilmadi.</div>';
+
+      g('stResult').querySelectorAll('.stChooseBtn').forEach(btn=>{
+        btn.addEventListener('click',()=>chooseSmartTimeLesson(btn));
+      });
     };
   });
 
@@ -4025,11 +4521,161 @@ renderAdvanced();
   g('saveExceptionBtn')?.addEventListener('click',()=>{const teacherId=g('exTeacher').value,lessonId=g('exLesson').value,date=g('exDate').value,action=g('exAction').value,newPair=g('exPair').value,newRoom=g('exRoom').value,note=g('exNote').value.trim();if(!teacherId||!lessonId||!date){showAlert('O‘qituvchi, dars va sanani tanlang.','error');return;}db.dayExceptions.push({id:Date.now(),teacherId:Number(teacherId),lessonId:Number(lessonId),date,action,newPair:newPair?Number(newPair):null,newRoom,note});try{addHistory('Bir kunlik istisno qo‘shildi',`${date} · ${action}`)}catch(e){save()}g('exDate').value='';g('exNote').value='';renderExceptions();showAlert('Istisno jadvali saqlandi.','ok');});
   g('exceptionBtn')?.addEventListener('click',()=>{const list=(db.dayExceptions||[]).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)));openSmart('Bir kunlik istisno jadvali','Asosiy haftalik jadval o‘zgarmaydi.',list.length?list.map(x=>{const t=teacherById(x.teacherId),l=t?.schedule.find(z=>String(z.id)===String(x.lessonId));return `<div class="card"><b>${sEsc(x.date)} · ${sEsc(t?.name||'')}</b><div>${sEsc(l?.subject||'')} · ${sEsc(l?.group||'')}</div><div class="mini">${x.action==='cancel'?'Bekor qilinadi':x.action==='move'?'Ko‘chiriladi':'Xona almashtiriladi'}${x.newPair?` · ${x.newPair}-juftlik`:''}${x.newRoom?` · ${sEsc(x.newRoom)}-xona`:''}</div><p>${sEsc(x.note||'')}</p></div>`}).join(''):'<div class="empty">Istisnolar kiritilmagan.</div>');});
 
+
+  function renderAdminFacultyDepartments(){
+    const box=g('facultyDepartmentAdminList');
+    if(!box)return;
+
+    const allowed=["superadmin","admin"].includes(db.currentUser?.role);
+    const info=g('adminActiveDepartmentInfo');
+    if(!allowed){
+      box.innerHTML='<div class="empty">Bu bo‘lim faqat admin uchun.</div>';
+      if(info)info.style.display='none';
+      return;
+    }
+
+    ensureDepartmentWorkspaces();
+
+    if(info){
+      if(db.adminActiveDepartment){
+        info.style.display='block';
+        info.innerHTML=`Hozir boshqarilayotgan kafedra: <b>${sEsc(db.adminActiveDepartment)}</b>`;
+      }else{
+        info.style.display='none';
+        info.innerHTML='';
+      }
+    }
+
+    const structure=(db.orgStructure||[]).map(x=>({
+      faculty:String(x.faculty||'').trim(),
+      department:String(x.department||'').trim(),
+      building:String(x.building||'').trim(),
+      room:String(x.room||'').trim()
+    })).filter(x=>x.department||x.faculty);
+
+    const depMeta={};
+    structure.forEach(x=>{
+      if(!x.department)return;
+      depMeta[x.department]={
+        faculty:x.faculty||'Fakultet ko‘rsatilmagan',
+        building:x.building||'',
+        room:x.room||''
+      };
+    });
+
+    Object.keys(db.departmentWorkspaces||{}).forEach(dep=>{
+      if(!depMeta[dep]){
+        depMeta[dep]={faculty:'Fakultet ko‘rsatilmagan',building:'',room:''};
+      }
+    });
+
+    // Top-leveldagi o‘qituvchilardan ham yo‘qolib qolgan kafedralarni ko‘rish.
+    (db.teachers||[]).forEach(t=>{
+      const dep=String(t.department||'').trim();
+      if(dep && !depMeta[dep])depMeta[dep]={faculty:'Fakultet ko‘rsatilmagan',building:'',room:''};
+    });
+
+    const byFaculty={};
+    Object.entries(depMeta).forEach(([department,meta])=>{
+      const faculty=meta.faculty||'Fakultet ko‘rsatilmagan';
+      if(!byFaculty[faculty])byFaculty[faculty]=[];
+      byFaculty[faculty].push({department,...meta});
+    });
+
+    const faculties=Object.keys(byFaculty).sort((a,b)=>a.localeCompare(b,'uz'));
+    if(!faculties.length){
+      box.innerHTML='<div class="empty">Fakultet va kafedralar hali kiritilmagan.</div>';
+      return;
+    }
+
+    box.innerHTML=faculties.map(faculty=>{
+      const deps=byFaculty[faculty].sort((a,b)=>a.department.localeCompare(b.department,'uz'));
+      const facultyTeacherCount=deps.reduce((sum,d)=>{
+        const ws=db.departmentWorkspaces?.[d.department];
+        return sum+(Array.isArray(ws?.teachers)?ws.teachers.length:0);
+      },0);
+
+      return `<div class="admin-row">
+        <strong>${sEsc(faculty)}</strong>
+        <div class="mini" style="margin-top:4px">${deps.length} ta kafedra · ${facultyTeacherCount} ta o‘qituvchi</div>
+        <div style="margin-top:8px">${deps.map(d=>{
+          const ws=db.departmentWorkspaces?.[d.department]||{teachers:[],rooms:[],history:[],dayExceptions:[]};
+          const teachers=Array.isArray(ws.teachers)?ws.teachers:[];
+          const rooms=Array.isArray(ws.rooms)?ws.rooms:[];
+          const lessonCount=teachers.reduce((n,t)=>n+(Array.isArray(t.schedule)?t.schedule.length:0),0);
+          const active=String(db.adminActiveDepartment||'')===String(d.department);
+
+          return `<div style="padding:10px 0;border-top:1px solid #e5e7eb">
+            <div style="display:flex;gap:8px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap">
+              <div style="min-width:0">
+                <b>${sEsc(d.department||'Kafedra ko‘rsatilmagan')}</b>
+                <div class="mini">${sEsc(d.building||'Bino ko‘rsatilmagan')}${d.room?` · ${sEsc(d.room)}-xona`:''}</div>
+                <div class="mini" style="margin-top:3px">${teachers.length} ta o‘qituvchi · ${rooms.length} ta xona · ${lessonCount} ta dars</div>
+              </div>
+              <button class="btn ${active?'secondary':'primary'}" onclick='adminOpenDepartment(${JSON.stringify(d.department)})'>${active?'Boshqarilmoqda':'Boshqarish'}</button>
+            </div>
+
+            <div style="margin-top:8px">
+              ${teachers.length?teachers
+                .slice()
+                .sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'uz'))
+                .map(t=>{
+                  const cnt=Array.isArray(t.schedule)?t.schedule.length:0;
+                  return `<div style="padding:5px 0;border-top:1px dashed #e5e7eb">
+                    <b>${sEsc(t.name||'O‘qituvchi')}</b>
+                    <div class="mini">${sEsc(t.position||'')}${t.degree?` · ${sEsc(t.degree)}`:''}${t.phone?` · ${sEsc(t.phone)}`:''} · ${cnt} ta dars</div>
+                  </div>`;
+                }).join('')
+                :'<div class="mini" style="margin-top:6px">O‘qituvchilar kiritilmagan.</div>'}
+            </div>
+          </div>`;
+        }).join('')}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Bino oraliq masofasi va yo‘l vaqti
+  function renderBuildingDistances(){
+    if(!g('buildingDistanceList'))return;
+    if(!Array.isArray(db.buildingDistances))db.buildingDistances=[];
+    g('buildingDistanceList').innerHTML=db.buildingDistances.length?db.buildingDistances.map(x=>`
+      <div class="admin-row">
+        <strong>${sEsc(x.from)} → ${sEsc(x.to)}</strong>
+        <div class="mini">${Number(x.distance||0)} km · ${Number(x.minutes||0)} daqiqa</div>
+        <div class="actions" style="margin-top:8px"><button class="btn danger" onclick="deleteBuildingDistance(${x.id})">O‘chirish</button></div>
+      </div>`).join(''):'<div class="empty">Bino masofalari kiritilmagan.</div>';
+  }
+  window.deleteBuildingDistance=id=>{
+    db.buildingDistances=(db.buildingDistances||[]).filter(x=>String(x.id)!==String(id));
+    save();renderBuildingDistances();
+  };
+  g('saveBuildingDistanceBtn')?.addEventListener('click',()=>{
+    const from=g('bdFrom').value,to=g('bdTo').value;
+    const distance=Number(g('bdDistance').value),minutes=Number(g('bdMinutes').value);
+    if(from===to){showAlert('Ikki xil binoni tanlang.','error');return;}
+    if(!Number.isFinite(distance)||distance<0||!Number.isFinite(minutes)||minutes<0){
+      showAlert('Masofa va yo‘l vaqtini to‘g‘ri kiriting.','error');return;
+    }
+    if(!Array.isArray(db.buildingDistances))db.buildingDistances=[];
+    const existing=db.buildingDistances.find(x=>
+      (String(x.from)===String(from)&&String(x.to)===String(to))||
+      (String(x.from)===String(to)&&String(x.to)===String(from))
+    );
+    if(existing){
+      existing.from=from;existing.to=to;existing.distance=distance;existing.minutes=Math.round(minutes);
+    }else{
+      db.buildingDistances.push({id:Date.now(),from,to,distance,minutes:Math.round(minutes)});
+    }
+    save();renderBuildingDistances();
+    g('bdDistance').value='';g('bdMinutes').value='';
+    showAlert('Bino masofasi va yo‘l vaqti saqlandi.','ok');
+  });
+
   // 6. Bino/fakultet/kafedra strukturasi
-  function renderOrg(){if(!g('orgList'))return;g('orgList').innerHTML=(db.orgStructure||[]).length?db.orgStructure.map(x=>`<div class="admin-row"><strong>${sEsc(x.building)}</strong><div>${sEsc(x.faculty)} → ${sEsc(x.department)}</div><div class="mini">Xonalar: ${(db.rooms||[]).filter(r=>String(r.building||'')===String(x.building)).length} · O‘qituvchilar: ${(db.teachers||[]).filter(t=>String(t.department||'')===String(x.department)).length}</div><div class="actions" style="margin-top:8px"><button class="btn danger" onclick="deleteOrgNode(${x.id})">O‘chirish</button></div></div>`).join(''):'<div class="empty">Struktura kiritilmagan.</div>';}
-  window.deleteOrgNode=id=>{db.orgStructure=db.orgStructure.filter(x=>String(x.id)!==String(id));save();renderOrg();};
-  g('saveOrgBtn')?.addEventListener('click',()=>{const building=g('orgBuilding').value.trim(),faculty=g('orgFaculty').value.trim(),department=g('orgDepartment').value.trim();if(!building||!faculty||!department){showAlert('Bino, fakultet va kafedrani to‘liq kiriting.','error');return;}db.orgStructure.push({id:Date.now(),building,faculty,department});save();g('orgBuilding').value=g('orgFaculty').value=g('orgDepartment').value='';renderOrg();showAlert('Struktura saqlandi.','ok');});
-  g('structureBtn')?.addEventListener('click',()=>{const byB={};(db.orgStructure||[]).forEach(x=>{(byB[x.building]??={});(byB[x.building][x.faculty]??=[]).push(x.department)});let h='<div class="structure-tree">';Object.entries(byB).forEach(([b,fs])=>{h+=`<div class="structure-node"><b>${sEsc(b)}</b>`;Object.entries(fs).forEach(([f,deps])=>{h+=`<div style="margin:8px 0 0 14px"><b>${sEsc(f)}</b><div class="mini">${deps.map(d=>sEsc(d)).join(' · ')}</div></div>`});h+='</div>'});h+='</div>';openSmart('Universitet strukturasi','Bino → fakultet → kafedra',h||'<div class="empty">Struktura kiritilmagan.</div>');});
+  function renderOrg(){if(!g('orgList'))return;g('orgList').innerHTML=(db.orgStructure||[]).length?db.orgStructure.map(x=>`<div class="admin-row"><strong>${sEsc(x.building)}</strong><div>${sEsc(x.faculty)} → ${sEsc(x.department)}</div><div class="mini">Kafedra xonasi: ${sEsc(x.room||'ko‘rsatilmagan')} · Xonalar: ${(db.rooms||[]).filter(r=>String(r.building||'')===String(x.building)).length} · O‘qituvchilar: ${(db.teachers||[]).filter(t=>String(t.department||'')===String(x.department)).length}</div><div class="actions" style="margin-top:8px"><button class="btn danger" onclick="deleteOrgNode(${x.id})">O‘chirish</button></div></div>`).join(''):'<div class="empty">Struktura kiritilmagan.</div>';}
+  window.deleteOrgNode=id=>{db.orgStructure=db.orgStructure.filter(x=>String(x.id)!==String(id));save();renderOrg();renderAdminFacultyDepartments();};
+  g('saveOrgBtn')?.addEventListener('click',()=>{const building=g('orgBuilding').value.trim(),faculty=g('orgFaculty').value.trim(),department=g('orgDepartment').value.trim(),room=g('orgRoom').value.trim();if(!building||!faculty||!department||!room){showAlert('Bino, fakultet, kafedra va kafedra xonasini to‘liq kiriting.','error');return;}db.orgStructure.push({id:Date.now(),building,faculty,department,room});save();g('orgBuilding').value=g('orgFaculty').value=g('orgDepartment').value=g('orgRoom').value='';renderOrg();renderAdminFacultyDepartments();showAlert('Struktura saqlandi.','ok');});
+  g('structureBtn')?.addEventListener('click',()=>{const byB={};(db.orgStructure||[]).forEach(x=>{(byB[x.building]??={});(byB[x.building][x.faculty]??=[]).push({department:x.department,room:x.room})});let h='<div class="structure-tree">';Object.entries(byB).forEach(([b,fs])=>{h+=`<div class="structure-node"><b>${sEsc(b)}</b>`;Object.entries(fs).forEach(([f,deps])=>{h+=`<div style="margin:8px 0 0 14px"><b>${sEsc(f)}</b><div class="mini">${deps.map(d=>`${sEsc(d.department)}${d.room?` · ${sEsc(d.room)}-xona`:''}`).join(' · ')}</div></div>`});h+='</div>'});h+='</div>';openSmart('Universitet strukturasi','Bino → fakultet → kafedra → kafedra xonasi',h||'<div class="empty">Struktura kiritilmagan.</div>');});
 
   // 7. Til tanlash: mavjud elementlarni o‘chirmaydi, faqat ko‘rinadigan statik matnlarni tarjima qiladi.
   const dict={
@@ -4070,6 +4716,8 @@ renderAdvanced();
         };
         if(db.currentUser.role==='mudiri' && db.currentUser.department){
           activateDepartmentWorkspace(db.currentUser.department);
+        }else if(["superadmin","admin"].includes(db.currentUser.role) && db.adminActiveDepartment){
+          activateDepartmentWorkspace(db.adminActiveDepartment);
         }
       }else{
         sessionStorage.removeItem('dispatchCurrentUser');
@@ -4089,7 +4737,7 @@ renderAdvanced();
       }
     },true);
     if(g('exRoom'))g('exRoom').innerHTML='<option value="">O‘zgarmaydi</option>'+(db.rooms||[]).map(r=>`<option value="${sEsc(r.name)}">${sEsc(r.name)}-xona</option>`).join('');
-    refreshExTeachers();renderExceptions();renderOrg();
+    refreshExTeachers();renderExceptions();renderOrg();renderAdminFacultyDepartments();renderBuildingDistances();
     const lng=localStorage.getItem('uiLanguage')||'uz';if(g('languageSelect'))g('languageSelect').value=lng;applyLanguage(lng);
     applyRoleUI();
 
@@ -5479,7 +6127,6 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
       <button class="pro-suite-btn" data-pro="dashboard"><span>▦</span><span>Dashboard</span></button>
       <button class="pro-suite-btn" data-pro="issues"><span>!</span><span>Bugungi muammolar</span><span class="pro-suite-badge">${countIssues()}</span></button>
       <button class="pro-suite-btn" data-pro="details"><span>≣</span><span>Dars tafsilotlari</span></button>
-      <button class="pro-suite-btn" data-pro="suggest"><span>◇</span><span>Aqlli tavsiyalar</span></button>
       <button class="pro-suite-btn" data-pro="filter"><span>⌕</span><span>Tez filtr</span></button>
       <button class="pro-suite-btn" data-pro="cancel"><span>×</span><span>Bekor qilinganlar</span></button>
       <button class="pro-suite-btn" data-pro="recent"><span>↺</span><span>So‘nggi o‘zgarishlar</span></button>
@@ -5493,7 +6140,6 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
       if(a==="dashboard")showPro("PRO Dashboard","Tizimning umumiy holati",dashboardHTML());
       if(a==="issues")showPro("Bugungi muammolar",todayName(),issuesHTML());
       if(a==="details")showPro("Dars tafsilotlari","Barcha faol darslar",detailsHTML());
-      if(a==="suggest")showPro("Aqlli tavsiyalar","Mos xona va bo‘sh vaqt",suggestionsHTML());
       if(a==="filter")showPro("Tez filtr","Darslarni tez saralash",quickFilterHTML());
       if(a==="cancel")showPro("Bekor qilingan darslar","Tarix",cancelledHTML());
       if(a==="recent")showPro("So‘nggi o‘zgarishlar","Amallar tarixi",recentHTML());
@@ -6318,19 +6964,45 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
 
   /* 9. Room occupancy */
   function roomLoadHTML(){
+    const semesterWeeks=Math.max(1,Number(db.settings?.semesterWeeks||16));
+    // 1-hafta Surat deb olinadi: toq semestr haftasida Surat bitta ko‘proq bo‘ladi.
+    const suratWeeks=Math.ceil(semesterWeeks/2);
+    const maxrajWeeks=Math.floor(semesterWeeks/2);
+    const weeklySlots=DAYS.length*Object.keys(pairTimes).length;
+    const semesterSlots=weeklySlots*semesterWeeks;
+
+    function semesterOccurrences(l){
+      if(lessonEducationType(l)==="sirtqi"){
+        const r=lessonWeekRange(l);
+        let count=0;
+        for(let w=r.start;w<=r.end;w++){
+          if(lessonRunsOnSemesterWeek(l,w))count++;
+        }
+        return count;
+      }
+      if(l.weekType==="surat") return suratWeeks;
+      if(l.weekType==="maxraj") return maxrajWeeks;
+      return semesterWeeks; // Doimiy
+    }
+
     return rooms().map(r=>{
-      const n=lessons(false).filter(({l})=>weekOk(l)&&(String(l.roomId)===String(r.id)||(String(l.room)===String(r.name)&&String(l.roomBuilding||"")===String(r.building||"")))).length;
-      const pct=Math.min(100,Math.round(n/36*100));
-      return `<div class="ultra-card"><h4>${escU(r.name)}-xona · ${escU(r.building||"")}</h4><div class="ultra-muted">${n} / 36 haftalik slot · ${pct}% band</div><div class="ultra-bar"><span style="width:${pct}%"></span></div></div>`;
+      const roomLessons=lessons(false).filter(({l})=>
+        String(l.roomId)===String(r.id) ||
+        (String(l.room)===String(r.name)&&String(l.roomBuilding||"")===String(r.building||""))
+      );
+      const semesterBusy=roomLessons.reduce((sum,{l})=>sum+semesterOccurrences(l),0);
+      const pct=Math.min(100,Math.round(semesterBusy/semesterSlots*100));
+      return `<div class="ultra-card"><h4>${escU(r.name)}-xona · ${escU(r.building||"")}</h4><div class="ultra-muted">${semesterBusy} / ${semesterSlots} semestr slot · ${semesterWeeks} hafta · Surat ${suratWeeks} / Maxraj ${maxrajWeeks} · ${pct}% band</div><div class="ultra-bar"><span style="width:${pct}%"></span></div></div>`;
     }).join("")||`<div class="ultra-card">Xonalar yo‘q.</div>`;
   }
 
   /* 10. Teacher load */
   function teacherLoadHTML(){
+    const totalWeeklySlots=DAYS.length*Object.keys(pairTimes).length;
     return teachers().map(t=>{
       const arr=(t.schedule||[]).filter(l=>!l.cancelled&&l.status==="approved"&&weekOk(l)),pairs=arr.length,hours=pairs*2;
-      const busy=new Set(arr.map(l=>`${l.day}|${l.pair}`)).size,free=36-busy;
-      return `<div class="ultra-card"><h4>${escU(t.name)}</h4><div class="ultra-muted">${pairs} juftlik · ≈${hours} akademik soat · ${free} bo‘sh slot</div><div class="ultra-bar"><span style="width:${Math.min(100,Math.round(busy/36*100))}%"></span></div></div>`;
+      const busy=new Set(arr.map(l=>`${l.day}|${l.pair}`)).size,free=Math.max(0,totalWeeklySlots-busy);
+      return `<div class="ultra-card"><h4>${escU(t.name)}</h4><div class="ultra-muted">${pairs} juftlik · ≈${hours} akademik soat · ${free} bo‘sh slot</div><div class="ultra-bar"><span style="width:${Math.min(100,Math.round(busy/totalWeeklySlots*100))}%"></span></div></div>`;
     }).join("");
   }
 
@@ -6545,7 +7217,7 @@ body.pro-dark .pro-search-input{background:#1d2934;color:#e9eef3}
       if(a==="bulk")openU("Bulk edit","Bir nechta darsni bir vaqtda o‘zgartirish",bulkEditHTML());
       if(a==="drag"){openU("Drag & drop jadval","Darslarni to‘liq boshqarish",dragHTML());bindDrag()}
       if(a==="heat")openU("Konflikt xaritasi","Kun va juftlik kesimida",heatHTML());
-      if(a==="roomload")openU("Xona bandligi","Haftalik bandlik foizi",roomLoadHTML());
+      if(a==="roomload")openU("Xona bandligi","Semestr bandlik foizi",roomLoadHTML());
       if(a==="teacherload")openU("O‘qituvchi yuklamasi","Juftlik va bo‘sh slotlar",teacherLoadHTML());
       if(a==="groupload")openU("Guruh yuklamasi","Darslar va “oyna”lar",groupLoadHTML());
       if(a==="quality")openU("Jadval sifati","Ichki yordamchi baholash",qualityHTML());
