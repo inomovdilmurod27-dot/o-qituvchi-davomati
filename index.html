@@ -2293,6 +2293,69 @@ let localDirtyBeforeCloudReady = false;
 let suppressRemoteSnapshot = false;
 
 
+
+/* ===== O‘CHIRILGAN O‘QITUVCHI/XONA QAYTA TIKLANISHIGA QARSHI HIMOYA ===== */
+const DELETED_ENTITIES_STORAGE_KEY="dispatchDeletedEntitiesV1";
+function entityNormText(v){return String(v||"").trim().toLowerCase().replace(/\s+/g," ")}
+function entityNormPhone(v){return String(v||"").replace(/\D/g,"")}
+function entityTeacherKey(t){if(!t)return "";const p=entityNormPhone(t.phone),n=entityNormText(t.name);return `${p.length>=7?`p:${p}`:""}|${n?`n:${n}`:""}`}
+function entityRoomKey(r){if(!r)return "";return `${entityNormText(r.name)}|${entityNormText(r.building)}`}
+function currentEntityScope(){const u=db.currentUser||{};if(u.role==="mudiri"&&u.department)return String(u.department).trim();if(["superadmin","admin"].includes(u.role)&&db.adminActiveDepartment)return String(db.adminActiveDepartment).trim();return ""}
+function getStoredDeletedEntities(){try{const x=JSON.parse(localStorage.getItem(DELETED_ENTITIES_STORAGE_KEY)||"[]");return Array.isArray(x)?x:[]}catch(e){return []}}
+function saveStoredDeletedEntities(records){localStorage.setItem(DELETED_ENTITIES_STORAGE_KEY,JSON.stringify((Array.isArray(records)?records:[]).slice(-1000)))}
+function mergeDeletedEntitiesFromLocal(){
+  if(!Array.isArray(db.deletedEntities))db.deletedEntities=[];
+  getStoredDeletedEntities().forEach(item=>{
+    if(!item)return;
+    const exists=db.deletedEntities.some(x=>x?.type===item?.type&&String(x?.scope||"")===String(item?.scope||"")&&((x?.id&&item?.id&&String(x.id)===String(item.id))||(x?.key&&item?.key&&String(x.key)===String(item.key))));
+    if(!exists)db.deletedEntities.push(item);
+  });
+  if(db.deletedEntities.length>1000)db.deletedEntities.splice(0,db.deletedEntities.length-1000);
+  saveStoredDeletedEntities(db.deletedEntities);
+  return db.deletedEntities;
+}
+function rememberDeletedEntity(type,obj,scope=currentEntityScope()){
+  const rec={type,scope:String(scope||""),id:obj?.id!=null?String(obj.id):"",key:type==="teacher"?entityTeacherKey(obj):entityRoomKey(obj),deletedAt:Date.now()};
+  const records=mergeDeletedEntitiesFromLocal();
+  const exists=records.some(x=>x?.type===rec.type&&String(x?.scope||"")===rec.scope&&((x?.id&&rec.id&&String(x.id)===rec.id)||(x?.key&&rec.key&&String(x.key)===rec.key)));
+  if(!exists)records.push(rec);
+  saveStoredDeletedEntities(records);
+}
+function forgetDeletedEntity(type,obj,scope=currentEntityScope()){
+  const id=obj?.id!=null?String(obj.id):"",key=type==="teacher"?entityTeacherKey(obj):entityRoomKey(obj),s=String(scope||"");
+  const records=mergeDeletedEntitiesFromLocal();
+  db.deletedEntities=records.filter(x=>!(x?.type===type&&String(x?.scope||"")===s&&((id&&x?.id&&String(x.id)===id)||(key&&x?.key&&String(x.key)===key))));
+  saveStoredDeletedEntities(db.deletedEntities);
+}
+function purgeDeletedEntityMirrors(){
+  const records=mergeDeletedEntitiesFromLocal();if(!records.length)return 0;
+  let removed=0;const workspaces=(db.departmentWorkspaces&&typeof db.departmentWorkspaces==="object")?db.departmentWorkspaces:{};
+  const teacherDeleted=(t,scope)=>{const id=t?.id!=null?String(t.id):"",key=entityTeacherKey(t);return records.some(x=>x?.type==="teacher"&&String(x?.scope||"")===String(scope||"")&&((id&&x?.id&&String(x.id)===id)||(key&&x?.key&&String(x.key)===key)))};
+  const roomDeleted=(r,scope)=>{const id=r?.id!=null?String(r.id):"",key=entityRoomKey(r);return records.some(x=>x?.type==="room"&&String(x?.scope||"")===String(scope||"")&&((id&&x?.id&&String(x.id)===id)||(key&&x?.key&&String(x.key)===key)))};
+  const removedTeacherIds=new Set();
+  Object.entries(workspaces).forEach(([dep,ws])=>{
+    ws.teachers=(ws?.teachers||[]).filter(t=>{const del=teacherDeleted(t,dep);if(del){removed++;if(t?.id!=null)removedTeacherIds.add(String(t.id))}return !del});
+    ws.rooms=(ws?.rooms||[]).filter(r=>{const del=roomDeleted(r,dep);if(del)removed++;return !del});
+  });
+  const scope=currentEntityScope();
+  if(scope){
+    db.teachers=(db.teachers||[]).filter(t=>{const del=teacherDeleted(t,scope);if(del){removed++;if(t?.id!=null)removedTeacherIds.add(String(t.id))}return !del});
+    db.rooms=(db.rooms||[]).filter(r=>{const del=roomDeleted(r,scope);if(del)removed++;return !del});
+  }
+  if(db.semesterSchedules&&typeof db.semesterSchedules==="object"){
+    Object.values(db.semesterSchedules).forEach(period=>{
+      if(period?.departments)Object.entries(period.departments).forEach(([dep,schedules])=>{
+        if(!schedules||typeof schedules!=="object")return;
+        records.filter(x=>x?.type==="teacher"&&String(x?.scope||"")===String(dep)&&x?.id).forEach(x=>delete schedules[String(x.id)]);
+      });
+      if(period?.topLevel&&scope)records.filter(x=>x?.type==="teacher"&&String(x?.scope||"")===String(scope)&&x?.id).forEach(x=>delete period.topLevel[String(x.id)]);
+    });
+  }
+  const cleanSubs=arr=>(arr||[]).forEach(t=>(t.schedule||[]).forEach(l=>{if(l.substituteTeacherId!=null&&removedTeacherIds.has(String(l.substituteTeacherId)))l.substituteTeacherId=""}));
+  cleanSubs(db.teachers||[]);Object.values(workspaces).forEach(ws=>cleanSubs(ws?.teachers||[]));
+  saveStoredDeletedEntities(db.deletedEntities);return removed;
+}
+
 /* ===== SEMESTR BO‘YICHA DARS JADVALLARINI ALOHIDA SAQLASH ===== */
 function semesterPeriodKey(year=db.settings?.academicYear, semester=db.settings?.semester){
   return `${String(year||"2026/2027").trim()}||${String(semester||"I-semestr").trim()}`;
@@ -2453,6 +2516,8 @@ async function applyRemoteCloudState(remote){
   db=remote.db;
   cloudRevision=Number(remote.revision||cloudRevision||0);
 
+  if(typeof mergeDeletedEntitiesFromLocal==="function")mergeDeletedEntitiesFromLocal();
+  if(typeof purgeDeletedEntityMirrors==="function")purgeDeletedEntityMirrors();
   if(typeof ensureSemesterSchedules==="function")ensureSemesterSchedules();
   if(typeof applySemesterSchedules==="function")applySemesterSchedules();
   if(typeof mergeDeletedLessonsFromLocal==="function")mergeDeletedLessonsFromLocal();
@@ -2471,6 +2536,7 @@ async function applyRemoteCloudState(remote){
   if(typeof ensureExtraDB==="function")ensureExtraDB();
   if(typeof ensureUsers==="function")ensureUsers();
   if(typeof ensureDepartmentWorkspaces==="function")ensureDepartmentWorkspaces();
+  if(typeof purgeDeletedEntityMirrors==="function")purgeDeletedEntityMirrors();
   if(typeof purgeDeletedLessonMirrors==="function")purgeDeletedLessonMirrors();
 
   localStorage.setItem("dispatchDB",JSON.stringify(db));
@@ -2523,10 +2589,12 @@ function flushCloudSave(){
 
 
 function save(){
+  if(typeof window.syncActiveDepartmentWorkspace==="function") window.syncActiveDepartmentWorkspace();
+  if(typeof mergeDeletedEntitiesFromLocal==="function") mergeDeletedEntitiesFromLocal();
+  if(typeof purgeDeletedEntityMirrors==="function") purgeDeletedEntityMirrors();
   if(typeof captureActiveSemesterSchedules==="function") captureActiveSemesterSchedules();
   if(typeof mergeDeletedLessonsFromLocal==="function") mergeDeletedLessonsFromLocal();
   if(typeof purgeDeletedLessonMirrors==="function") purgeDeletedLessonMirrors();
-  if(typeof window.syncActiveDepartmentWorkspace==="function") window.syncActiveDepartmentWorkspace();
 
   localStorage.setItem("dispatchDB",JSON.stringify(db));
 
@@ -3139,6 +3207,7 @@ $("saveTeacherBtn").onclick=()=>{
      availability:$("tAvailability").value,
      availabilityNote:$("tAvailabilityNote").value.trim()
    });
+   forgetDeletedEntity("teacher",t,currentEntityScope());
    addHistory("O‘qituvchi tahrirlandi",name);
    save();
    clearTeacherForm();
@@ -3146,7 +3215,7 @@ $("saveTeacherBtn").onclick=()=>{
    showAlert("O‘qituvchi ma’lumotlari yangilandi.","ok");
  }else{
    const nid=Date.now();
-   db.teachers.push({
+   const newTeacher={
      id:nid,
      name,
      degree:$("tDegree").value.trim(),
@@ -3157,7 +3226,9 @@ $("saveTeacherBtn").onclick=()=>{
      availability:$("tAvailability").value,
      availabilityNote:$("tAvailabilityNote").value.trim(),
      schedule:[]
-   });
+   };
+   forgetDeletedEntity("teacher",newTeacher,currentEntityScope());
+   db.teachers.push(newTeacher);
    addHistory("O‘qituvchi qo‘shildi",name);
    save();
    clearTeacherForm();
@@ -3166,7 +3237,21 @@ $("saveTeacherBtn").onclick=()=>{
  }
 }
 function editTeacher(id){const t=teacherById(id);if(!t)return;switchTab("teacherTab");$("editTeacherId").value=t.id;$("tName").value=t.name;$("tDegree").value=t.degree;$("tPosition").value=t.position;$("tDepartment").value=t.department;$("tPhone").value=t.phone;$("tImage").value=t.image;$("tAvailability").value=t.availability;$("tAvailabilityNote").value=t.availabilityNote;$("saveTeacherBtn").textContent="O‘zgarishlarni saqlash";$("adminPanel").scrollTo({top:0,behavior:"smooth"})}
-function deleteTeacher(id){const t=teacherById(id);if(!t||!confirm(`${t.name} o‘chirilsinmi?`))return;db.teachers=db.teachers.filter(x=>x.id!==id);addHistory("O‘qituvchi o‘chirildi",t.name);save();renderAll()}
+function deleteTeacher(id){
+ const t=teacherById(id);if(!t||!confirm(`${t.name} o‘chirilsinmi?`))return;
+ const scope=currentEntityScope(),targetName=entityNormText(t.name),targetPhone=entityNormPhone(t.phone);
+ rememberDeletedEntity("teacher",t,scope);
+ const removedIds=[];
+ db.teachers=db.teachers.filter(x=>{
+   const sameId=String(x.id)===String(id),sameName=entityNormText(x.name)===targetName,xp=entityNormPhone(x.phone),samePhone=targetPhone.length>=7&&xp===targetPhone;
+   const remove=sameId||sameName||samePhone;
+   if(remove){if(x?.id!=null)removedIds.push(String(x.id));rememberDeletedEntity("teacher",x,scope)}
+   return !remove;
+ });
+ if(db.semesterSchedules&&typeof db.semesterSchedules==="object")Object.values(db.semesterSchedules).forEach(period=>removedIds.forEach(tid=>{if(period?.topLevel)delete period.topLevel[tid];if(scope&&period?.departments?.[scope])delete period.departments[scope][tid]}));
+ if(typeof window.syncActiveDepartmentWorkspace==="function")window.syncActiveDepartmentWorkspace();
+ purgeDeletedEntityMirrors();addHistory("O‘qituvchi o‘chirildi",t.name);save();renderAll();showAlert("O‘qituvchi o‘chirildi.","ok");
+}
 window.editTeacher=editTeacher;window.deleteTeacher=deleteTeacher;
 
 function clearRoomForm(){$("editRoomId").value="";$("rName").value=$("rCapacity").value="";$("rBuilding").value="1-bino";$("rType").value="Oddiy auditoriya";$("saveRoomBtn").textContent="Xonani saqlash"}
@@ -3190,9 +3275,12 @@ $("saveRoomBtn").onclick=()=>{
        l.roomBuilding=r.building;
      }
    }));
+   forgetDeletedEntity("room",r,currentEntityScope());
    addHistory("Xona tahrirlandi",`${oldName} · ${oldBuilding} → ${name} · ${building}`);
  }else{
-   db.rooms.push({id:Date.now(),name,capacity:cap,type:$("rType").value,building});
+   const newRoom={id:Date.now(),name,capacity:cap,type:$("rType").value,building};
+   forgetDeletedEntity("room",newRoom,currentEntityScope());
+   db.rooms.push(newRoom);
    addHistory("Xona qo‘shildi",`${name} · ${building}`);
  }
  save();clearRoomForm();renderAll();showAlert("Xona saqlandi.","ok");
@@ -3207,8 +3295,11 @@ function deleteRoom(id){
  ));
  if(used)return showAlert("Bu xona darslarda ishlatilgan. Avval darslarni boshqa xonaga o‘tkazing.","error");
  if(confirm(`${r.name}-xona · ${r.building||""} o‘chirilsinmi?`)){
-   db.rooms=db.rooms.filter(x=>String(x.id)!==String(id));
-   addHistory("Xona o‘chirildi",`${r.name} · ${r.building||""}`);
+   const scope=currentEntityScope(),targetKey=entityRoomKey(r);
+   rememberDeletedEntity("room",r,scope);
+   db.rooms=db.rooms.filter(x=>{const remove=String(x.id)===String(id)||entityRoomKey(x)===targetKey;if(remove)rememberDeletedEntity("room",x,scope);return !remove});
+   if(typeof window.syncActiveDepartmentWorkspace==="function")window.syncActiveDepartmentWorkspace();
+   purgeDeletedEntityMirrors();addHistory("Xona o‘chirildi",`${r.name} · ${r.building||""}`);
    save();renderAll();showAlert("Xona o‘chirildi.","ok");
  }
 }
@@ -4934,6 +5025,8 @@ renderAdvanced();
 
   function initExtras(){
     ensureExtraDB();ensureUsers();ensureDepartmentWorkspaces();
+    if(typeof mergeDeletedEntitiesFromLocal==="function") mergeDeletedEntitiesFromLocal();
+    if(typeof purgeDeletedEntityMirrors==="function") purgeDeletedEntityMirrors();
     if(typeof purgeDeletedLessonMirrors==="function") purgeDeletedLessonMirrors();
 
     let restoredUser=null;
