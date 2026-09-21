@@ -5123,7 +5123,6 @@ body.hemis-layout #teacherModal td{
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style id="work-panel-cleanup-style">
@@ -5563,34 +5562,8 @@ const firebaseConfig = {
   appId: "1:562215648825:web:73fce4c4879eb21d6457e8"
 };
 
-// GitHub Pages / localhost uchun Firebase bir marta ishga tushiriladi.
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
-const firebaseAuth = firebase.auth();
+firebase.initializeApp(firebaseConfig);
 const firestoreDB = firebase.firestore();
-
-// Firestore qoidalari request.auth != null bo‘lsa ham sayt ishlashi uchun
-// brauzer avtomatik anonim Firebase sessiya ochadi. Bu ilovadagi Admin/Mudir
-// loginidan alohida: u faqat Firestore ulanishini autentifikatsiya qiladi.
-let firebaseSessionPromise = null;
-async function ensureFirebaseSession(){
-  if(!cloudSyncEnabled) return null;
-  if(firebaseAuth.currentUser) return firebaseAuth.currentUser;
-  if(firebaseSessionPromise) return firebaseSessionPromise;
-  firebaseSessionPromise = firebaseAuth.signInAnonymously()
-    .then(cred => cred.user)
-    .finally(() => { firebaseSessionPromise = null; });
-  return firebaseSessionPromise;
-}
-
-// Ilovadan chiqishda Firebase sessiyasi yopilib qolsa, Firestore uchun anonim
-// sessiyani qayta tiklaymiz.
-firebaseAuth.onAuthStateChanged(user=>{
-  if(!user && cloudSyncEnabled){
-    ensureFirebaseSession().catch(err=>console.error("Firebase anonim auth xatosi:",err));
-  }
-});
 const dispatchDoc = firestoreDB.collection("appData").doc("main"); // eski versiyalarni faqat migratsiya uchun o‘qish
 const chunkCollection = firestoreDB.collection("appDataChunks");
 const chunkMetaDoc = chunkCollection.doc("main_meta");
@@ -5600,9 +5573,8 @@ let cloudInitStarted = false;
 let localDirtyBeforeCloudReady = false;
 let suppressRemoteSnapshot = false;
 let lastCloudState = null;
-// file:// rejimida Firebase sinxronizatsiyasi lokal CRUD'ga xalaqit bermasligi uchun o'chiriladi.
-// localhost yoki hosting orqali ochilganda cloud odatdagidek ishlaydi.
-const cloudSyncEnabled = location.protocol !== "file:";
+// Eski ishlagan Firestore ulanish usuli: authsiz, to'g'ridan-to'g'ri Firestore.
+const cloudSyncEnabled = true;
 
 // ===== Cloud mustahkamlash yordamchilari =====
 // Eski chunklar bazani cheksiz kattalashtirib yubormasligi uchun oxirgi bir necha
@@ -6028,63 +6000,77 @@ async function initCloudSync(){
   if(cloudInitStarted)return;
   cloudInitStarted=true;
 
-  if(!cloudSyncEnabled){
-    console.info("file:// rejimi: Firestore sync o‘chirildi, localStorage asosiy saqlash sifatida ishlaydi.");
-    return;
-  }
-
   try{
-    // Firestore o‘qish/yozishdan oldin Firebase Auth sessiyasi tayyor bo‘lishi shart.
-    await ensureFirebaseSession();
     let remote=null;
-    try{remote=await readChunkedCloudState()}catch(err){console.warn("Bo‘laklangan bazani o‘qish:",err)}
+    try{
+      remote=await readChunkedCloudState();
+    }catch(err){
+      console.warn("Bo‘laklangan bazani o‘qish:",err);
+    }
 
     if(remote){
-      if(!localDirtyBeforeCloudReady) await applyRemoteCloudState(remote);
-      else {
+      if(!localDirtyBeforeCloudReady){
+        await applyRemoteCloudState(remote);
+      }else{
         cloudRevision=Number(remote.revision||0);
-        lastCloudState=cloneJSON(remote.db);
+        if(typeof cloneJSON==="function") lastCloudState=cloneJSON(remote.db);
       }
     }else{
+      // Eski appData/main mavjud bo‘lsa bir marta migratsiya qilinadi.
       const legacy=await dispatchDoc.get();
-      if(legacy.exists&&legacy.data()?.db && !localDirtyBeforeCloudReady){
-        db=legacy.data().db;
-        if(typeof ensureSemesterSchedules==="function")ensureSemesterSchedules();
-        if(typeof applySemesterSchedules==="function")applySemesterSchedules();
-        persistLocalDB();
+
+      if(legacy.exists && legacy.data()?.db){
+        if(!localDirtyBeforeCloudReady){
+          db=legacy.data().db;
+
+          if(typeof ensureSemesterSchedules==="function")ensureSemesterSchedules();
+          if(typeof applySemesterSchedules==="function")applySemesterSchedules();
+
+          if(typeof persistLocalDB==="function")persistLocalDB();
+          else localStorage.setItem("dispatchDB",JSON.stringify(db));
+        }
       }
+
       await writeChunkedCloudState(JSON.parse(JSON.stringify(db)),0);
-      lastCloudState=cloneJSON(db);
+
+      if(typeof cloneJSON==="function") lastCloudState=cloneJSON(db);
     }
 
     cloudReady=true;
+    localDirtyBeforeCloudReady=false;
 
-    if(localDirtyBeforeCloudReady){
-      localDirtyBeforeCloudReady=false;
-      clearTimeout(cloudSaveTimer);
-      cloudSaveTimer=setTimeout(flushCloudSave,80);
-    }
+    chunkMetaDoc.onSnapshot(async s=>{
+      if(!s.exists || suppressRemoteSnapshot || cloudSaveInFlight || cloudSaveQueued || cloudSaveTimer)return;
 
-    chunkMetaDoc.onSnapshot(async snap=>{
-      if(!snap.exists||suppressRemoteSnapshot||cloudSaveInFlight||cloudSaveQueued||cloudSaveTimer)return;
-      const rev=Number(snap.data()?.revision||0);
-      if(!rev||rev<=cloudRevision)return;
+      const rev=Number(s.data()?.revision||0);
+      if(!rev || rev<=cloudRevision)return;
+
       try{
         const latest=await readChunkedCloudState();
-        if(latest&&Number(latest.revision)>cloudRevision)await applyRemoteCloudState(latest);
-      }catch(err){console.error("Firestore yangilanishini o‘qish xatosi:",err)}
-    },err=>console.error("Firestore kuzatuv xatosi:",err));
+        if(latest && Number(latest.revision)>cloudRevision){
+          await applyRemoteCloudState(latest);
+        }
+      }catch(err){
+        console.error("Firestore yangilanishini o‘qish xatosi:",err);
+      }
+    },err=>{
+      console.error("Firestore kuzatuv xatosi:",err);
+    });
 
     if(typeof renderAll==="function")renderAll();
     if(typeof updateCurrentUserBadge==="function")updateCurrentUserBadge();
+
+    console.info("Firestore bilan ulanish muvaffaqiyatli.");
+
   }catch(err){
     console.error("Firebase ulanish xatosi:",err);
-    if(typeof showAlert==="function") {
-      const code=String(err?.code||"");
-      const hint=(code.includes("permission-denied")||code.includes("unauthenticated"))
-        ?" Firebase Console’da Anonymous Authentication va Firestore Rules sozlamalarini tekshiring."
-        :"";
-      showAlert("Firestore bilan ulanish amalga oshmadi."+hint,"error");
+    cloudReady=false;
+
+    if(typeof showAlert==="function"){
+      showAlert(
+        "Firestore bilan ulanish amalga oshmadi. Dastur lokal rejimda ishlaydi. Firebase Firestore Rules ruxsatlarini tekshiring.",
+        "warn"
+      );
     }
   }
 }
