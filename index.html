@@ -5966,7 +5966,7 @@ function flushCloudSave(){
     lastCloudSaveError=null;
     const msg=pendingCloudSuccessMessage || "Cloudga muvaffaqiyatli saqlandi.";
     pendingCloudSuccessMessage="";
-    if(typeof showAlert==="function") showAlert(msg+" ✓ Firestore","ok",true);
+    if(typeof showAlert==="function") showAlert(msg,"ok",true);
   }).catch(err=>{
     lastCloudSaveError=err;
     pendingCloudSuccessMessage="";
@@ -6069,7 +6069,7 @@ async function initCloudSync(){
     if(typeof updateCurrentUserBadge==="function")updateCurrentUserBadge();
 
     console.info("Firestore bilan ulanish muvaffaqiyatli.");
-    try{if(typeof showAlert==="function")showAlert("Firestore ulandi. Cloud baza yuklandi.","ok",true)}catch(e){}
+    
 
   }catch(err){
     console.error("Firebase ulanish xatosi:",err);
@@ -6131,10 +6131,10 @@ function showAlert(msg,type="ok",cloudConfirmed=false){
  if(!cloudConfirmed && type==="ok" && /saqland|saqlab|yangiland|qo['‘’]?shildi|o['‘’]?zgartirildi/i.test(raw)){
    pendingCloudSuccessMessage=raw;
    if(cloudSyncEnabled && !cloudReady){
-     msg="Cloud bilan ulanish kutilmoqda. Hozircha faqat lokal zaxira mavjud.";
+     msg="Saqlash tizimi tayyorlanmoqda…";
      type="warn";
    }else if(cloudSyncEnabled){
-     msg="Cloudga saqlanmoqda…";
+     msg="Saqlanmoqda…";
      type="warn";
    }
  }
