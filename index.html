@@ -5569,6 +5569,10 @@ let cloudReady = false;
 let cloudInitStarted = false;
 let localDirtyBeforeCloudReady = false;
 let suppressRemoteSnapshot = false;
+let cloudBootstrapInProgress = true;
+let pendingCloudSuccessMessage = "";
+let lastCloudSaveError = null;
+let lastCloudSaveOkAt = 0;
 let lastCloudState = null;
 // Eski ishlagan Firestore ulanish usuli: authsiz, to'g'ridan-to'g'ri Firestore.
 const cloudSyncEnabled = true;
@@ -5932,6 +5936,7 @@ function flushCloudSave(){
 
   cloudSaveInFlight=true;
   suppressRemoteSnapshot=true;
+  lastCloudSaveError=null;
   const snapshot=cloneJSON(db);
   const baseSnapshot=cloneJSON(lastCloudState||{});
 
@@ -5950,19 +5955,25 @@ function flushCloudSave(){
         db=merged;
         persistLocalDB();
         if(typeof renderAll==="function")renderAll();
-        if(typeof showAlert==="function"){
-          showAlert("Parallel o‘zgarishlar birlashtirildi va cloudga saqlandi.","ok");
-        }
       }else{
         throw err;
       }
     }
   };
 
-  tryWrite().catch(err=>{
+  tryWrite().then(()=>{
+    lastCloudSaveOkAt=Date.now();
+    lastCloudSaveError=null;
+    const msg=pendingCloudSuccessMessage || "Cloudga muvaffaqiyatli saqlandi.";
+    pendingCloudSuccessMessage="";
+    if(typeof showAlert==="function") showAlert(msg+" ✓ Firestore","ok",true);
+  }).catch(err=>{
+    lastCloudSaveError=err;
+    pendingCloudSuccessMessage="";
     console.error("Firestore saqlash xatosi:",err);
     if(typeof showAlert==="function"){
-      showAlert("Cloudga saqlash amalga oshmadi. Lokal ma’lumot brauzerda saqlanib qoldi.","error");
+      const detail=String(err?.message||err?.code||"").trim();
+      showAlert("CLOUDGA SAQLANMADI. Ma’lumot faqat shu brauzerda zaxira qilindi."+(detail?"\nFirestore: "+detail:""),"error",true);
     }
   }).finally(()=>{
     cloudSaveInFlight=false;
@@ -5980,17 +5991,19 @@ function save(){
   if(typeof purgeDeletedLessonMirrors==="function") purgeDeletedLessonMirrors();
   if(typeof window.syncActiveDepartmentWorkspace==="function") window.syncActiveDepartmentWorkspace();
 
+  // localStorage faqat qurilmadagi zaxira. Asosiy baza — Firestore.
   persistLocalDB();
 
-  // Faylni to‘g‘ridan-to‘g‘ri brauzerda ochganda faqat lokal saqlash ishlaydi.
-  if(!cloudSyncEnabled)return;
+  if(!cloudSyncEnabled)return false;
   if(!cloudReady){
-    localDirtyBeforeCloudReady=true;
-    return;
+    // Dastur ishga tushayotganda avtomatik save() cloud bazani bosib yubormasligi kerak.
+    if(!cloudBootstrapInProgress) localDirtyBeforeCloudReady=true;
+    return false;
   }
 
   clearTimeout(cloudSaveTimer);
-  cloudSaveTimer=setTimeout(flushCloudSave,300);
+  cloudSaveTimer=setTimeout(flushCloudSave,180);
+  return true;
 }
 
 async function initCloudSync(){
@@ -6006,12 +6019,9 @@ async function initCloudSync(){
     }
 
     if(remote){
-      if(!localDirtyBeforeCloudReady){
-        await applyRemoteCloudState(remote);
-      }else{
-        cloudRevision=Number(remote.revision||0);
-        if(typeof cloneJSON==="function") lastCloudState=cloneJSON(remote.db);
-      }
+      // MUHIM: boshqa kompyuterda localStorage eski/bo‘sh bo‘lishi mumkin.
+      // Startup paytida Firestore har doim asosiy manba bo‘ladi.
+      await applyRemoteCloudState(remote);
     }else{
       // Eski appData/main mavjud bo‘lsa bir marta migratsiya qilinadi.
       const legacy=await dispatchDoc.get();
@@ -6034,6 +6044,7 @@ async function initCloudSync(){
     }
 
     cloudReady=true;
+    cloudBootstrapInProgress=false;
     localDirtyBeforeCloudReady=false;
 
     chunkMetaDoc.onSnapshot(async s=>{
@@ -6058,10 +6069,12 @@ async function initCloudSync(){
     if(typeof updateCurrentUserBadge==="function")updateCurrentUserBadge();
 
     console.info("Firestore bilan ulanish muvaffaqiyatli.");
+    try{if(typeof showAlert==="function")showAlert("Firestore ulandi. Cloud baza yuklandi.","ok",true)}catch(e){}
 
   }catch(err){
     console.error("Firebase ulanish xatosi:",err);
     cloudReady=false;
+    cloudBootstrapInProgress=false;
 
     if(typeof showAlert==="function"){
       showAlert(
@@ -6108,9 +6121,23 @@ function roomDisplay(name,building="",roomId=null){
   return `${esc(name)}-xona${b?` · ${esc(b)}`:""}`;
 }
 function addHistory(action,details){db.history.unshift({id:Date.now(),time:new Date().toLocaleString("uz-UZ"),action,details});save()}
-function showAlert(msg,type="ok"){
+function showAlert(msg,type="ok",cloudConfirmed=false){
  const a=document.getElementById("adminAlert");
  if(!a)return;
+
+ const raw=String(msg??"");
+ // UI dagi “saqlandi” xabari Firestore tasdig‘idan OLDIN muvaffaqiyat deb chiqmasin.
+ // Import/qo‘shish/tahrirlash funksiyalarining ko‘pi save()dan keyin darhol showAlert() chaqiradi.
+ if(!cloudConfirmed && type==="ok" && /saqland|saqlab|yangiland|qo['‘’]?shildi|o['‘’]?zgartirildi/i.test(raw)){
+   pendingCloudSuccessMessage=raw;
+   if(cloudSyncEnabled && !cloudReady){
+     msg="Cloud bilan ulanish kutilmoqda. Hozircha faqat lokal zaxira mavjud.";
+     type="warn";
+   }else if(cloudSyncEnabled){
+     msg="Cloudga saqlanmoqda…";
+     type="warn";
+   }
+ }
 
  if(a.parentElement!==document.body){
    document.body.appendChild(a);
