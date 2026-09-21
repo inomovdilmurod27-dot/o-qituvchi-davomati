@@ -8204,6 +8204,23 @@ renderAdvanced();
           );
         }
 
+        // Zaxira Super admin: Firestore'dagi foydalanuvchilar hali kelmagan
+        // yoki bazada umuman superadmin yaratilmagan bo‘lsa birinchi kirish uchun.
+        if(
+          !u &&
+          !(db.users||[]).some(x=>String(x.role||'').toLowerCase()==='superadmin') &&
+          username==='admin' &&
+          password==='admin123'
+        ){
+          u={
+            id:'bootstrap-admin',
+            name:'Super admin',
+            username:'admin',
+            role:'superadmin',
+            department:''
+          };
+        }
+
         if(!u){
           showLoginError('Login yoki parol noto‘g‘ri. Ma’lumotlarni tekshirib, qayta urinib ko‘ring.');
           passInput?.select();
