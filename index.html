@@ -5964,17 +5964,17 @@ function flushCloudSave(){
   tryWrite().then(()=>{
     lastCloudSaveOkAt=Date.now();
     lastCloudSaveError=null;
-    const msg=pendingCloudSuccessMessage || "Cloudga muvaffaqiyatli saqlandi.";
+    const msg=pendingCloudSuccessMessage;
     pendingCloudSuccessMessage="";
-    if(typeof showAlert==="function") showAlert(msg,"ok",true);
+    // Texnik Cloud/Firestore xabarlari UI da ko‘rsatilmaydi.
+    // Faqat foydalanuvchining oddiy muvaffaqiyat xabari bo‘lsa chiqariladi.
+    if(msg && typeof showAlert==="function") showAlert(msg,"ok",true);
   }).catch(err=>{
     lastCloudSaveError=err;
     pendingCloudSuccessMessage="";
     console.error("Firestore saqlash xatosi:",err);
-    if(typeof showAlert==="function"){
-      const detail=String(err?.message||err?.code||"").trim();
-      showAlert("CLOUDGA SAQLANMADI. Ma’lumot faqat shu brauzerda zaxira qilindi."+(detail?"\nFirestore: "+detail:""),"error",true);
-    }
+    // Texnik nomlarni ko‘rsatmasdan oddiy xato xabari.
+    if(typeof showAlert==="function") showAlert("Saqlanmadi. Internet aloqasini tekshirib, qayta urinib ko‘ring.","error",true);
   }).finally(()=>{
     cloudSaveInFlight=false;
     suppressRemoteSnapshot=false;
@@ -6125,18 +6125,16 @@ function showAlert(msg,type="ok",cloudConfirmed=false){
  const a=document.getElementById("adminAlert");
  if(!a)return;
 
- const raw=String(msg??"");
- // UI dagi “saqlandi” xabari Firestore tasdig‘idan OLDIN muvaffaqiyat deb chiqmasin.
- // Import/qo‘shish/tahrirlash funksiyalarining ko‘pi save()dan keyin darhol showAlert() chaqiradi.
+ let raw=String(msg??"")
+   .replace(/\s*[✓✔]\s*Firestore\b.*$/i,"")
+   .replace(/\s*·?\s*Firestore\b.*$/i,"")
+   .trim();
+ msg=raw;
+ // Saqlash muvaffaqiyati bulut tasdig‘igacha ekranga chiqarilmaydi.
+ // “Saqlanmoqda”, “Cloud”, “Firestore” kabi texnik yozuvlar umuman ko‘rsatilmaydi.
  if(!cloudConfirmed && type==="ok" && /saqland|saqlab|yangiland|qo['‘’]?shildi|o['‘’]?zgartirildi/i.test(raw)){
    pendingCloudSuccessMessage=raw;
-   if(cloudSyncEnabled && !cloudReady){
-     msg="Saqlash tizimi tayyorlanmoqda…";
-     type="warn";
-   }else if(cloudSyncEnabled){
-     msg="Saqlanmoqda…";
-     type="warn";
-   }
+   if(cloudSyncEnabled) return;
  }
 
  if(a.parentElement!==document.body){
