@@ -6531,6 +6531,8 @@ function validateLesson(candidate,teacherId,editingLessonId=null){
    const effectiveExistingTeacher=teacherById(l.substituteTeacherId)||other;
    const effectiveExistingRoom=roomById(l.roomId)||db.rooms.find(r=>physicalRoomKey(r.name,r.building)===physicalRoomKey(l.room,l.roomBuilding));
    if(isDeletedLesson(l,effectiveExistingTeacher,effectiveExistingRoom))return;
+   // Excel bulk-import vaqtida aynan yangilanadigan ESKI darslar vaqtincha konflikt hisoblanmaydi.
+   if(window.__excelImportReplacingLessonIds instanceof Set && window.__excelImportReplacingLessonIds.has(String(l.id))) return;
    if(l.id==editingLessonId || l.cancelled) return;
    if(l.day!==candidate.day || Number(l.pair)!==Number(candidate.pair) || !lessonPeriodsOverlap(l,candidate)) return;
    const effectiveTeacher=l.substituteTeacherId||other.id;
@@ -6575,6 +6577,7 @@ function validateLesson(candidate,teacherId,editingLessonId=null){
     const effectiveTeacherForDeleteCheck=wsTeacherById(l.substituteTeacherId)||other;
     if(isDeletedLesson(l,effectiveTeacherForDeleteCheck,existingRoomForDeleteCheck))return;
     if(l.cancelled) return;
+    if(window.__excelImportReplacingLessonIds instanceof Set && window.__excelImportReplacingLessonIds.has(String(l.id))) return;
     // Tahrirlanayotgan darsning eski/mirror nusxasi qaysi kafedra workspace'ida qolgan bo‘lsa ham
     // o‘ziga o‘zi konflikt bermaydi.
     if(editingLessonId && String(l.id)===String(editingLessonId)) return;
@@ -7626,6 +7629,41 @@ $("excelImportFile").onchange=e=>{
       const skippedReasons=[];
       const ignoredSheets=[];
 
+      // Excel faylida yangilanadigan eski dars slotlarini importdan OLDIN aniqlaymiz.
+      // Aks holda keyinroq yangilanadigan eski xona/o‘qituvchi yozuvi oldingi qatorga yolg‘on konflikt beradi.
+      const excelReplacingLessonIds=new Set();
+      const excelAuxSheets=new Set([
+        "xonalar","xona","rooms","room","auditoriyalar","auditoriya",
+        "o'qituvchilar","oqituvchilar","teachers","teacher"
+      ]);
+      wb.SheetNames.forEach(preSheetName=>{
+        const preKey=String(preSheetName||"").trim().toLowerCase().replace(/[ʻʼ’‘`]/g,"'");
+        if(excelAuxSheets.has(preKey)) return;
+        const preRows=XLSX.utils.sheet_to_json(wb.Sheets[preSheetName],{defval:""});
+        const preSheetTeacher=excelTeacherFromSheet(preSheetName);
+        preRows.forEach(r=>{
+          const teacherName=String(excelValue(r,["O‘qituvchi","O'qituvchi","Ism-familiya","F.I.Sh.","FISH","Teacher"])||preSheetTeacher?.name||"").trim();
+          const subject=String(excelValue(r,["Fan","Fan nomi","Subject"])||"").trim();
+          const group=String(excelValue(r,["Guruh","Guruh / yo‘nalish","Group"])||"").trim();
+          const rawRoom=excelValue(r,["Xona","Auditoriya","Room"]);
+          if(!teacherName || !subject || !group || !String(rawRoom||"").trim()) return;
+          const t=db.teachers.find(x=>normalizeTeacherName(x.name)===normalizeTeacherName(teacherName));
+          if(!t) return;
+          const day=normalizeExcelDay(excelValue(r,["Kun","Hafta kuni","Day"]));
+          const timeTxt=String(excelValue(r,["Vaqt","Dars vaqti","Time"])||"").trim();
+          const pairNum=parsePairNumber(excelValue(r,["Juftlik","Pair"]),timeTxt);
+          const weekType=normalizeExcelWeek(excelValue(r,["Hafta","Hafta turi","Week"]));
+          const slotMatches=(t.schedule||[]).filter(l=>!l.cancelled && l.day===day && Number(l.pair)===Number(pairNum) && l.weekType===weekType);
+          let oldLesson=slotMatches.length===1?slotMatches[0]:null;
+          if(!oldLesson && slotMatches.length>1){
+            const exact=slotMatches.filter(l=>String(l.subject||"").trim().toLowerCase()===subject.toLowerCase() && String(l.group||"").trim().toLowerCase()===group.toLowerCase());
+            if(exact.length===1) oldLesson=exact[0];
+          }
+          if(oldLesson?.id!=null) excelReplacingLessonIds.add(String(oldLesson.id));
+        });
+      });
+      window.__excelImportReplacingLessonIds=excelReplacingLessonIds;
+
       wb.SheetNames.forEach(sheetName=>{
         const ws=wb.Sheets[sheetName];
         const rows=XLSX.utils.sheet_to_json(ws,{defval:""});
@@ -7788,6 +7826,7 @@ $("excelImportFile").onchange=e=>{
       save();
       renderAll();
 
+      window.__excelImportReplacingLessonIds=null;
       const successful=imported+updated;
       const details=skippedReasons.slice(0,30).map(x=>`• ${esc(x)}`).join("<br>");
       const moreCount=Math.max(0,skippedReasons.length-30);
@@ -7813,6 +7852,7 @@ $("excelImportFile").onchange=e=>{
         skipped?"warn":"ok"
       );
     }catch(err){
+      window.__excelImportReplacingLessonIds=null;
       showAlert("Excel faylni o‘qishda xatolik: "+esc(err.message),"error");
     }finally{
       e.target.value="";
