@@ -5563,8 +5563,34 @@ const firebaseConfig = {
   appId: "1:562215648825:web:73fce4c4879eb21d6457e8"
 };
 
-firebase.initializeApp(firebaseConfig);
+// GitHub Pages / localhost uchun Firebase bir marta ishga tushiriladi.
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+const firebaseAuth = firebase.auth();
 const firestoreDB = firebase.firestore();
+
+// Firestore qoidalari request.auth != null bo‘lsa ham sayt ishlashi uchun
+// brauzer avtomatik anonim Firebase sessiya ochadi. Bu ilovadagi Admin/Mudir
+// loginidan alohida: u faqat Firestore ulanishini autentifikatsiya qiladi.
+let firebaseSessionPromise = null;
+async function ensureFirebaseSession(){
+  if(!cloudSyncEnabled) return null;
+  if(firebaseAuth.currentUser) return firebaseAuth.currentUser;
+  if(firebaseSessionPromise) return firebaseSessionPromise;
+  firebaseSessionPromise = firebaseAuth.signInAnonymously()
+    .then(cred => cred.user)
+    .finally(() => { firebaseSessionPromise = null; });
+  return firebaseSessionPromise;
+}
+
+// Ilovadan chiqishda Firebase sessiyasi yopilib qolsa, Firestore uchun anonim
+// sessiyani qayta tiklaymiz.
+firebaseAuth.onAuthStateChanged(user=>{
+  if(!user && cloudSyncEnabled){
+    ensureFirebaseSession().catch(err=>console.error("Firebase anonim auth xatosi:",err));
+  }
+});
 const dispatchDoc = firestoreDB.collection("appData").doc("main"); // eski versiyalarni faqat migratsiya uchun o‘qish
 const chunkCollection = firestoreDB.collection("appDataChunks");
 const chunkMetaDoc = chunkCollection.doc("main_meta");
@@ -6008,6 +6034,8 @@ async function initCloudSync(){
   }
 
   try{
+    // Firestore o‘qish/yozishdan oldin Firebase Auth sessiyasi tayyor bo‘lishi shart.
+    await ensureFirebaseSession();
     let remote=null;
     try{remote=await readChunkedCloudState()}catch(err){console.warn("Bo‘laklangan bazani o‘qish:",err)}
 
@@ -6051,6 +6079,13 @@ async function initCloudSync(){
     if(typeof updateCurrentUserBadge==="function")updateCurrentUserBadge();
   }catch(err){
     console.error("Firebase ulanish xatosi:",err);
+    if(typeof showAlert==="function") {
+      const code=String(err?.code||"");
+      const hint=(code.includes("permission-denied")||code.includes("unauthenticated"))
+        ?" Firebase Console’da Anonymous Authentication va Firestore Rules sozlamalarini tekshiring."
+        :"";
+      showAlert("Firestore bilan ulanish amalga oshmadi."+hint,"error");
+    }
   }
 }
 
