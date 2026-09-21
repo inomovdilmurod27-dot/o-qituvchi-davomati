@@ -2645,9 +2645,6 @@ body.hemis-layout .hero-university-structure .hero-structure-arrow{
 .ultra-readonly-head{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.15);padding-bottom:10px;margin-bottom:12px}
 .ultra-readonly-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .ultra-readonly-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13);border-radius:7px;padding:12px}
-.ultra-security{background:#f8fafc;border:1px solid #dce3ea;border-radius:7px;padding:10px}
-.ultra-security.ok{background:#f2fff7;border-color:#cdebd8}
-.ultra-security.warn{background:#fffaf0;border-color:#eed9a3}
 @media print{
   body>*{display:none!important}
   #ultraPrintArea{display:block!important;position:absolute;inset:0;background:#fff;color:#000}
@@ -11138,93 +11135,7 @@ renderAdvanced();
     <div class="ultra-table-wrap"><table class="ultra-table"><thead><tr><th>Kafedra</th><th>O‘qituvchi</th><th>Xona</th><th>Dars</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${escU(x.dep)}</td><td>${x.teachers}</td><td>${x.rooms}</td><td>${x.lessons}</td></tr>`).join("")}</tbody></table></div>`;
   }
 
-  /* 20. Firebase Auth integration (activates when Auth is enabled + user has email) */
-  let auth=null;
-  try{if(firebase?.auth)auth=firebase.auth()}catch{}
-  function authStatus(){
-    const cur=auth?.currentUser, email=cur?.email||"";
-    return {available:!!auth,signed:!!cur,email};
-  }
-  function securityHTML(){
-    const s=authStatus(), secureUsers=(db.users||[]).filter(u=>u.email).length;
-    return `<div class="ultra-security ${s.available?"ok":"warn"}"><b>Firebase Auth SDK:</b> ${s.available?"ulangan":"mavjud emas"}<br><span class="ultra-muted">Auth foydalanuvchi: ${escU(s.email||"kirish qilinmagan")} · email biriktirilgan lokal foydalanuvchilar: ${secureUsers}</span></div>
-    <div class="ultra-card"><h4>Secure login</h4><div class="ultra-muted">Real xavfsizlik ishlashi uchun Firebase Console → Authentication’da Email/Password yoqilishi va Firestore rules o‘rnatilishi kerak. Dastur email biriktirilgan foydalanuvchilar uchun Auth loginni qo‘llashga tayyor.</div>
-    <div class="ultra-form" style="margin-top:8px"><div><label class="ultra-label">Email</label><input id="ultraAuthEmail" class="ultra-input" type="email"></div><div><label class="ultra-label">Parol</label><input id="ultraAuthPass" class="ultra-input" type="password"></div></div>
-    <div class="ultra-actions"><button class="ultra-btn2" onclick="window.ultraAuthLogin()">Firebase Auth orqali kirish</button><button class="ultra-btn2" onclick="window.ultraAuthLogout()">Auth chiqish</button></div></div>`;
-  }
-  window.ultraAuthLogin=async()=>{
-    if(!auth)return alert("Firebase Auth SDK mavjud emas.");
-    try{
-      const cred=await auth.signInWithEmailAndPassword(U("ultraAuthEmail").value,U("ultraAuthPass").value);
-      const local=(db.users||[]).find(u=>String(u.email||"").toLowerCase()===String(cred.user.email||"").toLowerCase());
-      if(local){db.currentUser={id:local.id,name:local.name,role:local.role,department:local.department||"",email:local.email};typeof window.activateDepartmentWorkspace==="function"&&local.role==="mudiri"&&window.activateDepartmentWorkspace(local.department);saveU();}
-      notify("Secure login",cred.user.email,"security");showAlert?.("Firebase Auth orqali kirildi.","ok");
-    }catch(err){showAlert?.("Firebase Auth: "+err.message,"error")}
-  };
-  window.ultraAuthLogout=async()=>{
-    try{
-      await auth?.signOut();
-      db.currentUser={name:"Mehmon",role:"viewer",department:""};
-      try{sessionStorage.removeItem("dispatchCurrentUser")}catch(e){}
-      persistLocalDB();
-      if(typeof applyRoleUI==="function")applyRoleUI();
-      if(typeof renderAll==="function")renderAll();
-      if(typeof window.syncLoginGate==="function")window.syncLoginGate();
-      showAlert?.("Firebase Auth va lokal sessiya yopildi.","ok");
-    }catch(err){
-      console.error("Auth chiqish xatosi:",err);
-      showAlert?.("Firebase Auth sessiyasini yopib bo‘lmadi.","error");
-    }
-  };
-
-  /* 21. Split Firestore collections — dual-write migration */
-  let splitSyncBusy=false;
-  async function splitSync(){
-    if(splitSyncBusy||typeof firestoreDB==="undefined")return;
-    splitSyncBusy=true;
-    try{
-      const writes=[];
-      teachers().forEach(t=>{
-        const ref=firestoreDB.collection("teachers").doc(String(t.id));
-        const {schedule,...teacherData}=t;
-        writes.push({ref,data:{...teacherData,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},merge:true});
-        (schedule||[]).forEach(l=>writes.push({
-          ref:firestoreDB.collection("lessons").doc(String(l.id)),
-          data:{...l,teacherId:t.id,teacherName:t.name,department:t.department||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},
-          merge:true
-        }));
-      });
-      rooms().forEach(r=>writes.push({
-        ref:firestoreDB.collection("rooms").doc(String(r.id)),
-        data:{...r,department:db.currentUser?.department||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},
-        merge:true
-      }));
-      (db.users||[]).forEach(u=>{
-        const safe={...u};delete safe.password;
-        writes.push({
-          ref:firestoreDB.collection("users").doc(String(u.id)),
-          data:{...safe,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},
-          merge:true
-        });
-      });
-
-      // Firestore batch limitiga yaqinlashmaslik uchun 400 tadan commit qilinadi.
-      for(let i=0;i<writes.length;i+=400){
-        const batch=firestoreDB.batch();
-        writes.slice(i,i+400).forEach(w=>batch.set(w.ref,w.data,{merge:w.merge}));
-        await batch.commit();
-      }
-      localStorage.setItem("splitCollectionsLastSync",nowISO());
-    }catch(err){console.warn("Split collection sync:",err);throw err}
-    finally{splitSyncBusy=false}
-  }
-  window.ultraSplitSync=async()=>{await splitSync();showAlert?.("teachers / rooms / lessons / users kolleksiyalariga sinxronlandi.","ok")};
-  function migrationHTML(){
-    const last=localStorage.getItem("splitCollectionsLastSync");
-    return `<div class="ultra-card"><h4>Bo‘lingan Firestore arxitekturasi</h4><div class="ultra-muted">Mavjud appData/main buzilmasligi uchun hozir dual-write migratsiya ishlatiladi: eski baza saqlanadi, yangi teachers, rooms, lessons, users kolleksiyalari parallel yoziladi. To‘liq o‘tishdan keyin appData/main’ni o‘chirish mumkin.</div><div class="ultra-actions"><button class="ultra-btn2" onclick="window.ultraSplitSync()">Hozir kolleksiyalarga sinxronlash</button></div><div class="ultra-muted" style="margin-top:6px">Oxirgi sinxron: ${escU(last?new Date(last).toLocaleString("uz-UZ"):"hali yo‘q")}</div></div>`;
-  }
-
-  /* Bo‘lingan baza avtomatik sinxronizatsiyasi o‘chirildi. */
+  /* Firestore asosiy sinxronizatsiyasi yuqoridagi appData/appDataChunks orqali ishlaydi. */
 
   function menu(){
     const sidebar=document.querySelector(".hemis-sidebar");if(!sidebar||sidebar.querySelector(".ultra-section"))return;
@@ -11261,8 +11172,6 @@ renderAdvanced();
       if(a==="screen")readOnlyOpen();
       if(a==="print")window.ultraPrint();
       if(a==="global")openU("Universitet global dashboard","Kafedralar kesimida",globalDashboardHTML());
-      if(a==="security")openU("Firebase Auth","Secure login holati",securityHTML());
-      if(a==="migration")openU("Bo‘lingan baza","Firestore kolleksiyalariga migratsiya",migrationHTML());
     });
   }
 
@@ -11542,12 +11451,6 @@ renderAdvanced();
     if(m){m.classList.add('open');setTimeout(()=>document.getElementById('loginUser')?.focus(),0);}
   }
   async function doLogout(){
-    try{
-      if(typeof firebase!=='undefined' && typeof firebase.auth==='function'){
-        const a=firebase.auth();
-        if(a?.currentUser) await a.signOut();
-      }
-    }catch(e){console.warn('Firebase Auth chiqish:',e)}
     try{sessionStorage.removeItem('dispatchCurrentUser')}catch(e){}
     const d=getDB();
     if(d) d.currentUser={name:'Mehmon',role:'viewer',department:''};
@@ -14042,6 +13945,224 @@ renderAdvanced();
 .lesson-group-picker-option input{width:auto!important;margin:0!important}
 .lesson-group-picker-option small{margin-left:auto;color:var(--muted);font-weight:500}
 .lesson-group-picker-empty{padding:10px;color:var(--muted);font-size:11px}
+
+/* ===== ISHCHI BO'LIM OCHILISHI — DESKTOPDA EKRANNI YOPMASIN ===== */
+@media (min-width:761px){
+  body.work-panel-open{
+    overflow:auto !important;
+  }
+
+  body.work-panel-open::before{
+    display:none !important;
+    content:none !important;
+  }
+
+  body.hemis-layout #adminPanel.side-panel{
+    position:fixed !important;
+    top:52px !important;
+    right:-640px !important;
+    bottom:0 !important;
+    left:auto !important;
+    width:min(620px,42vw) !important;
+    max-width:620px !important;
+    height:calc(100vh - 52px) !important;
+    padding:14px !important;
+    overflow:auto !important;
+    background:#fff !important;
+    border-left:1px solid #d7e0e8 !important;
+    box-shadow:-14px 0 36px rgba(15,23,42,.16) !important;
+    z-index:1400 !important;
+    transform:none !important;
+    opacity:1 !important;
+    transition:right .24s ease !important;
+  }
+
+  body.hemis-layout #adminPanel.side-panel.open{
+    right:0 !important;
+    transform:none !important;
+    opacity:1 !important;
+  }
+}
+
+/* Mobil ekranda panel alohida ekran sifatida ochiladi. */
+@media (max-width:760px){
+  body.hemis-layout #adminPanel.side-panel{
+    top:58px !important;
+    right:-100vw !important;
+    left:auto !important;
+    width:100vw !important;
+    max-width:100vw !important;
+    height:calc(100vh - 58px) !important;
+    transform:none !important;
+    opacity:1 !important;
+    z-index:1400 !important;
+  }
+
+  body.hemis-layout #adminPanel.side-panel.open{
+    right:0 !important;
+  }
+}
+
+
+
+/* =========================================================
+   YAKUNIY MODAL / OYNALAR JOYLASHUVI
+   Desktop: chap menyu va yuqori panel ustiga chiqmaydi.
+   Mobil: butun ekran bo'ylab qulay ochiladi.
+   ========================================================= */
+@media (min-width:761px){
+  /* Barcha oddiy modal oynalar asosiy ish maydoni ichida ochiladi */
+  body.hemis-layout .modal{
+    position:fixed !important;
+    top:52px !important;
+    right:0 !important;
+    bottom:0 !important;
+    left:240px !important;
+    width:auto !important;
+    height:auto !important;
+    padding:14px !important;
+    display:none;
+    align-items:center !important;
+    justify-content:center !important;
+    overflow:auto !important;
+    background:rgba(17,35,55,.42) !important;
+    z-index:1450 !important;
+    box-sizing:border-box !important;
+  }
+
+  body.hemis-layout .modal.open{
+    display:flex !important;
+  }
+
+  body.hemis-layout .modal .modal-card{
+    width:min(1080px,calc(100% - 28px)) !important;
+    max-width:1080px !important;
+    max-height:calc(100vh - 80px) !important;
+    margin:0 auto !important;
+    padding:16px !important;
+    overflow:auto !important;
+    box-sizing:border-box !important;
+    border-radius:10px !important;
+  }
+
+  /* Keng kalendar va katta hisobot modal oynalari */
+  body.hemis-layout #advancedModal{
+    top:52px !important;
+    right:0 !important;
+    bottom:0 !important;
+    left:240px !important;
+    width:auto !important;
+    padding:12px !important;
+    z-index:1450 !important;
+  }
+
+  body.hemis-layout #advancedModal .modal-card{
+    width:calc(100% - 24px) !important;
+    max-width:1500px !important;
+    max-height:calc(100vh - 76px) !important;
+    margin:0 auto !important;
+    overflow:auto !important;
+  }
+
+  /* O'qituvchi oynasi ham bir xil koordinatada */
+  body.hemis-layout #teacherModal{
+    top:52px !important;
+    left:240px !important;
+    right:0 !important;
+    bottom:0 !important;
+    padding:12px !important;
+    z-index:1450 !important;
+  }
+
+  body.hemis-layout #teacherModal .modal-card{
+    width:min(950px,calc(100% - 24px)) !important;
+    max-width:950px !important;
+    max-height:calc(100vh - 76px) !important;
+    margin:0 auto !important;
+  }
+
+  /* Qidiruv va boshqa maxsus modallar */
+  body.hemis-layout #proSearchModal .modal-card,
+  body.hemis-layout .period-select-modal .modal-card,
+  body.hemis-layout .university-structure-modal .modal-card{
+    margin-left:auto !important;
+    margin-right:auto !important;
+  }
+
+  /* Modal sarlavhasi yopish tugmasi bilan to'g'ri joylashadi */
+  body.hemis-layout .modal-top{
+    width:100% !important;
+    align-items:flex-start !important;
+    gap:12px !important;
+  }
+
+  body.hemis-layout .modal-top > :first-child{
+    min-width:0 !important;
+    flex:1 1 auto !important;
+  }
+
+  body.hemis-layout .modal-top .close{
+    flex:0 0 auto !important;
+    position:sticky !important;
+    top:0 !important;
+    margin-left:auto !important;
+    z-index:5 !important;
+  }
+
+  /* Modal ichidagi ikki ustunli formalar ekran chegarasidan chiqmasin */
+  body.hemis-layout .modal .form,
+  body.hemis-layout .modal .split,
+  body.hemis-layout .modal .status-panel{
+    min-width:0 !important;
+  }
+
+  body.hemis-layout .modal input,
+  body.hemis-layout .modal select,
+  body.hemis-layout .modal textarea{
+    min-width:0 !important;
+    max-width:100% !important;
+    box-sizing:border-box !important;
+  }
+}
+
+@media (max-width:760px){
+  body.hemis-layout .modal,
+  body.hemis-layout #advancedModal,
+  body.hemis-layout #teacherModal{
+    position:fixed !important;
+    top:58px !important;
+    right:0 !important;
+    bottom:0 !important;
+    left:0 !important;
+    width:100vw !important;
+    height:calc(100vh - 58px) !important;
+    padding:8px !important;
+    overflow:auto !important;
+    align-items:flex-start !important;
+    justify-content:center !important;
+    z-index:1800 !important;
+  }
+
+  body.hemis-layout .modal .modal-card,
+  body.hemis-layout #advancedModal .modal-card,
+  body.hemis-layout #teacherModal .modal-card{
+    width:100% !important;
+    max-width:100% !important;
+    max-height:none !important;
+    margin:0 !important;
+    padding:10px !important;
+    border-radius:8px !important;
+    overflow:auto !important;
+    box-sizing:border-box !important;
+  }
+
+  body.hemis-layout .modal .form,
+  body.hemis-layout .modal .split,
+  body.hemis-layout .modal .status-panel{
+    grid-template-columns:1fr !important;
+  }
+}
+
 </style>
 
 <script id="integrated-lecture-group-picker-script">
