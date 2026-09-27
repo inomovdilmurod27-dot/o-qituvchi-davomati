@@ -7384,12 +7384,61 @@ async function initCloudSync(){
 
   }catch(err){
     console.error("Firebase ulanish xatosi:",err);
+
+    // Yangi chunk kolleksiyasiga Rules ruxsat bermagan holatda eski umumiy
+    // appData/main hujjatidan fallback sifatida foydalanamiz. Bu ham barcha
+    // qurilmalar uchun bitta Firestore manbasi bo‘lib qoladi.
+    try{
+      const legacy=await dispatchDoc.get();
+      if(legacy.exists && legacy.data()?.db){
+        db=legacy.data().db;
+        if(typeof ensureSemesterSchedules==="function")ensureSemesterSchedules();
+        if(typeof applySemesterSchedules==="function")applySemesterSchedules();
+        if(typeof persistLocalDB==="function")persistLocalDB();
+        else localStorage.setItem("dispatchDB",JSON.stringify(db));
+
+        cloudReady=true;
+        cloudBootstrapInProgress=false;
+        localDirtyBeforeCloudReady=false;
+
+        // Eski hujjat bo‘yicha ham real-time kuzatuv.
+        dispatchDoc.onSnapshot(s=>{
+          try{
+            if(!s.exists || suppressRemoteSnapshot)return;
+            const incoming=s.data()?.db;
+            if(!incoming)return;
+            db=incoming;
+            if(typeof ensureSemesterSchedules==="function")ensureSemesterSchedules();
+            if(typeof applySemesterSchedules==="function")applySemesterSchedules();
+            if(typeof persistLocalDB==="function")persistLocalDB();
+            else localStorage.setItem("dispatchDB",JSON.stringify(db));
+            if(typeof renderAll==="function")renderAll();
+            if(typeof updateCurrentUserBadge==="function")updateCurrentUserBadge();
+          }catch(e){console.error("Legacy realtime xatosi:",e)}
+        },e=>console.error("Legacy Firestore kuzatuv xatosi:",e));
+
+        if(typeof renderAll==="function")renderAll();
+        if(typeof updateCurrentUserBadge==="function")updateCurrentUserBadge();
+        if(typeof showAlert==="function"){
+          showAlert(
+            "Firebase ulandi, lekin yangi appDataChunks bo‘limiga ruxsat yo‘q. Hozircha eski umumiy appData/main bazasi orqali sinxronlash ishlayapti. Firestore Rules’da appDataChunks uchun ham read/write ruxsat berish kerak.",
+            "warn"
+          );
+        }
+        return;
+      }
+    }catch(fallbackErr){
+      console.error("Firebase fallback ulanish xatosi:",fallbackErr);
+    }
+
     cloudReady=false;
     cloudBootstrapInProgress=false;
 
+    const code=String(err?.code||"noma'lum");
+    const msg=String(err?.message||err||"noma'lum xato");
     if(typeof showAlert==="function"){
       showAlert(
-        "Umumiy baza bilan ulanish amalga oshmadi. Bu holatda boshqa qurilmalar bilan sinxronlash kafolatlanmaydi. Internet va Firebase Firestore Rules ruxsatlarini tekshiring.",
+        "Firebase bilan ulanish amalga oshmadi. Xato kodi: "+code+". "+msg+". Firestore Rules va internet ulanishini tekshiring.",
         "warn"
       );
     }
