@@ -6714,6 +6714,10 @@ let db=JSON.parse(localStorage.getItem("dispatchDB")||"null")||{
  rooms:[],
  history:[]
 };
+// Sahifa ochilgan paytdagi eski lokal holatni faqat bir martalik cloud migratsiyasi uchun saqlaymiz.
+// Keyingi ishga tushishlarda Firestore yagona asosiy manba bo‘ladi.
+const startupLocalDBSnapshot = JSON.parse(JSON.stringify(db||{}));
+const CLOUD_UNIFIED_MIGRATION_KEY = "dispatchCloudUnifiedMigrationV3";
 
 // ===== Firebase / Firestore sinxronizatsiyasi =====
 const firebaseConfig = {
@@ -7282,8 +7286,51 @@ async function initCloudSync(){
     }
 
     if(remote){
-      // MUHIM: boshqa kompyuterda localStorage eski/bo‘sh bo‘lishi mumkin.
-      // Startup paytida Firestore har doim asosiy manba bo‘ladi.
+      // BIR MARTALIK BIRLASHTIRISH:
+      // Ilgari turli qurilmalarda localStorage ichida qolib ketgan ma’lumotlarni
+      // yo‘qotmasdan, shu qurilma birinchi marta yangi versiyani ochganda cloud bilan
+      // birlashtiramiz. Shundan keyin Firestore yagona asosiy manba bo‘ladi.
+      let migrationDone=false;
+      try{migrationDone=localStorage.getItem(CLOUD_UNIFIED_MIGRATION_KEY)==="1"}catch(e){}
+
+      if(!migrationDone){
+        const localSnapshot=cloneJSON(startupLocalDBSnapshot||{});
+        const hasUsefulLocalData=
+          (Array.isArray(localSnapshot?.teachers)&&localSnapshot.teachers.length>0) ||
+          (Array.isArray(localSnapshot?.rooms)&&localSnapshot.rooms.length>0) ||
+          (Array.isArray(localSnapshot?.simpleTeacherInfoRegistry?.records)&&localSnapshot.simpleTeacherInfoRegistry.records.length>0) ||
+          (Array.isArray(localSnapshot?.simpleTeacherInfoRegistry?.types)&&localSnapshot.simpleTeacherInfoRegistry.types.length>0);
+
+        if(hasUsefulLocalData){
+          // base={} bo‘lganda mavjud cloud + shu qurilmadagi eski lokal yozuvlar union qilinadi.
+          // ID bir xil bo‘lgan obyektlarda lokal maydonlar saqlanadi, clouddagi boshqa yozuvlar yo‘qolmaydi.
+          const merged=mergeCloudStates({},localSnapshot,remote.db);
+          // Sessiya va qurilmaga xos maydonlar cloudga majburan ko‘chirilmaydi.
+          delete merged.currentUser;
+
+          if(!jsonSame(merged,remote.db)){
+            cloudRevision=Number(remote.revision||0);
+            try{
+              await writeChunkedCloudState(merged,cloudRevision);
+              remote={db:merged,revision:cloudRevision,token:null};
+            }catch(err){
+              if(err?.code==="CLOUD_CONFLICT"||String(err?.message)==="CLOUD_CONFLICT"){
+                const newest=await readChunkedCloudState();
+                if(newest){
+                  const remerged=mergeCloudStates({},localSnapshot,newest.db);
+                  delete remerged.currentUser;
+                  cloudRevision=Number(newest.revision||0);
+                  await writeChunkedCloudState(remerged,cloudRevision);
+                  remote={db:remerged,revision:cloudRevision,token:null};
+                }else throw err;
+              }else throw err;
+            }
+          }
+        }
+        try{localStorage.setItem(CLOUD_UNIFIED_MIGRATION_KEY,"1")}catch(e){}
+      }
+
+      // Migratsiyadan keyin startup paytida har doim Firestore holati qabul qilinadi.
       await applyRemoteCloudState(remote);
     }else{
       // Eski appData/main mavjud bo‘lsa bir marta migratsiya qilinadi.
@@ -7342,7 +7389,7 @@ async function initCloudSync(){
 
     if(typeof showAlert==="function"){
       showAlert(
-        "Firestore bilan ulanish amalga oshmadi. Dastur lokal rejimda ishlaydi. Firebase Firestore Rules ruxsatlarini tekshiring.",
+        "Umumiy baza bilan ulanish amalga oshmadi. Bu holatda boshqa qurilmalar bilan sinxronlash kafolatlanmaydi. Internet va Firebase Firestore Rules ruxsatlarini tekshiring.",
         "warn"
       );
     }
