@@ -7183,6 +7183,7 @@ async function applyRemoteCloudState(remote){
   if(typeof renderBuildingDistances==="function")renderBuildingDistances();
   if(typeof updateCurrentUserBadge==="function")updateCurrentUserBadge();
   if(typeof window.syncLoginGate==="function")window.syncLoginGate();
+  if(typeof window.refreshSimpleInfoRegistryFromCloud==="function")window.refreshSimpleInfoRegistryFromCloud();
 }
 
 function flushCloudSave(){
@@ -7216,6 +7217,7 @@ function flushCloudSave(){
         db=merged;
         persistLocalDB();
         if(typeof renderAll==="function")renderAll();
+        if(typeof window.refreshSimpleInfoRegistryFromCloud==="function")window.refreshSimpleInfoRegistryFromCloud();
       }else{
         throw err;
       }
@@ -16432,11 +16434,35 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
 <script id="simple-info-registry-script">
 (function(){
   const KEY='simpleTeacherInfoRegistryV2';
-  let store=JSON.parse(localStorage.getItem(KEY)||'null');
-  if(!store){
-    const old=JSON.parse(localStorage.getItem('simpleTeacherInfoRegistryV1')||'null');
-    store={types:old?.types||[{id:'diplom',name:'Diplom'},{id:'sertifikat',name:'Sertifikat'}],records:(old?.records||[]).map(r=>({id:r.id,teacherId:r.teacherId,typeId:r.typeId,value:r.value||r.title||r.number||r.note||''}))};
+  function defaultInfoRegistry(){
+    return {types:[{id:'diplom',name:'Diplom'},{id:'sertifikat',name:'Sertifikat'}],records:[]};
   }
+  function readLocalInfoRegistry(){
+    try{
+      const v2=JSON.parse(localStorage.getItem(KEY)||'null');
+      if(v2&&Array.isArray(v2.types)&&Array.isArray(v2.records)) return v2;
+      const old=JSON.parse(localStorage.getItem('simpleTeacherInfoRegistryV1')||'null');
+      if(old){
+        return {
+          types:Array.isArray(old.types)&&old.types.length?old.types:defaultInfoRegistry().types,
+          records:(old.records||[]).map(r=>({id:r.id,teacherId:r.teacherId,typeId:r.typeId,value:r.value||r.title||r.number||r.note||''}))
+        };
+      }
+    }catch(e){}
+    return null;
+  }
+  function ensureCloudInfoRegistry(){
+    const local=readLocalInfoRegistry();
+    if(typeof db!=='undefined'&&db&&typeof db==='object'){
+      if(!db.simpleTeacherInfoRegistry || !Array.isArray(db.simpleTeacherInfoRegistry.types) || !Array.isArray(db.simpleTeacherInfoRegistry.records)){
+        db.simpleTeacherInfoRegistry=local||defaultInfoRegistry();
+        db.__simpleInfoRegistryNeedsCloudSave=true;
+      }
+      return db.simpleTeacherInfoRegistry;
+    }
+    return local||defaultInfoRegistry();
+  }
+  let store=ensureCloudInfoRegistry();
   let selectedTeachers=new Set(), typeId=null;
   let selectedTypes = new Set();
   const $=id=>document.getElementById(id);
@@ -16470,7 +16496,16 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
     }
     setTimeout(()=>{updateTeacherMoreIndicatorLocal();updateTypeMoreIndicatorLocal()},0);
   }
-  function save(){localStorage.setItem(KEY,JSON.stringify(store))}
+  function save(){
+    try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}
+    try{
+      if(typeof db!=='undefined'&&db&&typeof db==='object'){
+        db.simpleTeacherInfoRegistry=store;
+        delete db.__simpleInfoRegistryNeedsCloudSave;
+        if(typeof window.save==='function') window.save();
+      }
+    }catch(e){console.warn('Ma’lumot registrini cloud bazaga saqlash xatosi:',e)}
+  }
   function visibleTeachers(){const q=($('sirSearch')?.value||'').toLowerCase();return teachers().filter(t=>String(t.name||'').toLowerCase().includes(q))}
   function syncSelectAll(){const list=visibleTeachers();$('sirSelectAll').checked=!!list.length&&list.every(t=>selectedTeachers.has(teacherKey(t)));$('sirSelectAll').indeterminate=list.some(t=>selectedTeachers.has(teacherKey(t)))&&!$('sirSelectAll').checked}
   function renderTeachers(){
@@ -17239,6 +17274,18 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
       (skippedTeachers?`\nTopilmagan o‘qituvchilar: ${skippedTeachers} ta`:'')
     );
   }
+  window.refreshSimpleInfoRegistryFromCloud=function(){
+    store=ensureCloudInfoRegistry();
+    try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}
+    try{
+      if(typeof db!=='undefined'&&db?.__simpleInfoRegistryNeedsCloudSave){
+        delete db.__simpleInfoRegistryNeedsCloudSave;
+        if(typeof window.save==='function') window.save();
+      }
+    }catch(e){}
+    if(document.getElementById('simpleInfoModal')?.classList.contains('open')) render();
+  };
+
   document.addEventListener('DOMContentLoaded',()=>{
     $('sirClose').onclick=close;$('simpleInfoModal').onclick=e=>{if(e.target===$('simpleInfoModal'))close()};$('sirSearch').oninput=renderTeachers;
     $('sirSelectAll').onchange=e=>{const list=visibleTeachers();list.forEach(t=>{const k=teacherKey(t);e.target.checked?selectedTeachers.add(k):selectedTeachers.delete(k)});render()};
