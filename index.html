@@ -7448,21 +7448,20 @@ async function initCloudSync(){
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
 function mins(t){const [h,m]=t.split(":").map(Number);return h*60+m}
 function nowInfo(){
-  let d=new Date();
-  try{
-    const year=String(db?.settings?.academicYear||"2026/2027").trim();
-    const sem=String(db?.settings?.semester||"I-semestr").trim();
-    const key=typeof semesterPeriodKey==="function"?semesterPeriodKey(year,sem):`${year}||${sem}`;
-    const selected=db?.settings?.dashboardSelectedDateByPeriod?.[key]||"";
-    if(selected){
-      const x=new Date(selected+"T00:00:00");
-      if(!Number.isNaN(x.getTime())){x.setHours(d.getHours(),d.getMinutes(),d.getSeconds(),d.getMilliseconds());d=x;}
-    }
-  }catch(e){}
+  // "Hozir" holati doimo qurilmaning haqiqiy mahalliy sanasi va vaqtiga qaraydi.
+  // Dashboardda oldin tanlangan sana real-time "Darsda / Dars yo‘q" holatini o‘zgartirmaydi.
+  const d=new Date();
   return {d,day:dayNames[d.getDay()],minutes:d.getHours()*60+d.getMinutes()}
 }
 function weekOverlap(a,b){return a==="doim"||b==="doim"||a===b}
-function lessonActive(l){return !l.cancelled && l.status==="approved" && (l.weekType==="doim"||l.weekType===currentWeek)}
+function lessonActive(l,dateStr=null){
+ if(l.cancelled||l.status!=="approved")return false;
+ if(l.weekType==="single"){
+   const d=dateStr||localDateISO(new Date());
+   return String(l.singleDate||"")===String(d);
+ }
+ return l.weekType==="doim"||l.weekType===currentWeek;
+}
 function teacherById(id){return db.teachers.find(t=>t.id==id)}
 function scopedTeachers(){
   const u=db.currentUser||{};
@@ -7554,7 +7553,7 @@ function localDateISO(d=new Date()){
 }
 function todayLessonsFor(t){
  const ni=nowInfo(), day=ni.day, today=localDateISO(ni.d);
- let arr=t.schedule.filter(l=>l.day===day&&lessonActive(l)).map(l=>({...l}));
+ let arr=t.schedule.filter(l=>l.day===day&&lessonActive(l,today)).map(l=>({...l}));
  const ex=(db.dayExceptions||[]).filter(x=>String(x.teacherId)===String(t.id)&&x.date===today);
  ex.forEach(x=>{
   const i=arr.findIndex(l=>String(l.id)===String(x.lessonId));
@@ -7904,6 +7903,9 @@ function lessonRunsOnSemesterWeek(l,weekNo){
  return true;
 }
 function lessonPeriodsOverlap(a,b){
+ if(a?.weekType==="single"||b?.weekType==="single"){
+   return lessonWeekDateOverlap(a,b);
+ }
  const ar=lessonWeekRange(a), br=lessonWeekRange(b);
  const start=Math.max(ar.start,br.start), end=Math.min(ar.end,br.end);
  if(start>end)return false;
@@ -10151,14 +10153,13 @@ renderAdvanced();
     const teacher=teacherById(teacherId);
     const dep=String(teacher?.department||db.currentUser?.department||'').trim().toLowerCase();
     if(!dep)return null;
-    const node=(db.orgStructure||[]).find(x=>String(x.department||'').trim().toLowerCase()===dep);
-    return node||null;
+    return (db.orgStructure||[]).find(x=>String(x.department||'').trim().toLowerCase()===dep)||null;
   }
   function smartRoomNumber(v){
     const m=String(v||'').match(/\d+/);
     return m?Number(m[0]):null;
   }
-  function sortRoomsByDepartmentLocation(list,teacherId,size){
+  function sortRoomsByDepartmentLocation(list,teacherId){
     const base=smartDeptLocation(teacherId);
     const baseBuilding=String(base?.building||'').trim().toLowerCase();
     const baseRoomNo=smartRoomNumber(base?.room);
@@ -10166,84 +10167,271 @@ renderAdvanced();
       const aSame=baseBuilding&&String(a.building||'').trim().toLowerCase()===baseBuilding?0:1;
       const bSame=baseBuilding&&String(b.building||'').trim().toLowerCase()===baseBuilding?0:1;
       if(aSame!==bSame)return aSame-bSame;
-
       if(aSame===0&&bSame===0&&baseRoomNo!==null){
         const an=smartRoomNumber(a.name),bn=smartRoomNumber(b.name);
         const ad=an===null?99999:Math.abs(an-baseRoomNo);
         const bd=bn===null?99999:Math.abs(bn-baseRoomNo);
         if(ad!==bd)return ad-bd;
       }
-
-      const aExtra=Math.max(0,Number(a.capacity||0)-Number(size||0));
-      const bExtra=Math.max(0,Number(b.capacity||0)-Number(size||0));
-      if(aExtra!==bExtra)return aExtra-bExtra;
       return String(a.name||'').localeCompare(String(b.name||''),'uz');
     });
+  }
+  function smartTimeGroups(){
+    const map=new Map();
+    const norm=v=>String(v||'').trim().replace(/\s+/g,' ').toLowerCase();
+    try{
+      scopedTeachers().forEach(t=>(t.schedule||[]).forEach(l=>{
+        lessonGroupList(l).forEach(name=>{
+          const n=String(name||'').trim();
+          if(n&&!map.has(norm(n)))map.set(norm(n),n);
+        });
+      }));
+    }catch(e){}
+    try{
+      const key=typeof getGroupStudyPeriodKey==='function'?getGroupStudyPeriodKey():`${db.settings?.academicYear||''}||${db.settings?.semester||''}`;
+      Object.values(db.groupStudyProfiles?.[key]||{}).forEach(p=>{
+        const n=String(p?.group||p?.groupShortName||'').trim();
+        if(n&&!map.has(norm(n)))map.set(norm(n),n);
+      });
+    }catch(e){}
+    return [...map.values()].sort((a,b)=>a.localeCompare(b,'uz'));
+  }
+  function smartGroupProfile(group){
+    try{
+      if(typeof window.getGroupStudyProfile==='function')return window.getGroupStudyProfile(group)||null;
+    }catch(e){}
+    return null;
+  }
+  function smartPeriodKey(){
+    try{
+      return typeof semesterPeriodKey==='function'
+        ?semesterPeriodKey(db.settings?.academicYear,db.settings?.semester)
+        :`${String(db.settings?.academicYear||'').trim()}||${String(db.settings?.semester||'').trim()}`;
+    }catch(e){return ''}
+  }
+  function smartSemesterDateInfo(dateStr){
+    const d=new Date(String(dateStr||'')+'T12:00:00');
+    if(Number.isNaN(d.getTime()))return {weekNo:null,weekType:null,day:''};
+    const day=dayNames[d.getDay()]||'';
+    const key=smartPeriodKey();
+    const startDate=db.settings?.semesterStartDates?.[key]||'';
+    if(!startDate)return {weekNo:null,weekType:null,day};
+    const s=new Date(startDate+'T12:00:00');
+    if(Number.isNaN(s.getTime()))return {weekNo:null,weekType:null,day};
+    const diff=Math.floor((d-s)/86400000);
+    if(diff<0)return {weekNo:0,weekType:null,day};
+    const weekNo=Math.floor(diff/7)+1;
+    return {weekNo,weekType:weekNo%2===1?'surat':'maxraj',day};
+  }
+  function smartProfilePeriod(group){
+    const p=smartGroupProfile(group);
+    const max=Math.max(1,Number(db.settings?.semesterWeeks||16));
+    return {
+      profile:p,
+      educationType:String(p?.educationType||'kunduzgi'),
+      startWeek:Math.max(1,Number(p?.startWeek||1)),
+      endWeek:Math.max(1,Number(p?.endWeek||max)),
+      allowedDays:Array.isArray(p?.allowedDays)&&p.allowedDays.length?p.allowedDays.slice():['Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba'],
+      startPair:Math.max(1,Number(p?.startPair||1)),
+      endPair:Math.min(8,Math.max(1,Number(p?.endPair||8)))
+    };
+  }
+  function smartDateAllowedForGroup(group,dateStr){
+    const pr=smartProfilePeriod(group);
+    const info=smartSemesterDateInfo(dateStr);
+    if(!pr.allowedDays.includes(info.day))return false;
+    if(info.weekNo!==null){
+      if(info.weekNo<pr.startWeek||info.weekNo>pr.endWeek)return false;
+      const max=Math.max(1,Number(db.settings?.semesterWeeks||16));
+      if(info.weekNo>max)return false;
+    }
+    return true;
+  }
+  function smartCandidate(group,week,singleDate=''){
+    const pr=smartProfilePeriod(group);
+    return {
+      weekType:week,
+      singleDate:week==='single'?singleDate:'',
+      educationType:pr.educationType,
+      startWeek:pr.startWeek,
+      endWeek:pr.endWeek
+    };
+  }
+  function smartOverlap(existing,candidate){
+    try{return lessonPeriodsOverlap(existing,candidate)}catch(e){}
+    try{return lessonWeekDateOverlap(existing,candidate)}catch(e){}
+    return true;
+  }
+  function slotOccupiedRoomSmart(room,day,pair,group,week,singleDate=''){
+    const r=typeof room==="object"?room:(db.rooms||[]).find(x=>String(x.id)===String(room))||(db.rooms||[]).find(x=>x.name===room);
+    if(!r)return false;
+    const key=physicalRoomKey(r.name,r.building);
+    const c=smartCandidate(group,week,singleDate);
+    return globalApprovedLessons().some(l=>
+      l.physicalRoomKey===key &&
+      l.day===day &&
+      Number(l.pair)===Number(pair) &&
+      smartOverlap(l,c)
+    );
+  }
+  function slotTeacherBusySmart(tid,day,pair,group,week,singleDate=''){
+    const t=teacherById(tid);
+    const key=teacherIdentityKey(t);
+    if(!key)return false;
+    const c=smartCandidate(group,week,singleDate);
+    return globalApprovedLessons().some(l=>
+      teacherIdentityKey(l.effectiveTeacher)===key &&
+      l.day===day &&
+      Number(l.pair)===Number(pair) &&
+      smartOverlap(l,c)
+    );
+  }
+  function slotGroupBusySmart(group,day,pair,week,singleDate=''){
+    const q=String(group||'').trim().toLowerCase();
+    const c=smartCandidate(group,week,singleDate);
+    return approvedLessons().some(l=>
+      lessonGroupList(l).some(g=>g.toLowerCase()===q) &&
+      l.day===day &&
+      Number(l.pair)===Number(pair) &&
+      smartOverlap(l,c)
+    );
+  }
+  function smartWeekLabel(week,singleDate=''){
+    if(week==='doim')return 'Doimiy';
+    if(week==='surat')return 'Surat';
+    if(week==='maxraj')return 'Maxraj';
+    return `Bir kunlik${singleDate?' · '+singleDate:''}`;
+  }
+  function smartDateUz(dateStr){
+    if(!dateStr)return '';
+    const d=new Date(dateStr+'T12:00:00');
+    if(Number.isNaN(d.getTime()))return dateStr;
+    return d.toLocaleDateString('uz-UZ',{day:'2-digit',month:'2-digit',year:'numeric'});
+  }
+  function smartSingleDates(group,limitDays=35){
+    const pr=smartProfilePeriod(group);
+    const key=smartPeriodKey();
+    const semStartStr=db.settings?.semesterStartDates?.[key]||'';
+    let start=new Date(); start.setHours(12,0,0,0);
+    let hardEnd=new Date(start); hardEnd.setDate(hardEnd.getDate()+Math.max(14,limitDays));
+
+    if(semStartStr){
+      const semStart=new Date(semStartStr+'T12:00:00');
+      if(!Number.isNaN(semStart.getTime())){
+        const groupStart=new Date(semStart); groupStart.setDate(groupStart.getDate()+(pr.startWeek-1)*7);
+        const groupEnd=new Date(semStart); groupEnd.setDate(groupEnd.getDate()+pr.endWeek*7-1);
+        if(start<groupStart)start=groupStart;
+        if(hardEnd>groupEnd)hardEnd=groupEnd;
+      }
+    }
+    const out=[];
+    for(let d=new Date(start);d<=hardEnd;d.setDate(d.getDate()+1)){
+      const iso=localDateISO(d);
+      if(!smartDateAllowedForGroup(group,iso))continue;
+      const info=smartSemesterDateInfo(iso);
+      out.push({date:iso,day:info.day,weekNo:info.weekNo,weekType:info.weekType});
+    }
+    return out;
+  }
+  function renderSmartTimeSelection(){
+    const box=g('stSelection');
+    const s=window.__smartTimeSelected;
+    if(!box)return;
+    if(!s){box.innerHTML='';return;}
+    const info=s.singleDate?smartSemesterDateInfo(s.singleDate):{};
+    box.innerHTML=`<div class="card" style="border:2px solid #86b7d6;background:#f7fbfe">
+      <b>Tanlangan vaqt</b>
+      <div style="margin-top:5px">${sEsc(s.day)} · ${s.pair}-juftlik (${pairTimes[s.pair].start}–${pairTimes[s.pair].end})</div>
+      ${s.singleDate?`<div style="margin-top:4px"><b>${sEsc(smartDateUz(s.singleDate))}</b>${info.weekNo?` · ${info.weekNo}-hafta · ${info.weekType==='surat'?'SURAT':'MAXRAJ'}`:''}</div>`:''}
+      <div class="mini" style="margin-top:4px">Guruh: ${sEsc(s.group)} · ${sEsc(smartWeekLabel(s.week,s.singleDate))} · ${sEsc(s.type)} · ${sEsc(s.roomName)}-xona${s.roomBuilding?` · ${sEsc(s.roomBuilding)}`:''}</div>
+      <div class="actions" style="margin-top:10px">
+        <button class="btn primary" id="stSaveSelected" type="button">Saqlash</button>
+        <button class="btn ghost" id="stClearSelected" type="button">Bekor qilish</button>
+      </div>
+    </div>`;
+    g('stSaveSelected')?.addEventListener('click',saveSmartTimeLesson);
+    g('stClearSelected')?.addEventListener('click',()=>{window.__smartTimeSelected=null;renderSmartTimeSelection()});
   }
   function chooseSmartTimeLesson(btn){
     const tid=g('stTeacher')?.value;
     const teacher=teacherById(tid);
-    const subject=g('stSubject')?.value.trim();
-    const group=g('stGroup')?.value.trim();
-    const week=g('stWeek')?.value;
-    const size=Number(g('stSize')?.value||0);
-    const type=g('stType')?.value;
+    const group=g('stGroup')?.value||'';
+    const week=g('stWeek')?.value||'doim';
+    const type=g('stType')?.value||'Amaliy';
     const day=btn.dataset.day;
     const pair=Number(btn.dataset.pair);
+    const singleDate=btn.dataset.date||'';
     const room=(db.rooms||[]).find(r=>String(r.id)===String(btn.dataset.roomId));
-
-    if(!teacher||!room)return;
- if($("lWeek").value==="single"&&!$("lSingleDate").value){showAlert("Bir kunlik dars uchun sana tanlang.","error");return;}
- if($("lWeek").value==="single"){const dn=singleDateDayName($("lSingleDate").value);if(dn)$("lDay").value=dn;}
-    if(!subject||!group||!size){
-      showAlert('Fan, guruh va talabalar sonini to‘liq kiriting.','error');
-      return;
-    }
-
+    if(!teacher||!room||!group)return;
+    window.__smartTimeSelected={
+      teacherId:String(teacher.id),group,week,singleDate,type,day,pair,
+      roomId:String(room.id),roomName:room.name,roomBuilding:room.building||''
+    };
+    g('stResult')?.querySelectorAll('.stChooseBtn').forEach(x=>x.classList.remove('primary'));
+    btn.classList.add('primary');
+    renderSmartTimeSelection();
+    g('stSelection')?.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+  function saveSmartTimeLesson(){
+    const s=window.__smartTimeSelected;
+    if(!s){showAlert('Avval bo‘sh vaqt va xonani tanlang.','error');return;}
+    const teacher=teacherById(s.teacherId);
+    const room=(db.rooms||[]).find(r=>String(r.id)===String(s.roomId));
+    if(!teacher||!room){showAlert('O‘qituvchi yoki xona topilmadi.','error');return;}
+    if(s.week==='single'&&!s.singleDate){showAlert('Bir kunlik dars sanasi aniqlanmadi.','error');return;}
+    const pr=smartProfilePeriod(s.group);
+    const day=s.week==='single'?(singleDateDayName(s.singleDate)||s.day):s.day;
     const lesson={
       id:Date.now()+Math.random(),
       day,
-      weekType:week,
-      pair,
-      start:pairTimes[pair].start,
-      end:pairTimes[pair].end,
-      subject,
-      group,
-      groupSize:size,
+      weekType:s.week,
+      singleDate:s.week==='single'?s.singleDate:'',
+      educationType:pr.educationType,
+      startWeek:pr.startWeek,
+      endWeek:pr.endWeek,
+      groupStudyStartWeek:pr.startWeek,
+      groupStudyEndWeek:pr.endWeek,
+      pair:Number(s.pair),
+      start:pairTimes[Number(s.pair)].start,
+      end:pairTimes[Number(s.pair)].end,
+      subject:'',
+      group:s.group,
+      additionalGroups:[],
+      groupSize:0,
       room:room.name,
       roomId:room.id,
       roomBuilding:room.building||'',
-      type,
+      type:s.type,
       substituteTeacherId:'',
       status:'approved',
       cancelled:false,
-      note:''
+      note:'Avtomatik bo‘sh vaqt tavsiyasi orqali qo‘shildi'
     };
-
     const check=validateLesson(lesson,teacher.id,null);
     if(check.errs.length){
       showAlert('<b>Dars qo‘shilmadi:</b><br>• '+check.errs.join('<br>• '),'error');
       return;
     }
-
     teacher.schedule=teacher.schedule||[];
     teacher.schedule.push(lesson);
     save();
-    renderAll();
-    renderAdminSelectors();
-    renderHistory();
-    showAlert(`${sEsc(scheduleTeacherName(teacher))} uchun ${sEsc(day)} ${pair}-juftlikka dars jadvalga qo‘shildi.`,'ok');
+    try{renderAll()}catch(e){}
+    try{renderAdminSelectors()}catch(e){}
+    try{renderHistory()}catch(e){}
+    try{renderLessonAdmin()}catch(e){}
+    window.__smartTimeSelected=null;
+    showAlert(`${sEsc(scheduleTeacherName(teacher))} uchun ${sEsc(day)} ${s.pair}-juftlik${s.singleDate?' · '+sEsc(smartDateUz(s.singleDate)):''} darsi saqlandi.`,'ok');
     closeSmart();
   }
 
   g('smartTimeBtn')?.addEventListener('click',()=>{
-    openSmart('Avtomatik bo‘sh vaqt tavsiyasi','O‘qituvchi, guruh va xona bir vaqtda bo‘sh bo‘lgan variantlar topiladi. Avval kafedra binosi va kafedra xonasiga yaqin xonalar ko‘rsatiladi.',`
+    window.__smartTimeSelected=null;
+    const groupOptions=smartTimeGroups().map(x=>`<option value="${sEsc(x)}">${sEsc(x)}</option>`).join('');
+    openSmart('Avtomatik bo‘sh vaqt tavsiyasi','O‘qituvchi, guruh va xona bir vaqtda bo‘sh bo‘lgan variantlar topiladi. “Bir kunlik” rejimida tizim guruhning o‘qish haftalarini hisobga olib, mos kunlar va aniq sanalarni o‘zi chiqaradi.',`
       <div class="form">
         <div class="full"><label>O‘qituvchi<select id="stTeacher">${scopedTeachers().map(t=>`<option value="${t.id}">${sEsc(scheduleTeacherName(t))}</option>`).join('')}</select></label></div>
-        <div class="full"><label>Fan<input id="stSubject" placeholder="Fan nomi"></label></div>
-        <div><label>Guruh<input id="stGroup" placeholder="GTI-31"></label></div>
-        <div><label>Hafta<select id="stWeek"><option value="surat">Surat</option><option value="maxraj">Maxraj</option><option value="doim">Doimiy</option></select></label></div>
-        <div><label>Talabalar soni<input type="number" min="1" id="stSize" value="25"></label></div>
+        <div class="full"><label>Guruh<select id="stGroup"><option value="">Guruhni tanlang</option>${groupOptions}</select></label></div>
+        <div><label>Hafta<select id="stWeek"><option value="doim">Doimiy</option><option value="surat">Surat</option><option value="maxraj">Maxraj</option><option value="single">Bir kunlik</option></select></label></div>
         <div><label>Dars turi<select id="stType"><option>Ma’ruza</option><option>Amaliy</option><option>Laboratoriya</option><option>Seminar</option></select></label></div>
         <div>
           <label>Juftlikdan
@@ -10273,52 +10461,91 @@ renderAdvanced();
             </select>
           </label>
         </div>
+        <div class="full"><div id="stGroupInfo" class="note"></div></div>
         <div class="full"><button class="btn primary" id="stFind">Bo‘sh vaqtlarni topish</button></div>
-      </div><div id="stResult" class="smart-result"></div>`);
+      </div>
+      <div id="stSelection" class="smart-result"></div>
+      <div id="stResult" class="smart-result"></div>`);
+
+    const syncGroupInfo=()=>{
+      const group=g('stGroup')?.value||'';
+      const box=g('stGroupInfo');
+      if(!box){return}
+      if(!group){box.innerHTML='Guruh tanlanganda uning o‘qish haftalari va ruxsat etilgan kunlari avtomatik hisobga olinadi.';return}
+      const pr=smartProfilePeriod(group);
+      box.innerHTML=`<b>${sEsc(group)}</b>: ${pr.startWeek}–${pr.endWeek}-haftalar · kunlar: ${pr.allowedDays.map(sEsc).join(', ')} · juftliklar: ${pr.startPair}–${pr.endPair}.`;
+    };
+    g('stGroup')?.addEventListener('change',()=>{window.__smartTimeSelected=null;renderSmartTimeSelection();syncGroupInfo()});
+    syncGroupInfo();
 
     g('stFind').onclick=()=>{
-      const tid=g('stTeacher').value,subject=g('stSubject').value.trim(),group=g('stGroup').value.trim(),week=g('stWeek').value,size=Number(g('stSize').value||0),type=g('stType').value;
-      const pairFrom=Number(g('stPairFrom').value||1),pairTo=Number(g('stPairTo').value||8);
-      if(!subject||!group){g('stResult').innerHTML='<div class="alert show error">Fan va guruh nomini kiriting.</div>';return;}
-      if(pairFrom>pairTo){g('stResult').innerHTML='<div class="alert show error">Juftlik oralig‘ini to‘g‘ri tanlang: boshlanish juftligi tugash juftligidan katta bo‘lmasin.</div>';return;}
+      window.__smartTimeSelected=null;
+      renderSmartTimeSelection();
+      const tid=g('stTeacher').value;
+      const group=g('stGroup').value;
+      const week=g('stWeek').value;
+      const type=g('stType').value;
+      let pairFrom=Number(g('stPairFrom').value||1),pairTo=Number(g('stPairTo').value||8);
+      if(!group){g('stResult').innerHTML='<div class="alert show error">Guruhni tanlang.</div>';return;}
+      if(pairFrom>pairTo){g('stResult').innerHTML='<div class="alert show error">Juftlik oralig‘ini to‘g‘ri tanlang.</div>';return;}
+
+      const pr=smartProfilePeriod(group);
+      pairFrom=Math.max(pairFrom,pr.startPair);
+      pairTo=Math.min(pairTo,pr.endPair);
+      if(pairFrom>pairTo){
+        g('stResult').innerHTML=`<div class="alert show warn">Bu guruh uchun ruxsat etilgan juftliklar ${pr.startPair}–${pr.endPair}. Tanlangan oralig‘da mos vaqt yo‘q.</div>`;
+        return;
+      }
 
       const base=smartDeptLocation(tid);
       const out=[];
 
-      ['Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba'].forEach(day=>{
-        for(let pair=pairFrom;pair<=pairTo;pair++){
-          if(slotTeacherBusy(tid,day,pair,week)||slotGroupBusy(group,day,pair,week))continue;
-
-          const freeRooms=sortRoomsByDepartmentLocation(
-            (db.rooms||[]).filter(r=>(Number(r.capacity||0)===0||Number(r.capacity)>=size)&&!slotOccupiedRoom(r,day,pair,week)),
-            tid,
-            size
-          );
-
-          if(freeRooms.length)out.push({day,pair,rooms:freeRooms});
-        }
-      });
+      if(week==='single'){
+        const dates=smartSingleDates(group,35);
+        dates.forEach(item=>{
+          for(let pair=pairFrom;pair<=pairTo;pair++){
+            if(slotTeacherBusySmart(tid,item.day,pair,group,'single',item.date)||slotGroupBusySmart(group,item.day,pair,'single',item.date))continue;
+            const freeRooms=sortRoomsByDepartmentLocation(
+              (db.rooms||[]).filter(r=>!slotOccupiedRoomSmart(r,item.day,pair,group,'single',item.date)),
+              tid
+            );
+            if(freeRooms.length)out.push({day:item.day,pair,rooms:freeRooms,date:item.date,weekNo:item.weekNo,dateWeekType:item.weekType});
+          }
+        });
+      }else{
+        pr.allowedDays.forEach(day=>{
+          for(let pair=pairFrom;pair<=pairTo;pair++){
+            if(slotTeacherBusySmart(tid,day,pair,group,week,'')||slotGroupBusySmart(group,day,pair,week,''))continue;
+            const freeRooms=sortRoomsByDepartmentLocation(
+              (db.rooms||[]).filter(r=>!slotOccupiedRoomSmart(r,day,pair,group,week,'')),
+              tid
+            );
+            if(freeRooms.length)out.push({day,pair,rooms:freeRooms,date:'',weekNo:null,dateWeekType:null});
+          }
+        });
+      }
 
       const baseInfo=(base
-        ?`<div class="note" style="margin-bottom:4px">Kafedra joylashuvi: <b>${sEsc(base.building||'')}</b>${base.room?` · <b>${sEsc(base.room)}-xona</b>`:''}. Tavsiyalar shu joyga yaqinlik bo‘yicha tartiblangan.</div>`
+        ?`<div class="note" style="margin-bottom:4px">Kafedra joylashuvi: <b>${sEsc(base.building||'')}</b>${base.room?` · <b>${sEsc(base.room)}-xona</b>`:''}. Xonalar shu joyga yaqinlik bo‘yicha tartiblangan.</div>`
         :'')+
-        `<div class="note" style="margin-bottom:8px">Qidiruv oralig‘i: <b>${pairFrom}-juftlik (${pairTimes[pairFrom].start}–${pairTimes[pairFrom].end})</b> dan <b>${pairTo}-juftlik (${pairTimes[pairTo].start}–${pairTimes[pairTo].end})</b> gacha.</div>`;
+        `<div class="note" style="margin-bottom:8px">Guruh: <b>${sEsc(group)}</b> · o‘qish davri: <b>${pr.startWeek}–${pr.endWeek}-hafta</b> · ruxsat kunlari: <b>${pr.allowedDays.map(sEsc).join(', ')}</b> · juftliklar: <b>${pr.startPair}–${pr.endPair}</b>${week==='single'?' · keyingi mos sanalar avtomatik tekshirildi':''}.</div>`;
 
       g('stResult').innerHTML=out.length
-        ?baseInfo+out.slice(0,24).map(x=>`
+        ?baseInfo+out.slice(0,80).map(x=>`
           <div class="card">
             <b>${x.day} · ${x.pair}-juftlik (${pairTimes[x.pair].start}–${pairTimes[x.pair].end})</b>
-            <div class="mini" style="margin:5px 0 7px">Fan: ${sEsc(subject)} · Guruh: ${sEsc(group)} · ${week==='doim'?'Doimiy':week==='surat'?'Surat':'Maxraj'} · ${sEsc(type)}</div>
-            ${x.rooms.slice(0,6).map((r,i)=>`
+            ${x.date?`<div style="margin-top:5px;font-weight:800;color:var(--navy)">${sEsc(smartDateUz(x.date))}${x.weekNo?` · ${x.weekNo}-hafta · ${x.dateWeekType==='surat'?'SURAT':'MAXRAJ'}`:''}</div>`:''}
+            <div class="mini" style="margin:5px 0 7px">Guruh: ${sEsc(group)} · ${sEsc(smartWeekLabel(week,x.date||''))} · ${sEsc(type)}</div>
+            ${x.rooms.slice(0,8).map((r,i)=>`
               <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-top:1px solid var(--border)">
                 <div>
                   <b>${sEsc(r.name)}-xona</b>
-                  <div class="mini">Bino: ${sEsc(r.building||'ko‘rsatilmagan')} · ${sEsc(r.type)} · ${r.capacity} o‘rin${i===0&&base&&String(r.building||'').trim().toLowerCase()===String(base.building||'').trim().toLowerCase()?' · kafedraga yaqin tavsiya':''}</div>
+                  <div class="mini">Bino: ${sEsc(r.building||'ko‘rsatilmagan')} · ${sEsc(r.type)}${i===0&&base&&String(r.building||'').trim().toLowerCase()===String(base.building||'').trim().toLowerCase()?' · kafedraga yaqin tavsiya':''}</div>
                 </div>
-                <button class="btn success stChooseBtn" data-day="${sEsc(x.day)}" data-pair="${x.pair}" data-room-id="${sEsc(String(r.id))}">Tanlash</button>
+                <button class="btn success stChooseBtn" type="button" data-day="${sEsc(x.day)}" data-pair="${x.pair}" data-date="${sEsc(x.date||'')}" data-room-id="${sEsc(String(r.id))}">Tanlash</button>
               </div>`).join('')}
           </div>`).join('')
-        :'<div class="empty">O‘qituvchi, guruh va mos xona bir vaqtda bo‘sh bo‘lgan juftlik topilmadi.</div>';
+        :'<div class="empty">Guruhning o‘qish haftalari, kunlari va mavjud jadvali bo‘yicha mos bo‘sh vaqt topilmadi.</div>';
 
       g('stResult').querySelectorAll('.stChooseBtn').forEach(btn=>{
         btn.addEventListener('click',()=>chooseSmartTimeLesson(btn));
