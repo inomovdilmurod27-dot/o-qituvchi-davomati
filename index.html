@@ -6159,6 +6159,324 @@ body.hemis-layout .pro-actions{
 }
 </style>
 
+
+<style id="smart-group-picker-style">
+#stGroupPicker{
+  position:relative;
+  margin-top:6px;
+}
+#stGroupTrigger{
+  width:100%;
+  min-height:40px;
+  border:1px solid #cfd8e3;
+  border-radius:8px;
+  background:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:8px 12px;
+  color:#111827;
+  font-weight:700;
+  box-shadow:0 1px 2px rgba(15,23,42,.03);
+}
+#stGroupTrigger:hover{border-color:#3b87b3;background:#fbfdff}
+#stGroupPicker.open #stGroupTrigger{border-color:#3b87b3;box-shadow:0 0 0 3px rgba(59,135,179,.12)}
+#stGroupSelectedChips{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:6px;
+  min-height:0;
+}
+#stGroupSelectedChips:empty{display:none}
+.st-selected-group-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:5px 8px;
+  border:1px solid #b9d4e5;
+  border-radius:999px;
+  background:#eef7fc;
+  color:#174f70;
+  font-size:10.5px;
+  font-weight:800;
+}
+.st-selected-group-chip button{
+  width:16px;
+  height:16px;
+  min-width:16px;
+  border:0;
+  border-radius:50%;
+  padding:0;
+  background:#3b87b3;
+  color:#fff;
+  font-size:11px;
+  line-height:16px;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+}
+#stGroupTriggerText{
+  flex:1;
+  min-width:0;
+  text-align:left;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  color:#344054;
+}
+#stGroupPicker.has-selection #stGroupTriggerText{color:#123b5d}
+.st-group-trigger-arrow{font-size:14px;color:#667085;transition:transform .18s ease}
+#stGroupPicker.open .st-group-trigger-arrow{transform:rotate(180deg)}
+#stGroupDropdown{
+  display:none;
+  position:absolute;
+  left:0;
+  right:0;
+  top:calc(100% + 6px);
+  z-index:40;
+  border:1px solid #ced8e3;
+  border-radius:10px;
+  background:#ffffff;
+  overflow:hidden;
+  box-shadow:0 16px 34px rgba(15,23,42,.12);
+}
+#stGroupPicker.open #stGroupDropdown{display:block}
+#stGroupPicker .st-group-toolbar{
+  padding:10px 12px;
+  background:#f8fafc;
+  border-bottom:1px solid #e4eaf1;
+  display:grid;
+  grid-template-columns:minmax(220px,1fr) auto auto;
+  gap:8px;
+  align-items:center;
+}
+#stGroupPicker .st-group-search-wrap{position:relative}
+#stGroupPicker .st-group-search-wrap:before{
+  content:'⌕';
+  position:absolute;
+  left:11px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:17px;
+  color:#7b8ba0;
+  pointer-events:none;
+}
+#stGroupSearch{
+  width:100%;
+  min-width:0!important;
+  padding:9px 11px 9px 34px!important;
+  border:1px solid #c8d4df!important;
+  border-radius:8px!important;
+  background:#fff!important;
+  outline:none;
+  transition:.16s;
+}
+#stGroupSearch:focus{border-color:#3b87b3!important;box-shadow:0 0 0 3px rgba(59,135,179,.12)}
+#stGroupPicker .st-group-action{
+  white-space:nowrap;
+  border-color:#ccd7e2!important;
+  background:#fff!important;
+  color:#365066!important;
+  font-weight:700!important;
+}
+#stGroupPicker .st-group-action:hover{border-color:#3b87b3!important;color:#1f5579!important;background:#f5fbff!important}
+#stGroupPicker .st-group-meta{
+  padding:8px 12px 0;
+  background:#fff;
+}
+#stGroupChecks{
+  max-height:220px;
+  overflow:auto;
+  padding:12px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(155px,1fr));
+  gap:9px;
+  align-content:start;
+  background:#fff;
+}
+#stGroupChecks .st-group-chip{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-height:44px;
+  padding:9px 11px;
+  border:1px solid #d4dde7;
+  border-radius:10px;
+  background:#f9fbfc;
+  cursor:pointer;
+  user-select:none;
+  transition:.16s;
+}
+#stGroupChecks .st-group-chip:hover{border-color:#8eb6cf;background:#f4f9fc;box-shadow:0 2px 8px rgba(15,23,42,.05)}
+#stGroupChecks .st-group-chip input{position:absolute;opacity:0;pointer-events:none}
+#stGroupChecks .st-group-checkmark{
+  width:18px;height:18px;min-width:18px;border:1.5px solid #aabaca;border-radius:5px;background:#fff;display:grid;place-items:center;color:transparent;font-size:11px;font-weight:900;transition:.16s
+}
+#stGroupChecks .st-group-name{font-size:12px;font-weight:800;letter-spacing:.01em;color:#32495d;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#stGroupChecks .st-group-chip.selected{border-color:#3b87b3;background:linear-gradient(180deg,#f8fcff 0%,#eef7fc 100%);box-shadow:inset 0 0 0 1px rgba(59,135,179,.10)}
+#stGroupChecks .st-group-chip.selected:before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:#3b87b3;border-radius:10px 0 0 10px}
+#stGroupChecks .st-group-chip.selected .st-group-checkmark{background:#3b87b3;border-color:#3b87b3;color:#fff}
+#stGroupChecks .st-group-chip.selected .st-group-name{color:#174a6a}
+#stSelectedGroupCount{display:inline-flex;align-items:center;gap:6px;margin-top:0!important;padding:5px 10px;border-radius:999px;background:#f2f8fc;color:#2f6688;font-weight:800;border:1px solid #d7e7f1}
+#stSelectedGroupCount:before{content:'✓';width:16px;height:16px;border-radius:50%;display:grid;place-items:center;background:#3b87b3;color:#fff;font-size:9px}
+#stGroupChecks::-webkit-scrollbar{width:10px;height:10px}
+#stGroupChecks::-webkit-scrollbar-thumb{background:#c8d5df;border-radius:10px;border:2px solid #fff}
+#stGroupChecks::-webkit-scrollbar-track{background:#f4f7fa}
+@media(max-width:760px){
+  #stGroupPicker .st-group-toolbar{grid-template-columns:1fr 1fr}
+  #stGroupPicker .st-group-search-wrap{grid-column:1/-1}
+  #stGroupChecks{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:480px){#stGroupChecks{grid-template-columns:1fr}}
+
+/* Avtomatik bo‘sh vaqt oynasi — ekranga to‘liq sig‘adigan ixcham rejim */
+#smartModal.smart-time-compact{padding:8px!important;align-items:center!important}
+#smartModal.smart-time-compact .modal-card{width:min(1180px,99vw)!important;min-height:78vh!important;max-height:calc(100vh - 12px)!important;padding:14px 16px!important;border-radius:10px!important;overflow:auto!important;background:#fff!important}
+#smartModal.smart-time-compact .modal-top{gap:8px!important;align-items:flex-start!important}
+#smartModal.smart-time-compact .modal-top>div:first-child{display:none!important}
+#smartModal.smart-time-compact .modal-top{justify-content:flex-end!important;margin-bottom:2px!important}
+#smartModal.smart-time-compact #smartTitle{font-size:18px!important;line-height:1.2!important}
+#smartModal.smart-time-compact #smartSubtitle{font-size:10.5px!important;line-height:1.35!important;margin:3px 0 7px!important}
+#smartModal.smart-time-compact .close{width:28px!important;height:28px!important;font-size:16px!important;flex:0 0 auto!important}
+#smartModal.smart-time-compact #smartBody>.form{gap:8px!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;align-items:end!important}
+#smartModal.smart-time-compact #smartBody>.form > div:not(.full){display:flex!important;flex-direction:column!important}
+#smartModal.smart-time-compact .form label{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:5px!important;font-size:11px!important;font-weight:800!important;color:#344054!important}
+#smartModal.smart-time-compact .form input,#smartModal.smart-time-compact .form select,#smartModal.smart-time-compact .form textarea{padding:7px 9px!important;margin-top:0!important;font-size:11px!important;min-height:33px!important;border:1px solid #cfd8e3!important;border-radius:7px!important;background:#fff!important;color:#111827!important;font-weight:700!important}
+#smartModal.smart-time-compact .form select{appearance:auto}
+#smartModal.smart-time-compact #stGroupPicker{margin-top:3px!important}
+#smartModal.smart-time-compact #stGroupTrigger{min-height:34px!important;padding:6px 9px!important;font-size:11px!important;border-radius:7px!important}
+#smartModal.smart-time-compact #stGroupDropdown{top:calc(100% + 4px)!important;border-radius:8px!important}
+#smartModal.smart-time-compact #stGroupPicker .st-group-toolbar{padding:6px!important;gap:5px!important;grid-template-columns:minmax(200px,1fr) auto auto!important}
+#smartModal.smart-time-compact #stGroupSearch{padding:6px 8px 6px 29px!important;min-height:30px!important;font-size:11px!important}
+#smartModal.smart-time-compact #stGroupPicker .st-group-search-wrap:before{left:9px!important;font-size:15px!important}
+#smartModal.smart-time-compact #stGroupPicker .st-group-action{padding:5px 7px!important;min-height:28px!important;font-size:10px!important}
+#smartModal.smart-time-compact #stGroupPicker .st-group-meta{padding:6px 8px 0!important}
+#smartModal.smart-time-compact #stGroupChecks{max-height:260px!important;padding:6px!important;gap:5px!important;grid-template-columns:repeat(auto-fill,minmax(125px,1fr))!important}
+#smartModal.smart-time-compact #stGroupChecks .st-group-chip{min-height:32px!important;padding:5px 7px!important;gap:6px!important;border-radius:6px!important}
+#smartModal.smart-time-compact #stGroupChecks .st-group-chip.selected:before{width:3px!important;border-radius:6px 0 0 6px!important}
+#smartModal.smart-time-compact #stGroupChecks .st-group-checkmark{width:16px!important;height:16px!important;min-width:16px!important;font-size:9px!important;border-radius:4px!important}
+#smartModal.smart-time-compact #stGroupChecks .st-group-name{font-size:10.5px!important}
+#smartModal.smart-time-compact #stSelectedGroupCount{padding:3px 7px!important;font-size:9.5px!important}
+#smartModal.smart-time-compact #stSelectedGroupCount:before{width:14px!important;height:14px!important;font-size:8px!important}
+#smartModal.smart-time-compact #stGroupInfo{font-size:10px!important;line-height:1.35!important;padding:0!important;margin-top:0!important}
+#smartModal.smart-time-compact #stFind{
+  padding:6px 10px!important;
+  min-height:29px!important;
+  font-size:10.5px!important;
+  transition:transform .12s ease!important;
+}
+#smartModal.smart-time-compact #stFind.st-find-press{
+  animation:stFindPress .24s ease;
+}
+@keyframes stFindPress{
+  0%{transform:translateY(0) scale(1)}
+  35%{transform:translateY(1px) scale(.985)}
+  70%{transform:translateY(-1px) scale(1.01)}
+  100%{transform:translateY(0) scale(1)}
+}
+#smartModal.smart-time-compact .smart-result{margin-top:6px!important}
+#smartModal.smart-time-compact .smart-result .card{margin-bottom:5px!important;padding:8px!important}
+@media(max-width:760px){
+  #smartModal.smart-time-compact{align-items:flex-start!important}
+  #smartModal.smart-time-compact .modal-card{max-height:calc(100vh - 12px)!important;padding:9px!important}
+  #smartModal.smart-time-compact #smartBody>.form{grid-template-columns:1fr 1fr!important}
+  #smartModal.smart-time-compact #smartBody>.form > .full{grid-column:1/-1!important}
+  #smartModal.smart-time-compact #stGroupPicker .st-group-toolbar{grid-template-columns:1fr 1fr!important}
+  #smartModal.smart-time-compact #stGroupPicker .st-group-search-wrap{grid-column:1/-1!important}
+  #smartModal.smart-time-compact #stGroupChecks{max-height:135px!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:480px){#smartModal.smart-time-compact #stGroupChecks{grid-template-columns:1fr!important}}
+
+/* Guruhlar: native selectga o‘xshash, bir ustunli multi-select */
+#stGroupDropdown{
+  left:0!important;
+  right:auto!important;
+  width:100%!important;
+  min-width:260px!important;
+  max-width:100%!important;
+  border-radius:4px!important;
+  border:1px solid #9aa7b5!important;
+  box-shadow:0 8px 18px rgba(15,23,42,.18)!important;
+  background:#fff!important;
+}
+#stGroupPicker .st-group-toolbar{
+  grid-template-columns:1fr!important;
+  padding:6px!important;
+  gap:5px!important;
+  background:#fff!important;
+  border-bottom:1px solid #d7dee6!important;
+}
+#stGroupPicker .st-group-search-wrap{grid-column:1/-1!important}
+#stGroupPicker .st-group-action{display:none!important}
+#stGroupPicker .st-group-meta{padding:5px 8px!important;border-bottom:1px solid #eef1f4!important}
+#stGroupChecks{
+  display:block!important;
+  max-height:320px!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  padding:0!important;
+  background:#fff!important;
+}
+#stGroupChecks .st-group-chip{
+  display:flex!important;
+  align-items:center!important;
+  gap:0!important;
+  min-height:30px!important;
+  padding:6px 12px!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:#fff!important;
+  box-shadow:none!important;
+  transform:none!important;
+}
+#stGroupChecks .st-group-chip:hover{
+  background:#eaf2ff!important;
+  box-shadow:none!important;
+}
+#stGroupChecks .st-group-checkmark{display:none!important}
+#stGroupChecks .st-group-name{
+  font-size:12px!important;
+  font-weight:500!important;
+  color:#111827!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+#stGroupChecks .st-group-chip.selected{
+  background:#246bd3!important;
+  box-shadow:none!important;
+}
+#stGroupChecks .st-group-chip.selected:before{display:none!important}
+#stGroupChecks .st-group-chip.selected .st-group-name{color:#fff!important;font-weight:600!important}
+#stSelectedGroupCount{
+  border:0!important;
+  background:transparent!important;
+  color:#667085!important;
+  padding:0!important;
+  font-size:10px!important;
+  font-weight:600!important;
+}
+#stSelectedGroupCount:before{display:none!important}
+#stGroupTrigger{
+  border-radius:6px!important;
+  background:#fff!important;
+  border:1px solid #cfd8e3!important;
+  min-height:34px!important;
+  padding:6px 9px!important;
+}
+#stGroupPicker.open #stGroupTrigger{box-shadow:0 0 0 2px rgba(36,107,211,.10)!important;border-color:#246bd3!important}
+#stGroupChecks::-webkit-scrollbar{width:12px!important}
+#stGroupChecks::-webkit-scrollbar-track{background:#f2f2f2!important}
+#stGroupChecks::-webkit-scrollbar-thumb{background:#8b8b8b!important;border-radius:8px!important;border:2px solid #f2f2f2!important}
+#smartModal.smart-time-compact #stGroupChecks{display:block!important;max-height:240px!important;padding:0!important}
+#smartModal.smart-time-compact #stGroupChecks .st-group-chip{min-height:28px!important;padding:5px 10px!important}
+#smartModal.smart-time-compact #stGroupChecks .st-group-name{font-size:11px!important}
+#smartModal.smart-time-compact #stGroupDropdown{width:100%!important}
+</style>
 </head>
 <body>
 <header class="topbar">
@@ -8025,7 +8343,7 @@ function validateLesson(candidate,teacherId,editingLessonId=null){
  return {errs:[...new Set(errs)],warns:[...new Set(warns)]}
 }
 
-function updateClock(){const d=new Date();$("date").textContent=d.toLocaleDateString("uz-UZ",{day:"2-digit",month:"2-digit",year:"numeric"});$("time").textContent=d.toLocaleTimeString("uz-UZ",{hour12:false})}
+function updateClock(){const d=new Date();$("date").textContent=`${String(d.getDate()).padStart(2,"0")}.${String(d.getMonth()+1).padStart(2,"0")}.${d.getFullYear()}`;$("time").textContent=d.toLocaleTimeString("uz-UZ",{hour12:false})}
 function updateWeekUI(){
   const weekLabel=$("weekLabel");
   if(weekLabel)weekLabel.textContent=String(currentWeek||"surat").toUpperCase();
@@ -10101,9 +10419,14 @@ renderAdvanced();
     if(!Array.isArray(db.buildingDistances)) db.buildingDistances=[];
   }
   function openSmart(title,subtitle,content){
-    g('smartTitle').textContent=title; g('smartSubtitle').textContent=subtitle||''; g('smartBody').innerHTML=content; g('smartModal').classList.add('open');
+    const modal=g('smartModal');
+    modal?.classList.remove('smart-time-compact');
+    g('smartTitle').textContent=title; g('smartSubtitle').textContent=subtitle||''; g('smartBody').innerHTML=content; modal?.classList.add('open');
   }
-  function closeSmart(){g('smartModal')?.classList.remove('open')}
+  function closeSmart(){
+    const modal=g('smartModal');
+    modal?.classList.remove('open','smart-time-compact');
+  }
   g('closeSmartModal')?.addEventListener('click',closeSmart);
   g('smartModal')?.addEventListener('click',e=>{if(e.target===g('smartModal'))closeSmart()});
 
@@ -10296,17 +10619,24 @@ renderAdvanced();
       smartOverlap(l,c)
     );
   }
+  function smartDateUz(dateStr){
+    if(!dateStr)return '';
+    const parts=String(dateStr).split('-');
+    if(parts.length===3){
+      const [y,m,d]=parts;
+      if(/^\d{4}$/.test(y)&&/^\d{1,2}$/.test(m)&&/^\d{1,2}$/.test(d)){
+        return `${String(d).padStart(2,'0')}.${String(m).padStart(2,'0')}.${y}`;
+      }
+    }
+    const dt=new Date(String(dateStr)+'T12:00:00');
+    if(Number.isNaN(dt.getTime()))return String(dateStr);
+    return `${String(dt.getDate()).padStart(2,'0')}.${String(dt.getMonth()+1).padStart(2,'0')}.${dt.getFullYear()}`;
+  }
   function smartWeekLabel(week,singleDate=''){
     if(week==='doim')return 'Doimiy';
     if(week==='surat')return 'Surat';
     if(week==='maxraj')return 'Maxraj';
-    return `Bir kunlik${singleDate?' · '+singleDate:''}`;
-  }
-  function smartDateUz(dateStr){
-    if(!dateStr)return '';
-    const d=new Date(dateStr+'T12:00:00');
-    if(Number.isNaN(d.getTime()))return dateStr;
-    return d.toLocaleDateString('uz-UZ',{day:'2-digit',month:'2-digit',year:'numeric'});
+    return `Bir kunlik${singleDate?' · '+smartDateUz(singleDate):''}`;
   }
   function smartSingleDates(group,limitDays=35){
     const pr=smartProfilePeriod(group);
@@ -10333,6 +10663,59 @@ renderAdvanced();
     }
     return out;
   }
+  function smartSelectedGroups(){
+    return [...document.querySelectorAll('#stGroupChecks input[type="checkbox"]:checked')]
+      .map(x=>String(x.value||'').trim()).filter(Boolean);
+  }
+  function smartCommonProfile(groups){
+    const items=(groups||[]).map(smartProfilePeriod);
+    const max=Math.max(1,Number(db.settings?.semesterWeeks||16));
+    if(!items.length)return {profiles:[],educationType:'kunduzgi',startWeek:1,endWeek:max,allowedDays:[],startPair:1,endPair:8};
+    const allowedBase=['Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba'];
+    const allowedDays=allowedBase.filter(day=>items.every(p=>p.allowedDays.includes(day)));
+    const educationTypes=[...new Set(items.map(p=>p.educationType).filter(Boolean))];
+    return {
+      profiles:items,
+      educationType:educationTypes.length===1?educationTypes[0]:'kunduzgi',
+      startWeek:Math.max(...items.map(p=>p.startWeek)),
+      endWeek:Math.min(...items.map(p=>p.endWeek)),
+      allowedDays,
+      startPair:Math.max(...items.map(p=>p.startPair)),
+      endPair:Math.min(...items.map(p=>p.endPair))
+    };
+  }
+  function smartDateAllowedForGroups(groups,dateStr){
+    return (groups||[]).length>0 && groups.every(group=>smartDateAllowedForGroup(group,dateStr));
+  }
+  function smartSingleDatesMulti(groups,limitDays=35){
+    const cp=smartCommonProfile(groups);
+    const key=smartPeriodKey();
+    const semStartStr=db.settings?.semesterStartDates?.[key]||'';
+    let start=new Date(); start.setHours(12,0,0,0);
+    let hardEnd=new Date(start); hardEnd.setDate(hardEnd.getDate()+Math.max(14,limitDays));
+    if(semStartStr){
+      const semStart=new Date(semStartStr+'T12:00:00');
+      if(!Number.isNaN(semStart.getTime())){
+        const groupStart=new Date(semStart); groupStart.setDate(groupStart.getDate()+(cp.startWeek-1)*7);
+        const groupEnd=new Date(semStart); groupEnd.setDate(groupEnd.getDate()+cp.endWeek*7-1);
+        if(start<groupStart)start=groupStart;
+        if(hardEnd>groupEnd)hardEnd=groupEnd;
+      }
+    }
+    const out=[];
+    for(let d=new Date(start);d<=hardEnd;d.setDate(d.getDate()+1)){
+      const iso=localDateISO(d);
+      if(!smartDateAllowedForGroups(groups,iso))continue;
+      const info=smartSemesterDateInfo(iso);
+      out.push({date:iso,day:info.day,weekNo:info.weekNo,weekType:info.weekType});
+    }
+    return out;
+  }
+  function slotGroupsBusySmart(groups,day,pair,week,singleDate=''){
+    return (groups||[]).some(group=>slotGroupBusySmart(group,day,pair,week,singleDate));
+  }
+  function smartGroupsLabel(groups){return (groups||[]).join(', ')}
+
   function renderSmartTimeSelection(){
     const box=g('stSelection');
     const s=window.__smartTimeSelected;
@@ -10343,7 +10726,7 @@ renderAdvanced();
       <b>Tanlangan vaqt</b>
       <div style="margin-top:5px">${sEsc(s.day)} · ${s.pair}-juftlik (${pairTimes[s.pair].start}–${pairTimes[s.pair].end})</div>
       ${s.singleDate?`<div style="margin-top:4px"><b>${sEsc(smartDateUz(s.singleDate))}</b>${info.weekNo?` · ${info.weekNo}-hafta · ${info.weekType==='surat'?'SURAT':'MAXRAJ'}`:''}</div>`:''}
-      <div class="mini" style="margin-top:4px">Guruh: ${sEsc(s.group)} · ${sEsc(smartWeekLabel(s.week,s.singleDate))} · ${sEsc(s.type)} · ${sEsc(s.roomName)}-xona${s.roomBuilding?` · ${sEsc(s.roomBuilding)}`:''}</div>
+      <div class="mini" style="margin-top:4px">Guruhlar: <b>${sEsc(smartGroupsLabel(s.groups))}</b> · ${sEsc(smartWeekLabel(s.week,s.singleDate))} · ${sEsc(s.type)} · ${sEsc(s.roomName)}-xona${s.roomBuilding?` · ${sEsc(s.roomBuilding)}`:''}</div>
       <div class="actions" style="margin-top:10px">
         <button class="btn primary" id="stSaveSelected" type="button">Saqlash</button>
         <button class="btn ghost" id="stClearSelected" type="button">Bekor qilish</button>
@@ -10355,16 +10738,16 @@ renderAdvanced();
   function chooseSmartTimeLesson(btn){
     const tid=g('stTeacher')?.value;
     const teacher=teacherById(tid);
-    const group=g('stGroup')?.value||'';
+    const groups=smartSelectedGroups();
     const week=g('stWeek')?.value||'doim';
     const type=g('stType')?.value||'Amaliy';
     const day=btn.dataset.day;
     const pair=Number(btn.dataset.pair);
     const singleDate=btn.dataset.date||'';
     const room=(db.rooms||[]).find(r=>String(r.id)===String(btn.dataset.roomId));
-    if(!teacher||!room||!group)return;
+    if(!teacher||!room||!groups.length)return;
     window.__smartTimeSelected={
-      teacherId:String(teacher.id),group,week,singleDate,type,day,pair,
+      teacherId:String(teacher.id),groups,week,singleDate,type,day,pair,
       roomId:String(room.id),roomName:room.name,roomBuilding:room.building||''
     };
     g('stResult')?.querySelectorAll('.stChooseBtn').forEach(x=>x.classList.remove('primary'));
@@ -10377,26 +10760,29 @@ renderAdvanced();
     if(!s){showAlert('Avval bo‘sh vaqt va xonani tanlang.','error');return;}
     const teacher=teacherById(s.teacherId);
     const room=(db.rooms||[]).find(r=>String(r.id)===String(s.roomId));
+    const groups=Array.isArray(s.groups)?s.groups.filter(Boolean):[];
     if(!teacher||!room){showAlert('O‘qituvchi yoki xona topilmadi.','error');return;}
+    if(!groups.length){showAlert('Kamida bitta guruh tanlang.','error');return;}
     if(s.week==='single'&&!s.singleDate){showAlert('Bir kunlik dars sanasi aniqlanmadi.','error');return;}
-    const pr=smartProfilePeriod(s.group);
+    const cp=smartCommonProfile(groups);
+    if(cp.startWeek>cp.endWeek){showAlert('Tanlangan guruhlarning o‘qish davrlari o‘zaro kesishmaydi.','error');return;}
     const day=s.week==='single'?(singleDateDayName(s.singleDate)||s.day):s.day;
     const lesson={
       id:Date.now()+Math.random(),
       day,
       weekType:s.week,
       singleDate:s.week==='single'?s.singleDate:'',
-      educationType:pr.educationType,
-      startWeek:pr.startWeek,
-      endWeek:pr.endWeek,
-      groupStudyStartWeek:pr.startWeek,
-      groupStudyEndWeek:pr.endWeek,
+      educationType:cp.educationType,
+      startWeek:cp.startWeek,
+      endWeek:cp.endWeek,
+      groupStudyStartWeek:cp.startWeek,
+      groupStudyEndWeek:cp.endWeek,
       pair:Number(s.pair),
       start:pairTimes[Number(s.pair)].start,
       end:pairTimes[Number(s.pair)].end,
       subject:'',
-      group:s.group,
-      additionalGroups:[],
+      group:groups[0],
+      additionalGroups:groups.slice(1),
       groupSize:0,
       room:room.name,
       roomId:room.id,
@@ -10420,136 +10806,275 @@ renderAdvanced();
     try{renderHistory()}catch(e){}
     try{renderLessonAdmin()}catch(e){}
     window.__smartTimeSelected=null;
-    showAlert(`${sEsc(scheduleTeacherName(teacher))} uchun ${sEsc(day)} ${s.pair}-juftlik${s.singleDate?' · '+sEsc(smartDateUz(s.singleDate)):''} darsi saqlandi.`,'ok');
+    showAlert(`${sEsc(scheduleTeacherName(teacher))} uchun ${sEsc(day)} ${s.pair}-juftlik${s.singleDate?' · '+sEsc(smartDateUz(s.singleDate)):''} (${sEsc(smartGroupsLabel(groups))}) saqlandi.`,'ok');
     closeSmart();
   }
 
   g('smartTimeBtn')?.addEventListener('click',()=>{
     window.__smartTimeSelected=null;
-    const groupOptions=smartTimeGroups().map(x=>`<option value="${sEsc(x)}">${sEsc(x)}</option>`).join('');
-    openSmart('Avtomatik bo‘sh vaqt tavsiyasi','O‘qituvchi, guruh va xona bir vaqtda bo‘sh bo‘lgan variantlar topiladi. “Bir kunlik” rejimida tizim guruhning o‘qish haftalarini hisobga olib, mos kunlar va aniq sanalarni o‘zi chiqaradi.',`
+    const groups=smartTimeGroups();
+    const groupChecks=groups.map((x,i)=>`<label class="st-group-chip" title="${sEsc(x)}"><input type="checkbox" value="${sEsc(x)}"><span class="st-group-checkmark">✓</span><span class="st-group-name">${sEsc(x)}</span></label>`).join('');
+    openSmart('','',`
       <div class="form">
-        <div class="full"><label>O‘qituvchi<select id="stTeacher">${scopedTeachers().map(t=>`<option value="${t.id}">${sEsc(scheduleTeacherName(t))}</option>`).join('')}</select></label></div>
-        <div class="full"><label>Guruh<select id="stGroup"><option value="">Guruhni tanlang</option>${groupOptions}</select></label></div>
+        <div><label>O‘qituvchi<select id="stTeacher">${scopedTeachers().map(t=>`<option value="${t.id}">${sEsc(scheduleTeacherName(t))}</option>`).join('')}</select></label></div>
         <div><label>Hafta<select id="stWeek"><option value="doim">Doimiy</option><option value="surat">Surat</option><option value="maxraj">Maxraj</option><option value="single">Bir kunlik</option></select></label></div>
         <div><label>Dars turi<select id="stType"><option>Ma’ruza</option><option>Amaliy</option><option>Laboratoriya</option><option>Seminar</option></select></label></div>
         <div>
           <label>Juftlikdan
-            <select id="stPairFrom">
-              <option value="1">1-juftlik · ${pairTimes[1].start}–${pairTimes[1].end}</option>
-              <option value="2">2-juftlik · ${pairTimes[2].start}–${pairTimes[2].end}</option>
-              <option value="3">3-juftlik · ${pairTimes[3].start}–${pairTimes[3].end}</option>
-              <option value="4">4-juftlik · ${pairTimes[4].start}–${pairTimes[4].end}</option>
-              <option value="5">5-juftlik · ${pairTimes[5].start}–${pairTimes[5].end}</option>
-              <option value="6">6-juftlik · ${pairTimes[6].start}–${pairTimes[6].end}</option>
-              <option value="7">7-juftlik · ${pairTimes[7].start}–${pairTimes[7].end}</option>
-              <option value="8">8-juftlik · ${pairTimes[8].start}–${pairTimes[8].end}</option>
-            </select>
+            <select id="stPairFrom">${[1,2,3,4,5,6,7,8].map(i=>`<option value="${i}">${i}-juftlik · ${pairTimes[i].start}–${pairTimes[i].end}</option>`).join('')}</select>
           </label>
         </div>
         <div>
           <label>Juftlikgacha
-            <select id="stPairTo">
-              <option value="1">1-juftlik · ${pairTimes[1].start}–${pairTimes[1].end}</option>
-              <option value="2">2-juftlik · ${pairTimes[2].start}–${pairTimes[2].end}</option>
-              <option value="3">3-juftlik · ${pairTimes[3].start}–${pairTimes[3].end}</option>
-              <option value="4">4-juftlik · ${pairTimes[4].start}–${pairTimes[4].end}</option>
-              <option value="5">5-juftlik · ${pairTimes[5].start}–${pairTimes[5].end}</option>
-              <option value="6">6-juftlik · ${pairTimes[6].start}–${pairTimes[6].end}</option>
-              <option value="7">7-juftlik · ${pairTimes[7].start}–${pairTimes[7].end}</option>
-              <option value="8" selected>8-juftlik · ${pairTimes[8].start}–${pairTimes[8].end}</option>
-            </select>
+            <select id="stPairTo">${[1,2,3,4,5,6,7,8].map(i=>`<option value="${i}"${i===8?' selected':''}>${i}-juftlik · ${pairTimes[i].start}–${pairTimes[i].end}</option>`).join('')}</select>
           </label>
+        </div>
+        <div class="full">
+          <label>Guruhlar</label>
+          <div id="stGroupPicker">
+            <button id="stGroupTrigger" type="button" aria-expanded="false"><span id="stGroupTriggerText">Guruhlarni tanlang</span><span class="st-group-trigger-arrow">▾</span></button>
+            <div id="stGroupSelectedChips"></div>
+            <div id="stGroupDropdown">
+              <div class="st-group-toolbar">
+                <div class="st-group-search-wrap"><input id="stGroupSearch" type="text" placeholder="Guruh nomini yozing..."></div>
+                <button class="btn ghost st-group-action" id="stSelectAllGroups" type="button">✓ Barchasini tanlash</button>
+                <button class="btn ghost st-group-action" id="stClearGroups" type="button">Tozalash</button>
+              </div>
+              <div class="st-group-meta"><div class="mini" id="stSelectedGroupCount">0 ta guruh tanlandi</div></div>
+              <div id="stGroupChecks">${groupChecks||'<div class="empty">Guruhlar topilmadi.</div>'}</div>
+              <div id="stGroupDoneWrap"><button class="btn primary" id="stGroupDone" type="button">Tanlashni yakunlash</button></div>
+            </div>
+          </div>
         </div>
         <div class="full"><div id="stGroupInfo" class="note"></div></div>
         <div class="full"><button class="btn primary" id="stFind">Bo‘sh vaqtlarni topish</button></div>
       </div>
       <div id="stSelection" class="smart-result"></div>
       <div id="stResult" class="smart-result"></div>`);
+    g('smartModal')?.classList.add('smart-time-compact');
 
-    const syncGroupInfo=()=>{
-      const group=g('stGroup')?.value||'';
-      const box=g('stGroupInfo');
-      if(!box){return}
-      if(!group){box.innerHTML='Guruh tanlanganda uning o‘qish haftalari va ruxsat etilgan kunlari avtomatik hisobga olinadi.';return}
-      const pr=smartProfilePeriod(group);
-      box.innerHTML=`<b>${sEsc(group)}</b>: ${pr.startWeek}–${pr.endWeek}-haftalar · kunlar: ${pr.allowedDays.map(sEsc).join(', ')} · juftliklar: ${pr.startPair}–${pr.endPair}.`;
+    const setGroupDropdown=(open)=>{
+      const picker=g('stGroupPicker');
+      const trigger=g('stGroupTrigger');
+      if(!picker||!trigger)return;
+      picker.classList.toggle('open',!!open);
+      trigger.setAttribute('aria-expanded',open?'true':'false');
     };
-    g('stGroup')?.addEventListener('change',()=>{window.__smartTimeSelected=null;renderSmartTimeSelection();syncGroupInfo()});
-    syncGroupInfo();
+    const syncGroupInfo=()=>{
+      const selected=smartSelectedGroups();
+      const box=g('stGroupInfo');
+      const count=g('stSelectedGroupCount');
+      const triggerText=g('stGroupTriggerText');
+      const picker=g('stGroupPicker');
+      const chips=g('stGroupSelectedChips');
+      if(count)count.textContent=`${selected.length} ta guruh tanlandi`;
+      if(chips){
+        chips.innerHTML=selected.map(name=>`<span class="st-selected-group-chip"><span>${sEsc(name)}</span><button type="button" class="stRemoveGroupChip" data-group="${sEsc(name)}" title="Olib tashlash">×</button></span>`).join('');
+        chips.querySelectorAll('.stRemoveGroupChip').forEach(btn=>btn.addEventListener('click',ev=>{
+          ev.stopPropagation();
+          const name=String(btn.dataset.group||'');
+          g('stGroupChecks')?.querySelectorAll('input[type="checkbox"]').forEach(c=>{if(String(c.value)===name)c.checked=false;});
+          onGroupChange();
+        }));
+      }
+      if(triggerText){
+        if(!selected.length)triggerText.textContent='Guruhlarni tanlang';
+        else if(selected.length<=2)triggerText.textContent=selected.join(', ');
+        else triggerText.textContent=`${selected.length} ta guruh tanlandi`;
+      }
+      if(picker)picker.classList.toggle('has-selection',selected.length>0);
+      if(!box)return;
+      if(!selected.length){box.innerHTML='Kamida bitta guruhni belgilang. Bir nechta guruh tanlansa, faqat barchasiga bir vaqtda mos keladigan bo‘sh vaqtlar chiqariladi.';return;}
+      const cp=smartCommonProfile(selected);
+      const overlapOk=cp.startWeek<=cp.endWeek && cp.startPair<=cp.endPair && cp.allowedDays.length;
+      box.innerHTML=`<b>Tanlangan:</b> ${sEsc(smartGroupsLabel(selected))}<br><b>Umumiy o‘qish davri:</b> ${cp.startWeek}–${cp.endWeek}-hafta · <b>umumiy kunlar:</b> ${cp.allowedDays.length?cp.allowedDays.map(sEsc).join(', '):'yo‘q'} · <b>umumiy juftliklar:</b> ${cp.startPair}–${cp.endPair}${overlapOk?'':`<br><span style="color:var(--red);font-weight:700">Tanlangan guruhlar uchun umumiy vaqt oralig‘i topilmadi.</span>`}`;
+    };
+    const onGroupChange=()=>{
+      g('stGroupChecks')?.querySelectorAll('.st-group-chip').forEach(label=>{
+        label.classList.toggle('selected',!!label.querySelector('input[type="checkbox"]')?.checked);
+      });
+      window.__smartTimeSelected=null;renderSmartTimeSelection();syncGroupInfo();
+    };
+    g('stGroupTrigger')?.addEventListener('click',e=>{
+      e.preventDefault();
+      const picker=g('stGroupPicker');
+      setGroupDropdown(!picker?.classList.contains('open'));
+      if(g('stGroupPicker')?.classList.contains('open'))setTimeout(()=>g('stGroupSearch')?.focus(),10);
+    });
+    g('stGroupChecks')?.addEventListener('change',onGroupChange);
+    const normalizeGroupSearch=(v)=>String(v||'')
+      .toLowerCase()
+      .replace(/[’‘`']/g,'')
+      .replace(/[^a-z0-9а-яё]+/gi,'')
+      .trim();
+
+    g('stGroupSearch')?.addEventListener('input',e=>{
+      const raw=String(e.target.value||'').trim().toLowerCase();
+      const q=normalizeGroupSearch(raw);
+      const box=g('stGroupChecks');
+      if(!box)return;
+
+      const items=[...box.querySelectorAll('label')];
+      const scored=items.map((label,index)=>{
+        const name=String(label.querySelector('.st-group-name')?.textContent||label.textContent||'').trim();
+        const low=name.toLowerCase();
+        const norm=normalizeGroupSearch(name);
+
+        let score=9999;
+        let match=!q;
+        if(q){
+          if(norm===q){score=0;match=true;}
+          else if(norm.startsWith(q)){score=1;match=true;}
+          else if(low.startsWith(raw)){score=2;match=true;}
+          else if(norm.includes(q)){score=3;match=true;}
+          else if(low.includes(raw)){score=4;match=true;}
+          else{
+            const parts=raw.split(/\s+/).filter(Boolean);
+            match=parts.length>0 && parts.every(p=>low.includes(p) || norm.includes(normalizeGroupSearch(p)));
+            if(match)score=5;
+          }
+        }
+
+        return {label,index,score,match};
+      });
+
+      scored
+        .sort((a,b)=>a.score-b.score || a.index-b.index)
+        .forEach(x=>{
+          x.label.style.display=x.match?'flex':'none';
+          box.appendChild(x.label);
+        });
+
+      box.scrollTop=0;
+    });
+    g('stSelectAllGroups')?.addEventListener('click',()=>{
+      g('stGroupChecks')?.querySelectorAll('label').forEach(label=>{if(label.style.display!=='none'){const c=label.querySelector('input[type="checkbox"]');if(c)c.checked=true;}});onGroupChange();
+    });
+    g('stClearGroups')?.addEventListener('click',()=>{g('stGroupChecks')?.querySelectorAll('input[type="checkbox"]').forEach(c=>c.checked=false);onGroupChange();});
+    g('stGroupDone')?.addEventListener('click',()=>{
+      setGroupDropdown(false);
+      const trigger=g('stGroupTrigger');
+      if(trigger){
+        try{trigger.scrollIntoView({behavior:'smooth',block:'nearest'});}catch(e){trigger.scrollIntoView();}
+        setTimeout(()=>trigger.focus(),180);
+      }
+    });
+    if(window.__stGroupOutsideClick)document.removeEventListener('click',window.__stGroupOutsideClick,true);
+    window.__stGroupOutsideClick=(ev)=>{
+      const picker=g('stGroupPicker');
+      if(!picker||!picker.classList.contains('open'))return;
+      if(picker.contains(ev.target))return;
+      setGroupDropdown(false);
+    };
+    document.addEventListener('click',window.__stGroupOutsideClick,true);
+    onGroupChange();
+    setGroupDropdown(false);
 
     g('stFind').onclick=()=>{
+      const findBtn=g('stFind');
+      if(findBtn){
+        findBtn.classList.remove('st-find-press');
+        void findBtn.offsetWidth;
+        findBtn.classList.add('st-find-press');
+        setTimeout(()=>findBtn.classList.remove('st-find-press'),260);
+      }
       window.__smartTimeSelected=null;
       renderSmartTimeSelection();
       const tid=g('stTeacher').value;
-      const group=g('stGroup').value;
+      const selected=smartSelectedGroups();
       const week=g('stWeek').value;
       const type=g('stType').value;
       let pairFrom=Number(g('stPairFrom').value||1),pairTo=Number(g('stPairTo').value||8);
-      if(!group){g('stResult').innerHTML='<div class="alert show error">Guruhni tanlang.</div>';return;}
+      if(!selected.length){g('stResult').innerHTML='<div class="alert show error">Kamida bitta guruhni tanlang.</div>';return;}
       if(pairFrom>pairTo){g('stResult').innerHTML='<div class="alert show error">Juftlik oralig‘ini to‘g‘ri tanlang.</div>';return;}
 
-      const pr=smartProfilePeriod(group);
-      pairFrom=Math.max(pairFrom,pr.startPair);
-      pairTo=Math.min(pairTo,pr.endPair);
-      if(pairFrom>pairTo){
-        g('stResult').innerHTML=`<div class="alert show warn">Bu guruh uchun ruxsat etilgan juftliklar ${pr.startPair}–${pr.endPair}. Tanlangan oralig‘da mos vaqt yo‘q.</div>`;
-        return;
-      }
+      const cp=smartCommonProfile(selected);
+      if(cp.startWeek>cp.endWeek){g('stResult').innerHTML='<div class="alert show warn">Tanlangan guruhlarning o‘qish haftalari o‘zaro kesishmaydi.</div>';return;}
+      if(!cp.allowedDays.length){g('stResult').innerHTML='<div class="alert show warn">Tanlangan guruhlar uchun umumiy ruxsat etilgan kun topilmadi.</div>';return;}
+      pairFrom=Math.max(pairFrom,cp.startPair);
+      pairTo=Math.min(pairTo,cp.endPair);
+      if(pairFrom>pairTo){g('stResult').innerHTML=`<div class="alert show warn">Tanlangan guruhlar uchun umumiy ruxsat etilgan juftliklar ${cp.startPair}–${cp.endPair}. Tanlangan oralig‘da mos vaqt yo‘q.</div>`;return;}
 
+      const primaryGroup=selected[0];
       const base=smartDeptLocation(tid);
       const out=[];
-
       if(week==='single'){
-        const dates=smartSingleDates(group,35);
+        const dates=smartSingleDatesMulti(selected,35);
         dates.forEach(item=>{
           for(let pair=pairFrom;pair<=pairTo;pair++){
-            if(slotTeacherBusySmart(tid,item.day,pair,group,'single',item.date)||slotGroupBusySmart(group,item.day,pair,'single',item.date))continue;
-            const freeRooms=sortRoomsByDepartmentLocation(
-              (db.rooms||[]).filter(r=>!slotOccupiedRoomSmart(r,item.day,pair,group,'single',item.date)),
-              tid
-            );
+            if(slotTeacherBusySmart(tid,item.day,pair,primaryGroup,'single',item.date)||slotGroupsBusySmart(selected,item.day,pair,'single',item.date))continue;
+            const freeRooms=sortRoomsByDepartmentLocation((db.rooms||[]).filter(r=>!slotOccupiedRoomSmart(r,item.day,pair,primaryGroup,'single',item.date)),tid);
             if(freeRooms.length)out.push({day:item.day,pair,rooms:freeRooms,date:item.date,weekNo:item.weekNo,dateWeekType:item.weekType});
           }
         });
       }else{
-        pr.allowedDays.forEach(day=>{
+        const nextDateByDay={};
+        smartSingleDatesMulti(selected,50).forEach(item=>{
+          if(nextDateByDay[item.day])return;
+          if(week==='surat' && item.weekType!=='surat')return;
+          if(week==='maxraj' && item.weekType!=='maxraj')return;
+          nextDateByDay[item.day]=item;
+        });
+        cp.allowedDays.forEach(day=>{
+          const nextInfo=nextDateByDay[day]||null;
           for(let pair=pairFrom;pair<=pairTo;pair++){
-            if(slotTeacherBusySmart(tid,day,pair,group,week,'')||slotGroupBusySmart(group,day,pair,week,''))continue;
-            const freeRooms=sortRoomsByDepartmentLocation(
-              (db.rooms||[]).filter(r=>!slotOccupiedRoomSmart(r,day,pair,group,week,'')),
-              tid
-            );
-            if(freeRooms.length)out.push({day,pair,rooms:freeRooms,date:'',weekNo:null,dateWeekType:null});
+            if(slotTeacherBusySmart(tid,day,pair,primaryGroup,week,'')||slotGroupsBusySmart(selected,day,pair,week,''))continue;
+            const freeRooms=sortRoomsByDepartmentLocation((db.rooms||[]).filter(r=>!slotOccupiedRoomSmart(r,day,pair,primaryGroup,week,'')),tid);
+            if(freeRooms.length)out.push({day,pair,rooms:freeRooms,date:nextInfo?.date||'',weekNo:nextInfo?.weekNo||null,dateWeekType:nextInfo?.weekType||null});
           }
         });
       }
 
-      const baseInfo=(base
-        ?`<div class="note" style="margin-bottom:4px">Kafedra joylashuvi: <b>${sEsc(base.building||'')}</b>${base.room?` · <b>${sEsc(base.room)}-xona</b>`:''}. Xonalar shu joyga yaqinlik bo‘yicha tartiblangan.</div>`
-        :'')+
-        `<div class="note" style="margin-bottom:8px">Guruh: <b>${sEsc(group)}</b> · o‘qish davri: <b>${pr.startWeek}–${pr.endWeek}-hafta</b> · ruxsat kunlari: <b>${pr.allowedDays.map(sEsc).join(', ')}</b> · juftliklar: <b>${pr.startPair}–${pr.endPair}</b>${week==='single'?' · keyingi mos sanalar avtomatik tekshirildi':''}.</div>`;
+      const baseInfo=(base?`<div class="note" style="margin-bottom:4px">Kafedra joylashuvi: <b>${sEsc(base.building||'')}</b>${base.room?` · <b>${sEsc(base.room)}-xona</b>`:''}. Xonalar shu joyga yaqinlik bo‘yicha tartiblangan.</div>`:'')+
+        `<div class="note" style="margin-bottom:8px">Guruhlar: <b>${sEsc(smartGroupsLabel(selected))}</b> · umumiy o‘qish davri: <b>${cp.startWeek}–${cp.endWeek}-hafta</b> · umumiy kunlar: <b>${cp.allowedDays.map(sEsc).join(', ')}</b> · umumiy juftliklar: <b>${cp.startPair}–${cp.endPair}</b>${week==='single'?' · keyingi mos sanalar avtomatik tekshirildi':''}.</div>`;
 
-      g('stResult').innerHTML=out.length
-        ?baseInfo+out.slice(0,80).map(x=>`
-          <div class="card">
-            <b>${x.day} · ${x.pair}-juftlik (${pairTimes[x.pair].start}–${pairTimes[x.pair].end})</b>
-            ${x.date?`<div style="margin-top:5px;font-weight:800;color:var(--navy)">${sEsc(smartDateUz(x.date))}${x.weekNo?` · ${x.weekNo}-hafta · ${x.dateWeekType==='surat'?'SURAT':'MAXRAJ'}`:''}</div>`:''}
-            <div class="mini" style="margin:5px 0 7px">Guruh: ${sEsc(group)} · ${sEsc(smartWeekLabel(week,x.date||''))} · ${sEsc(type)}</div>
-            ${x.rooms.slice(0,8).map((r,i)=>`
-              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-top:1px solid var(--border)">
-                <div>
-                  <b>${sEsc(r.name)}-xona</b>
-                  <div class="mini">Bino: ${sEsc(r.building||'ko‘rsatilmagan')} · ${sEsc(r.type)}${i===0&&base&&String(r.building||'').trim().toLowerCase()===String(base.building||'').trim().toLowerCase()?' · kafedraga yaqin tavsiya':''}</div>
+      if(out.length){
+        const limited=out.slice(0,80);
+        const dayOrder=['Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba','Yakshanba'];
+        const byGroup={};
+        limited.forEach(x=>{
+          const key=week==='single'?`${x.day}|${x.date||''}`:x.day;
+          (byGroup[key]??=[]).push(x);
+        });
+        const groupKeys=Object.keys(byGroup).sort((a,b)=>{
+          const [ad,adate='']=a.split('|'),[bd,bdate='']=b.split('|');
+          if(week==='single' && adate && bdate)return adate.localeCompare(bdate);
+          const ai=dayOrder.indexOf(ad),bi=dayOrder.indexOf(bd);
+          return (ai<0?99:ai)-(bi<0?99:bi);
+        });
+        const nested=groupKeys.map(key=>{
+          const slots=byGroup[key].sort((a,b)=>Number(a.pair)-Number(b.pair)||(a.date||'').localeCompare(b.date||''));
+          const first=slots[0]||{};
+          const day=first.day||key.split('|')[0];
+          const headerDate=first.date?smartDateUz(first.date):'';
+          const headerWeek=first.weekNo?`${first.weekNo}-hafta · ${first.dateWeekType==='surat'?'SURAT':'MAXRAJ'}`:'';
+          return `<div class="st-day-group">
+            <button class="st-day-head" type="button">
+              <span class="st-day-left"><span class="st-day-name">${sEsc(day)}</span>${headerDate?`<span class="st-day-date">${sEsc(headerDate)}</span>`:''}${headerWeek?`<span class="st-day-week">${sEsc(headerWeek)}</span>`:''}</span>
+              <span class="st-day-right"><span class="st-day-count">${slots.length} ta bo‘sh vaqt</span><span class="st-day-arrow">▾</span></span>
+            </button>
+            <div class="st-day-body">${slots.map(x=>`
+              <div class="st-pair-group">
+                <button class="st-pair-head" type="button">
+                  <span><span class="st-pair-title">${x.pair}-juftlik</span><span class="st-pair-time">${pairTimes[x.pair].start}–${pairTimes[x.pair].end}</span></span>
+                  <span class="st-pair-right"><span class="st-day-count">${x.rooms.length} ta xona</span><span class="st-pair-arrow">▾</span></span>
+                </button>
+                <div class="st-pair-body">
+                  ${x.rooms.slice(0,12).map((r,i)=>`<div class="st-room-row">
+                    <div class="st-room-info"><b>${sEsc(r.name)}-xona</b><div class="mini">Bino: ${sEsc(r.building||'ko‘rsatilmagan')} · ${sEsc(r.type)}${i===0&&base&&String(r.building||'').trim().toLowerCase()===String(base.building||'').trim().toLowerCase()?' · kafedraga yaqin tavsiya':''}</div></div>
+                    <button class="btn success stChooseBtn" type="button" data-day="${sEsc(x.day)}" data-pair="${x.pair}" data-date="${sEsc(x.date||'')}" data-room-id="${sEsc(String(r.id))}">Tanlash</button>
+                  </div>`).join('')}
                 </div>
-                <button class="btn success stChooseBtn" type="button" data-day="${sEsc(x.day)}" data-pair="${x.pair}" data-date="${sEsc(x.date||'')}" data-room-id="${sEsc(String(r.id))}">Tanlash</button>
-              </div>`).join('')}
-          </div>`).join('')
-        :'<div class="empty">Guruhning o‘qish haftalari, kunlari va mavjud jadvali bo‘yicha mos bo‘sh vaqt topilmadi.</div>';
-
-      g('stResult').querySelectorAll('.stChooseBtn').forEach(btn=>{
-        btn.addEventListener('click',()=>chooseSmartTimeLesson(btn));
-      });
+              </div>`).join('')}</div>
+          </div>`;
+        }).join('');
+        g('stResult').innerHTML=baseInfo+nested;
+        g('stResult').querySelectorAll('.st-day-head').forEach(btn=>btn.addEventListener('click',()=>btn.closest('.st-day-group')?.classList.toggle('open')));
+        g('stResult').querySelectorAll('.st-pair-head').forEach(btn=>btn.addEventListener('click',()=>btn.closest('.st-pair-group')?.classList.toggle('open')));
+        g('stResult').querySelectorAll('.stChooseBtn').forEach(btn=>btn.addEventListener('click',()=>chooseSmartTimeLesson(btn)));
+      }else{
+        g('stResult').innerHTML='<div class="empty">Tanlangan barcha guruhlar, o‘qituvchi va xonaga bir vaqtda mos bo‘sh vaqt topilmadi.</div>';
+      }
     };
   });
 
@@ -18468,6 +18993,82 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
     max-height:94vh !important;
   }
 }
+
+#stGroupDoneWrap{
+  padding:5px 8px;
+  border-top:1px solid #e1e6eb;
+  background:#f8fafc;
+  display:flex;
+  justify-content:flex-end;
+  position:sticky;
+  bottom:0;
+  z-index:2;
+}
+#stGroupDone{
+  min-width:132px;
+  min-height:28px!important;
+  padding:5px 10px!important;
+  font-size:10.5px!important;
+  background:#2f7fb2!important;
+  color:#fff!important;
+  border:1px solid #2f7fb2!important;
+  font-weight:800!important;
+}
+#stGroupDone:hover{background:#256a96!important;border-color:#256a96!important}
+
+/* Bo‘sh vaqt natijalari: kun → juftlik → xona */
+#stResult{display:grid;gap:8px}
+#stResult .st-day-group{
+  border:1px solid #d4dfe8;
+  border-radius:10px;
+  background:#fff;
+  overflow:hidden;
+  box-shadow:0 2px 7px rgba(15,23,42,.04);
+}
+#stResult .st-day-head{
+  width:100%;
+  border:0;
+  border-left:4px solid #4a93bd;
+  background:linear-gradient(180deg,#f9fbfd 0%,#f2f6f9 100%);
+  color:#243b53;
+  padding:10px 12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  text-align:left;
+  cursor:pointer;
+  transition:.15s ease;
+}
+#stResult .st-day-head:hover{background:#edf5fa}
+#stResult .st-day-left{display:flex;align-items:center;gap:9px;min-width:0;flex-wrap:wrap}
+#stResult .st-day-name{font-size:12px;font-weight:900;color:#173b57}
+#stResult .st-day-date{
+  display:inline-flex;align-items:center;min-height:22px;padding:2px 8px;border-radius:6px;
+  background:#fff;border:1px solid #cbdbe6;color:#315d78;font-size:10.5px;font-weight:800
+}
+#stResult .st-day-week{font-size:9.5px;color:#667085;font-weight:700}
+#stResult .st-day-right,#stResult .st-pair-right{display:flex;align-items:center;gap:9px;flex:0 0 auto}
+#stResult .st-day-arrow,#stResult .st-pair-arrow{font-size:13px;color:#667085;transition:transform .15s ease}
+#stResult .st-day-group.open>.st-day-head .st-day-arrow,#stResult .st-pair-group.open>.st-pair-head .st-pair-arrow{transform:rotate(180deg)}
+#stResult .st-day-body{display:none;padding:7px;background:#f8fafc;border-top:1px solid #e4eaf0}
+#stResult .st-day-group.open>.st-day-body{display:block}
+#stResult .st-pair-group{border:1px solid #dfe6ed;border-radius:8px;margin-bottom:6px;overflow:hidden;background:#fff}
+#stResult .st-pair-group:last-child{margin-bottom:0}
+#stResult .st-pair-head{
+  width:100%;border:0;background:#fff;color:#344054;padding:9px 10px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;cursor:pointer
+}
+#stResult .st-pair-head:hover{background:#f7fafc}
+#stResult .st-pair-title{font-weight:900;color:#26435a}
+#stResult .st-pair-time{font-size:10px;color:#667085;margin-left:8px;font-weight:700}
+#stResult .st-pair-body{display:none;border-top:1px solid #e7ecf1;padding:5px 10px 8px;background:#fbfcfd}
+#stResult .st-pair-group.open>.st-pair-body{display:block}
+#stResult .st-room-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 2px;border-bottom:1px solid #edf1f4}
+#stResult .st-room-row:last-child{border-bottom:0}
+#stResult .st-room-info{min-width:0}
+#stResult .st-room-info>b{color:#173b57}
+#stResult .st-day-count{font-size:10px;color:#607184;font-weight:800;background:#fff;border:1px solid #dbe4eb;border-radius:999px;padding:3px 7px}
 </style>
 
 <script id="admin-clear-all-module-script">
