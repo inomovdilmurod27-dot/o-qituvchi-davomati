@@ -6492,7 +6492,7 @@ body.hemis-layout .pro-actions{
 <button class="nav-btn" id="statsBtn">Statistika</button>
 <button class="nav-btn" id="monitorBtn">Monitor</button>
 <button class="nav-btn" id="smartRoomBtn">Mos xona</button>
-<button class="nav-btn" id="smartTimeBtn">Bo‘sh vaqt</button>
+<button class="nav-btn" id="smartTimeBtn">ClassMatch</button>
 <button class="nav-btn" id="exceptionBtn">Istisno</button>
 <button class="nav-btn" id="structureBtn">Tuzilma</button>
 <select class="nav-btn" id="languageSelect" style="min-width:105px"><option value="uz">O‘zbekcha</option><option value="ru">Русский</option><option value="en">English</option></select>
@@ -11638,22 +11638,24 @@ renderAdvanced();
 
   const shortcutItems=[
     {id:'calendarBtn',title:'Kalendar',icon:'▦',count:'0'},
-    {id:'freeRoomBtn',title:'Bo‘sh xona',icon:'▥',count:'0'},
+    {id:'groupCalendarBtn',title:'Guruh kalendari',icon:'▤',count:'0'},
     {id:'inClassShortcut',title:'Hozir darsda',icon:'●',count:'0'},
     {id:'freeTeacherBtn',title:'Bo‘sh o‘qituvchi',icon:'◔',count:'0'},
     {id:'statsBtn',title:'Statistika',icon:'◫',count:'0'},
-    {id:'monitorBtn',title:'Monitor',icon:'◷',count:'0'}
+    {id:'smartTimeBtn',title:'ClassMatch',icon:'◴',count:'0'}
   ];
-    shortcutItems.forEach(item=>{
-    const btn=item.id==="inClassShortcut"?true:pick(item.id);
-    if(!btn) return;
+  shortcutItems.forEach(item=>{
     const card=document.createElement('button');
     card.type='button';
     card.className='shortcut-card';
     card.innerHTML=`<span class="shortcut-count">${item.count}</span><div class="shortcut-title">${item.title}</div><div class="shortcut-icon">${item.icon}</div><div class="shortcut-open">◉ ${item.title}</div>`;
     card.addEventListener('click',()=>{
-      if(item.id==="inClassShortcut") openInClassPanel();
-      else btn.click();
+      if(item.id==="inClassShortcut") {
+        openInClassPanel();
+        return;
+      }
+      const btn=pick(item.id);
+      if(btn) btn.click();
     });
     shortcutGrid.appendChild(card);
   });
@@ -11665,18 +11667,17 @@ renderAdvanced();
     const totalTeachers=Number(document.getElementById('totalTeachers')?.textContent||0);
     const inClass=Number(document.getElementById('inClassCount')?.textContent||0);
     const todayLessons=Number(document.getElementById('todayLessonsCount')?.textContent||0);
-    const pending=(typeof scopedTeachers==='function'?scopedTeachers():(db?.teachers||[])).reduce((n,t)=>n+(t.schedule||[]).filter(l=>l.status==="pending"&&!l.cancelled).length,0);
     const currentDep=String(db?.currentUser?.department||'').trim();
-    let rooms=[];
-    if(currentDep && db?.departmentWorkspaces?.[currentDep]?.rooms) rooms=db.departmentWorkspaces[currentDep].rooms||[];
-    else rooms=db?.rooms||[];
+    let groups=[];
+    if(currentDep && db?.departmentWorkspaces?.[currentDep]?.groups) groups=db.departmentWorkspaces[currentDep].groups||[];
+    else groups=db?.groups||[];
     const setCount=(title,val)=>{const c=map[title]; if(c) c.querySelector('.shortcut-count').textContent=String(val)};
     setCount('Kalendar', todayLessons);
-    setCount('Bo‘sh xona', rooms.length);
+    setCount('Guruh kalendari', groups.length);
     setCount('Hozir darsda', inClass);
     setCount('Bo‘sh o‘qituvchi', Math.max(totalTeachers-inClass,0));
     setCount('Statistika', totalTeachers);
-    setCount('Monitor', pending);
+    setCount('ClassMatch', '↔');
     setCount('Admin', '•');
   }
   updateShortcutCounts();
@@ -19121,6 +19122,162 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
     refresh();
     if(typeof showAlert==='function')showAlert(label+' modulidagi barcha ma’lumotlar o‘chirildi.','ok');
   };
+})();
+</script>
+<style id="group-calendar-new-styles">
+#groupCalendarBtn .menu-icon{font-size:16px}
+#advancedModal .group-calendar-toolbar{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin:0 0 13px;padding:12px;background:#f8fbfe;border:1px solid #d8e5ef;border-radius:6px}
+#advancedModal .group-calendar-toolbar label{font-size:11px;font-weight:800;color:#34516d;display:block;margin-bottom:5px}
+#advancedModal #groupCalendarSelect{min-width:240px;max-width:100%;height:36px;border:1px solid #b9cbd8;border-radius:5px;background:white;padding:5px 10px}
+#advancedModal .group-calendar-left{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px}
+#advancedModal .group-calendar-actions{display:flex;gap:7px;flex-wrap:wrap;align-self:flex-end}
+#advancedModal .group-calendar-grid .calendar-lesson-meta{margin-top:3px}
+#advancedModal .group-calendar-grid .calendar-lesson-subject{margin-top:4px}
+#advancedModal .group-calendar-summary{font-size:11px;color:#637389;margin-bottom:10px}
+@media(max-width:760px){#advancedModal .group-calendar-toolbar{display:block}#advancedModal .group-calendar-actions{margin-top:12px}#advancedModal #groupCalendarSelect{width:100%}}
+</style>
+<script id="group-calendar-added-module">
+(function(){
+ 'use strict';
+ const byId=id=>document.getElementById(id);
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const days=['Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba'];
+ const wl={surat:'Surat',maxraj:'Maxraj',doim:'Doimiy',single:'Bir kunlik'};
+ let activeGroup='',activeWeek='all',batchExport=false;
+ const getDB=()=>typeof db!=='undefined'?db:(JSON.parse(localStorage.getItem('dispatchDB')||'{}'));
+ function teachers(){const data=getDB();try{return typeof scopedTeachers==='function'?scopedTeachers():(data.teachers||[])}catch(e){return data.teachers||[]}}
+ function tname(t){try{return typeof scheduleTeacherName==='function'?scheduleTeacherName(t):(t.shortName||t.name||'')}catch(e){return t.name||''}}
+ function lg(l){return [...new Set([l.group,...(Array.isArray(l.additionalGroups)?l.additionalGroups:[])].map(x=>String(x||'').trim()).filter(Boolean))]}
+ function groups(){const d=getDB(),set=new Set();(d.groups||[]).forEach(g=>{const n=typeof g==='string'?g:(g.name||g.group||g.title||g.code||'');if(n)set.add(String(n).trim())});teachers().forEach(t=>(t.schedule||[]).forEach(l=>lg(l).forEach(g=>set.add(g))));return [...set].filter(Boolean).sort((a,b)=>a.localeCompare(b,'uz',{numeric:true}))}
+ function lessons(){const out=[];teachers().forEach(t=>(t.schedule||[]).forEach(l=>{if(l.cancelled||String(l.status||'pending')!=='approved')return;const w=String(l.weekType||'doim').toLowerCase();if(activeWeek!=='all'&&w!=='doim'&&w!==activeWeek)return;const gs=lg(l);if(activeGroup&&!gs.includes(activeGroup))return;gs.forEach(g=>{if(!activeGroup||activeGroup===g)out.push({...l,teacher:t,displayGroup:g})})}));return out}
+ function room(l){try{return typeof roomDisplay==='function'?roomDisplay(l.room,l.roomBuilding,l.roomId):[l.roomBuilding,l.room].filter(Boolean).join('-')}catch(e){return [l.roomBuilding,l.room].filter(Boolean).join('-')}}
+ function timing(p){try{const x=pairTimes[p]||{};return `${x.start||''}–${x.end||''}`}catch(e){return ''}}
+ function content(){const ls=lessons(), gs=groups();const opts='<option value="">Umumiy (barcha guruhlar)</option>'+gs.map(g=>`<option value="${esc(g)}" ${activeGroup===g?'selected':''}>${esc(g)}</option>`).join('');
+ const filter=`<div class="calendar-week-filter">${['surat','maxraj','all'].map(w=>`<button type="button" class="calendar-week-btn ${activeWeek===w?'active':''}" data-group-week="${w}">${w==='all'?'Hammasi':wl[w]}</button>`).join('')}</div>`;
+ let grid='<div class="calendar-grid group-calendar-grid"><div class="calendar-cell calendar-head">Juftlik</div>'+days.map(d=>`<div class="calendar-cell calendar-head">${d}</div>`).join('');
+ const pairs=activeGroup?[...new Set(ls.map(l=>Number(l.pair)).filter(p=>p>=1&&p<=8))].sort((a,b)=>a-b):[1,2,3,4,5,6,7,8];
+ pairs.forEach(p=>{grid+=`<div class="calendar-cell calendar-head">${p}-juftlik<br>${esc(timing(p))}</div>`;days.forEach(day=>{const slot=ls.filter(l=>l.day===day&&Number(l.pair)===p).sort((a,b)=>String(a.displayGroup).localeCompare(String(b.displayGroup),'uz',{numeric:true}));grid+=`<div class="calendar-cell">${slot.length?slot.map(l=>{const w=String(l.weekType||'doim');return `<div class="calendar-lesson"><span class="calendar-week-badge ${esc(w)}">${esc(wl[w]||w)}</span><span class="calendar-lesson-type">${esc(l.type||'Dars')}</span>${activeGroup?'':`<span class="calendar-lesson-subject">${esc(l.displayGroup)}</span>`}<span class="calendar-lesson-subject">${esc(l.subject||'')}</span><span class="calendar-lesson-meta">O‘qituvchi: ${esc(tname(l.teacher))}</span><span class="calendar-lesson-room">Xona: ${esc(room(l)||'—')}</span></div>`}).join(''):'<div class="calendar-empty">—</div>'}</div>`})});grid+='</div>';
+ if(!pairs.length)grid='<div class="empty">Tanlangan guruh uchun dars topilmadi.</div>';
+ return `<div class="group-calendar-toolbar"><div class="group-calendar-left"><div><label for="groupCalendarSelect">Guruh</label><select id="groupCalendarSelect">${opts}</select></div><div><label>Hafta turi</label>${filter}</div></div><div class="group-calendar-actions"><button class="calendar-batch-toggle ${batchExport?'on':''}" id="groupBatchToggle" type="button"><span class="batch-dot"></span>Barchasi: ${batchExport?'ON':'OFF'}</button><button class="btn success" id="groupCalExcel" type="button">Excelga eksport</button><button class="btn purple" id="groupCalWord" type="button">Wordga yuklash</button><button class="btn ghost" id="groupCalPrint" type="button">Chop etish</button></div></div><div class="group-calendar-summary">${activeGroup?`Guruh: <b>${esc(activeGroup)}</b>`:'Barcha guruhlarning umumiy jadvali'} · ${activeWeek==='all'?'Surat + Maxraj + Doimiy':wl[activeWeek]+' + Doimiy'} · ${ls.length} ta dars yozuvi</div><div id="groupCalendarTable">${grid}</div>`;
+ }
+ function render(){const b=byId('advancedBody');if(!b)return;b.innerHTML=content();byId('groupCalendarSelect').onchange=e=>{activeGroup=e.target.value;render()};b.querySelectorAll('[data-group-week]').forEach(x=>x.onclick=()=>{activeWeek=x.dataset.groupWeek;render()});byId('groupBatchToggle').onclick=()=>{batchExport=!batchExport;render()};byId('groupCalExcel').onclick=exportExcel;byId('groupCalWord').onclick=exportWord;byId('groupCalPrint').onclick=printIt}
+ function open(){activeGroup='';activeWeek='all';batchExport=false;if(typeof openAdvanced==='function')openAdvanced('Umumiy guruh kalendar jadvali','Barcha guruhlar · Hammasi',content());else{const m=byId('advancedModal');if(!m)return;m.classList.add('open');const h=m.querySelector('h2');if(h)h.textContent='Umumiy guruh kalendar jadvali';}render()}
+ function download(blob,name){const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500)}
+ function cleanName(s){return String(s||'Umumiy').replace(/[\\/:*?"<>|]/g,'_').replace(/\s+/g,'_').slice(0,85)}
+ function pairSet(ls){return [...new Set(ls.map(l=>Number(l.pair)).filter(n=>n>=1&&n<=8))].sort((a,b)=>a-b)}
+ function labelWeek(l){return wl[l.weekType]||l.weekType||'Doimiy'}
+ function cellText(l,individual){return [`[${labelWeek(l)} · ${l.type||'Dars'}] ${l.subject||''}`,individual?'':`Guruh: ${l.displayGroup}`,`O‘qituvchi: ${tname(l.teacher)}`,`Xona: ${room(l)||'—'}`].filter(Boolean).join('\n')}
+ function filterGroup(ls,g){return g?ls.filter(l=>l.displayGroup===g):ls}
+ function allGroups(){return groups()}
+ function selectedPairs(ls,g){return g?pairSet(ls):[1,2,3,4,5,6,7,8]}
+ function note(message,kind='ok'){const target=byId('groupCalendarNotice');if(target){target.style.color=kind==='error'?'#b42318':'#067647';target.textContent=message}else alert(message)}
+ async function excelBlob(ls,g){
+   if(typeof ExcelJS==='undefined')throw Error('Excel formatlash kutubxonasi yuklanmagan.');
+   const wb=new ExcelJS.Workbook();wb.creator='Universitet dars jadvali dispetcherlik tizimi';
+   const ws=wb.addWorksheet('Umumiy guruh kalendari',{views:[{state:'frozen',xSplit:1,ySplit:2}]});
+   const center={vertical:'middle',horizontal:'center',wrapText:true},left={vertical:'top',horizontal:'left',wrapText:true};
+   const edge={style:'thin',color:{argb:'FFC8D6DF'}},border={top:edge,bottom:edge,left:edge,right:edge};
+   ws.mergeCells(1,1,1,7);const heading=ws.getCell(1,1);heading.value=`${g||'Barcha guruhlar'} — Umumiy guruh kalendar jadvali — ${activeWeek==='all'?'HAMMASI':labelWeek({weekType:activeWeek}).toUpperCase()}`;heading.font={name:'Times New Roman',size:11,bold:true,color:{argb:'FF0A315C'}};heading.alignment=center;heading.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFEAF3F8'}};heading.border=border;ws.getRow(1).height=28;
+   ['Juftlik',...days].forEach((x,c)=>{const v=ws.getCell(2,c+1);v.value=x;v.font={name:'Times New Roman',size:9,bold:true,color:{argb:'FFFFFFFF'}};v.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF3B93BD'}};v.alignment=center;v.border=border});ws.getRow(2).height=24;
+   const pairs=selectedPairs(ls,g);
+   pairs.forEach((p,i)=>{const r=i+3,first=ws.getCell(r,1);first.value=`${p}-juftlik\n${timing(p)}`;first.font={name:'Times New Roman',size:9,bold:true,color:{argb:'FF173B57'}};first.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFEEF6FA'}};first.alignment=center;first.border=border;
+     let lines=2;days.forEach((day,j)=>{const slot=ls.filter(l=>l.day===day&&Number(l.pair)===p).sort((x,y)=>x.displayGroup.localeCompare(y.displayGroup,'uz',{numeric:true}));const v=ws.getCell(r,j+2);v.value=slot.length?slot.map(l=>cellText(l,!!g)).join('\n────────\n'):'—';v.font={name:'Times New Roman',size:8.5,bold:slot.length>0};v.alignment=slot.length?left:center;v.fill={type:'pattern',pattern:'solid',fgColor:{argb:slot.length?'FFFFFFFF':'FFFBFDFF'}};v.border=border;lines=Math.max(lines,String(v.value).split('\n').length)});ws.getRow(r).height=Math.min(180,Math.max(38,15+lines*10));
+   });
+   if(!pairs.length){ws.mergeCells(3,1,3,7);ws.getCell(3,1).value='Tanlangan guruh uchun dars mavjud emas.';ws.getCell(3,1).alignment=center;ws.getRow(3).height=30}
+   ws.getColumn(1).width=15;for(let c=2;c<=7;c++)ws.getColumn(c).width=28;
+   ws.pageSetup={orientation:'landscape',fitToPage:true,fitToWidth:1,fitToHeight:0,paperSize:9,horizontalCentered:true,margins:{left:.2,right:.2,top:.3,bottom:.3,header:.1,footer:.1}};
+   const buffer=await wb.xlsx.writeBuffer();return new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+ }
+ function xml(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;')}
+ function docxRun(text,opt={}){
+   const props=[];
+   if(opt.bold)props.push('<w:b/>');
+   if(opt.underline)props.push('<w:u w:val="single"/>');
+   if(opt.color)props.push(`<w:color w:val="${xml(opt.color)}"/>`);
+   if(opt.size)props.push(`<w:sz w:val="${Number(opt.size)}"/><w:szCs w:val="${Number(opt.size)}"/>`);
+   props.push('<w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>');
+   return `<w:r><w:rPr>${props.join('')}</w:rPr><w:t xml:space="preserve">${xml(text)}</w:t></w:r>`;
+ }
+ function docxP(inner='',opt={}){
+   const ppr=[`<w:spacing w:before="${Number(opt.before||0)}" w:after="${Number(opt.after||0)}" w:line="${Number(opt.line||220)}" w:lineRule="auto"/>`];
+   if(opt.align)ppr.push(`<w:jc w:val="${opt.align}"/>`);
+   if(opt.keepNext)ppr.push('<w:keepNext/>');
+   if(opt.bottomBorder)ppr.push(`<w:pBdr><w:bottom w:val="${opt.borderStyle||'dashed'}" w:sz="${Number(opt.borderSize||4)}" w:space="${Number(opt.borderSpace||4)}" w:color="${opt.borderColor||'CBD5E1'}"/></w:pBdr>`);
+   return `<w:p><w:pPr>${ppr.join('')}</w:pPr>${inner}</w:p>`;
+ }
+ function docxBorders(color='9FB4C3',size=5){return `<w:tblBorders>${['top','left','bottom','right','insideH','insideV'].map(x=>`<w:${x} w:val="single" w:sz="${size}" w:space="0" w:color="${color}"/>`).join('')}</w:tblBorders>`}
+ function docxTc(content,width,opt={}){
+   const tcpr=[`<w:tcW w:w="${Number(width||2200)}" w:type="dxa"/>`,`<w:vAlign w:val="${opt.vAlign||'top'}"/>`,'<w:tcMar><w:top w:w="70" w:type="dxa"/><w:left w:w="80" w:type="dxa"/><w:bottom w:w="70" w:type="dxa"/><w:right w:w="80" w:type="dxa"/></w:tcMar>'];
+   if(opt.fill)tcpr.push(`<w:shd w:val="clear" w:color="auto" w:fill="${opt.fill}"/>`);
+   return `<w:tc><w:tcPr>${tcpr.join('')}</w:tcPr>${content||'<w:p/>'}</w:tc>`;
+ }
+ function groupDocxLesson(l,individual,isLast){
+   const w=String(l.weekType||'doim').toLowerCase(),badge=labelWeek(l),type=l.type||'Dars';
+   const weekColor=w==='surat'?'175CD3':w==='maxraj'?'5925DC':w==='doim'?'067647':'C2410C';
+   const lines=[];
+   lines.push(docxP(docxRun(badge,{bold:true,underline:true,color:weekColor,size:16})+docxRun(' ',{size:16})+docxRun(type,{bold:true,underline:true,color:'344054',size:16}),{after:35,line:205}));
+   if(l.subject)lines.push(docxP(docxRun(l.subject,{bold:true,color:'0F2748',size:18}),{after:25,line:215}));
+   if(!individual&&l.displayGroup)lines.push(docxP(docxRun(l.displayGroup,{bold:true,color:'344054',size:16}),{after:20,line:205}));
+   if(tname(l.teacher))lines.push(docxP(docxRun(tname(l.teacher),{bold:true,color:'344054',size:16}),{after:20,line:205}));
+   const r=room(l);if(r)lines.push(docxP(docxRun(`Xona: ${r}`,{color:'4C6077',size:16}),{after:isLast?0:20,line:205}));
+   if(!isLast)lines.push(docxP('',{after:45,line:160,bottomBorder:true,borderStyle:'dashed',borderColor:'CBD5E1',borderSize:4,borderSpace:3}));
+   return lines.join('');
+ }
+ function groupDocxSlot(slot,individual){
+   if(!slot.length)return docxP(docxRun('—',{color:'98A2B3',size:16}),{align:'center',after:0});
+   return slot.map((l,i)=>groupDocxLesson(l,individual,i===slot.length-1)).join('');
+ }
+ async function wordBlob(ls,g){
+   if(typeof JSZip==='undefined')throw Error('DOCX/ZIP moduli yuklanmagan. Internet aloqasini tekshiring.');
+   const filterTitle=activeWeek==='all'?'HAMMASI':String(labelWeek({weekType:activeWeek})).toUpperCase();
+   const owner=g||'Barcha guruhlar';
+   const pairW=1450,dayW=2380,pairs=selectedPairs(ls,g);
+   const headerCells=[docxTc(docxP(docxRun('Juftlik',{bold:true,color:'FFFFFF',size:17}),{align:'center'}),pairW,{fill:'3B93BD',vAlign:'center'})]
+     .concat(days.map(d=>docxTc(docxP(docxRun(d,{bold:true,color:'FFFFFF',size:17}),{align:'center'}),dayW,{fill:'3B93BD',vAlign:'center'}))).join('');
+   const header=`<w:tr><w:trPr><w:tblHeader/></w:trPr>${headerCells}</w:tr>`;
+   let body='';
+   if(pairs.length){
+     body=pairs.map(pair=>{
+       const pt=(typeof pairTimes!=='undefined'&&pairTimes[pair])||{};
+       const pairText=docxP(docxRun(`${pair}-juftlik`,{bold:true,color:'173B57',size:17}),{align:'center',after:20})+(pt.start&&pt.end?docxP(docxRun(`${pt.start}–${pt.end}`,{color:'4C6077',size:15}),{align:'center',after:0}):'');
+       const dayCells=days.map(day=>{
+         const slot=ls.filter(l=>l.day===day&&Number(l.pair)===pair).sort((a,b)=>String(a.displayGroup).localeCompare(String(b.displayGroup),'uz',{numeric:true}));
+         return docxTc(groupDocxSlot(slot,!!g),dayW,{vAlign:'top'});
+       }).join('');
+       return `<w:tr>${docxTc(pairText,pairW,{fill:'EEF6FA',vAlign:'center'})}${dayCells}</w:tr>`;
+     }).join('');
+   }else{
+     body=`<w:tr>${docxTc(docxP(docxRun('Tanlangan filtr bo‘yicha dars mavjud emas.',{color:'667085',size:17}),{align:'center'}),pairW+dayW*6,{vAlign:'center'})}</w:tr>`;
+   }
+   const title=docxP(docxRun(`${owner} — Umumiy guruh kalendar jadvali`,{bold:true,color:'0A315C',size:26}),{align:'center',after:50,keepNext:true});
+   const sub=docxP(docxRun(`Hafta turi: ${filterTitle}${g?'':' · Umumiy guruhlar jadvali'}`,{color:'475467',size:18}),{align:'center',after:100,keepNext:true});
+   const table=`<w:tbl><w:tblPr><w:tblW w:w="15730" w:type="dxa"/><w:tblLayout w:type="fixed"/>${docxBorders('9FB4C3',5)}<w:tblCellMar><w:top w:w="50" w:type="dxa"/><w:left w:w="50" w:type="dxa"/><w:bottom w:w="50" w:type="dxa"/><w:right w:w="50" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid><w:gridCol w:w="${pairW}"/>${days.map(()=>`<w:gridCol w:w="${dayW}"/>`).join('')}</w:tblGrid>${header}${body}</w:tbl>`;
+   const documentXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:body>${title}${sub}${table}<w:sectPr><w:pgSz w:w="16838" w:h="11906" w:orient="landscape"/><w:pgMar w:top="454" w:right="454" w:bottom="454" w:left="454" w:header="284" w:footer="284" w:gutter="0"/><w:cols w:space="708"/><w:docGrid w:linePitch="360"/></w:sectPr></w:body></w:document>`;
+   const stylesXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/><w:sz w:val="18"/><w:szCs w:val="18"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="0" w:line="220" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style></w:styles>`;
+   const contentTypes=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>`;
+   const rootRels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`;
+   const docRels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
+   const zip=new JSZip();zip.file('[Content_Types].xml',contentTypes);zip.folder('_rels').file('.rels',rootRels);
+   zip.folder('word').file('document.xml',documentXml).file('styles.xml',stylesXml).folder('_rels').file('document.xml.rels',docRels);
+   return await zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',compression:'DEFLATE',compressionOptions:{level:6}});
+ }
+ async function exportFormat(format){
+   try{
+     const all=lessons(),ext=format==='word'?'docx':'xlsx',builder=format==='word'?wordBlob:excelBlob;
+     if(!batchExport){const blob=await builder(all,activeGroup);download(blob,`Guruh_${cleanName(activeGroup||'Umumiy')}_kalendar.${ext}`);return}
+     if(typeof JSZip==='undefined')throw Error('ZIP kutubxonasi yuklanmagan.');
+     const names=allGroups();if(!names.length)return note('Eksport qilinadigan guruh mavjud emas.','error');
+     const zip=new JSZip(),folder=zip.folder(format==='word'?'Word_DOCX_guruhlar':'Excel_guruhlar');
+     for(const name of names){const selected=filterGroup(all,name);folder.file(`Guruh_${cleanName(name)}_kalendar.${ext}`,await builder(selected,name))}
+     download(await zip.generateAsync({type:'blob',compression:'DEFLATE'}),`Guruhlar_${format==='word'?'Word_DOCX':'Excel'}_${activeWeek}.zip`);
+   }catch(e){console.error(e);alert((format==='word'?'Word':'Excel')+' yuklashda xatolik: '+(e.message||e))}
+ }
+ function exportExcel(){return exportFormat('excel')}
+ function exportWord(){return exportFormat('word')}
+ function printIt(){const w=window.open('','_blank');if(!w)return;w.document.write(`<html><head><title>Guruh kalendari</title><style>body{font-family:Arial} .calendar-grid{display:grid;grid-template-columns:105px repeat(6,1fr)} .calendar-cell{padding:6px;border:1px solid #cad4df;font-size:10px}.calendar-head{background:#d9e9f4;font-weight:bold}.calendar-lesson{border:1px solid #b9d0e1;padding:5px;margin-bottom:5px}.calendar-lesson span{display:block;margin-bottom:3px}</style></head><body><h2>Umumiy guruh kalendar jadvali — ${esc(activeGroup||'Barcha guruhlar')}</h2>${byId('groupCalendarTable').innerHTML}</body></html>`);w.document.close();w.focus();w.print()}
+ function install(){if(byId('groupCalendarBtn'))return;const original=byId('calendarBtn');if(!original)return;const btn=document.createElement('button');btn.id='groupCalendarBtn';btn.type='button';btn.className=original.className;btn.classList.remove('active');if(original.classList.contains('hemis-side-link')||original.querySelector('.menu-text'))btn.innerHTML='<span class="menu-icon">▦</span><span class="menu-text">Guruh kalendari</span><span class="menu-arrow">‹</span>';else btn.textContent='Guruh kalendari';btn.addEventListener('click',open);original.insertAdjacentElement('afterend',btn)}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{setTimeout(install,850);setTimeout(install,1800)});else{setTimeout(install,850);setTimeout(install,1800)}
+ window.openGroupCalendar=open;
 })();
 </script>
 </body>
