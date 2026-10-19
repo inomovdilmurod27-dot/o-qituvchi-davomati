@@ -13327,6 +13327,9 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
       try{if(typeof window.syncAutomaticWeekType==="function")window.syncAutomaticWeekType(true)}catch(e){}
       try{if(typeof window.refreshLessonSubjectOptions==="function")window.refreshLessonSubjectOptions()}catch(e){}
       try{if(typeof window.refreshLessonGroupOptions==="function")window.refreshLessonGroupOptions()}catch(e){}
+      if(type==="lesson" || type==="groupstudy" || type==="room" || type==="teacher"){
+        document.dispatchEvent(new CustomEvent("platforma:schedule-updated",{detail:{source:"excel-import",type,added,updated}}));
+      }
       const reasonText=type==="lesson"&&skip?Object.entries(skipReasons).slice(0,8).map(([k,v])=>`${v}× ${k}`).join("<br>"):"";
       showAlert?.(`${added} ta yangi yozuv qo‘shildi, ${updated} ta mavjud yozuv yangilandi. ${skip} ta o‘tkazib yuborildi.${reasonText?`<br><br><b>O‘tkazilgan qatorlar sababi:</b><br>${reasonText}`:""}<br><span class="mini">Excelda bo‘sh kataklar eski ma’lumotni o‘chirmaydi.</span>`,skip&&type==="lesson"?"warn":"ok");
     }catch(err){
@@ -18864,6 +18867,9 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
     const im=q('calendarExcelImport');if(im)im.onclick=()=>q('calendarExcelFile')?.click();
     const file=q('calendarExcelFile');if(file)file.onchange=importCalendarExcel;
   }
+  document.addEventListener("platforma:schedule-updated",()=>{
+    if(q('advancedModal')?.classList.contains('open') && q('calendarTeacherSelect')) renderCalendar();
+  });
   function openCalendar(){
     calendarBatchExport=false;
     const who=selectedTeacher();
@@ -19287,6 +19293,9 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
  return `<div class="group-calendar-toolbar"><div class="group-calendar-left"><div><label for="groupCalendarSelect">Guruh</label><select id="groupCalendarSelect">${opts}</select></div><div><label>Hafta turi</label>${filter}</div><div><label>Mashg‘ulot turi</label><div class="calendar-week-filter">${[['all','Hammasi'],['lecture','Ma’ruza'],['practical','Amaliy']].map(([k,v])=>`<button type="button" class="calendar-week-btn ${activeType===k?'active':''}" data-group-type="${k}">${v}</button>`).join('')}</div></div></div><div class="group-calendar-actions"><button class="calendar-batch-toggle ${batchExport?'on':''}" id="groupBatchToggle" type="button"><span class="batch-dot"></span>Barchasi: ${batchExport?'ON':'OFF'}</button><button class="btn success" id="groupCalExcel" type="button">Excelga eksport</button><button class="btn purple" id="groupCalWord" type="button">Wordga yuklash</button><button class="btn primary" id="groupCalImport" type="button">Excel import</button><input type="file" id="groupCalImportFile" accept=".xlsx,.xls" style="display:none"><button class="btn ghost" id="groupCalPrint" type="button">Chop etish</button></div></div><div class="group-calendar-summary">${activeGroup?`Guruh: <b>${esc(activeGroup)}</b>`:'Barcha guruhlarning umumiy jadvali'} · ${activeWeek==='all'?'Surat + Maxraj + Doimiy':wl[activeWeek]+' + Doimiy'} · ${ls.length} ta dars yozuvi</div><div id="groupCalendarTable">${grid}</div>`;
  }
  function render(){const b=byId('advancedBody');if(!b)return;b.innerHTML=content();byId('groupCalendarSelect').onchange=e=>{activeGroup=e.target.value;render()};b.querySelectorAll('[data-group-week]').forEach(x=>x.onclick=()=>{activeWeek=x.dataset.groupWeek;render()});b.querySelectorAll('[data-group-type]').forEach(x=>x.onclick=()=>{activeType=x.dataset.groupType;render()});byId('groupBatchToggle').onclick=()=>{batchExport=!batchExport;render()};byId('groupCalExcel').onclick=exportExcel;byId('groupCalWord').onclick=exportWord;byId('groupCalPrint').onclick=printIt;byId('groupCalImport').onclick=()=>byId('groupCalImportFile').click();byId('groupCalImportFile').onchange=importGroupExcel}
+ document.addEventListener("platforma:schedule-updated",()=>{
+   if(byId('advancedModal')?.classList.contains('open') && byId('groupCalendarSelect')) render();
+ });
  function open(){activeGroup='';activeWeek='all';activeType='all';batchExport=false;if(typeof openAdvanced==='function')openAdvanced('Umumiy guruh kalendar jadvali','Barcha guruhlar · Hammasi',content());else{const m=byId('advancedModal');if(!m)return;m.classList.add('open');const h=m.querySelector('h2');if(h)h.textContent='Umumiy guruh kalendar jadvali';}render()}
  function download(blob,name){const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500)}
  function cleanName(s){return String(s||'Umumiy').replace(/[\\/:*?"<>|]/g,'_').replace(/\s+/g,'_').slice(0,85)}
