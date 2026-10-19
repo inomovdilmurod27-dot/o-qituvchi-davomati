@@ -5116,19 +5116,6 @@ body.hemis-layout #teacherModal td{
 .admin-excel-tools .admin-excel-info span{display:block;color:#667085;font-size:10.5px;margin-top:2px}
 .admin-excel-tools .actions{display:flex;gap:7px;flex-wrap:wrap;margin:0}
 @media(max-width:760px){.admin-excel-tools{align-items:stretch;flex-direction:column}.admin-excel-tools .actions{width:100%}.admin-excel-tools .btn{flex:1}}
-
-/* Bugungi darslar oynasida bino bo‘yicha ko‘p tanlov */
-.summary-building-field{display:flex;flex-direction:column;gap:5px;min-width:200px;flex:1 1 210px;font-size:12px;font-weight:700;color:#25445e}
-.summary-building-wrap{position:relative}
-.summary-building-toggle{width:100%;min-height:36px;background:#fff;border:1px solid #cbd8e5;border-radius:6px;padding:9px;display:flex;align-items:center;justify-content:space-between;gap:9px;color:#24364b;text-align:left}
-.summary-building-menu{position:absolute;top:calc(100% + 4px);left:0;min-width:240px;width:100%;max-width:340px;background:#fff;border:1px solid #cbd8e5;box-shadow:0 8px 22px rgba(15,23,42,.18);border-radius:7px;padding:9px;z-index:40}
-.summary-building-menu[hidden]{display:none!important}
-.summary-building-actions{display:flex;justify-content:space-between;gap:5px;margin-bottom:7px}
-.summary-building-actions button{border:1px solid #cbd8e5;background:#f5f9fd;border-radius:5px;padding:5px 8px;font-size:11px;cursor:pointer}
-.summary-building-options{max-height:235px;overflow-y:auto;display:grid;gap:2px}
-.summary-building-options .summary-building-option{display:flex;flex-direction:row;align-items:center;gap:9px;min-width:0;padding:6px 5px;font-weight:500;cursor:pointer}
-.summary-building-option input[type=checkbox]{width:16px;height:16px;min-height:16px;margin:0;flex:0 0 auto}
-.summary-building-option:hover{background:#f0f6fc}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
@@ -6490,26 +6477,21 @@ body.hemis-layout .pro-actions{
 #smartModal.smart-time-compact #stGroupChecks .st-group-name{font-size:11px!important}
 #smartModal.smart-time-compact #stGroupDropdown{width:100%!important}
 </style>
-<style id="today-filters-and-week-color">
-.today-filter-toolbar{display:flex;align-items:end;gap:8px;flex-wrap:wrap}
-.today-filter-toolbar label{font-size:11px;font-weight:700;color:#36566c;display:flex;flex-direction:column;gap:4px}
-.today-filter-toolbar input,.today-filter-toolbar select{min-height:32px;border:1px solid #cbd9e5;border-radius:5px;background:#fff;padding:5px 9px;color:#233d54;font-size:12px}
-.today-filter-toolbar .btn{min-height:32px}
-body.hemis-layout .summary-week-btn.active[data-week="surat"]{color:#fff!important;background:#5b73f2!important;border-color:#5b73f2!important}
-body.hemis-layout .summary-week-btn.active[data-week="maxraj"]{color:#fff!important;background:#5b73f2!important;border-color:#5b73f2!important}
-@media(max-width:650px){.section-title:has(.today-filter-toolbar){align-items:flex-start;flex-direction:column}.today-filter-toolbar{width:100%}}
+<style id="drag-filter-added">
+.drag-filter-toolbar{display:flex;justify-content:space-between;align-items:end;gap:14px;flex-wrap:wrap;background:#f7fafd;border:1px solid #d4e1ed;border-radius:8px;padding:14px;margin:5px 0 8px}
+.drag-filter-fields,.drag-filter-actions{display:flex;align-items:end;gap:12px;flex-wrap:wrap}
+.drag-filter-fields>div{min-width:190px}.drag-filter-fields label{display:block;font-size:12px;font-weight:800;color:#264461;margin-bottom:5px}
+.drag-filter-select{height:43px;min-width:215px;max-width:260px;width:100%;background:#fff;border:1px solid #b8cfdf;border-radius:6px;padding:8px 10px;color:#102b4c}
+.drag-week-buttons{display:flex;gap:7px}.drag-week-btn{background:#fff;border:1px solid #b8cfdf;border-radius:22px;padding:9px 15px;font-weight:700;color:#1a3e64}.drag-week-btn.active{color:#fff;background:#4395c0;border-color:#4395c0}
+.drag-filter-actions{gap:8px}.drag-filter-actions .btn,.drag-filter-actions .calendar-batch-toggle{min-height:41px;padding:9px 12px;white-space:nowrap}
+.drag-filter-caption{color:#61758d;font-size:12px;margin:4px 0 12px}
+@media(max-width:700px){.drag-filter-fields>div,.drag-filter-select{min-width:100%;max-width:none}.drag-filter-fields{width:100%}}
 </style>
-<style id="summary-today-filter-styles">
-.summary-today-filters{display:flex;align-items:end;gap:10px;flex-wrap:wrap;margin-bottom:12px;padding:12px;background:#f5f9fd;border:1px solid #dce6ef;border-radius:9px}
-.summary-today-filters label{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:700;color:#25445e;min-width:165px}
-.summary-today-filters input,.summary-today-filters select{border:1px solid #cbd8e5;border-radius:6px;background:#fff;color:#24364b;padding:9px;min-height:36px}
-.summary-today-filters button{min-height:36px}
-.summary-date-control{display:flex;position:relative;min-height:36px;border:1px solid #cbd8e5;border-radius:6px;background:#fff;overflow:hidden;align-items:center}
-.summary-today-filters .summary-date-control input.summary-date-text{border:0;border-radius:0;min-width:0;width:145px;flex:1;padding:9px;outline:none}
-.summary-date-picker{position:relative;width:38px;height:36px;flex:0 0 38px;display:grid;place-items:center;color:#25445e;cursor:pointer;border-left:1px solid #e2e8f0;font-size:18px}
-.summary-today-filters .summary-date-picker input[type=date]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;padding:0;border:0}
-.summary-today-filters .summary-date-picker input[type=date]::-webkit-calendar-picker-indicator{position:absolute;inset:0;width:100%;height:100%;cursor:pointer}
-@media(max-width:560px){.summary-today-filters label{flex:1 1 100%}.summary-today-filters button{width:100%}}
+<style id="lesson-type-calendar-filter-styles">
+#advancedModal .calendar-master-picker,#advancedModal .group-calendar-left{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}
+#advancedModal .calendar-master-weeks{min-width:auto}
+#advancedModal .calendar-week-filter{display:flex;gap:5px;flex-wrap:wrap}
+@media(max-width:760px){#advancedModal .calendar-master-picker,#advancedModal .group-calendar-left{align-items:stretch}}
 </style>
 </head>
 <body>
@@ -6570,11 +6552,10 @@ body.hemis-layout .summary-week-btn.active[data-week="maxraj"]{color:#fff!import
 <select class="control" id="groupFilter"><option value="">Barcha guruhlar</option></select>
 <select class="control" id="subjectFilter"><option value="">Barcha fanlar</option></select>
 </section>
-<div class="section-title"><h3>Bugungi darslar</h3></div>
-<section class="today-list" id="todayList"></section>
 <div class="section-title"><h3>O‘qituvchilar</h3><div class="actions"><button class="btn ghost" id="roomViewBtn">Xonalar</button><button class="btn ghost" id="groupViewBtn">Guruhlar</button></div></div>
 <section class="grid" id="teacherGrid"></section>
-
+<div class="section-title"><h3>Bugungi darslar</h3></div>
+<section class="today-list" id="todayList"></section>
 </main>
 <div class="footer">© 2026 Universitet dars jadvali dispetcherlik tizimi</div>
 <div class="modal" id="teacherModal">
@@ -8489,55 +8470,7 @@ function renderTeachers(){
   return `<article class="card teacher-card" onclick="openTeacher(${t.id})"><div class="teacher-head">${teacherAvatarHTML(t)}<div><div class="teacher-name">${esc(scheduleTeacherName(t))}</div><div class="meta">${esc(t.position)} · ${esc(t.degree)}</div></div></div><div class="status"><span class="dot" style="background:${st.color}"></span>${st.label}</div><div class="lesson">${body}</div>${st.key==="inclass"?`<div class="room">${roomDisplay(st.lesson.room,st.lesson.roomBuilding,st.lesson.roomId).replace("-xona","-XONA")}</div>`:""}</article>`;
  }).join(""):`<div class="empty">Mos o‘qituvchi topilmadi.</div>`
 }
-function lessonsForDashboardDate(t,dateStr){
- const chosen=new Date(dateStr+'T12:00:00');
- if(Number.isNaN(chosen.getTime()))return [];
- const day=dayNames[chosen.getDay()];
- let weekType=currentWeek;
- const settings=db.settings||{};
- const key=(typeof semesterPeriodKey==='function')?semesterPeriodKey(settings.academicYear,settings.semester):String(settings.academicYear||'')+'||'+String(settings.semester||'');
- const starts=settings.semesterStartDates||{};
- let startDate=starts[key];
- if(!startDate){
-   const found=Object.entries(starts).find(([k,v])=>k.includes(String(settings.academicYear||''))&&k.includes(String(settings.semester||'')));
-   if(found)startDate=found[1];
- }
- if(startDate){
-   const start=new Date(startDate+'T12:00:00');
-   if(!Number.isNaN(start.getTime())){
-     const elapsed=Math.round((chosen-start)/86400000);
-     if(elapsed>=0)weekType=(Math.floor(elapsed/7)%2===0)?'surat':'maxraj';
-   }
- }
- let arr=(t.schedule||[]).filter(l=>l.day===day&&!l.cancelled&&l.status==='approved'&&(
-   l.weekType==='doim'||(l.weekType==='single'&&String(l.singleDate||'')===dateStr)||l.weekType===weekType
- )).map(l=>({...l}));
- (db.dayExceptions||[]).filter(x=>String(x.teacherId)===String(t.id)&&x.date===dateStr).forEach(x=>{
-   const i=arr.findIndex(l=>String(l.id)===String(x.lessonId));
-   if(i<0)return;
-   if(x.action==='cancel'){arr.splice(i,1);return;}
-   if(x.action==='move'&&x.newPair){arr[i].pair=Number(x.newPair);if(pairTimes[arr[i].pair]){arr[i].start=pairTimes[arr[i].pair].start;arr[i].end=pairTimes[arr[i].pair].end;}}
-   if((x.action==='room'||x.action==='move')&&x.newRoom)arr[i].room=x.newRoom;
- });
- return arr;
-}
-function renderToday(){
- const dateFilter=document.getElementById('todayDateFilter');
- const pairFilter=document.getElementById('todayPairFilter');
- const selectedDate=dateFilter?.value||'';
- const selectedPair=pairFilter?.value||'';
- const list=[];
- scopedTeachers().forEach(t=>(selectedDate?lessonsForDashboardDate(t,selectedDate):todayLessonsFor(t)).forEach(l=>list.push({...l,teacher:t})));
- list.sort((a,b)=>Number(a.pair)-Number(b.pair));
- if(pairFilter){
-   const pairs=[...new Set(list.map(l=>Number(l.pair)).filter(Number.isFinite))].sort((a,b)=>a-b);
-   pairFilter.innerHTML='<option value="">Barcha juftliklar</option>'+pairs.map(p=>`<option value="${p}">${p}-juftlik</option>`).join('');
-   pairFilter.value=selectedPair;
- }
- const filtered=selectedPair?list.filter(l=>String(l.pair)===selectedPair):list;
- $('todayList').innerHTML=filtered.length?filtered.map(x=>`<div class="today-item" onclick="openTeacher(${x.teacher.id})"><strong>${x.pair}-juftlik · ${x.start}–${x.end} · ${esc(scheduleTeacherName(x.teacher))}</strong><br>${esc(x.subject)} · ${esc(x.group)} · ${roomDisplay(x.room,x.roomBuilding,x.roomId)} · ${esc(x.type)} · ${x.weekType==='doim'?'Doimiy':esc(x.weekType)}</div>`).join(''):`<div class="empty">Tanlangan sana va juftlik bo‘yicha tasdiqlangan dars yo‘q.</div>`;
-}
-
+function renderToday(){const list=[];scopedTeachers().forEach(t=>todayLessonsFor(t).forEach(l=>list.push({...l,teacher:t})));list.sort((a,b)=>a.pair-b.pair);$("todayList").innerHTML=list.length?list.map(x=>`<div class="today-item" onclick="openTeacher(${x.teacher.id})"><strong>${x.pair}-juftlik · ${x.start}–${x.end} · ${esc(scheduleTeacherName(x.teacher))}</strong><br>${esc(x.subject)} · ${esc(x.group)} · ${roomDisplay(x.room,x.roomBuilding,x.roomId)} · ${esc(x.type)} · ${x.weekType==="doim"?"Doimiy":x.weekType}</div>`).join(""):`<div class="empty">Bugun joriy hafta bo‘yicha tasdiqlangan dars yo‘q.</div>`}
 function renderStats(){const ts=scopedTeachers(),inc=ts.filter(t=>getStatus(t).key==="inclass").length;$("totalTeachers").textContent=ts.length;$("inClassCount").textContent=inc;$("todayLessonsCount").textContent=ts.reduce((n,t)=>n+todayLessonsFor(t).length,0)}
 function populateFilters(){const rooms=new Set(),groups=new Set(),subs=new Set();scopedTeachers().forEach(t=>t.schedule.forEach(l=>{rooms.add(l.room);lessonGroupList(l).forEach(g=>groups.add(g));subs.add(l.subject)}));$("roomFilter").innerHTML='<option value="">Barcha xonalar</option>'+[...rooms].sort().map(x=>`<option>${esc(x)}</option>`).join("");$("groupFilter").innerHTML='<option value="">Barcha guruhlar</option>'+[...groups].sort().map(x=>`<option>${esc(x)}</option>`).join("");$("subjectFilter").innerHTML='<option value="">Barcha fanlar</option>'+[...subs].sort().map(x=>`<option>${esc(x)}</option>`).join("")}
 
@@ -11685,26 +11618,38 @@ renderAdvanced();
 
   const shortcutGrid=shortcutWrap.querySelector('#shortcutGrid');
 
-  function activeInClassTeachers(){
-    return (typeof scopedTeachers==='function'?scopedTeachers():(db.teachers||[]))
-      .map(t=>({t,status:getStatus(t)}))
-      .filter(item=>item.status.key==='inclass');
-  }
-
   function openInClassPanel(){
     const {day}=nowInfo();
-    const rows=activeInClassTeachers();
+    const {minutes}=nowInfo();
+    const currentPairEntry=Object.entries(pairTimes).find(([p,t])=>minutes>=mins(t.start)&&minutes<=mins(t.end));
+    const currentPair=currentPairEntry?Number(currentPairEntry[0]):null;
+
+    const rows=[];
+    db.teachers.forEach(t=>{
+      const lessons=(t.schedule||[]).filter(l=>
+        !l.cancelled &&
+        l.status==="approved" &&
+        l.day===day &&
+        (l.weekType==="doim" || l.weekType===currentWeek) &&
+        (!currentPair || Number(l.pair)===currentPair)
+      );
+      lessons.forEach(l=>rows.push({t,l}));
+    });
+
     const body=rows.length
-      ? `<div class="mini" style="font-weight:800;margin-bottom:12px">Jami hozir darsda: ${rows.length} nafar o‘qituvchi</div><div class="admin-list">${rows.map(({t,status})=>{
-          const l=status.lesson;
-          return `<div class="admin-row">
+      ? `<div class="admin-list">${rows.map(({t,l})=>`
+          <div class="admin-row">
             <strong>${esc(scheduleTeacherName(t))}</strong>
             <div class="mini">${esc(l.subject)} · ${esc(l.group)} · ${l.pair}-juftlik</div>
             <div style="margin-top:6px">${roomDisplay(l.room,l.roomBuilding,l.roomId)} · ${esc(l.type)} · ${esc(l.start)}–${esc(l.end)}</div>
-          </div>`;
-        }).join('')}</div>`
+          </div>`).join("")}</div>`
       : `<div class="empty">Hozir darsda bo‘lgan o‘qituvchi yo‘q.</div>`;
-    openAdvanced("Hozir darsda",`${day} · ${rows.length} nafar o‘qituvchi`,body);
+
+    openAdvanced(
+      "Hozir darsda",
+      currentPair ? `${day}, ${currentPair}-juftlik` : `${day}, hozirgi vaqt`,
+      body
+    );
   }
 
   const shortcutItems=[
@@ -11738,23 +11683,14 @@ renderAdvanced();
     const totalTeachers=Number(document.getElementById('totalTeachers')?.textContent||0);
     const inClass=Number(document.getElementById('inClassCount')?.textContent||0);
     const todayLessons=Number(document.getElementById('todayLessonsCount')?.textContent||0);
-    // Guruhlar kalendari bilan bir xil manbalardan guruhlarni hisoblash.
-    const groupNames=new Set();
-    const addGroup=(name)=>{const v=String(name||'').trim();if(v)groupNames.add(v.toLocaleLowerCase('uz'));};
-    const srcTeachers=typeof scopedTeachers==='function'?scopedTeachers():(db.teachers||[]);
-    srcTeachers.forEach(t=>(t.schedule||[]).forEach(l=>{
-      if(typeof lessonGroupList==='function')lessonGroupList(l).forEach(addGroup);
-      else { addGroup(l.group);(l.additionalGroups||[]).forEach(addGroup); }
-    }));
     const currentDep=String(db?.currentUser?.department||'').trim();
-    const storedGroups=currentDep && db?.departmentWorkspaces?.[currentDep]?.groups
-      ? db.departmentWorkspaces[currentDep].groups : (db?.groups||[]);
-    (storedGroups||[]).forEach(g=>addGroup(typeof g==='string'?g:(g?.name||g?.group||g?.title||g?.code)));
-    Object.values(db.groupStudyProfiles||{}).forEach(bucket=>Object.values(bucket||{}).forEach(p=>addGroup(p?.group)));
+    let groups=[];
+    if(currentDep && db?.departmentWorkspaces?.[currentDep]?.groups) groups=db.departmentWorkspaces[currentDep].groups||[];
+    else groups=db?.groups||[];
     const setCount=(title,val)=>{const c=map[title]; if(c) c.querySelector('.shortcut-count').textContent=String(val)};
     setCount('Kalendar', todayLessons);
-    setCount('Guruh kalendari', groupNames.size);
-    setCount('Hozir darsda', activeInClassTeachers().length);
+    setCount('Guruh kalendari', groups.length);
+    setCount('Hozir darsda', inClass);
     setCount('Bo‘sh o‘qituvchi', Math.max(totalTeachers-inClass,0));
     setCount('Statistika', totalTeachers);
     setCount('ClassMatch', '↔');
@@ -12202,6 +12138,18 @@ renderAdvanced();
     const rows=allLessons(false).map(({t,l})=>`<tr><td>${e(scheduleTeacherName(t))}</td><td>${e(l.subject)}</td><td>${e(l.group)}</td><td>${e(l.day)}</td><td>${l.pair}</td><td>${e(l.room)} ${e(l.roomBuilding||"")}</td><td>${e(l.type)}</td></tr>`).join("");
     w.document.write(`<html><head><title>Jadval hisoboti</title><style>body{font-family:Arial;padding:24px}table{border-collapse:collapse;width:100%;font-size:11px}th,td{border:1px solid #ccc;padding:6px}th{background:#eee}</style></head><body><h2>Universitet dars jadvali hisoboti</h2><p>${e(localISO())}</p><table><thead><tr><th>O‘qituvchi</th><th>Fan</th><th>Guruh</th><th>Kun</th><th>Juftlik</th><th>Xona</th><th>Turi</th></tr></thead><tbody>${rows}</tbody></table>
 
+<style id="group-calendar-single-line-toolbar">
+/* Guruh kalendari: desktopda barcha boshqaruvlar bitta qatorda */
+#advancedModal .group-calendar-toolbar{display:flex!important;flex-wrap:nowrap!important;align-items:flex-end!important;justify-content:space-between!important;gap:10px!important;width:100%;overflow-x:auto;overflow-y:hidden}
+#advancedModal .group-calendar-left{display:flex!important;align-items:flex-end!important;flex-wrap:nowrap!important;flex:0 0 auto!important;gap:10px!important}
+#advancedModal .group-calendar-left > div{flex:0 0 auto;min-width:0}
+#advancedModal #groupCalendarSelect{width:210px!important;min-width:180px!important;max-width:210px!important}
+#advancedModal .group-calendar-left .calendar-week-filter{display:flex!important;flex-wrap:nowrap!important;gap:5px!important}
+#advancedModal .group-calendar-left .calendar-week-btn{padding:7px 10px!important;white-space:nowrap}
+#advancedModal .group-calendar-actions{display:flex!important;flex:0 0 auto!important;flex-wrap:nowrap!important;align-items:center!important;gap:5px!important;align-self:flex-end!important;margin:0!important}
+#advancedModal .group-calendar-actions > button{white-space:nowrap;min-height:36px;padding:7px 9px}
+@media(max-width:760px){#advancedModal .group-calendar-toolbar{flex-wrap:wrap!important;overflow-x:visible;overflow-y:visible}#advancedModal .group-calendar-left{flex-wrap:wrap!important}#advancedModal .group-calendar-actions{flex-wrap:wrap!important}#advancedModal #groupCalendarSelect{max-width:100%!important}}
+</style>
 </body></html>`);
     w.document.close();w.focus();setTimeout(()=>w.print(),250);
   };
@@ -13469,12 +13417,62 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
       </div>
     </div>`;
   }
+  let dragFilterTeacher="",dragFilterGroup="",dragFilterWeek="all",dragBatchExport=false;
+  function dragLessonGroups(l){return [...new Set([l.group,...(Array.isArray(l.additionalGroups)?l.additionalGroups:[])].map(x=>String(x||"").trim()).filter(Boolean))];}
+  function dragFilteredLessons(){
+    return lessons(false).filter(({t,l})=>(!dragFilterTeacher||String(t.id)===dragFilterTeacher)&&(!dragFilterGroup||dragLessonGroups(l).includes(dragFilterGroup))&&(dragFilterWeek==="all"||l.weekType==="doim"||l.weekType===dragFilterWeek));
+  }
+  function dragFilterToolbar(){
+    const ts=teachers().slice().sort((a,b)=>scheduleTeacherName(a).localeCompare(scheduleTeacherName(b),"uz"));
+    const groups=new Set();
+    if(Array.isArray(db.groups))db.groups.forEach(g=>{const name=typeof g==="string"?g:(g.name||g.group||g.title||g.code||"");if(name)groups.add(String(name).trim())});
+    lessons().forEach(({l})=>dragLessonGroups(l).forEach(g=>groups.add(g)));
+    const gs=[...groups].sort((a,b)=>a.localeCompare(b,"uz",{numeric:true}));
+    return `<div class="drag-filter-toolbar">
+      <div class="drag-filter-fields">
+        <div><label for="dragFilterTeacher">O‘qituvchi</label><select id="dragFilterTeacher" class="drag-filter-select"><option value="">Umumiy (barcha o‘qituvchilar)</option>${ts.map(t=>`<option value="${escU(String(t.id))}" ${String(t.id)===dragFilterTeacher?"selected":""}>${escU(scheduleTeacherName(t))}</option>`).join("")}</select></div>
+        <div><label for="dragFilterGroup">Guruh</label><select id="dragFilterGroup" class="drag-filter-select"><option value="">Umumiy (barcha guruhlar)</option>${gs.map(g=>`<option value="${escU(g)}" ${g===dragFilterGroup?"selected":""}>${escU(g)}</option>`).join("")}</select></div>
+        <div><label>Hafta turi</label><div class="drag-week-buttons">${[["surat","Surat"],["maxraj","Maxraj"],["all","Hammasi"]].map(([v,n])=>`<button type="button" data-drag-week="${v}" class="drag-week-btn ${dragFilterWeek===v?"active":""}">${n}</button>`).join("")}</div></div>
+      </div>
+      <div class="drag-filter-actions"><button id="dragBatchToggle" class="calendar-batch-toggle ${dragBatchExport?"on":""}" type="button"><span class="batch-dot"></span>Barchasi: ${dragBatchExport?"ON":"OFF"}</button><button class="btn success" id="dragExportExcel" type="button">Excelga eksport</button><button class="btn purple" id="dragExportWord" type="button">Wordga yuklash</button><button class="btn ghost" id="dragExportPrint" type="button">Chop etish</button></div>
+    </div><div class="drag-filter-caption">${dragFilterTeacher?"Tanlangan o‘qituvchi":"Barcha o‘qituvchilar"} · ${dragFilterGroup?escU(dragFilterGroup):"Barcha guruhlar"} · ${dragFilterWeek==="all"?"Surat + Maxraj + Doimiy":dragFilterWeek==="surat"?"Surat + Doimiy":"Maxraj + Doimiy"} · ${dragFilteredLessons().length} ta dars</div>`;
+  }
+  function dragExportRows(){return (dragBatchExport?lessons(false).filter(({l})=>dragFilterWeek==="all"||l.weekType==="doim"||l.weekType===dragFilterWeek):dragFilteredLessons()).slice().sort((a,b)=>DAYS.indexOf(a.l.day)-DAYS.indexOf(b.l.day)||Number(a.l.pair)-Number(b.l.pair)).map(({t,l})=>[l.day,Number(l.pair),l.start||"",l.end||"",scheduleTeacherName(t),l.subject||"",dragLessonGroups(l).join(", "),l.type||"",dragWeekLabel(l.weekType),l.room||"",l.roomBuilding||"",l.status||""]);}
+  const dragExportHead=["Kun","Juftlik","Boshlanish","Tugash","O‘qituvchi","Fan","Guruh","Dars turi","Hafta turi","Xona","Bino","Holat"];
+  function dragDownload(blob,name){const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);}
+  function dragExportFileName(ext){return `Drag_Drop_${dragFilterTeacher||"barcha_oqituvchilar"}_${(dragFilterGroup||"barcha_guruhlar").replace(/[^\w\u0400-\u04ff-]/g,"_")}_${dragFilterWeek}.${ext}`;}
+  async function dragDoExcel(){
+    const data=dragExportRows();if(!data.length){showAlert?.("Eksport uchun dars topilmadi.","warn");return;}
+    if(typeof ExcelJS!=="undefined"){
+      const wb=new ExcelJS.Workbook();const sheet=wb.addWorksheet("Drag Drop");sheet.addRow(dragExportHead);data.forEach(x=>sheet.addRow(x));sheet.getRow(1).font={bold:true,color:{argb:"FFFFFFFF"}};sheet.getRow(1).fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF4191BF"}};sheet.columns.forEach(c=>c.width=21);sheet.views=[{state:"frozen",ySplit:1}];sheet.autoFilter={from:"A1",to:"L1"};
+      const bytes=await wb.xlsx.writeBuffer();dragDownload(new Blob([bytes],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),dragExportFileName("xlsx"));
+    }else if(typeof XLSX!=="undefined"){
+      const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet([dragExportHead,...data]);XLSX.utils.book_append_sheet(wb,ws,"Drag Drop");XLSX.writeFile(wb,dragExportFileName("xlsx"));
+    }else showAlert?.("Excel kutubxonasi yuklanmagan.","error");
+  }
+  function dragExportDocument(){const rows=dragExportRows();return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;margin:24px}h2{text-align:center}table{border-collapse:collapse;width:100%;font-size:10px}td,th{border:1px solid #777;padding:6px;vertical-align:top}th{background:#d9edf7}@page{size:A4 landscape;margin:12mm}</style></head><body><h2>Drag & Drop — dars jadvali</h2><p>${escU(dragFilterWeek==="all"?"Hammasi":dragFilterWeek)} · ${rows.length} ta dars</p><table><thead><tr>${dragExportHead.map(h=>`<th>${escU(h)}</th>`).join("")}</tr></thead><tbody>${rows.map(row=>`<tr>${row.map(v=>`<td>${escU(v)}</td>`).join("")}</tr>`).join("")}</tbody></table>
+<style id="group-calendar-single-line-toolbar">
+/* Guruh kalendari: desktopda barcha boshqaruvlar bitta qatorda */
+#advancedModal .group-calendar-toolbar{display:flex!important;flex-wrap:nowrap!important;align-items:flex-end!important;justify-content:space-between!important;gap:10px!important;width:100%;overflow-x:auto;overflow-y:hidden}
+#advancedModal .group-calendar-left{display:flex!important;align-items:flex-end!important;flex-wrap:nowrap!important;flex:0 0 auto!important;gap:10px!important}
+#advancedModal .group-calendar-left > div{flex:0 0 auto;min-width:0}
+#advancedModal #groupCalendarSelect{width:210px!important;min-width:180px!important;max-width:210px!important}
+#advancedModal .group-calendar-left .calendar-week-filter{display:flex!important;flex-wrap:nowrap!important;gap:5px!important}
+#advancedModal .group-calendar-left .calendar-week-btn{padding:7px 10px!important;white-space:nowrap}
+#advancedModal .group-calendar-actions{display:flex!important;flex:0 0 auto!important;flex-wrap:nowrap!important;align-items:center!important;gap:5px!important;align-self:flex-end!important;margin:0!important}
+#advancedModal .group-calendar-actions > button{white-space:nowrap;min-height:36px;padding:7px 9px}
+@media(max-width:760px){#advancedModal .group-calendar-toolbar{flex-wrap:wrap!important;overflow-x:visible;overflow-y:visible}#advancedModal .group-calendar-left{flex-wrap:wrap!important}#advancedModal .group-calendar-actions{flex-wrap:wrap!important}#advancedModal #groupCalendarSelect{max-width:100%!important}}
+</style>
+</body></html>`;}
+  function dragDoWord(){if(!dragExportRows().length)return showAlert?.("Eksport uchun dars topilmadi.","warn");dragDownload(new Blob(["\ufeff",dragExportDocument()],{type:"application/msword"}),dragExportFileName("doc"));}
+  function dragDoPrint(){if(!dragExportRows().length)return showAlert?.("Chop etish uchun dars topilmadi.","warn");const w=window.open("","_blank");if(!w)return showAlert?.("Brauzer yangi oynani blokladi.","error");w.document.write(dragExportDocument());w.document.close();w.focus();setTimeout(()=>w.print(),350);}
+  function dragRefresh(){openU("Drag & drop jadval","Darslarni to‘liq boshqarish",dragHTML());bindDrag();}
   function dragHTML(){
-    let html=`<div class="ultra-table-wrap"><div class="ultra-dnd"><div class="ultra-dnd-cell ultra-dnd-head">Juftlik</div>${DAYS.map(d=>`<div class="ultra-dnd-cell ultra-dnd-head">${d}</div>`).join("")}`;
+    let html=dragFilterToolbar()+`<div class="ultra-table-wrap"><div class="ultra-dnd"><div class="ultra-dnd-cell ultra-dnd-head">Juftlik</div>${DAYS.map(d=>`<div class="ultra-dnd-cell ultra-dnd-head">${d}</div>`).join("")}`;
     [1,2,3,4,5,6,7,8].forEach(pair=>{
       html+=`<div class="ultra-dnd-cell ultra-dnd-head">${pair}<br><span style="font-weight:400">${pairTimes[pair].start}–${pairTimes[pair].end}</span></div>`;
       DAYS.forEach(day=>{
-        const arr=lessons(false).filter(x=>x.l.day===day&&Number(x.l.pair)===pair&&weekOk(x.l));
+        const arr=dragFilteredLessons().filter(x=>x.l.day===day&&Number(x.l.pair)===pair);
         html+=`<div class="ultra-dnd-cell" data-drop-day="${day}" data-drop-pair="${pair}">${arr.map(({t,l})=>`
           <div class="ultra-dnd-card" data-drag-tid="${t.id}" data-drag-lid="${l.id}">
             <div class="ultra-drag-handle" draggable="${permission("edit")?"true":"false"}" data-handle-tid="${t.id}" data-handle-lid="${l.id}" title="Sudrab ko‘chirish">↕ Sudrash</div>
@@ -13570,6 +13568,14 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
 
   function bindDrag(){
     setTimeout(()=>{
+      const ft=U("dragFilterTeacher"),fg=U("dragFilterGroup");
+      if(ft)ft.onchange=()=>{dragFilterTeacher=ft.value;dragRefresh()};
+      if(fg)fg.onchange=()=>{dragFilterGroup=fg.value;dragRefresh()};
+      document.querySelectorAll("[data-drag-week]").forEach(b=>b.onclick=()=>{dragFilterWeek=b.dataset.dragWeek;dragRefresh()});
+      const batch=U("dragBatchToggle");if(batch)batch.onclick=()=>{dragBatchExport=!dragBatchExport;dragRefresh()};
+      if(U("dragExportExcel"))U("dragExportExcel").onclick=()=>dragDoExcel().catch(e=>showAlert?.(String(e.message||e),"error"));
+      if(U("dragExportWord"))U("dragExportWord").onclick=dragDoWord;
+      if(U("dragExportPrint"))U("dragExportPrint").onclick=dragDoPrint;
       /* Desktop: faqat maxsus ushlagichdan sudraladi. */
       document.querySelectorAll(".ultra-drag-handle").forEach(handle=>{
         handle.addEventListener("dragstart",ev=>{
@@ -14702,64 +14708,21 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
     }).join('');
     return `<div class="summary-detail-toolbar"><b>Hozir darsda: ${list.length} nafar</b><span>Joriy vaqt bo‘yicha</span></div><div class="summary-detail-list">${rows||'<div class="summary-detail-empty">Hozir hech bir o‘qituvchi darsda emas.</div>'}</div>`;
   }
-  function todayDetail(selectedDate='',selectedPair='',selectedBuildings=[]){
+  function todayDetail(){
     const rows=[];
     (typeof scopedTeachers==='function'?scopedTeachers():[]).forEach(t=>{
-      (selectedDate && typeof lessonsForDashboardDate==='function'
-        ? lessonsForDashboardDate(t,selectedDate)
-        : (typeof todayLessonsFor==='function'?todayLessonsFor(t):[]))
-        .forEach(l=>rows.push({t,l}));
+      (typeof todayLessonsFor==='function'?todayLessonsFor(t):[]).forEach(l=>rows.push({t,l}));
     });
     rows.sort((a,b)=>Number(a.l.pair)-Number(b.l.pair)||String(a.t.name||'').localeCompare(String(b.t.name||''),'uz'));
-    const pairs=[...new Set(rows.map(x=>Number(x.l.pair)).filter(x=>Number.isFinite(x)&&x>0))].sort((a,b)=>a-b);
-    const options='<option value="">Barcha juftliklar</option>'+pairs.map(p=>`<option value="${p}"${String(p)===String(selectedPair)?' selected':''}>${p}-juftlik</option>`).join('');
-    const buildingName=l=>{
-      const room=(typeof roomById==='function' && l.roomId)?roomById(l.roomId):null;
-      return String(room?.building||l.roomBuilding||'').trim();
-    };
-    const buildingKey=v=>String(v||'').trim().toLocaleLowerCase('uz');
-    const allBuildingNames=[...(db.buildings||[]).map(b=>b.name||b.building||''),...(db.rooms||[]).map(r=>r.building||''),...rows.map(({l})=>buildingName(l))];
-    const names=[...new Map(allBuildingNames.filter(x=>String(x).trim()).map(x=>[buildingKey(x),String(x).trim()])).values()].sort((a,b)=>a.localeCompare(b,'uz',{numeric:true}));
-    const selectedKeys=new Set(selectedBuildings.map(buildingKey));
-    const buildingOptions=names.map(name=>`<label class="summary-building-option"><input type="checkbox" value="${safe(name)}" ${selectedKeys.has(buildingKey(name))?'checked':''}><span>${safe(name)}</span></label>`).join('');
-    const buildingLabel=selectedBuildings.length?`${selectedBuildings.length} ta bino tanlandi`:'Barcha binolar';
-    const visible=rows.filter(({l})=>(!selectedPair||String(l.pair)===String(selectedPair))&&(!selectedKeys.size||selectedKeys.has(buildingKey(buildingName(l)))));
-    const html=visible.map(({t,l})=>{
+    const html=rows.map(({t,l})=>{
       const room=typeof roomDisplay==='function'?roomDisplay(l.room,l.roomBuilding,l.roomId):safe(l.room);
-      const detail=`<strong>${safe(l.pair)}-juftlik · ${safe(l.start)}–${safe(l.end)}</strong><br>${safe(l.subject)} · ${safe(l.group)}<br>${room} · ${safe(l.type||'—')}`;
+      const detail=`<strong>${l.pair}-juftlik · ${safe(l.start)}–${safe(l.end)}</strong><br>${safe(l.subject)} · ${safe(l.group)}<br>${room} · ${safe(l.type||'—')}`;
       const weekLabel=l.weekType==='doim'?'Doimiy':String(l.weekType||'').toUpperCase();
       const chips=`<span class="summary-chip blue">${safe(weekLabel)}</span>${l.status==='approved'?'<span class="summary-chip green">Tasdiqlangan</span>':''}`;
       return teacherRow(t,detail,chips);
     }).join('');
-    const day=selectedDate?new Date(selectedDate+'T12:00:00').toLocaleDateString('uz-UZ',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'}):(typeof nowInfo==='function'?nowInfo().day:'');
-    const formattedDate=selectedDate?selectedDate.split('-').reverse().join('.'):'';
-    return `<div class="summary-today-filters"><label>Sana<div class="summary-date-control"><input class="summary-date-text" type="text" id="summaryTodayDateText" placeholder="kk.oo.yyyy" value="${safe(formattedDate)}" maxlength="10" inputmode="numeric" aria-label="Sana (kun.oy.yil)"><span class="summary-date-picker" title="Kalendardan tanlash">▦<input type="date" id="summaryTodayDate" value="${safe(selectedDate)}" aria-label="Kalendardan sanani tanlash" tabindex="-1"></span></div></label><label>Juftlik<select id="summaryTodayPair" aria-label="Juftlikni tanlash">${options}</select></label><div class="summary-building-field"><span class="summary-building-label">Bino</span><div class="summary-building-wrap"><button type="button" id="summaryBuildingToggle" class="summary-building-toggle" aria-expanded="false">${safe(buildingLabel)} <span>▾</span></button><div id="summaryBuildingMenu" class="summary-building-menu" hidden><div class="summary-building-actions"><button type="button" id="summaryBuildingAll">Barchasini ko‘rsatish</button><button type="button" id="summaryBuildingDone">Yakunlash</button></div><div class="summary-building-options">${buildingOptions||'<div class="mini">Binolar kiritilmagan</div>'}</div></div></div></div><button type="button" class="btn ghost" id="summaryTodayReset">Bugungi kunga qaytish</button></div><div class="summary-detail-toolbar"><b>${selectedDate?'Tanlangan kundagi':'Bugungi'} darslar: ${visible.length} ta</b><span>${safe(day)}${selectedDate?'':' · '+safe(String(typeof currentWeek!=='undefined'?currentWeek:'').toUpperCase())}</span></div><div class="summary-detail-list">${html||'<div class="summary-detail-empty">Tanlangan sana, juftlik va binolar bo‘yicha dars yo‘q.</div>'}</div>`;
-  }
-  function bindTodayFilters(){
-    const root=document.getElementById('genericBody');if(!root)return;
-    const date=root.querySelector('#summaryTodayDate'),dateText=root.querySelector('#summaryTodayDateText'),pair=root.querySelector('#summaryTodayPair'),reset=root.querySelector('#summaryTodayReset');
-    const checkedBuildings=()=>[...root.querySelectorAll('#summaryBuildingMenu input[type="checkbox"]:checked')].map(x=>x.value);
-    function refresh(d,p,b=checkedBuildings(),keepMenu=false){root.innerHTML=todayDetail(d,p,b);bindTeacherRows(root);bindTodayFilters();if(keepMenu){const menu=root.querySelector('#summaryBuildingMenu'),toggle=root.querySelector('#summaryBuildingToggle');if(menu&&toggle){menu.hidden=false;toggle.setAttribute('aria-expanded','true');}}}
-    date?.addEventListener('change',()=>refresh(date.value,'',checkedBuildings()));
-    dateText?.addEventListener('change',()=>{
-      const value=dateText.value.trim();
-      if(!value){refresh('','');return;}
-      const m=value.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})$/);
-      if(!m){dateText.setCustomValidity('Sanani kk.oo.yyyy shaklida kiriting');dateText.reportValidity();return;}
-      const [day,month,year]=[Number(m[1]),Number(m[2]),Number(m[3])];
-      const test=new Date(year,month-1,day);
-      if(test.getFullYear()!==year||test.getMonth()!==month-1||test.getDate()!==day){dateText.setCustomValidity('Bunday sana mavjud emas');dateText.reportValidity();return;}
-      dateText.setCustomValidity('');
-      refresh(`${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`,'');
-    });
-    dateText?.addEventListener('input',()=>dateText.setCustomValidity(''));
-    pair?.addEventListener('change',()=>refresh(date?.value||'',pair.value));
-    const toggle=root.querySelector('#summaryBuildingToggle'),menu=root.querySelector('#summaryBuildingMenu');
-    toggle?.addEventListener('click',()=>{const next=menu.hidden;menu.hidden=!next;toggle.setAttribute('aria-expanded',String(next));});
-    root.querySelectorAll('#summaryBuildingMenu input[type="checkbox"]').forEach(input=>input.addEventListener('change',()=>refresh(date?.value||'',pair?.value||'',checkedBuildings(),true)));
-    root.querySelector('#summaryBuildingAll')?.addEventListener('click',()=>refresh(date?.value||'',pair?.value||'',[]));
-    root.querySelector('#summaryBuildingDone')?.addEventListener('click',()=>{menu.hidden=true;toggle.setAttribute('aria-expanded','false');});
-    reset?.addEventListener('click',()=>refresh('','',[]));
+    const day=typeof nowInfo==='function'?nowInfo().day:'';
+    return `<div class="summary-detail-toolbar"><b>Bugungi darslar: ${rows.length} ta</b><span>${safe(day)} · ${String(typeof currentWeek!=='undefined'?currentWeek:'').toUpperCase()}</span></div><div class="summary-detail-list">${html||'<div class="summary-detail-empty">Bugun joriy hafta bo‘yicha dars yo‘q.</div>'}</div>`;
   }
   function show(kind){
     let title='',html='';
@@ -14768,7 +14731,6 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
     if(kind==='today'){title='Bugungi darslar';html=todayDetail();}
     openDetails(title,html);
     bindTeacherRows(document.getElementById('genericBody'));
-    if(kind==='today')bindTodayFilters();
   }
   function makeClickable(id,kind,label){
     const n=document.getElementById(id); const card=n?.closest('.stat');
@@ -18481,7 +18443,20 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
 #dataCollectionModal{align-items:flex-start !important;padding-top:6px !important;}
 #dataCollectionModal > .modal-card{margin-top:0 !important;max-height:calc(100vh - 12px) !important;}
 </style>
-</head><body><h2>${esc(r.title)}</h2><table><tr><th>F.I.Sh.</th>${r.fields.map(f=>`<th>${esc(f.label)}</th>`).join('')}</tr>${ts.map(t=>{const s=subs.find(x=>String(x.teacherId)===String(t.id));return `<tr><td>${esc(t.name)}</td>${r.fields.map(f=>`<td>${esc(s?.values?.[f.id]||'')}</td>`).join('')}</tr>`}).join('')}</table><script>onload=()=>print()<\/script></body></html>`);w.document.close()};
+</head><body><h2>${esc(r.title)}</h2><table><tr><th>F.I.Sh.</th>${r.fields.map(f=>`<th>${esc(f.label)}</th>`).join('')}</tr>${ts.map(t=>{const s=subs.find(x=>String(x.teacherId)===String(t.id));return `<tr><td>${esc(t.name)}</td>${r.fields.map(f=>`<td>${esc(s?.values?.[f.id]||'')}</td>`).join('')}</tr>`}).join('')}</table><script>onload=()=>print()<\/script>
+<style id="group-calendar-single-line-toolbar">
+/* Guruh kalendari: desktopda barcha boshqaruvlar bitta qatorda */
+#advancedModal .group-calendar-toolbar{display:flex!important;flex-wrap:nowrap!important;align-items:flex-end!important;justify-content:space-between!important;gap:10px!important;width:100%;overflow-x:auto;overflow-y:hidden}
+#advancedModal .group-calendar-left{display:flex!important;align-items:flex-end!important;flex-wrap:nowrap!important;flex:0 0 auto!important;gap:10px!important}
+#advancedModal .group-calendar-left > div{flex:0 0 auto;min-width:0}
+#advancedModal #groupCalendarSelect{width:210px!important;min-width:180px!important;max-width:210px!important}
+#advancedModal .group-calendar-left .calendar-week-filter{display:flex!important;flex-wrap:nowrap!important;gap:5px!important}
+#advancedModal .group-calendar-left .calendar-week-btn{padding:7px 10px!important;white-space:nowrap}
+#advancedModal .group-calendar-actions{display:flex!important;flex:0 0 auto!important;flex-wrap:nowrap!important;align-items:center!important;gap:5px!important;align-self:flex-end!important;margin:0!important}
+#advancedModal .group-calendar-actions > button{white-space:nowrap;min-height:36px;padding:7px 9px}
+@media(max-width:760px){#advancedModal .group-calendar-toolbar{flex-wrap:wrap!important;overflow-x:visible;overflow-y:visible}#advancedModal .group-calendar-left{flex-wrap:wrap!important}#advancedModal .group-calendar-actions{flex-wrap:wrap!important}#advancedModal #groupCalendarSelect{max-width:100%!important}}
+</style>
+</body></html>`);w.document.close()};
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{mount();setTimeout(bootPersistentKiosk,250)},300));else setTimeout(()=>{mount();setTimeout(bootPersistentKiosk,250)},300);
 })();
 </script>
@@ -18756,6 +18731,16 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
 .calendar-master-alert{display:none;margin:0 0 10px;padding:9px 11px;border-radius:6px;font-size:11px;line-height:1.5}
 .calendar-master-alert.show{display:block}.calendar-master-alert.ok{background:#ecfdf3;color:#067647;border:1px solid #abefc6}.calendar-master-alert.warn{background:#fffaeb;color:#b54708;border:1px solid #fedf89}.calendar-master-alert.error{background:#fff1f0;color:#b42318;border:1px solid #fecdca}
 @media(max-width:760px){.calendar-master-toolbar{grid-template-columns:1fr}.calendar-master-actions{justify-content:flex-start}}
+
+/* O‘qituvchi kalendari: guruh kalendariga mos ixcham panel */
+#advancedModal .calendar-master-toolbar{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin:0 0 13px;padding:12px;background:#f8fbfe;border:1px solid #d8e5ef;border-radius:6px}
+#advancedModal .calendar-master-picker{display:flex;flex:0 1 auto;align-items:flex-end;gap:12px;flex-wrap:wrap}
+#advancedModal .calendar-master-picker label{display:block;font-size:11px;font-weight:800;color:#34516d;margin:0 0 5px}
+#advancedModal #calendarTeacherSelect{width:240px;min-width:200px;max-width:100%;height:36px;padding:5px 10px;border:1px solid #b9cbd8;border-radius:5px;font-size:12px;font-weight:400;background:#fff}
+#advancedModal .calendar-week-filter{margin:0;min-height:36px;gap:7px}
+#advancedModal .calendar-week-filter .calendar-week-btn{min-height:36px;padding:8px 15px}
+#advancedModal .calendar-master-actions{align-self:flex-end;justify-content:flex-end;gap:7px}
+@media(max-width:760px){#advancedModal .calendar-master-toolbar{align-items:stretch}#advancedModal .calendar-master-actions{justify-content:flex-start}#advancedModal #calendarTeacherSelect{width:100%}}
 </style>
 <script id="calendar-teacher-integration-script">
 (function(){
@@ -18769,6 +18754,7 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
   // Kalendar ochilganda barcha hafta turlari ko‘rinadi.
   // Surat/Maxraj tanlanganda Doimiy darslar har doim ko‘rinishda qoladi.
   let calendarWeekFilter='all';
+  let calendarLessonType='all';
   // Ommaviy eksport har safar modul ochilganda OFF holatda boshlanadi.
   let calendarBatchExport=false;
 
@@ -18798,11 +18784,17 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
     if(calendarWeekFilter==='all')return true;
     return w===calendarWeekFilter;
   }
+  function matchesCalendarLessonType(value,filter){
+    const kind=normC(value).replace(/[^a-z']/g,'');
+    return filter==='lecture' ? (kind.includes('maruza') || kind.includes("ma'ruza")) :
+           filter==='practical' ? kind.includes('amaliy') : true;
+  }
   function lessonsForTeacher(t){
     const arr=[];
     (t?.schedule||[]).forEach(l=>{
       if(l.cancelled||String(l.status||'pending')!=='approved')return;
       if(!lessonPassesWeekFilter(l))return;
+      if(calendarLessonType!=='all' && !matchesCalendarLessonType(l.type,calendarLessonType))return;
       arr.push({...l,teacher:t});
     });
     return arr;
@@ -18851,13 +18843,14 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
       grid+='</div>';
     }
     const filterButtons=`<div class="calendar-week-filter" aria-label="Hafta turi filtri"><button type="button" class="calendar-week-btn ${calendarWeekFilter==='surat'?'active':''}" data-calendar-week="surat">Surat</button><button type="button" class="calendar-week-btn ${calendarWeekFilter==='maxraj'?'active':''}" data-calendar-week="maxraj">Maxraj</button><button type="button" class="calendar-week-btn ${calendarWeekFilter==='all'?'active':''}" data-calendar-week="all">Hammasi</button></div>`;
-    return `<div class="calendar-master-toolbar"><div class="calendar-master-picker"><label>O‘qituvchi</label><select id="calendarTeacherSelect">${opts}</select>${filterButtons}<div class="calendar-master-meta">${dep?`Faol kafedra: <b>${escC(dep)}</b> · `:''}Birinchi variant — <b>Umumiy</b>. Doimiy darslar har bir filtrda ko‘rinadi.</div></div><div class="calendar-master-actions"><button class="calendar-batch-toggle ${calendarBatchExport?'on':''}" id="calendarBatchToggle" type="button" title="ON bo‘lsa barcha o‘qituvchilar bitta ZIP ichida alohida fayllarga eksport qilinadi"><span class="batch-dot"></span>Barchasi: ${calendarBatchExport?'ON':'OFF'}</button><button class="btn success" id="calendarExcelExport" type="button">Excelga export</button><button class="btn purple" id="calendarWordExport" type="button">Wordga yuklash</button><button class="btn primary" id="calendarExcelImport" type="button">Exceldan import</button><input id="calendarExcelFile" type="file" accept=".xlsx,.xls" style="display:none"></div></div><div id="calendarMasterAlert" class="calendar-master-alert"></div><div id="calendarMasterGrid">${grid}</div>`;
+    return `<div class="calendar-master-toolbar"><div class="calendar-master-picker"><div class="calendar-master-teacher"><label for="calendarTeacherSelect">O‘qituvchi</label><select id="calendarTeacherSelect">${opts}</select></div><div class="calendar-master-weeks"><label>Hafta turi</label>${filterButtons}</div><div class="calendar-master-weeks"><label>Mashg‘ulot turi</label><div class="calendar-week-filter">${[["all","Hammasi"],["lecture","Ma’ruza"],["practical","Amaliy"]].map(([k,v])=>`<button type="button" class="calendar-week-btn ${calendarLessonType===k?'active':''}" data-calendar-type="${k}">${v}</button>`).join('')}</div></div></div><div class="calendar-master-actions"><button class="calendar-batch-toggle ${calendarBatchExport?'on':''}" id="calendarBatchToggle" type="button" title="ON bo‘lsa barcha o‘qituvchilar bitta ZIP ichida alohida fayllarga eksport qilinadi"><span class="batch-dot"></span>Barchasi: ${calendarBatchExport?'ON':'OFF'}</button><button class="btn success" id="calendarExcelExport" type="button">Excelga export</button><button class="btn purple" id="calendarWordExport" type="button">Wordga yuklash</button><button class="btn primary" id="calendarExcelImport" type="button">Exceldan import</button><input id="calendarExcelFile" type="file" accept=".xlsx,.xls" style="display:none"></div></div><div id="calendarMasterAlert" class="calendar-master-alert"></div><div id="calendarMasterGrid">${grid}</div>`;
   }
   function renderCalendar(){
     const body=q('advancedBody');if(!body)return;
     body.innerHTML=calendarHTML();
     const sel=q('calendarTeacherSelect');if(sel){sel.disabled=calendarBatchExport;sel.title=calendarBatchExport?'Barchasi ON: barcha o‘qituvchilar bitta ZIP ichida eksport qilinadi':'';sel.onchange=()=>{calendarTeacherId=sel.value||'';renderCalendar()}}
     document.querySelectorAll('[data-calendar-week]').forEach(btn=>{btn.onclick=()=>{calendarWeekFilter=btn.dataset.calendarWeek||'all';renderCalendar()}});
+    document.querySelectorAll('[data-calendar-type]').forEach(btn=>{btn.onclick=()=>{calendarLessonType=btn.dataset.calendarType||'all';renderCalendar()}});
     const bt=q('calendarBatchToggle');if(bt)bt.onclick=()=>{calendarBatchExport=!calendarBatchExport;renderCalendar();setTimeout(()=>showCalendarMsg(calendarBatchExport?`<b>Barchasi ON.</b> Excel yoki Word bosilsa faol kafedradagi ${calendarTeachers().length} nafar o‘qituvchi bitta ZIP ichida alohida fayllarga eksport qilinadi.`:'<b>Barchasi OFF.</b> Faqat tanlangan jadval eksport qilinadi.','ok'),0)};
     const ex=q('calendarExcelExport');if(ex)ex.onclick=()=>exportCalendarExcel();
     const wd=q('calendarWordExport');if(wd)wd.onclick=()=>exportCalendarWord();
@@ -19268,13 +19261,14 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const days=['Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba'];
  const wl={surat:'Surat',maxraj:'Maxraj',doim:'Doimiy',single:'Bir kunlik'};
- let activeGroup='',activeWeek='all',batchExport=false;
+ let activeGroup='',activeWeek='all',activeType='all',batchExport=false;
  const getDB=()=>typeof db!=='undefined'?db:(JSON.parse(localStorage.getItem('dispatchDB')||'{}'));
  function teachers(){const data=getDB();try{return typeof scopedTeachers==='function'?scopedTeachers():(data.teachers||[])}catch(e){return data.teachers||[]}}
  function tname(t){try{return typeof scheduleTeacherName==='function'?scheduleTeacherName(t):(t.shortName||t.name||'')}catch(e){return t.name||''}}
  function lg(l){return [...new Set([l.group,...(Array.isArray(l.additionalGroups)?l.additionalGroups:[])].map(x=>String(x||'').trim()).filter(Boolean))]}
  function groups(){const d=getDB(),set=new Set();(d.groups||[]).forEach(g=>{const n=typeof g==='string'?g:(g.name||g.group||g.title||g.code||'');if(n)set.add(String(n).trim())});teachers().forEach(t=>(t.schedule||[]).forEach(l=>lg(l).forEach(g=>set.add(g))));return [...set].filter(Boolean).sort((a,b)=>a.localeCompare(b,'uz',{numeric:true}))}
- function lessons(){const out=[];teachers().forEach(t=>(t.schedule||[]).forEach(l=>{if(l.cancelled||String(l.status||'pending')!=='approved')return;const w=String(l.weekType||'doim').toLowerCase();if(activeWeek!=='all'&&w!=='doim'&&w!==activeWeek)return;const gs=lg(l);if(activeGroup&&!gs.includes(activeGroup))return;gs.forEach(g=>{if(!activeGroup||activeGroup===g)out.push({...l,teacher:t,displayGroup:g})})}));return out}
+ function passesType(type){const v=String(type||'').toLowerCase().replace(/[ʻʼ’‘`]/g,"'");return activeType==='all'||(activeType==='lecture'?(v.includes('maruza')||v.includes("ma'ruza")):v.includes('amaliy'))}
+ function lessons(){const out=[];teachers().forEach(t=>(t.schedule||[]).forEach(l=>{if(l.cancelled||String(l.status||'pending')!=='approved'||!passesType(l.type))return;const w=String(l.weekType||'doim').toLowerCase();if(activeWeek!=='all'&&w!=='doim'&&w!==activeWeek)return;const gs=lg(l);if(activeGroup&&!gs.includes(activeGroup))return;gs.forEach(g=>{if(!activeGroup||activeGroup===g)out.push({...l,teacher:t,displayGroup:g})})}));return out}
  function room(l){try{return typeof roomDisplay==='function'?roomDisplay(l.room,l.roomBuilding,l.roomId):[l.roomBuilding,l.room].filter(Boolean).join('-')}catch(e){return [l.roomBuilding,l.room].filter(Boolean).join('-')}}
  function timing(p){try{const x=pairTimes[p]||{};return `${x.start||''}–${x.end||''}`}catch(e){return ''}}
  function content(){const ls=lessons(), gs=groups();const opts='<option value="">Umumiy (barcha guruhlar)</option>'+gs.map(g=>`<option value="${esc(g)}" ${activeGroup===g?'selected':''}>${esc(g)}</option>`).join('');
@@ -19283,10 +19277,10 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
  const pairs=activeGroup?[...new Set(ls.map(l=>Number(l.pair)).filter(p=>p>=1&&p<=8))].sort((a,b)=>a-b):[1,2,3,4,5,6,7,8];
  pairs.forEach(p=>{grid+=`<div class="calendar-cell calendar-head">${p}-juftlik<br>${esc(timing(p))}</div>`;days.forEach(day=>{const slot=ls.filter(l=>l.day===day&&Number(l.pair)===p).sort((a,b)=>String(a.displayGroup).localeCompare(String(b.displayGroup),'uz',{numeric:true}));grid+=`<div class="calendar-cell">${slot.length?slot.map(l=>{const w=String(l.weekType||'doim');return `<div class="calendar-lesson"><span class="calendar-week-badge ${esc(w)}">${esc(wl[w]||w)}</span><span class="calendar-lesson-type">${esc(l.type||'Dars')}</span>${activeGroup?'':`<span class="calendar-lesson-subject">${esc(l.displayGroup)}</span>`}<span class="calendar-lesson-subject">${esc(l.subject||'')}</span><span class="calendar-lesson-meta">O‘qituvchi: ${esc(tname(l.teacher))}</span><span class="calendar-lesson-room">Xona: ${esc(room(l)||'—')}</span></div>`}).join(''):'<div class="calendar-empty">—</div>'}</div>`})});grid+='</div>';
  if(!pairs.length)grid='<div class="empty">Tanlangan guruh uchun dars topilmadi.</div>';
- return `<div class="group-calendar-toolbar"><div class="group-calendar-left"><div><label for="groupCalendarSelect">Guruh</label><select id="groupCalendarSelect">${opts}</select></div><div><label>Hafta turi</label>${filter}</div></div><div class="group-calendar-actions"><button class="calendar-batch-toggle ${batchExport?'on':''}" id="groupBatchToggle" type="button"><span class="batch-dot"></span>Barchasi: ${batchExport?'ON':'OFF'}</button><button class="btn success" id="groupCalExcel" type="button">Excelga eksport</button><button class="btn purple" id="groupCalWord" type="button">Wordga yuklash</button><button class="btn ghost" id="groupCalPrint" type="button">Chop etish</button></div></div><div class="group-calendar-summary">${activeGroup?`Guruh: <b>${esc(activeGroup)}</b>`:'Barcha guruhlarning umumiy jadvali'} · ${activeWeek==='all'?'Surat + Maxraj + Doimiy':wl[activeWeek]+' + Doimiy'} · ${ls.length} ta dars yozuvi</div><div id="groupCalendarTable">${grid}</div>`;
+ return `<div class="group-calendar-toolbar"><div class="group-calendar-left"><div><label for="groupCalendarSelect">Guruh</label><select id="groupCalendarSelect">${opts}</select></div><div><label>Hafta turi</label>${filter}</div><div><label>Mashg‘ulot turi</label><div class="calendar-week-filter">${[['all','Hammasi'],['lecture','Ma’ruza'],['practical','Amaliy']].map(([k,v])=>`<button type="button" class="calendar-week-btn ${activeType===k?'active':''}" data-group-type="${k}">${v}</button>`).join('')}</div></div></div><div class="group-calendar-actions"><button class="calendar-batch-toggle ${batchExport?'on':''}" id="groupBatchToggle" type="button"><span class="batch-dot"></span>Barchasi: ${batchExport?'ON':'OFF'}</button><button class="btn success" id="groupCalExcel" type="button">Excelga eksport</button><button class="btn purple" id="groupCalWord" type="button">Wordga yuklash</button><button class="btn primary" id="groupCalImport" type="button">Excel import</button><input type="file" id="groupCalImportFile" accept=".xlsx,.xls" style="display:none"><button class="btn ghost" id="groupCalPrint" type="button">Chop etish</button></div></div><div class="group-calendar-summary">${activeGroup?`Guruh: <b>${esc(activeGroup)}</b>`:'Barcha guruhlarning umumiy jadvali'} · ${activeWeek==='all'?'Surat + Maxraj + Doimiy':wl[activeWeek]+' + Doimiy'} · ${ls.length} ta dars yozuvi</div><div id="groupCalendarTable">${grid}</div>`;
  }
- function render(){const b=byId('advancedBody');if(!b)return;b.innerHTML=content();byId('groupCalendarSelect').onchange=e=>{activeGroup=e.target.value;render()};b.querySelectorAll('[data-group-week]').forEach(x=>x.onclick=()=>{activeWeek=x.dataset.groupWeek;render()});byId('groupBatchToggle').onclick=()=>{batchExport=!batchExport;render()};byId('groupCalExcel').onclick=exportExcel;byId('groupCalWord').onclick=exportWord;byId('groupCalPrint').onclick=printIt}
- function open(){activeGroup='';activeWeek='all';batchExport=false;if(typeof openAdvanced==='function')openAdvanced('Umumiy guruh kalendar jadvali','Barcha guruhlar · Hammasi',content());else{const m=byId('advancedModal');if(!m)return;m.classList.add('open');const h=m.querySelector('h2');if(h)h.textContent='Umumiy guruh kalendar jadvali';}render()}
+ function render(){const b=byId('advancedBody');if(!b)return;b.innerHTML=content();byId('groupCalendarSelect').onchange=e=>{activeGroup=e.target.value;render()};b.querySelectorAll('[data-group-week]').forEach(x=>x.onclick=()=>{activeWeek=x.dataset.groupWeek;render()});b.querySelectorAll('[data-group-type]').forEach(x=>x.onclick=()=>{activeType=x.dataset.groupType;render()});byId('groupBatchToggle').onclick=()=>{batchExport=!batchExport;render()};byId('groupCalExcel').onclick=exportExcel;byId('groupCalWord').onclick=exportWord;byId('groupCalPrint').onclick=printIt;byId('groupCalImport').onclick=()=>byId('groupCalImportFile').click();byId('groupCalImportFile').onchange=importGroupExcel}
+ function open(){activeGroup='';activeWeek='all';activeType='all';batchExport=false;if(typeof openAdvanced==='function')openAdvanced('Umumiy guruh kalendar jadvali','Barcha guruhlar · Hammasi',content());else{const m=byId('advancedModal');if(!m)return;m.classList.add('open');const h=m.querySelector('h2');if(h)h.textContent='Umumiy guruh kalendar jadvali';}render()}
  function download(blob,name){const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500)}
  function cleanName(s){return String(s||'Umumiy').replace(/[\\/:*?"<>|]/g,'_').replace(/\s+/g,'_').slice(0,85)}
  function pairSet(ls){return [...new Set(ls.map(l=>Number(l.pair)).filter(n=>n>=1&&n<=8))].sort((a,b)=>a-b)}
@@ -19311,6 +19305,10 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
    if(!pairs.length){ws.mergeCells(3,1,3,7);ws.getCell(3,1).value='Tanlangan guruh uchun dars mavjud emas.';ws.getCell(3,1).alignment=center;ws.getRow(3).height=30}
    ws.getColumn(1).width=15;for(let c=2;c<=7;c++)ws.getColumn(c).width=28;
    ws.pageSetup={orientation:'landscape',fitToPage:true,fitToWidth:1,fitToHeight:0,paperSize:9,horizontalCentered:true,margins:{left:.2,right:.2,top:.3,bottom:.3,header:.1,footer:.1}};
+   // Import uchun xom dars yozuvlari: ko‘rinadigan kalendar formatini buzmaydi.
+   const imp=wb.addWorksheet('Import ma’lumotlari');imp.state='veryHidden';
+   imp.addRow(['O‘qituvchi','Hafta kuni','Hafta turi','Bir kunlik sana','Juftlik','Boshlanish vaqti','Tugash vaqti','Fan nomi','Guruh / yo‘nalish','Talabalar soni','Xona','Bino','Dars turi','Ta’lim shakli','Boshlanish haftasi','Tugash haftasi','Holati','Izoh']);
+   ls.forEach(l=>{const pt=(typeof pairTimes!=='undefined'&&pairTimes[l.pair])||{};imp.addRow([tname(l.teacher),l.day||'',labelWeek(l),l.singleDate||'',l.pair,l.start||pt.start||'',l.end||pt.end||'',l.subject||'',l.displayGroup||l.group||'',l.groupSize||'',l.room||'',l.roomBuilding||'',l.type||'',l.educationType||'kunduzgi',l.startWeek||'',l.endWeek||'',l.cancelled?'Bekor qilingan':l.status==='approved'?'Tasdiqlangan':'Tasdiqlash kutilmoqda',l.note||''])});
    const buffer=await wb.xlsx.writeBuffer();return new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
  }
  function xml(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;')}
@@ -19399,11 +19397,91 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
  }
  function exportExcel(){return exportFormat('excel')}
  function exportWord(){return exportFormat('word')}
- function printIt(){const w=window.open('','_blank');if(!w)return;w.document.write(`<html><head><title>Guruh kalendari</title><style>body{font-family:Arial} .calendar-grid{display:grid;grid-template-columns:105px repeat(6,1fr)} .calendar-cell{padding:6px;border:1px solid #cad4df;font-size:10px}.calendar-head{background:#d9e9f4;font-weight:bold}.calendar-lesson{border:1px solid #b9d0e1;padding:5px;margin-bottom:5px}.calendar-lesson span{display:block;margin-bottom:3px}</style></head><body><h2>Umumiy guruh kalendar jadvali — ${esc(activeGroup||'Barcha guruhlar')}</h2>${byId('groupCalendarTable').innerHTML}</body></html>`);w.document.close();w.focus();w.print()}
+ async function importGroupExcel(e){
+   const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
+   if(typeof XLSX==='undefined'||!XLSX.read||!XLSX.utils)return alert('Excel kutubxonasi yuklanmagan.');
+   try{
+     const wb=XLSX.read(await f.arrayBuffer(),{type:'array'});
+     const sn=wb.SheetNames.find(x=>x.toLowerCase().trim()==='import ma’lumotlari'||x.toLowerCase().trim()==="import ma'lumotlari");
+     if(!sn)return alert('Import uchun “Import ma’lumotlari” varag‘i kerak. Guruh kalendaridan eksport qilingan Excel faylidan foydalaning.');
+     const rows=XLSX.utils.sheet_to_json(wb.Sheets[sn],{defval:''});if(!rows.length)return alert('Import uchun dars topilmadi.');
+     const key=v=>String(v||'').toLowerCase().replace(/[ʻʼ’‘`]/g,"'").replace(/\s+/g,' ').trim();
+     const field=(r,...names)=>{for(const n of names){const k=Object.keys(r).find(z=>key(z)===key(n));if(k!==undefined)return r[k]}return ''};
+     const teacherList=teachers(),pending=[];let skipped=0;
+     for(const r of rows){
+       const name=field(r,'O‘qituvchi',"O'qituvchi");
+       const teacher=teacherList.find(t=>key(tname(t))===key(name)||key(t.name)===key(name)||key(t.shortName)===key(name));
+       const group=String(field(r,'Guruh / yo‘nalish','Guruh')||'').trim();
+       if(!teacher||!group||(activeGroup&&group!==activeGroup)){skipped++;continue}
+       const day=String(field(r,'Hafta kuni')||'').trim();
+       const p=Number(String(field(r,'Juftlik')||'').match(/\d+/)?.[0]||0);
+       const subject=String(field(r,'Fan nomi')||'').trim();
+       const rawWeek=key(field(r,'Hafta turi'));
+       const weekType=rawWeek.includes('surat')?'surat':rawWeek.includes('maxraj')?'maxraj':rawWeek.includes('bir kun')?'single':'doim';
+       if(!days.includes(day)||p<1||p>8||!subject){skipped++;continue}
+       pending.push({r,teacher,group,day,p,subject,weekType});
+     }
+     if(!pending.length)return alert('Tanlangan guruh uchun mos dars topilmadi.');
+     if(!confirm(`${pending.length} ta darsni import qilasizmi? Mavjud mos darslar yangilanadi.`))return;
+     let added=0,updated=0;const changed=new Set();
+     for(const x of pending){
+       const {r,teacher,group,day,p,subject,weekType}=x;
+       const roomName=String(field(r,'Xona')||'').trim(),building=String(field(r,'Bino')||'').trim();
+       const old=(teacher.schedule||[]).find(l=>l.day===day&&Number(l.pair)===p&&key(l.weekType||'doim')===weekType&&key(l.group)===key(group)&&key(l.subject)===key(subject));
+       const pt=(typeof pairTimes!=='undefined'&&pairTimes[p])||{};
+       const status=key(field(r,'Holati'));
+       const lesson={day,pair:p,weekType,singleDate:String(field(r,'Bir kunlik sana')||'').trim(),subject,group,start:String(field(r,'Boshlanish vaqti')||pt.start||''),end:String(field(r,'Tugash vaqti')||pt.end||''),groupSize:Number(field(r,'Talabalar soni'))||1,room:roomName,roomBuilding:building,type:String(field(r,'Dars turi')||'Ma’ruza'),educationType:String(field(r,'Ta’lim shakli')||'kunduzgi'),startWeek:Number(field(r,'Boshlanish haftasi'))||1,endWeek:Number(field(r,'Tugash haftasi'))||16,status:status.includes('tasdiq')&&!status.includes('kutil')?'approved':'pending',cancelled:status.includes('bekor'),note:String(field(r,'Izoh')||'')};
+       if(old){Object.assign(old,lesson);updated++}else{(teacher.schedule||(teacher.schedule=[])).push({...lesson,id:Date.now()+Math.random(),additionalGroups:[]});added++}changed.add(teacher);
+     }
+     if(typeof save==='function')save();if(typeof renderAll==='function')renderAll();render();
+     alert(`Excel import tugadi. Yangi: ${added}; yangilandi: ${updated}; o‘tkazib yuborildi: ${skipped}.`);
+   }catch(err){console.error(err);alert('Excel import xatosi: '+(err.message||err))}
+ }
+ function printIt(){const w=window.open('','_blank');if(!w)return;w.document.write(`<html><head><title>Guruh kalendari</title><style>body{font-family:Arial} .calendar-grid{display:grid;grid-template-columns:105px repeat(6,1fr)} .calendar-cell{padding:6px;border:1px solid #cad4df;font-size:10px}.calendar-head{background:#d9e9f4;font-weight:bold}.calendar-lesson{border:1px solid #b9d0e1;padding:5px;margin-bottom:5px}.calendar-lesson span{display:block;margin-bottom:3px}</style></head><body><h2>Umumiy guruh kalendar jadvali — ${esc(activeGroup||'Barcha guruhlar')}</h2>${byId('groupCalendarTable').innerHTML}
+<style id="group-calendar-single-line-toolbar">
+/* Guruh kalendari: desktopda barcha boshqaruvlar bitta qatorda */
+#advancedModal .group-calendar-toolbar{display:flex!important;flex-wrap:nowrap!important;align-items:flex-end!important;justify-content:space-between!important;gap:10px!important;width:100%;overflow-x:auto;overflow-y:hidden}
+#advancedModal .group-calendar-left{display:flex!important;align-items:flex-end!important;flex-wrap:nowrap!important;flex:0 0 auto!important;gap:10px!important}
+#advancedModal .group-calendar-left > div{flex:0 0 auto;min-width:0}
+#advancedModal #groupCalendarSelect{width:210px!important;min-width:180px!important;max-width:210px!important}
+#advancedModal .group-calendar-left .calendar-week-filter{display:flex!important;flex-wrap:nowrap!important;gap:5px!important}
+#advancedModal .group-calendar-left .calendar-week-btn{padding:7px 10px!important;white-space:nowrap}
+#advancedModal .group-calendar-actions{display:flex!important;flex:0 0 auto!important;flex-wrap:nowrap!important;align-items:center!important;gap:5px!important;align-self:flex-end!important;margin:0!important}
+#advancedModal .group-calendar-actions > button{white-space:nowrap;min-height:36px;padding:7px 9px}
+@media(max-width:760px){#advancedModal .group-calendar-toolbar{flex-wrap:wrap!important;overflow-x:visible;overflow-y:visible}#advancedModal .group-calendar-left{flex-wrap:wrap!important}#advancedModal .group-calendar-actions{flex-wrap:wrap!important}#advancedModal #groupCalendarSelect{max-width:100%!important}}
+</style>
+</body></html>`);w.document.close();w.focus();w.print()}
  function install(){if(byId('groupCalendarBtn'))return;const original=byId('calendarBtn');if(!original)return;const btn=document.createElement('button');btn.id='groupCalendarBtn';btn.type='button';btn.className=original.className;btn.classList.remove('active');if(original.classList.contains('hemis-side-link')||original.querySelector('.menu-text'))btn.innerHTML='<span class="menu-icon">▦</span><span class="menu-text">Guruh kalendari</span><span class="menu-arrow">‹</span>';else btn.textContent='Guruh kalendari';btn.addEventListener('click',open);original.insertAdjacentElement('afterend',btn)}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{setTimeout(install,850);setTimeout(install,1800)});else{setTimeout(install,850);setTimeout(install,1800)}
  window.openGroupCalendar=open;
 })();
 </script>
+<style id="teacher-calendar-top-toolbar-v2">
+/* O‘qituvchi kalendaridagi barcha filtrlar guruh kalendari singari yuqorida */
+#advancedModal .calendar-master-toolbar{display:flex!important;justify-content:space-between!important;align-items:flex-end!important;gap:12px!important;flex-wrap:wrap!important;margin:0 0 12px!important;padding:12px!important;background:#f8fbfe!important;border:1px solid #d8e5ef!important;border-radius:6px!important}
+#advancedModal .calendar-master-picker{display:flex!important;align-items:flex-end!important;gap:12px!important;flex:1 1 auto!important;flex-wrap:wrap!important}
+#advancedModal .calendar-master-picker > div{display:flex;flex-direction:column;justify-content:flex-end;min-width:0}
+#advancedModal .calendar-master-picker label{display:block;margin:0 0 5px!important;font-size:11px;font-weight:800;color:#34516d}
+#advancedModal #calendarTeacherSelect{width:240px;min-width:200px;max-width:100%;height:36px;font-weight:400}
+#advancedModal .calendar-master-picker .calendar-week-filter{display:flex;align-items:center;margin:0!important;min-height:36px;gap:7px}
+#advancedModal .calendar-master-picker .calendar-week-btn{min-height:36px;padding:8px 13px}
+#advancedModal .calendar-master-actions{display:flex!important;flex-wrap:wrap;align-items:center!important;justify-content:flex-end!important;gap:7px!important;align-self:flex-end!important}
+#advancedModal .calendar-master-actions > button{min-height:36px}
+#advancedModal #calendarMasterGrid{clear:both}
+@media(max-width:760px){#advancedModal .calendar-master-toolbar{align-items:stretch!important}#advancedModal .calendar-master-picker{width:100%;align-items:flex-end!important}#advancedModal .calendar-master-actions{justify-content:flex-start!important}#advancedModal #calendarTeacherSelect{width:100%}}
+</style>
+
+<style id="group-calendar-single-line-toolbar">
+/* Guruh kalendari: desktopda barcha boshqaruvlar bitta qatorda */
+#advancedModal .group-calendar-toolbar{display:flex!important;flex-wrap:nowrap!important;align-items:flex-end!important;justify-content:space-between!important;gap:10px!important;width:100%;overflow-x:auto;overflow-y:hidden}
+#advancedModal .group-calendar-left{display:flex!important;align-items:flex-end!important;flex-wrap:nowrap!important;flex:0 0 auto!important;gap:10px!important}
+#advancedModal .group-calendar-left > div{flex:0 0 auto;min-width:0}
+#advancedModal #groupCalendarSelect{width:210px!important;min-width:180px!important;max-width:210px!important}
+#advancedModal .group-calendar-left .calendar-week-filter{display:flex!important;flex-wrap:nowrap!important;gap:5px!important}
+#advancedModal .group-calendar-left .calendar-week-btn{padding:7px 10px!important;white-space:nowrap}
+#advancedModal .group-calendar-actions{display:flex!important;flex:0 0 auto!important;flex-wrap:nowrap!important;align-items:center!important;gap:5px!important;align-self:flex-end!important;margin:0!important}
+#advancedModal .group-calendar-actions > button{white-space:nowrap;min-height:36px;padding:7px 9px}
+@media(max-width:760px){#advancedModal .group-calendar-toolbar{flex-wrap:wrap!important;overflow-x:visible;overflow-y:visible}#advancedModal .group-calendar-left{flex-wrap:wrap!important}#advancedModal .group-calendar-actions{flex-wrap:wrap!important}#advancedModal #groupCalendarSelect{max-width:100%!important}}
+</style>
 </body>
 </html>
