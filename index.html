@@ -7013,6 +7013,45 @@ function isoLocalDate(d=new Date()){
  return `${y}-${m}-${day}`;
 }
 
+// O‘qish davri: tanlangan/joriy semestr haftasidan tashqaridagi darslarni yashirish.
+function activeStudyWeekForCalendar(){
+ try{
+  const settings=db?.settings||{};
+  const key=typeof semesterPeriodKey==='function'?semesterPeriodKey(settings.academicYear,settings.semester):`${settings.academicYear}||${settings.semester}`;
+  const selected=Number(settings.dashboardSelectedWeekByPeriod?.[key]||0);
+  if(selected>=1)return selected;
+  const start=settings.semesterStartDates?.[key];
+  if(!start)return null; // Boshlanish sanasi yo‘q bo‘lsa, darslarni xato yashirmaymiz.
+  const startDate=new Date(start+'T12:00:00'),today=new Date();today.setHours(12,0,0,0);
+  if(!Number.isFinite(startDate.getTime()))return null;
+  return Math.floor(Math.round((today-startDate)/86400000)/7)+1;
+ }catch(e){return null}
+}
+function lessonWithinStudyPeriod(l,week=activeStudyWeekForCalendar()){
+ // Sana/hafta aniqlanmasa mavjud darslarni taxminan o‘chirmaymiz.
+ if(!Number.isFinite(Number(week))||week===null)return true;
+ const w=Number(week);
+ const groups=[l?.group,...(Array.isArray(l?.additionalGroups)?l.additionalGroups:[])].filter(Boolean);
+ return groups.length ? groups.some(g=>{
+   const p=typeof window.getGroupStudyProfile==='function'?window.getGroupStudyProfile(g):null;
+   const edu=String(p?.educationType||l?.educationType||'kunduzgi').toLowerCase();
+   if(!edu.includes('sirt'))return true;
+   const sw=Number(p?.startWeek??l?.startWeek??1);
+   const ew=Number(p?.endWeek??l?.endWeek??60);
+   return w>=sw&&w<=ew;
+ }) : (!String(l?.educationType||'').toLowerCase().includes('sirt') || (w>=Number(l.startWeek||1)&&w<=Number(l.endWeek||60)));
+}
+
+function studyWeekForDate(dateStr){
+ try{
+  const settings=db?.settings||{};
+  const key=typeof semesterPeriodKey==='function'?semesterPeriodKey(settings.academicYear,settings.semester):`${settings.academicYear}||${settings.semester}`;
+  const start=settings.semesterStartDates?.[key];if(!start)return null;
+  const a=new Date(start+'T12:00:00'),b=new Date(String(dateStr)+'T12:00:00');
+  if(!Number.isFinite(a.getTime())||!Number.isFinite(b.getTime()))return null;
+  return Math.floor(Math.round((b-a)/86400000)/7)+1;
+ }catch(e){return null}
+}
 function lessonWeekDateOverlap(a,b){
  if(a?.weekType==="single"||b?.weekType==="single"){
    if(a?.weekType==="single"&&b?.weekType==="single") return String(a.singleDate||"")===String(b.singleDate||"");
@@ -7025,7 +7064,8 @@ function lessonWeekDateOverlap(a,b){
 }
 function lessonAppliesOnDate(l,dateStr){
  const d=String(dateStr||isoLocalDate());
- if(l?.weekType==="single") return String(l.singleDate||"")===d;
+ if(l?.weekType==="single") return String(l.singleDate||"")===d && lessonWithinStudyPeriod(l,studyWeekForDate(d));
+ if(!lessonWithinStudyPeriod(l,studyWeekForDate(d)))return false;
  const dt=new Date(d+"T12:00:00");
  const day=dayNames[dt.getDay()];
  if(l?.day!==day)return false;
@@ -7790,6 +7830,7 @@ function nowInfo(){
 function weekOverlap(a,b){return a==="doim"||b==="doim"||a===b}
 function lessonActive(l,dateStr=null){
  if(l.cancelled||l.status!=="approved")return false;
+ if(!lessonWithinStudyPeriod(l,dateStr?studyWeekForDate(dateStr):activeStudyWeekForCalendar()))return false;
  if(l.weekType==="single"){
    const d=dateStr||localDateISO(new Date());
    return String(l.singleDate||"")===String(d);
@@ -8971,22 +9012,15 @@ $("exportExcelBtn").onclick=()=>{
       const sub=l.substituteTeacherId ? teacherById(l.substituteTeacherId) : null;
       rows.push({
         "O‘qituvchi": scheduleTeacherName(t),
-        "Ilmiy darajasi": t.degree || "",
-        "Lavozimi": t.position || "",
-        "Hafta kuni": l.day,
-        "Hafta turi": l.weekType==="doim" ? "Doimiy" : (l.weekType==="surat" ? "Surat" : (l.weekType==="maxraj" ? "Maxraj" : ("Bir kunlik "+(l.singleDate||"")))),
+        "Hafta kuni": l.day || "",
         "Juftlik": l.pair + "-juftlik",
-        "Boshlanish vaqti": l.start,
-        "Tugash vaqti": l.end,
-        "Fan nomi": l.subject,
-        "Guruh / yo‘nalish": lessonGroupLabel(l),
-        "Talabalar soni": l.groupSize || "",
-        "Xona": l.room,
-        "Bino": l.roomBuilding || (roomById(l.roomId)?.building || ""),
-        "Dars turi": l.type,
-        "Almashtiruvchi o‘qituvchi": sub ? scheduleTeacherName(sub) : "",
-        "Holati": l.cancelled ? "Bekor qilingan" : (l.status==="approved" ? "Tasdiqlangan" : "Tasdiqlash kutilmoqda"),
-        "Izoh": l.note || ""
+        "Fan nomi": l.subject || "",
+        "Guruh": lessonGroupLabel(l),
+        "Xona": roomDisplay(l.room,l.roomBuilding,l.roomId),
+        "Dars turi": l.type || "",
+        "Hafta turi": l.weekType==="doim" ? "Doimiy" : l.weekType==="surat" ? "Surat" : l.weekType==="maxraj" ? "Maxraj" : "Bir kunlik · "+(l.singleDate||""),
+        "O‘qish davri": lessonEducationType(l)==="sirtqi" ? `Sirtqi · ${lessonWeekRange(l).start}–${lessonWeekRange(l).end}-hafta` : "",
+        "Holati": l.cancelled ? "Bekor qilingan" : (l.status==="approved" ? "Tasdiqlangan" : "Kutilmoqda")
       });
     });
   });
@@ -8996,45 +9030,13 @@ $("exportExcelBtn").onclick=()=>{
     return;
   }
 
-  const ws = XLSX.utils.json_to_sheet(rows);
+  const headers=Object.keys(rows[0]).filter(h=>rows.some(r=>String(r[h]??"").trim()!==""));
+  const ws = XLSX.utils.json_to_sheet(rows.map(r=>Object.fromEntries(headers.map(h=>[h,r[h]]))),{header:headers});
 
-  const widths = [
-    {wch:32},{wch:20},{wch:20},{wch:15},{wch:13},{wch:12},
-    {wch:16},{wch:16},{wch:32},{wch:20},{wch:15},{wch:12},
-    {wch:18},{wch:16},{wch:32},{wch:24},{wch:30}
-  ];
-  ws["!cols"]=widths;
+  ws["!cols"]=headers.map(h=>({wch:Math.max(13,Math.min(34,h.length+8))}));
 
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Dars jadvali");
-
-  // Xonalar varag‘i
-  const roomRows=db.rooms.map(r=>({
-    "Xona":r.name,
-    "Sig‘imi":r.capacity,
-    "Sig‘im holati":r.capacityEstimated?"Taxminiy":"Aniq",
-    "Xona turi":r.type,
-    "Bino":r.building
-  }));
-  if(roomRows.length){
-    const roomWs=XLSX.utils.json_to_sheet(roomRows);
-    roomWs["!cols"]=[{wch:12},{wch:12},{wch:16},{wch:24},{wch:18}];
-    XLSX.utils.book_append_sheet(wb, roomWs, "Xonalar");
-  }
-
-  // O‘qituvchilar varag‘i
-  const teacherRows=db.teachers.map(t=>({
-    "Ism-familiya":t.name,
-    "Ilmiy darajasi":t.degree || "",
-    "Lavozimi":t.position || "",
-    "Kafedra":t.department || "",
-    "Telefon":t.phone || "",
-    "Holati":t.availability || "",
-    "Izoh":t.availabilityNote || ""
-  }));
-  const teacherWs=XLSX.utils.json_to_sheet(teacherRows);
-  teacherWs["!cols"]=[{wch:32},{wch:20},{wch:20},{wch:35},{wch:18},{wch:15},{wch:30}];
-  XLSX.utils.book_append_sheet(wb, teacherWs, "O‘qituvchilar");
 
   const d=new Date();
   const fileName=`dars_jadvali_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}.xlsx`;
@@ -11684,12 +11686,23 @@ renderAdvanced();
     const inClass=Number(document.getElementById('inClassCount')?.textContent||0);
     const todayLessons=Number(document.getElementById('todayLessonsCount')?.textContent||0);
     const currentDep=String(db?.currentUser?.department||'').trim();
-    let groups=[];
-    if(currentDep && db?.departmentWorkspaces?.[currentDep]?.groups) groups=db.departmentWorkspaces[currentDep].groups||[];
-    else groups=db?.groups||[];
+    // Ro‘yxatdagi va amalda jadvalga biriktirilgan guruhlarni bir xil hisoblaymiz.
+    const groupNames=new Set();
+    const addGroup=g=>{
+      const name=String(typeof g==='string'?g:(g?.name||g?.group||g?.title||g?.code||'')).trim();
+      if(name)groupNames.add(name);
+    };
+    const registry=currentDep && db?.departmentWorkspaces?.[currentDep]?.groups
+      ? db.departmentWorkspaces[currentDep].groups : (db?.groups||[]);
+    (Array.isArray(registry)?registry:[]).forEach(addGroup);
+    const visibleTeachers=typeof scopedTeachers==='function'?scopedTeachers():(db?.teachers||[]);
+    visibleTeachers.forEach(t=>(t.schedule||[]).forEach(l=>{
+      addGroup(l.group);
+      (Array.isArray(l.additionalGroups)?l.additionalGroups:[]).forEach(addGroup);
+    }));
     const setCount=(title,val)=>{const c=map[title]; if(c) c.querySelector('.shortcut-count').textContent=String(val)};
     setCount('Kalendar', todayLessons);
-    setCount('Guruh kalendari', groups.length);
+    setCount('Guruh kalendari', groupNames.size);
     setCount('Hozir darsda', inClass);
     setCount('Bo‘sh o‘qituvchi', Math.max(totalTeachers-inClass,0));
     setCount('Statistika', totalTeachers);
@@ -12836,11 +12849,11 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
     try{
       const meta=BULK_META[type]||BULK_META.teacher;
       let rows=bulkExportRows(type);
-      if(!rows.length){
-        const empty={};meta.headers.forEach(h=>empty[h]="");rows=[empty];
-      }
-      const ws=XLSX.utils.json_to_sheet(rows,{header:meta.headers});
-      ws["!cols"]=meta.headers.map(h=>({wch:Math.max(14,Math.min(32,String(h).length+6))}));
+      if(!rows.length)return showAlert?.("Eksport uchun ma’lumot mavjud emas.","warn");
+      const headers=meta.headers.filter(h=>rows.some(r=>String(r[h]??"").trim()!==""));
+      if(!headers.length)return showAlert?.("To‘ldirilgan ma’lumot mavjud emas.","warn");
+      const ws=XLSX.utils.json_to_sheet(rows.map(r=>Object.fromEntries(headers.map(h=>[h,r[h]??""]))),{header:headers});
+      ws["!cols"]=headers.map(h=>({wch:Math.max(14,Math.min(32,String(h).length+6))}));
       const wb=XLSX.utils.book_new();
       const sheetName=String(meta.label||"Ma’lumot")
         .replace(/[\\/:*?\[\]]+/g,"_")
@@ -12848,17 +12861,6 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
         .trim()
         .slice(0,31)||"Ma’lumot";
       XLSX.utils.book_append_sheet(wb,ws,sheetName);
-      if(type==="teacher"){
-        const diplomaRows=[];
-        teachers().forEach(t=>(Array.isArray(t.diplomas)?t.diplomas:[]).forEach((d,i)=>diplomaRows.push({
-          "O‘qituvchi":t.name||"","Kafedra":t.department||"","Diplom tartibi":i+1,"Daraja turi":d?.level||"","Diplom seriya/raqami":d?.number||"","OTM":d?.university||"","Mutaxassislik":d?.specialty||"","Berilgan sana":d?.date||"","Diplom fayli/URL":d?.fileUrl||""
-        })));
-        const dh=["O‘qituvchi","Kafedra","Diplom tartibi","Daraja turi","Diplom seriya/raqami","OTM","Mutaxassislik","Berilgan sana","Diplom fayli/URL"];
-        const drows=diplomaRows.length?diplomaRows:[Object.fromEntries(dh.map(h=>[h,""]))];
-        const dws=XLSX.utils.json_to_sheet(drows,{header:dh});
-        dws["!cols"]=dh.map(h=>({wch:Math.max(14,Math.min(34,String(h).length+8))}));
-        XLSX.utils.book_append_sheet(wb,dws,"O‘qituvchi diplomlari");
-      }
       const file=`${String(meta.label).replace(/[\/:*?"<>|]+/g,"_").replace(/\s+/g,"_")}.xlsx`;
       XLSX.writeFile(wb,file);
       showAlert?.(`${meta.label} Excelga chiqarildi.`,"ok");
@@ -13442,12 +13444,16 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
   function dragDownload(blob,name){const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);}
   function dragExportFileName(ext){return `Drag_Drop_${dragFilterTeacher||"barcha_oqituvchilar"}_${(dragFilterGroup||"barcha_guruhlar").replace(/[^\w\u0400-\u04ff-]/g,"_")}_${dragFilterWeek}.${ext}`;}
   async function dragDoExcel(){
-    const data=dragExportRows();if(!data.length){showAlert?.("Eksport uchun dars topilmadi.","warn");return;}
+    const raw=dragExportRows();
+    const keep=dragExportHead.map((_,i)=>i).filter(i=>raw.some(r=>String(r[i]??"").trim()!==""));
+    const head=keep.map(i=>dragExportHead[i]);
+    const data=raw.map(r=>keep.map(i=>r[i]));
+    if(!data.length){showAlert?.("Eksport uchun dars topilmadi.","warn");return;}
     if(typeof ExcelJS!=="undefined"){
-      const wb=new ExcelJS.Workbook();const sheet=wb.addWorksheet("Drag Drop");sheet.addRow(dragExportHead);data.forEach(x=>sheet.addRow(x));sheet.getRow(1).font={bold:true,color:{argb:"FFFFFFFF"}};sheet.getRow(1).fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF4191BF"}};sheet.columns.forEach(c=>c.width=21);sheet.views=[{state:"frozen",ySplit:1}];sheet.autoFilter={from:"A1",to:"L1"};
+      const wb=new ExcelJS.Workbook();const sheet=wb.addWorksheet("Drag Drop");sheet.addRow(head);data.forEach(x=>sheet.addRow(x));sheet.getRow(1).font={bold:true,color:{argb:"FFFFFFFF"}};sheet.getRow(1).fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF4191BF"}};sheet.columns.forEach(c=>c.width=21);sheet.views=[{state:"frozen",ySplit:1}];sheet.autoFilter={from:"A1",to:sheet.getRow(1).getCell(head.length).address};
       const bytes=await wb.xlsx.writeBuffer();dragDownload(new Blob([bytes],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),dragExportFileName("xlsx"));
     }else if(typeof XLSX!=="undefined"){
-      const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet([dragExportHead,...data]);XLSX.utils.book_append_sheet(wb,ws,"Drag Drop");XLSX.writeFile(wb,dragExportFileName("xlsx"));
+      const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet([head,...data]);XLSX.utils.book_append_sheet(wb,ws,"Drag Drop");XLSX.writeFile(wb,dragExportFileName("xlsx"));
     }else showAlert?.("Excel kutubxonasi yuklanmagan.","error");
   }
   function dragExportDocument(){const rows=dragExportRows();return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;margin:24px}h2{text-align:center}table{border-collapse:collapse;width:100%;font-size:10px}td,th{border:1px solid #777;padding:6px;vertical-align:top}th{background:#d9edf7}@page{size:A4 landscape;margin:12mm}</style></head><body><h2>Drag & Drop — dars jadvali</h2><p>${escU(dragFilterWeek==="all"?"Hammasi":dragFilterWeek)} · ${rows.length} ta dars</p><table><thead><tr>${dragExportHead.map(h=>`<th>${escU(h)}</th>`).join("")}</tr></thead><tbody>${rows.map(row=>`<tr>${row.map(v=>`<td>${escU(v)}</td>`).join("")}</tr>`).join("")}</tbody></table>
@@ -18793,6 +18799,7 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
     const arr=[];
     (t?.schedule||[]).forEach(l=>{
       if(l.cancelled||String(l.status||'pending')!=='approved')return;
+      if(!lessonWithinStudyPeriod(l))return;
       if(!lessonPassesWeekFilter(l))return;
       if(calendarLessonType!=='all' && !matchesCalendarLessonType(l.type,calendarLessonType))return;
       arr.push({...l,teacher:t});
@@ -19266,9 +19273,9 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
  function teachers(){const data=getDB();try{return typeof scopedTeachers==='function'?scopedTeachers():(data.teachers||[])}catch(e){return data.teachers||[]}}
  function tname(t){try{return typeof scheduleTeacherName==='function'?scheduleTeacherName(t):(t.shortName||t.name||'')}catch(e){return t.name||''}}
  function lg(l){return [...new Set([l.group,...(Array.isArray(l.additionalGroups)?l.additionalGroups:[])].map(x=>String(x||'').trim()).filter(Boolean))]}
- function groups(){const d=getDB(),set=new Set();(d.groups||[]).forEach(g=>{const n=typeof g==='string'?g:(g.name||g.group||g.title||g.code||'');if(n)set.add(String(n).trim())});teachers().forEach(t=>(t.schedule||[]).forEach(l=>lg(l).forEach(g=>set.add(g))));return [...set].filter(Boolean).sort((a,b)=>a.localeCompare(b,'uz',{numeric:true}))}
+ function groups(){const set=new Set();teachers().forEach(t=>(t.schedule||[]).forEach(l=>{if(l.cancelled||String(l.status||'pending')!=='approved')return;lg(l).forEach(g=>{if(lessonWithinStudyPeriod({...l,group:g,additionalGroups:[]}))set.add(g)})}));return [...set].filter(Boolean).sort((a,b)=>a.localeCompare(b,'uz',{numeric:true}))}
  function passesType(type){const v=String(type||'').toLowerCase().replace(/[ʻʼ’‘`]/g,"'");return activeType==='all'||(activeType==='lecture'?(v.includes('maruza')||v.includes("ma'ruza")):v.includes('amaliy'))}
- function lessons(){const out=[];teachers().forEach(t=>(t.schedule||[]).forEach(l=>{if(l.cancelled||String(l.status||'pending')!=='approved'||!passesType(l.type))return;const w=String(l.weekType||'doim').toLowerCase();if(activeWeek!=='all'&&w!=='doim'&&w!==activeWeek)return;const gs=lg(l);if(activeGroup&&!gs.includes(activeGroup))return;gs.forEach(g=>{if(!activeGroup||activeGroup===g)out.push({...l,teacher:t,displayGroup:g})})}));return out}
+ function lessons(){const out=[];teachers().forEach(t=>(t.schedule||[]).forEach(l=>{if(l.cancelled||String(l.status||'pending')!=='approved'||!passesType(l.type)||!lessonWithinStudyPeriod(l))return;const w=String(l.weekType||'doim').toLowerCase();if(activeWeek!=='all'&&w!=='doim'&&w!==activeWeek)return;const gs=lg(l);if(activeGroup&&!gs.includes(activeGroup))return;gs.forEach(g=>{if(lessonWithinStudyPeriod({...l,group:g,additionalGroups:[]})&&(!activeGroup||activeGroup===g))out.push({...l,teacher:t,displayGroup:g})})}));return out}
  function room(l){try{return typeof roomDisplay==='function'?roomDisplay(l.room,l.roomBuilding,l.roomId):[l.roomBuilding,l.room].filter(Boolean).join('-')}catch(e){return [l.roomBuilding,l.room].filter(Boolean).join('-')}}
  function timing(p){try{const x=pairTimes[p]||{};return `${x.start||''}–${x.end||''}`}catch(e){return ''}}
  function content(){const ls=lessons(), gs=groups();const opts='<option value="">Umumiy (barcha guruhlar)</option>'+gs.map(g=>`<option value="${esc(g)}" ${activeGroup===g?'selected':''}>${esc(g)}</option>`).join('');
