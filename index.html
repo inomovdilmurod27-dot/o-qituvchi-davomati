@@ -20054,6 +20054,7 @@ render();
  'use strict';
  const q=id=>document.getElementById(id);
  const SUBJECTS_KEY='integratedTestSubjects_v2', BANKS_KEY='integratedTestSubjectBanks_v2';
+ const SESSION_KEY='integratedStudentActiveExam_v1';
  let activeStudent=null, activeQs=[],endAt=0,ticker=null,finished=false,activeSubject='';
  const safe=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  function registry(){try{return JSON.parse(localStorage.getItem(SUBJECTS_KEY)||'{}')}catch{return {}}}
@@ -20146,14 +20147,49 @@ function formatMathText(value){
  }).join('<br>');
 }
 
+ function persistExam(){
+  if(!activeStudent||!activeQs.length||finished)return;
+  const answers=activeQs.map((_,i)=>{
+   const chosen=q('itQuestionList').querySelector('input[name="itAnswer'+i+'"]:checked');
+   return chosen?Number(chosen.value):null;
+  });
+  try{localStorage.setItem(SESSION_KEY,JSON.stringify({version:1,subject:activeSubject,student:activeStudent,questions:activeQs,endAt,answers}))}catch(e){console.warn('Test holatini saqlash:',e)}
+ }
+ function clearExamSession(){try{localStorage.removeItem(SESSION_KEY)}catch(e){}}
+ function restoreExam(){
+  let saved;try{saved=JSON.parse(localStorage.getItem(SESSION_KEY)||'null')}catch(e){clearExamSession();return false}
+  if(!saved||saved.version!==1||!saved.subject||!saved.student||!Array.isArray(saved.questions)||!saved.questions.length||!Number.isFinite(saved.endAt))return false;
+  // Tekshirilayotgan fan hali mavjud bo‘lishi kerak.
+  if(!registry()[saved.subject]){clearExamSession();return false}
+  activeSubject=saved.subject;activeStudent=saved.student;activeQs=saved.questions;
+  endAt=saved.endAt;finished=false;stop();
+  q('itEditor').hidden=true;q('itStudent').hidden=false;q('itIdentity').hidden=true;q('itExam').hidden=false;
+  q('itStudentSubject').textContent=settings().subjectName||'Test';
+  q('itExamTitle').textContent=settings().subjectName||'Test';
+  q('itExamMeta').textContent=activeStudent.name+' · '+activeStudent.group+' · '+activeQs.length+' ta savol';
+  q('itName').value=activeStudent.name;q('itGroup').value=activeStudent.group;
+  q('itResult').innerHTML='';q('itFinish').disabled=false;
+  renderStudentQuestions();
+  (saved.answers||[]).forEach((value,i)=>{
+   if(!Number.isInteger(value))return;
+   const input=q('itQuestionList').querySelector('input[name="itAnswer'+i+'"][value="'+value+'"]');
+   if(input)input.checked=true;
+  });
+  q('loginModal')?.classList.remove('open');document.body.classList.remove('login-required');document.body.style.overflow='hidden';
+  updateClock();if(!finished)ticker=setInterval(updateClock,1000);
+  return true;
+ }
+ function renderStudentQuestions(){
+  q('itQuestionList').innerHTML=activeQs.map((x,i)=>'<div class="it-question"><b>'+(i+1)+'. '+formatMathText(x.q)+'</b>'+x.options.map((opt,j)=>'<label class="it-choice"><input type="radio" name="itAnswer'+i+'" value="'+j+'"> '+formatMathText(opt.text)+'</label>').join('')+'</div>').join('');
+ }
  function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
  function stop(){if(ticker!==null){clearInterval(ticker);ticker=null}}
  function openEditor(){q('itEditor').hidden=false;q('itStudent').hidden=true;document.body.style.overflow='hidden'}
  function closeEditor(){q('itEditor').hidden=true;document.body.style.overflow=''}
  function openStudent(){stop();finished=false;activeQs=[];q('itEditor').hidden=true;q('itStudent').hidden=false;q('itIdentity').hidden=false;q('itExam').hidden=true;q('itName').value='';q('itGroup').value='';q('itIdentityError').textContent='';q('itStudentSubject').textContent=settings().subjectName||'Test';q('loginModal')?.classList.remove('open');document.body.classList.remove('login-required');document.body.style.overflow='hidden';q('itName').focus()}
- function exitStudent(){if(!finished&&activeQs.length&&!confirm('Testni yakunlamasdan chiqmoqchimisiz?'))return;stop();activeQs=[];q('itStudent').hidden=true;document.body.style.overflow='';document.body.classList.add('login-required');q('loginModal')?.classList.add('open');q('loginPassword').value=''}
+ function exitStudent(){if(!finished&&activeQs.length&&!confirm('Testni yakunlamasdan chiqmoqchimisiz?'))return;clearExamSession();stop();activeQs=[];q('itStudent').hidden=true;document.body.style.overflow='';document.body.classList.add('login-required');q('loginModal')?.classList.add('open');q('loginPassword').value=''}
  function updateClock(){if(finished)return;const sec=Math.max(0,Math.ceil((endAt-Date.now())/1000));q('itTimer').textContent=String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');if(sec<=0)finish(true)}
- function finish(expired){if(finished)return;finished=true;stop();let right=0;activeQs.forEach((item,i)=>{const selected=q('itQuestionList').querySelector('input[name="itAnswer'+i+'"]:checked');if(selected&&item.options[Number(selected.value)]?.correct)right++});const total=activeQs.length,pct=Math.round(right/total*100);
+ function finish(expired){if(finished)return;persistExam();finished=true;stop();clearExamSession();let right=0;activeQs.forEach((item,i)=>{const selected=q('itQuestionList').querySelector('input[name="itAnswer'+i+'"]:checked');if(selected&&item.options[Number(selected.value)]?.correct)right++});const total=activeQs.length,pct=Math.round(right/total*100);
   q('itResult').innerHTML='<div class="it-score">'+right+' / '+total+' — '+pct+'%</div><p class="it-note">'+(expired?'Vaqt tugadi, test avtomatik yakunlandi.':'Test yakunlandi.')+'</p>';
   q('itQuestionList').querySelectorAll('input').forEach(el=>el.disabled=true);q('itFinish').disabled=true;
   try{let records=JSON.parse(localStorage.getItem('integratedStudentTestResults_v1')||'[]');if(!Array.isArray(records))records=[];records.push({subject:settings().subjectName||'',name:activeStudent.name,group:activeStudent.group,correct:right,total,percent:pct,finishedAt:new Date().toISOString()});localStorage.setItem('integratedStudentTestResults_v1',JSON.stringify(records));window.dispatchEvent(new Event('it-cloud-student-result'))}catch(e){console.warn('Natijani saqlash:',e)}
@@ -20166,8 +20202,8 @@ function formatMathText(value){
   let duration=Number(meta.timeLimit||localStorage.getItem('integratedTestTime_v1')||30);if(!Number.isInteger(duration)||duration<1)duration=30;
   let ordered=config.questions?shuffle(bank):bank.slice();activeQs=ordered.slice(0,Math.min(desired,bank.length)).map(x=>({q:x.q,options:config.answers?shuffle(x.options):x.options.slice()}));
   q('itIdentity').hidden=true;q('itExam').hidden=false;q('itExamTitle').textContent=meta.subjectName||'Test';q('itExamMeta').textContent=activeStudent.name+' · '+activeStudent.group+' · '+activeQs.length+' ta savol';q('itResult').innerHTML='';q('itFinish').disabled=false;
-  q('itQuestionList').innerHTML=activeQs.map((x,i)=>'<div class="it-question"><b>'+(i+1)+'. '+formatMathText(x.q)+'</b>'+x.options.map((opt,j)=>'<label class="it-choice"><input type="radio" name="itAnswer'+i+'" value="'+j+'"> '+formatMathText(opt.text)+'</label>').join('')+'</div>').join('');
-  finished=false;endAt=Date.now()+duration*60000;updateClock();ticker=setInterval(updateClock,1000);
+  renderStudentQuestions();
+  finished=false;endAt=Date.now()+duration*60000;persistExam();updateClock();ticker=setInterval(updateClock,1000);
  }
  function attach(){if(!q('doLoginBtn'))return;
   const gate=(e)=>{const usr=String(q('loginUser')?.value||'').trim().toLowerCase(),pw=String(q('loginPassword')?.value||'');const found=Object.entries(registry()).find(([key,meta])=>meta.accessLogin&&String(meta.accessLogin).trim().toLowerCase()===usr);if(!found)return false;const [subjectKey,s]=found;
@@ -20180,6 +20216,8 @@ function formatMathText(value){
   q('itEditorClose').onclick=closeEditor;q('itExit').onclick=exitStudent;
   q('itIdentityForm').addEventListener('submit',e=>{e.preventDefault();const name=q('itName').value.trim(),group=q('itGroup').value.trim();if(name.length<3||!group){q('itIdentityError').textContent='Ism-familiya va guruhni to‘liq kiriting.';return}activeStudent={name,group};begin()});
   q('itFinish').onclick=()=>finish(false);
+  q('itQuestionList').addEventListener('change',e=>{if(e.target.matches('input[type=radio]'))persistExam()});
+  window.addEventListener('pagehide',persistExam);
   function installMenu(){
    const menu=q('hemisGroupManage')||document.querySelector('.hemis-sidebar .hemis-menu-group');
    if(!menu)return;
@@ -20199,6 +20237,8 @@ function formatMathText(value){
    }
  }
   installMenu();const observer=new MutationObserver(installMenu);observer.observe(document.body,{subtree:true,childList:true});
+  // Oddiy platforma kirish oynasi ishga tushgach, davom etayotgan testni tiklaymiz.
+  restoreExam();setTimeout(()=>{if(!q('itStudent').hidden&&activeQs.length){q('loginModal')?.classList.remove('open');document.body.classList.remove('login-required')}else if(q('itStudent').hidden)restoreExam()},400);
   window.openIntegratedTestEditor=openEditor;
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',attach);else attach();
