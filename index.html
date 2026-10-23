@@ -19772,7 +19772,7 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
 &lt;small id=&quot;subjectAvailableCount&quot; class=&quot;subject-available-count&quot;&gt;Mavjud fanlar ro‘yxati&lt;/small&gt;
 &lt;datalist id=&quot;subjectNameOptions&quot;&gt;&lt;/datalist&gt;
 &lt;/label&gt;&lt;label&gt;Test logini&lt;input id=&quot;accessLogin&quot; type=&quot;text&quot; placeholder=&quot;Login belgilang&quot; autocomplete=&quot;off&quot;&gt;&lt;/label&gt;&lt;label&gt;Test paroli&lt;input id=&quot;accessPassword&quot; type=&quot;password&quot; placeholder=&quot;Parol belgilang&quot; autocomplete=&quot;new-password&quot;&gt;&lt;/label&gt;&lt;button type=&quot;button&quot; id=&quot;deleteSubject&quot; class=&quot;subject-delete-btn&quot;&gt;Fanni butunlay o‘chirish&lt;/button&gt;&lt;/div&gt;
-&lt;div class=&quot;subject-caption&quot; id=&quot;subjectNotice&quot;&gt;Har bir fan uchun savollar va login-parol alohida saqlanadi.&lt;/div&gt;&lt;div class=&quot;space&quot;&gt;&lt;textarea id=&quot;source&quot; style=&quot;min-height:245px;font-family:Consolas,monospace&quot; spellcheck=&quot;false&quot; placeholder=&quot;#### Suv sarfining o‘lchov birligi qaysi?&amp;#10;==== m/s&amp;#10;++++ m³/s&amp;#10;==== Pa&amp;#10;==== kW&amp;#10;&amp;#10;#### Suvning kimyoviy formulasi nima?&amp;#10;++++ H₂O&amp;#10;==== CO₂&amp;#10;==== O₂&amp;#10;==== NaCl&quot;&gt;&lt;/textarea&gt;&lt;/div&gt;
+&lt;div class=&quot;subject-caption&quot; id=&quot;subjectNotice&quot;&gt;Har bir fan uchun savollar va login-parol alohida saqlanadi.&lt;/div&gt;&lt;div class=&quot;space&quot;&gt;&lt;textarea id=&quot;source&quot; style=&quot;min-height:245px;font-family:Consolas,monospace&quot; spellcheck=&quot;false&quot; placeholder=&quot;++++ Suv sarfining o‘lchov birligi qaysi?&amp;#10;==== m/s&amp;#10;====# m³/s&amp;#10;==== Pa&amp;#10;==== kW&amp;#10;&amp;#10;++++ Suvning kimyoviy formulasi nima?&amp;#10;====# H₂O&amp;#10;==== CO₂&amp;#10;==== O₂&amp;#10;==== NaCl&quot;&gt;&lt;/textarea&gt;&lt;/div&gt;
 &lt;div class=&quot;toolbar-row&quot;&gt;&lt;div class=&quot;toolbar-field&quot;&gt;&lt;label&gt;Savollar soni&lt;input type=&quot;number&quot; id=&quot;questionLimit&quot; min=&quot;1&quot; step=&quot;1&quot; value=&quot;30&quot;&gt;&lt;/label&gt;&lt;/div&gt;&lt;div class=&quot;toolbar-field&quot;&gt;&lt;label&gt;Vaqt (daqiqa)&lt;input type=&quot;number&quot; id=&quot;timeLimit&quot; min=&quot;1&quot; step=&quot;1&quot; value=&quot;30&quot;&gt;&lt;/label&gt;&lt;/div&gt;&lt;div class=&quot;toolbar-actions&quot;&gt;&lt;button class=&quot;primary&quot; id=&quot;add&quot;&gt;Saqlash&lt;/button&gt;&lt;label class=&quot;shuffle-toggle&quot;&gt;&lt;span&gt;Savollarni aralashtirish&lt;/span&gt;&lt;input type=&quot;checkbox&quot; id=&quot;shuffleQuestions&quot; checked&gt;&lt;span class=&quot;switch-track&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;/label&gt;&lt;label class=&quot;shuffle-toggle&quot;&gt;&lt;span&gt;Javoblarni aralashtirish&lt;/span&gt;&lt;input type=&quot;checkbox&quot; id=&quot;shuffleAnswers&quot; checked&gt;&lt;span class=&quot;switch-track&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;/label&gt;&lt;button class=&quot;primary&quot; id=&quot;take&quot;&gt;Testni yechish&lt;/button&gt;&lt;button type=&quot;button&quot; id=&quot;itReportOpen&quot; style=&quot;background:#173b5f;color:#fff;border-color:#173b5f&quot; onclick=&quot;parent.postMessage({type:&#x27;open-integrated-test-report&#x27;},&#x27;*&#x27;)&quot;&gt;Test hisoboti&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;div id=&quot;msg&quot; class=&quot;msg&quot;&gt;&lt;/div&gt;&lt;/section&gt;
 &lt;section class=&quot;panel&quot;&gt;&lt;h2&gt;Saqlangan savollar &lt;span class=&quot;muted&quot; id=&quot;total&quot;&gt;&lt;/span&gt;&lt;/h2&gt;&lt;div id=&quot;list&quot;&gt;&lt;/div&gt;&lt;/section&gt;
@@ -19886,51 +19886,41 @@ function notify(t){$(&#x27;msg&#x27;).textContent=t}
 function normalize(s){return String(s).trim().toLocaleLowerCase(&#x27;uz&#x27;)}
 function parseText(text){
  const lines=String(text).replace(/\r\n?/g,&#x27;\n&#x27;).replace(/^\uFEFF/,&#x27;&#x27;).split(&#x27;\n&#x27;);
- let out=[],current=null,field=null,questionNumber=0;
- function fail(message,line){
-   const e=new Error(message+&#x27; (qator: &#x27;+line+&#x27;)&#x27;);
-   e.line=line;
-   throw e;
- }
+ let out=[],current=null,field=null,number=0;
+ function fail(msg,row){const e=new Error(msg+&#x27; (qator: &#x27;+row+&#x27;)&#x27;);e.line=row;throw e}
  function finish(){
-   if(!current)return;
-   const n=questionNumber;
-   if(!current.q.trim())fail(n+&#x27;-savolda savol matni yo‘q&#x27;,current.line);
-   const correct=current.options.filter(x=&gt;x.correct);
-   if(correct.length!==1)fail(n+&#x27;-savolda aynan bitta ++++ bo‘lishi kerak&#x27;,
-      correct.length&gt;1?correct[1].line:current.line);
-   if(current.options.length&lt;2)fail(n+&#x27;-savolda kamida 2 ta javob varianti bo‘lishi kerak&#x27;,current.line);
-   const seen=new Map();
-   for(const option of current.options){
-     if(!option.text.trim())fail(n+&#x27;-savolda bo‘sh javob varianti mavjud&#x27;,option.line);
-     const key=normalize(option.text);
-     if(seen.has(key))fail(n+&#x27;-savolda takroriy javob bor&#x27;,option.line);
-     seen.set(key,option.line);
-   }
-   out.push({q:current.q.trim(),options:current.options.map(x=&gt;({text:x.text.trim(),correct:x.correct}))});
-   current=null;field=null;
+  if(!current)return;
+  if(!current.q.trim())fail(number+&#x27;-savolda matn yo‘q&#x27;,current.line);
+  const correct=current.options.filter(o=&gt;o.correct);
+  if(correct.length!==1)fail(number+&#x27;-savolda aynan bitta ====\u0023 (to‘g‘ri javob) bo‘lishi kerak&#x27;,correct.length&gt;1?correct[1].line:current.line);
+  if(current.options.length&lt;2)fail(number+&#x27;-savolda kamida ikkita javob bo‘lishi kerak&#x27;,current.line);
+  const seen=new Set();
+  for(const o of current.options){
+    if(!o.text.trim())fail(number+&#x27;-savolda bo‘sh javob bor&#x27;,o.line);
+    const key=normalize(o.text);
+    if(seen.has(key))fail(number+&#x27;-savolda takrorlangan javob bor&#x27;,o.line);
+    seen.add(key);
+  }
+  out.push({q:current.q.trim(),options:current.options.map(o=&gt;({text:o.text.trim(),correct:o.correct}))});
+  current=null;field=null;
  }
  for(let i=0;i&lt;lines.length;i++){
   const line=lines[i],row=i+1;
-  const match=line.match(/^\s*(####|\+\+\+\+|====)\s*(.*)$/);
-  if(match){
-   const mark=match[1],value=match[2].trim();
-   if(mark===&#x27;####&#x27;){
-     finish();questionNumber++;
-     current={q:value,options:[],line:row};field=&#x27;q&#x27;;
-   }else if(current){
-     current.options.push({text:value,correct:mark===&#x27;++++&#x27;,line:row});field=&#x27;option&#x27;;
-   }else fail(&#x27;Javobdan oldin #### bilan savol yozing&#x27;,row);
+  const m=line.match(/^\s*(====#|\+\+\+\+|====)\s*(.*)$/);
+  if(m){
+   const mark=m[1],value=m[2].trim();
+   if(mark===&#x27;++++&#x27;){finish();number++;current={q:value,line:row,options:[]};field=&#x27;q&#x27;}
+   else if(current){current.options.push({text:value,correct:mark===&#x27;====#&#x27;,line:row});field=&#x27;option&#x27;}
+   else fail(&#x27;Javobdan oldin ++++ bilan savol yozing&#x27;,row);
   }else if(line.trim()){
-   if(!current)fail(&#x27;Savol boshida #### belgisi bo‘lishi kerak&#x27;,row);
-   if(/^\s*(?:#{1,3}|#{5,}|\+{1,3}|\+{5,}|={1,3}|={5,})\s/.test(line))
-     fail(&#x27;Belgi noto‘g‘ri yozilgan: ####, ++++ yoki ==== ishlating&#x27;,row);
+   if(!current)fail(&#x27;Savol ++++ belgisi bilan boshlanishi kerak&#x27;,row);
+   if(/^\s*(?:#{1,}|\+{1,3}|\+{5,}|={1,3}|={5,})\s/.test(line))fail(&#x27;Belgi xato: savol ++++, to‘g‘ri javob ====#, qolganlari ====&#x27;,row);
    if(field===&#x27;q&#x27;)current.q+=&#x27;\n&#x27;+line.trim();
    else if(field===&#x27;option&#x27;&amp;&amp;current.options.length)current.options[current.options.length-1].text+=&#x27;\n&#x27;+line.trim();
   }
  }
  finish();
- if(!out.length)fail(&#x27;Savol topilmadi. Savol boshiga #### yozing&#x27;,1);
+ if(!out.length)fail(&#x27;Savol topilmadi. Savol oldiga ++++ yozing&#x27;,1);
  return out;
 }
 function showQuestionError(error){
@@ -20036,11 +20026,11 @@ function formatMathText(value){
    return inlineMath(line);
  }).join(&#x27;&lt;br&gt;&#x27;);
 }
-function formatText(items){return items.map(q=&gt;`#### ${q.q}\n`+q.options.map(o=&gt;(o.correct?&#x27;++++ &#x27;:&#x27;==== &#x27;)+o.text).join(&#x27;\n&#x27;)).join(&#x27;\n\n&#x27;)+&#x27;\n&#x27;}
+function formatText(items){return items.map(q=&gt;`++++ ${q.q}\n`+q.options.map(o=&gt;(o.correct?&#x27;====# &#x27;:&#x27;==== &#x27;)+o.text).join(&#x27;\n&#x27;)).join(&#x27;\n\n&#x27;)+&#x27;\n&#x27;}
 function save(){if(!saveCurrent())throw Error(&#x27;Bu login boshqa fanga biriktirilgan.&#x27;);saveTestSettings();mixed=null;render()}
 function render(){
  $(&#x27;count&#x27;).textContent=questions.length+&#x27; ta savol&#x27;;$(&#x27;total&#x27;).textContent=&#x27;(&#x27;+questions.length+&#x27;)&#x27;;
- $(&#x27;list&#x27;).innerHTML=questions.length?questions.map((q,i)=&gt;`&lt;div class=&quot;item&quot;&gt;&lt;div&gt;&lt;b&gt;${i+1}. ${formatMathText(q.q)}&lt;/b&gt;${q.options.map(o=&gt;`&lt;small style=&quot;display:block;color:${o.correct?&#x27;#16815c&#x27;:&#x27;#62788c&#x27;}&quot;&gt;${o.correct?&#x27;++++&#x27;:&#x27;====&#x27;} ${formatMathText(o.text)}&lt;/small&gt;`).join(&#x27;&#x27;)}&lt;/div&gt;&lt;button data-delete=&quot;${i}&quot;&gt;O‘chirish&lt;/button&gt;&lt;/div&gt;`).join(&#x27;&#x27;):&#x27;&lt;p class=&quot;muted&quot;&gt;Savollar kiritilmagan.&lt;/p&gt;&#x27;;
+ $(&#x27;list&#x27;).innerHTML=questions.length?questions.map((q,i)=&gt;`&lt;div class=&quot;item&quot;&gt;&lt;div&gt;&lt;b&gt;${i+1}. ${formatMathText(q.q)}&lt;/b&gt;${q.options.map(o=&gt;`&lt;small style=&quot;display:block;color:${o.correct?&#x27;#16815c&#x27;:&#x27;#62788c&#x27;}&quot;&gt;${o.correct?&#x27;====#&#x27;:&#x27;====&#x27;} ${formatMathText(o.text)}&lt;/small&gt;`).join(&#x27;&#x27;)}&lt;/div&gt;&lt;button data-delete=&quot;${i}&quot;&gt;O‘chirish&lt;/button&gt;&lt;/div&gt;`).join(&#x27;&#x27;):&#x27;&lt;p class=&quot;muted&quot;&gt;Savollar kiritilmagan.&lt;/p&gt;&#x27;;
 }
 $(&#x27;add&#x27;).onclick=()=&gt;{try{switchSubject();if(!currentSubject)throw Error(&#x27;Avval fan nomini kiriting.&#x27;);if(!$(&#x27;accessLogin&#x27;).value.trim()||!$(&#x27;accessPassword&#x27;).value)throw Error(&#x27;Shu fan uchun login va parolni kiriting.&#x27;);let parsed=parseText($(&#x27;source&#x27;).value);questions.push(...parsed);save();$(&#x27;source&#x27;).value=&#x27;&#x27;;notify(`${parsed.length} ta savol saqlandi.`)}catch(e){notify(&#x27;Xatolik: &#x27;+e.message);showQuestionError(e)}};
 $(&#x27;list&#x27;).onclick=e=&gt;{let btn=e.target.closest(&#x27;[data-delete]&#x27;);if(!btn)return;questions.splice(Number(btn.dataset.delete),1);save();notify(&#x27;Savol o‘chirildi.&#x27;)};
