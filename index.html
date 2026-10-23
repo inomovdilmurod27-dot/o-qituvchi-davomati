@@ -6584,7 +6584,19 @@ body.hemis-layout .pro-actions{
 .it-question{padding:16px 0;border-bottom:1px solid #e2eaf0}.it-question b{display:block;margin-bottom:12px;font-size:15px}.it-choice{display:block;font-weight:400!important;padding:11px;margin:7px 0;border:1px solid #dae5ee;border-radius:7px;cursor:pointer}.it-choice:has(input:checked){background:#ecf7fd;border-color:#65aed1}
 #itTimer{background:#eaf5fc;color:#185c84;border-radius:7px;padding:9px 12px;font-weight:800}.it-testbar{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:10px}.it-score{font-size:30px;font-weight:800;color:#16815c}
 @media(max-width:620px){.it-grid{grid-template-columns:1fr}.it-content{margin:12px auto}.it-head{padding:0 12px}.it-card{padding:16px}}
-</style></head>
+</style><style id="group-calendar-single-line-toolbar">
+/* Guruh kalendari: desktopda barcha boshqaruvlar bitta qatorda */
+#advancedModal .group-calendar-toolbar{display:flex!important;flex-wrap:nowrap!important;align-items:flex-end!important;justify-content:space-between!important;gap:10px!important;width:100%;overflow-x:auto;overflow-y:hidden}
+#advancedModal .group-calendar-left{display:flex!important;align-items:flex-end!important;flex-wrap:nowrap!important;flex:0 0 auto!important;gap:10px!important}
+#advancedModal .group-calendar-left > div{flex:0 0 auto;min-width:0}
+#advancedModal #groupCalendarSelect{width:210px!important;min-width:180px!important;max-width:210px!important}
+#advancedModal .group-calendar-left .calendar-week-filter{display:flex!important;flex-wrap:nowrap!important;gap:5px!important}
+#advancedModal .group-calendar-left .calendar-week-btn{padding:7px 10px!important;white-space:nowrap}
+#advancedModal .group-calendar-actions{display:flex!important;flex:0 0 auto!important;flex-wrap:nowrap!important;align-items:center!important;gap:5px!important;align-self:flex-end!important;margin:0!important}
+#advancedModal .group-calendar-actions > button{white-space:nowrap;min-height:36px;padding:7px 9px}
+@media(max-width:760px){#advancedModal .group-calendar-toolbar{flex-wrap:wrap!important;overflow-x:visible;overflow-y:visible}#advancedModal .group-calendar-left{flex-wrap:wrap!important}#advancedModal .group-calendar-actions{flex-wrap:wrap!important}#advancedModal #groupCalendarSelect{max-width:100%!important}}
+</style>
+</head>
 <body>
 <header class="topbar">
 <div class="brand"><div class="logo">BD</div><div><h1>Buxoro davlat texnika universiteti</h1><p>Ekologiya, irrigatsiya va gidrotexnika kafedrasi</p></div></div>
@@ -6645,8 +6657,6 @@ body.hemis-layout .pro-actions{
 </section>
 <div class="section-title"><h3>O‘qituvchilar</h3><div class="actions"><button class="btn ghost" id="roomViewBtn">Xonalar</button><button class="btn ghost" id="groupViewBtn">Guruhlar</button></div></div>
 <section class="grid" id="teacherGrid"></section>
-<div class="section-title"><h3>Bugungi darslar</h3></div>
-<section class="today-list" id="todayList"></section>
 </main>
 <div class="footer">© 2026 Universitet dars jadvali dispetcherlik tizimi</div>
 <div class="modal" id="teacherModal">
@@ -8606,7 +8616,7 @@ function renderTeachers(){
   return `<article class="card teacher-card" onclick="openTeacher(${t.id})"><div class="teacher-head">${teacherAvatarHTML(t)}<div><div class="teacher-name">${esc(scheduleTeacherName(t))}</div><div class="meta">${esc(t.position)} · ${esc(t.degree)}</div></div></div><div class="status"><span class="dot" style="background:${st.color}"></span>${st.label}</div><div class="lesson">${body}</div>${st.key==="inclass"?`<div class="room">${roomDisplay(st.lesson.room,st.lesson.roomBuilding,st.lesson.roomId).replace("-xona","-XONA")}</div>`:""}</article>`;
  }).join(""):`<div class="empty">Mos o‘qituvchi topilmadi.</div>`
 }
-function renderToday(){const list=[];scopedTeachers().forEach(t=>todayLessonsFor(t).forEach(l=>list.push({...l,teacher:t})));list.sort((a,b)=>a.pair-b.pair);$("todayList").innerHTML=list.length?list.map(x=>`<div class="today-item" onclick="openTeacher(${x.teacher.id})"><strong>${x.pair}-juftlik · ${x.start}–${x.end} · ${esc(scheduleTeacherName(x.teacher))}</strong><br>${esc(x.subject)} · ${esc(x.group)} · ${roomDisplay(x.room,x.roomBuilding,x.roomId)} · ${esc(x.type)} · ${x.weekType==="doim"?"Doimiy":x.weekType}</div>`).join(""):`<div class="empty">Bugun joriy hafta bo‘yicha tasdiqlangan dars yo‘q.</div>`}
+function renderToday(){if(!$("todayList"))return;const list=[];scopedTeachers().forEach(t=>todayLessonsFor(t).forEach(l=>list.push({...l,teacher:t})));list.sort((a,b)=>a.pair-b.pair);$("todayList").innerHTML=list.length?list.map(x=>`<div class="today-item" onclick="openTeacher(${x.teacher.id})"><strong>${x.pair}-juftlik · ${x.start}–${x.end} · ${esc(scheduleTeacherName(x.teacher))}</strong><br>${esc(x.subject)} · ${esc(x.group)} · ${roomDisplay(x.room,x.roomBuilding,x.roomId)} · ${esc(x.type)} · ${x.weekType==="doim"?"Doimiy":x.weekType}</div>`).join(""):`<div class="empty">Bugun joriy hafta bo‘yicha tasdiqlangan dars yo‘q.</div>`}
 function renderStats(){const ts=scopedTeachers(),inc=ts.filter(t=>getStatus(t).key==="inclass").length;$("totalTeachers").textContent=ts.length;$("inClassCount").textContent=inc;$("todayLessonsCount").textContent=ts.reduce((n,t)=>n+todayLessonsFor(t).length,0)}
 function populateFilters(){const rooms=new Set(),groups=new Set(),subs=new Set();scopedTeachers().forEach(t=>t.schedule.forEach(l=>{rooms.add(l.room);lessonGroupList(l).forEach(g=>groups.add(g));subs.add(l.subject)}));$("roomFilter").innerHTML='<option value="">Barcha xonalar</option>'+[...rooms].sort().map(x=>`<option>${esc(x)}</option>`).join("");$("groupFilter").innerHTML='<option value="">Barcha guruhlar</option>'+[...groups].sort().map(x=>`<option>${esc(x)}</option>`).join("");$("subjectFilter").innerHTML='<option value="">Barcha fanlar</option>'+[...subs].sort().map(x=>`<option>${esc(x)}</option>`).join("")}
 
@@ -12298,49 +12308,6 @@ renderAdvanced();
     const rows=allLessons(false).map(({t,l})=>`<tr><td>${e(scheduleTeacherName(t))}</td><td>${e(l.subject)}</td><td>${e(l.group)}</td><td>${e(l.day)}</td><td>${l.pair}</td><td>${e(l.room)} ${e(l.roomBuilding||"")}</td><td>${e(l.type)}</td></tr>`).join("");
     w.document.write(`<html><head><title>Jadval hisoboti</title><style>body{font-family:Arial;padding:24px}table{border-collapse:collapse;width:100%;font-size:11px}th,td{border:1px solid #ccc;padding:6px}th{background:#eee}</style></head><body><h2>Universitet dars jadvali hisoboti</h2><p>${e(localISO())}</p><table><thead><tr><th>O‘qituvchi</th><th>Fan</th><th>Guruh</th><th>Kun</th><th>Juftlik</th><th>Xona</th><th>Turi</th></tr></thead><tbody>${rows}</tbody></table>
 
-<style id="group-calendar-single-line-toolbar">
-/* Guruh kalendari: desktopda barcha boshqaruvlar bitta qatorda */
-#advancedModal .group-calendar-toolbar{display:flex!important;flex-wrap:nowrap!important;align-items:flex-end!important;justify-content:space-between!important;gap:10px!important;width:100%;overflow-x:auto;overflow-y:hidden}
-#advancedModal .group-calendar-left{display:flex!important;align-items:flex-end!important;flex-wrap:nowrap!important;flex:0 0 auto!important;gap:10px!important}
-#advancedModal .group-calendar-left > div{flex:0 0 auto;min-width:0}
-#advancedModal #groupCalendarSelect{width:210px!important;min-width:180px!important;max-width:210px!important}
-#advancedModal .group-calendar-left .calendar-week-filter{display:flex!important;flex-wrap:nowrap!important;gap:5px!important}
-#advancedModal .group-calendar-left .calendar-week-btn{padding:7px 10px!important;white-space:nowrap}
-#advancedModal .group-calendar-actions{display:flex!important;flex:0 0 auto!important;flex-wrap:nowrap!important;align-items:center!important;gap:5px!important;align-self:flex-end!important;margin:0!important}
-#advancedModal .group-calendar-actions > button{white-space:nowrap;min-height:36px;padding:7px 9px}
-@media(max-width:760px){#advancedModal .group-calendar-toolbar{flex-wrap:wrap!important;overflow-x:visible;overflow-y:visible}#advancedModal .group-calendar-left{flex-wrap:wrap!important}#advancedModal .group-calendar-actions{flex-wrap:wrap!important}#advancedModal #groupCalendarSelect{max-width:100%!important}}
-</style>
-<script id="integratedTestAutocomplete">
-(function(){
- 'use strict';
- function strings(items){return [...new Set(items.map(x=>String(x||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'uz'))}
- function dataset(){
-  let store={};try{store=JSON.parse(localStorage.getItem('dispatchDB')||'{}')||{}}catch{}
-  const subs=[],groups=[];
-  for(const item of (Array.isArray(store.subjects)?store.subjects:[]))subs.push(typeof item==='string'?item:item.name);
-  for(const item of (Array.isArray(store.groups)?store.groups:[]))groups.push(typeof item==='string'?item:(item.name||item.code));
-  for(const teacher of (Array.isArray(store.teachers)?store.teachers:[])){
-   for(const lesson of (Array.isArray(teacher.lessons)?teacher.lessons:[])){
-    subs.push(lesson.subject);groups.push(lesson.group);
-    for(const group of (lesson.additionalGroups||[]))groups.push(group);
-   }
-  }
-  try{for(const r of JSON.parse(localStorage.getItem('integratedStudentTestResults_v1')||'[]')){subs.push(r.subject);groups.push(r.group)}}catch{}
-  return {subjects:strings(subs),groups:strings(groups)};
- }
- function fill(node,items){if(node)node.replaceChildren(...items.map(x=>new Option(x,x)))}
- function update(){
-  const d=dataset();fill(document.getElementById('itGroupOptions'),d.groups);
-  const frame=document.getElementById('itFrame');
-  try{fill(frame?.contentDocument?.getElementById('subjectNameOptions'),d.subjects)}catch{}
- }
- function start(){const frame=document.getElementById('itFrame');frame?.addEventListener('load',update);update();
-  document.getElementById('itIdentity')?.addEventListener('focusin',update,{once:false});
-  document.getElementById('itEditor')?.addEventListener('click',update,{once:false});
- }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
-})();
-</script>
 </body></html>`);
     w.document.close();w.focus();setTimeout(()=>w.print(),250);
   };
@@ -20307,6 +20274,37 @@ window.addEventListener('message',e=>{
 });
 window.addEventListener('it-cloud-student-result',bridgeSave);
 // Saved test data is included in the platform's existing Firestore db snapshot.
+})();
+</script>
+<script id="integratedTestAutocomplete">
+(function(){
+ 'use strict';
+ function strings(items){return [...new Set(items.map(x=>String(x||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'uz'))}
+ function dataset(){
+  let store={};try{store=JSON.parse(localStorage.getItem('dispatchDB')||'{}')||{}}catch{}
+  const subs=[],groups=[];
+  for(const item of (Array.isArray(store.subjects)?store.subjects:[]))subs.push(typeof item==='string'?item:item.name);
+  for(const item of (Array.isArray(store.groups)?store.groups:[]))groups.push(typeof item==='string'?item:(item.name||item.code));
+  for(const teacher of (Array.isArray(store.teachers)?store.teachers:[])){
+   for(const lesson of (Array.isArray(teacher.lessons)?teacher.lessons:[])){
+    subs.push(lesson.subject);groups.push(lesson.group);
+    for(const group of (lesson.additionalGroups||[]))groups.push(group);
+   }
+  }
+  try{for(const r of JSON.parse(localStorage.getItem('integratedStudentTestResults_v1')||'[]')){subs.push(r.subject);groups.push(r.group)}}catch{}
+  return {subjects:strings(subs),groups:strings(groups)};
+ }
+ function fill(node,items){if(node)node.replaceChildren(...items.map(x=>new Option(x,x)))}
+ function update(){
+  const d=dataset();fill(document.getElementById('itGroupOptions'),d.groups);
+  const frame=document.getElementById('itFrame');
+  try{fill(frame?.contentDocument?.getElementById('subjectNameOptions'),d.subjects)}catch{}
+ }
+ function start(){const frame=document.getElementById('itFrame');frame?.addEventListener('load',update);update();
+  document.getElementById('itIdentity')?.addEventListener('focusin',update,{once:false});
+  document.getElementById('itEditor')?.addEventListener('click',update,{once:false});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();
 </script>
 </body>
