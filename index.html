@@ -10344,6 +10344,18 @@ renderAdvanced();
     let loginBusy=false;
 
     window.syncLoginGate=function(){
+      // Talaba F5 bosganda faol test sessiyasi login oynasidan ustun turadi.
+      let pendingExam=false;
+      try{
+        const saved=JSON.parse(localStorage.getItem('integratedStudentActiveExam_v1')||'null');
+        pendingExam=!!(saved && saved.version===1 && saved.student && saved.subject &&
+          Array.isArray(saved.questions) && saved.questions.length && Number.isFinite(saved.endAt));
+      }catch(e){}
+      if(pendingExam){
+        document.body.classList.remove('login-required');
+        modal?.classList.remove('open');
+        return;
+      }
       const logged=!!(db.currentUser?.role && db.currentUser.role!=='viewer');
       if(logged){
         document.body.classList.remove('login-required');
@@ -20159,8 +20171,8 @@ function formatMathText(value){
  function restoreExam(){
   let saved;try{saved=JSON.parse(localStorage.getItem(SESSION_KEY)||'null')}catch(e){clearExamSession();return false}
   if(!saved||saved.version!==1||!saved.subject||!saved.student||!Array.isArray(saved.questions)||!saved.questions.length||!Number.isFinite(saved.endAt))return false;
-  // Tekshirilayotgan fan hali mavjud bo‘lishi kerak.
-  if(!registry()[saved.subject]){clearExamSession();return false}
+  // Sessiyada savollar nusxasi saqlangan: Firebase hali yuklanmagan
+  // paytda ham talaba testni davom ettira oladi.
   activeSubject=saved.subject;activeStudent=saved.student;activeQs=saved.questions;
   endAt=saved.endAt;finished=false;stop();
   q('itEditor').hidden=true;q('itStudent').hidden=false;q('itIdentity').hidden=true;q('itExam').hidden=false;
@@ -20238,7 +20250,20 @@ function formatMathText(value){
  }
   installMenu();const observer=new MutationObserver(installMenu);observer.observe(document.body,{subtree:true,childList:true});
   // Oddiy platforma kirish oynasi ishga tushgach, davom etayotgan testni tiklaymiz.
-  restoreExam();setTimeout(()=>{if(!q('itStudent').hidden&&activeQs.length){q('loginModal')?.classList.remove('open');document.body.classList.remove('login-required')}else if(q('itStudent').hidden)restoreExam()},400);
+  restoreExam();
+  // Platforma ma'lumotlarni asinxron yuklaganda kirish oynasini qayta ochmasin.
+  const loginModal=q('loginModal');
+  if(loginModal){
+   const guard=new MutationObserver(()=>{
+    if(!q('itStudent').hidden && activeQs.length && !finished){
+      if(loginModal.classList.contains('open'))loginModal.classList.remove('open');
+      if(document.body.classList.contains('login-required'))document.body.classList.remove('login-required');
+    }
+   });
+   guard.observe(loginModal,{attributes:true,attributeFilter:['class']});
+   guard.observe(document.body,{attributes:true,attributeFilter:['class']});
+  }
+  setTimeout(()=>{if(q('itStudent').hidden)restoreExam()},400);
   window.openIntegratedTestEditor=openEditor;
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',attach);else attach();
