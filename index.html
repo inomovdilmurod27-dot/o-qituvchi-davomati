@@ -4582,9 +4582,9 @@ body.hemis-layout .summary-week-btn{
   box-shadow:none !important;
 }
 body.hemis-layout .summary-week-btn.active[data-week="surat"]{
-  color:#114b80 !important;
-  background:#f0f7ff !important;
-  border-color:#a9cdf6 !important;
+  color:#fff !important;
+  background:#5b73f2 !important;
+  border-color:#5b73f2 !important;
 }
 body.hemis-layout .summary-week-btn.active[data-week="maxraj"]{
   color:#fff !important;
@@ -5116,6 +5116,38 @@ body.hemis-layout #teacherModal td{
 .admin-excel-tools .admin-excel-info span{display:block;color:#667085;font-size:10.5px;margin-top:2px}
 .admin-excel-tools .actions{display:flex;gap:7px;flex-wrap:wrap;margin:0}
 @media(max-width:760px){.admin-excel-tools{align-items:stretch;flex-direction:column}.admin-excel-tools .actions{width:100%}.admin-excel-tools .btn{flex:1}}
+
+/* Bo‘sh o‘qituvchilar: joriy tanlovlar bitta qatorda */
+.free-teacher-now-controls{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+@media(max-width:760px){.free-teacher-now-controls{grid-template-columns:1fr!important}}
+
+/* Login ekranida faqat kirish oynasi ko‘rinadi; boshqaruv qismlari yopiq. */
+body.login-required{background:#eef2f6 !important;overflow:hidden !important}
+body.login-required > *:not(#loginModal):not(script):not(style){visibility:hidden !important;pointer-events:none !important}
+body.login-required #loginModal{
+  display:flex !important;
+  visibility:visible !important;
+  position:fixed !important;
+  inset:0 !important;
+  width:100vw !important;
+  height:100dvh !important;
+  z-index:300000 !important;
+  padding:18px !important;
+  background:#eef2f6 !important;
+  align-items:center !important;
+  justify-content:center !important;
+  overflow:auto !important;
+  pointer-events:auto !important;
+}
+body.login-required #loginModal .modal-card{
+  visibility:visible !important;
+  flex:0 1 480px !important;
+  max-height:calc(100dvh - 36px) !important;
+  overflow:auto !important;
+}
+
+.test-math{font-size:1.18em;vertical-align:middle;margin:0 .12em}
+.test-math mfrac{font-size:1em}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
@@ -6493,7 +6525,66 @@ body.hemis-layout .pro-actions{
 #advancedModal .calendar-week-filter{display:flex;gap:5px;flex-wrap:wrap}
 @media(max-width:760px){#advancedModal .calendar-master-picker,#advancedModal .group-calendar-left{align-items:stretch}}
 </style>
-</head>
+
+<style id="smart-time-six-fields-row">
+/* Barcha oltita tanlov bir qatorda — boshqa formalarga ta’sir qilmaydi. */
+@media (min-width: 1000px) {
+ #smartModal.smart-time-compact .modal-card {
+   width:min(1540px,calc(100vw - 32px)) !important;
+   max-width:calc(100vw - 32px) !important;
+ }
+ #smartModal.smart-time-compact #smartBody > .form {
+   grid-template-columns:repeat(5,minmax(0,1fr)) minmax(190px,1.18fr) !important;
+   gap:9px !important;
+   align-items:end !important;
+ }
+ #smartModal.smart-time-compact #smartBody > .form > .st-group-field {
+   grid-column:auto !important;
+   min-width:0 !important;
+   align-self:end;
+ }
+ #smartModal.smart-time-compact #smartBody > .form > div {
+   min-width:0;
+ }
+ #smartModal.smart-time-compact #stGroupDropdown {
+   min-width:min(420px,calc(100vw - 50px)) !important;
+   width:420px !important;
+   max-width:calc(100vw - 50px) !important;
+   left:auto !important;
+   right:0 !important;
+ }
+}
+@media (min-width: 761px) and (max-width: 999px) {
+ #smartModal.smart-time-compact #smartBody > .form {
+   grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+ }
+ #smartModal.smart-time-compact #smartBody > .form > .st-group-field {
+   grid-column:auto !important;
+   min-width:0;
+ }
+}
+@media (max-width:760px) {
+ #smartModal.smart-time-compact #smartBody > .form > .st-group-field {
+   grid-column:1/-1 !important;
+   min-width:0;
+ }
+}
+</style>
+<style id="integratedSimpleTestStyles">
+#itEditor,#itStudent{position:fixed;inset:0;z-index:250000;background:#edf2f6;overflow:auto;font:14px Arial,sans-serif;color:#203750}
+#itEditor[hidden],#itStudent[hidden]{display:none!important}
+.it-head{height:60px;background:#2f86b6;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 22px;gap:12px}
+.it-head h2{font-size:18px;margin:0}.it-head button{background:#fff;color:#245c80;border:0;border-radius:7px;padding:9px 14px;font-weight:700;cursor:pointer}
+#itEditor iframe{display:block;width:100%;height:calc(100vh - 60px);border:0;background:#f3f6f9}
+.it-content{max-width:900px;margin:26px auto;padding:0 16px}.it-card{background:#fff;border:1px solid #dbe4ed;border-radius:12px;padding:24px;margin-bottom:16px}
+.it-card h3{margin:0 0 16px;font-size:20px;color:#173b5f}.it-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.it-card label{display:block;font-weight:700;font-size:13px;color:#344054}.it-card input:not([type=radio]){display:block;width:100%;margin-top:6px;padding:12px;border:1px solid #ced9e4;border-radius:7px;font:inherit}
+.it-action{background:#2684b6;border:0;color:#fff;border-radius:7px;font-weight:700;padding:11px 20px;cursor:pointer}.it-action:hover{background:#176c98}
+.it-note{font-size:13px;color:#697c8e}.it-error{color:#b42318;font-weight:700;margin:12px 0}
+.it-question{padding:16px 0;border-bottom:1px solid #e2eaf0}.it-question b{display:block;margin-bottom:12px;font-size:15px}.it-choice{display:block;font-weight:400!important;padding:11px;margin:7px 0;border:1px solid #dae5ee;border-radius:7px;cursor:pointer}.it-choice:has(input:checked){background:#ecf7fd;border-color:#65aed1}
+#itTimer{background:#eaf5fc;color:#185c84;border-radius:7px;padding:9px 12px;font-weight:800}.it-testbar{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:10px}.it-score{font-size:30px;font-weight:800;color:#16815c}
+@media(max-width:620px){.it-grid{grid-template-columns:1fr}.it-content{margin:12px auto}.it-head{padding:0 12px}.it-card{padding:16px}}
+</style></head>
 <body>
 <header class="topbar">
 <div class="brand"><div class="logo">BD</div><div><h1>Buxoro davlat texnika universiteti</h1><p>Ekologiya, irrigatsiya va gidrotexnika kafedrasi</p></div></div>
@@ -7013,45 +7104,6 @@ function isoLocalDate(d=new Date()){
  return `${y}-${m}-${day}`;
 }
 
-// O‘qish davri: tanlangan/joriy semestr haftasidan tashqaridagi darslarni yashirish.
-function activeStudyWeekForCalendar(){
- try{
-  const settings=db?.settings||{};
-  const key=typeof semesterPeriodKey==='function'?semesterPeriodKey(settings.academicYear,settings.semester):`${settings.academicYear}||${settings.semester}`;
-  const selected=Number(settings.dashboardSelectedWeekByPeriod?.[key]||0);
-  if(selected>=1)return selected;
-  const start=settings.semesterStartDates?.[key];
-  if(!start)return null; // Boshlanish sanasi yo‘q bo‘lsa, darslarni xato yashirmaymiz.
-  const startDate=new Date(start+'T12:00:00'),today=new Date();today.setHours(12,0,0,0);
-  if(!Number.isFinite(startDate.getTime()))return null;
-  return Math.floor(Math.round((today-startDate)/86400000)/7)+1;
- }catch(e){return null}
-}
-function lessonWithinStudyPeriod(l,week=activeStudyWeekForCalendar()){
- // Sana/hafta aniqlanmasa mavjud darslarni taxminan o‘chirmaymiz.
- if(!Number.isFinite(Number(week))||week===null)return true;
- const w=Number(week);
- const groups=[l?.group,...(Array.isArray(l?.additionalGroups)?l.additionalGroups:[])].filter(Boolean);
- return groups.length ? groups.some(g=>{
-   const p=typeof window.getGroupStudyProfile==='function'?window.getGroupStudyProfile(g):null;
-   const edu=String(p?.educationType||l?.educationType||'kunduzgi').toLowerCase();
-   if(!edu.includes('sirt'))return true;
-   const sw=Number(p?.startWeek??l?.startWeek??1);
-   const ew=Number(p?.endWeek??l?.endWeek??60);
-   return w>=sw&&w<=ew;
- }) : (!String(l?.educationType||'').toLowerCase().includes('sirt') || (w>=Number(l.startWeek||1)&&w<=Number(l.endWeek||60)));
-}
-
-function studyWeekForDate(dateStr){
- try{
-  const settings=db?.settings||{};
-  const key=typeof semesterPeriodKey==='function'?semesterPeriodKey(settings.academicYear,settings.semester):`${settings.academicYear}||${settings.semester}`;
-  const start=settings.semesterStartDates?.[key];if(!start)return null;
-  const a=new Date(start+'T12:00:00'),b=new Date(String(dateStr)+'T12:00:00');
-  if(!Number.isFinite(a.getTime())||!Number.isFinite(b.getTime()))return null;
-  return Math.floor(Math.round((b-a)/86400000)/7)+1;
- }catch(e){return null}
-}
 function lessonWeekDateOverlap(a,b){
  if(a?.weekType==="single"||b?.weekType==="single"){
    if(a?.weekType==="single"&&b?.weekType==="single") return String(a.singleDate||"")===String(b.singleDate||"");
@@ -7064,8 +7116,8 @@ function lessonWeekDateOverlap(a,b){
 }
 function lessonAppliesOnDate(l,dateStr){
  const d=String(dateStr||isoLocalDate());
- if(l?.weekType==="single") return String(l.singleDate||"")===d && lessonWithinStudyPeriod(l,studyWeekForDate(d));
- if(!lessonWithinStudyPeriod(l,studyWeekForDate(d)))return false;
+ if(!lessonVisibleOnScheduleWeek(l,lessonWeekNumberForDate(d)))return false;
+ if(l?.weekType==="single") return String(l.singleDate||"")===d;
  const dt=new Date(d+"T12:00:00");
  const day=dayNames[dt.getDay()];
  if(l?.day!==day)return false;
@@ -7830,12 +7882,12 @@ function nowInfo(){
 function weekOverlap(a,b){return a==="doim"||b==="doim"||a===b}
 function lessonActive(l,dateStr=null){
  if(l.cancelled||l.status!=="approved")return false;
- if(!lessonWithinStudyPeriod(l,dateStr?studyWeekForDate(dateStr):activeStudyWeekForCalendar()))return false;
+ if(!lessonVisibleOnScheduleWeek(l,lessonWeekNumberForDate(dateStr||localDateISO(new Date()))))return false;
  if(l.weekType==="single"){
    const d=dateStr||localDateISO(new Date());
    return String(l.singleDate||"")===String(d);
  }
- return l.weekType==="doim"||l.weekType===currentWeek;
+ return lessonVisibleOnScheduleWeek(l);
 }
 function teacherById(id){return db.teachers.find(t=>t.id==id)}
 function scopedTeachers(){
@@ -8290,6 +8342,48 @@ function lessonPeriodsOverlap(a,b){
  return false;
 }
 
+
+// Guruh davridan tashqaridagi darslar faqat mos hafta tanlanganda ko‘rinadi.
+function selectedScheduleWeekNumber(){
+ const settings=db?.settings||{};
+ const key=typeof semesterPeriodKey==='function'
+    ?semesterPeriodKey(settings.academicYear,settings.semester)
+    :`${settings.academicYear}||${settings.semester}`;
+ const selected=Number(settings.dashboardSelectedWeekByPeriod?.[key]||0);
+ if(Number.isInteger(selected)&&selected>0)return selected;
+ const beginning=settings.semesterStartDates?.[key];
+ if(beginning){
+   const start=new Date(beginning+'T00:00:00');
+   const now=new Date();now.setHours(0,0,0,0);
+   if(!Number.isNaN(start.getTime())){
+     const difference=Math.floor((now-start)/86400000);
+     if(difference>=0)return Math.floor(difference/7)+1;
+     return 0;
+   }
+ }
+ return 1;
+}
+function lessonWeekNumberForDate(dateStr){
+ const settings=db?.settings||{};
+ const key=typeof semesterPeriodKey==='function'
+    ?semesterPeriodKey(settings.academicYear,settings.semester)
+    :`${settings.academicYear}||${settings.semester}`;
+ const beginning=settings.semesterStartDates?.[key];
+ if(!beginning)return selectedScheduleWeekNumber();
+ const start=new Date(beginning+'T00:00:00'),date=new Date(dateStr+'T00:00:00');
+ if(Number.isNaN(start.getTime())||Number.isNaN(date.getTime()))return selectedScheduleWeekNumber();
+ return Math.floor((date-start)/86400000/7)+1;
+}
+function lessonVisibleOnScheduleWeek(l,number=selectedScheduleWeekNumber()){
+ const week=Number(number);
+ if(!Number.isInteger(week)||week<1)return false;
+ const bounds=lessonWeekRange(l);
+ if(week<bounds.start||week>bounds.end)return false;
+ if(l?.weekType==='single'){
+   return !!l.singleDate && lessonWeekNumberForDate(l.singleDate)===week;
+ }
+ return l?.weekType==='doim'||l?.weekType===(week%2?'surat':'maxraj');
+}
 function lessonActiveOnWeekNumber(l,weekNo){
  const w=Number(weekNo);
  if(!Number.isInteger(w)||w<1||w>60)return false;
@@ -8548,7 +8642,7 @@ function openTeacher(id){
       :st.next
         ?`<b>${roomDisplay(st.next.room,st.next.roomBuilding,st.next.roomId).replace("-xona","-XONA")}</b><span>Keyingi dars xonasi</span>`
         :`<b>DARS YO‘Q</b><span>Bugun bu o‘qituvchi uchun rejalashtirilgan dars topilmadi</span>`;
-  const rows=[...(t.schedule||[])].sort((a,b)=>dayOrder[a.day]-dayOrder[b.day]||a.pair-b.pair);
+  const rows=[...(t.schedule||[])].filter(l=>lessonVisibleOnScheduleWeek(l)).sort((a,b)=>dayOrder[a.day]-dayOrder[b.day]||a.pair-b.pair);
   $("teacherScheduleBody").innerHTML=rows.length
     ?rows.map(l=>`<tr><td>${l.day}</td><td>${l.pair}</td><td>${l.start}–${l.end}</td><td>${esc(l.subject)}</td><td>${esc(lessonGroupLabel(l))}</td><td>${roomDisplay(l.room,l.roomBuilding,l.roomId)}</td><td>${esc(l.type)}</td><td><span class="badge ${l.weekType}">${l.weekType==="doim"?"Doimiy":l.weekType==="single"?("Bir kunlik · "+(l.singleDate||"")):l.weekType}</span></td><td><span class="badge ${l.cancelled?"cancelled":l.status}">${l.cancelled?"Bekor qilingan":l.status==="approved"?"Tasdiqlangan":"Kutilmoqda"}</span></td></tr>`).join("")
     :`<tr><td colspan="9" style="text-align:center;color:#667085;padding:18px">Haftalik jadval topilmadi.</td></tr>`;
@@ -8593,8 +8687,8 @@ function renderAdminSelectors(){
 }
 function renderTeacherAdmin(){$("teacherAdminList").innerHTML=db.teachers.map(t=>`<div class="admin-row"><strong>${esc(t.name)}</strong><div class="mini"><b>${esc(teacherShortNameValue(t))}</b> · ${esc(t.position)} · ${esc(t.availability)} · Darslar: ${(t.schedule||[]).length}</div><div class="actions" style="margin-top:8px"><button class="btn ghost" onclick="editTeacher(${t.id})">Tahrirlash</button><button class="btn danger" onclick="deleteTeacher(${t.id})">O‘chirish</button></div></div>`).join("")}
 function renderRoomAdmin(){$("roomAdminList").innerHTML=db.rooms.map(r=>`<div class="admin-row"><strong>${esc(r.name)}-xona</strong><div class="mini">${esc(r.type)} · ${r.capacity} o‘rin${r.capacityEstimated?" (taxminiy)":""} · ${esc(r.building)}</div><div class="actions" style="margin-top:8px"><button class="btn ghost" onclick="editRoom(${r.id})">Tahrirlash</button><button class="btn danger" onclick="deleteRoom(${r.id})">O‘chirish</button></div></div>`).join("")}
-function renderLessonAdmin(){const rows=[];db.teachers.forEach(t=>(t.schedule||[]).forEach(l=>rows.push({t,l})));$("lessonAdminList").innerHTML=rows.length?rows.map(({t,l})=>`<div class="admin-row"><strong>${esc(scheduleTeacherName(t))} · ${l.day} · ${l.pair}-juftlik</strong><div class="mini">${esc(l.subject)} · ${esc(lessonGroupLabel(l))} · ${roomDisplay(l.room,l.roomBuilding,l.roomId)} · ${esc(l.type)} · ${l.weekType==="doim"?"Doimiy":l.weekType==="single"?("Bir kunlik · "+(l.singleDate||"")):l.weekType}${lessonEducationType(l)==="sirtqi"?` · Sirtqi · ${lessonWeekRange(l).start}–${lessonWeekRange(l).end}-hafta`:""}</div><div style="margin-top:6px"><span class="badge ${l.cancelled?"cancelled":l.status}">${l.cancelled?"Bekor qilingan":l.status==="approved"?"Tasdiqlangan":"Kutilmoqda"}</span></div><div class="actions" style="margin-top:8px"><button class="btn ghost" onclick="editLesson('${String(t.id).replace(/'/g,"\'")}','${String(l.id).replace(/'/g,"\'")}')">Tahrirlash</button><button class="btn warn" onclick="toggleCancel('${String(t.id).replace(/'/g,"\'")}','${String(l.id).replace(/'/g,"\'")}')">${l.cancelled?"Qayta faollashtirish":"Bekor qilish"}</button><button class="btn danger" onclick="deleteLesson('${String(t.id).replace(/'/g,"\'")}','${String(l.id).replace(/'/g,"\'")}')">O‘chirish</button></div></div>`).join(""):`<div class="empty">Darslar yo‘q.</div>`}
-function renderApproval(){$("approvalList").innerHTML=db.teachers.flatMap(t=>(t.schedule||[]).filter(l=>l.status==="pending"&&!l.cancelled).map(l=>({t,l}))).map(({t,l})=>`<div class="admin-row"><strong>${esc(scheduleTeacherName(t))} · ${l.day}, ${l.pair}-juftlik</strong><div class="mini">${esc(l.subject)} · ${esc(lessonGroupLabel(l))} · ${roomDisplay(l.room,l.roomBuilding,l.roomId)}</div><div class="actions" style="margin-top:8px"><button class="btn success" onclick="approveLesson('${String(t.id).replace(/'/g,"\'")}','${String(l.id).replace(/'/g,"\'")}')">Tasdiqlash</button><button class="btn danger" onclick="rejectLesson('${String(t.id).replace(/'/g,"\'")}','${String(l.id).replace(/'/g,"\'")}')">Rad etish</button></div></div>`).join("")||'<div class="empty">Tasdiqlash kutilayotgan dars yo‘q.</div>'}
+function renderLessonAdmin(){const rows=[];db.teachers.forEach(t=>(t.schedule||[]).filter(l=>lessonVisibleOnScheduleWeek(l)).forEach(l=>rows.push({t,l})));$("lessonAdminList").innerHTML=rows.length?rows.map(({t,l})=>`<div class="admin-row"><strong>${esc(scheduleTeacherName(t))} · ${l.day} · ${l.pair}-juftlik</strong><div class="mini">${esc(l.subject)} · ${esc(lessonGroupLabel(l))} · ${roomDisplay(l.room,l.roomBuilding,l.roomId)} · ${esc(l.type)} · ${l.weekType==="doim"?"Doimiy":l.weekType==="single"?("Bir kunlik · "+(l.singleDate||"")):l.weekType}${lessonEducationType(l)==="sirtqi"?` · Sirtqi · ${lessonWeekRange(l).start}–${lessonWeekRange(l).end}-hafta`:""}</div><div style="margin-top:6px"><span class="badge ${l.cancelled?"cancelled":l.status}">${l.cancelled?"Bekor qilingan":l.status==="approved"?"Tasdiqlangan":"Kutilmoqda"}</span></div><div class="actions" style="margin-top:8px"><button class="btn ghost" onclick="editLesson('${String(t.id).replace(/'/g,"\'")}','${String(l.id).replace(/'/g,"\'")}')">Tahrirlash</button><button class="btn warn" onclick="toggleCancel('${String(t.id).replace(/'/g,"\'")}','${String(l.id).replace(/'/g,"\'")}')">${l.cancelled?"Qayta faollashtirish":"Bekor qilish"}</button><button class="btn danger" onclick="deleteLesson('${String(t.id).replace(/'/g,"\'")}','${String(l.id).replace(/'/g,"\'")}')">O‘chirish</button></div></div>`).join(""):`<div class="empty">Darslar yo‘q.</div>`}
+function renderApproval(){$("approvalList").innerHTML=db.teachers.flatMap(t=>(t.schedule||[]).filter(l=>l.status==="pending"&&!l.cancelled&&lessonVisibleOnScheduleWeek(l)).map(l=>({t,l}))).map(({t,l})=>`<div class="admin-row"><strong>${esc(scheduleTeacherName(t))} · ${l.day}, ${l.pair}-juftlik</strong><div class="mini">${esc(l.subject)} · ${esc(lessonGroupLabel(l))} · ${roomDisplay(l.room,l.roomBuilding,l.roomId)}</div><div class="actions" style="margin-top:8px"><button class="btn success" onclick="approveLesson('${String(t.id).replace(/'/g,"\'")}','${String(l.id).replace(/'/g,"\'")}')">Tasdiqlash</button><button class="btn danger" onclick="rejectLesson('${String(t.id).replace(/'/g,"\'")}','${String(l.id).replace(/'/g,"\'")}')">Rad etish</button></div></div>`).join("")||'<div class="empty">Tasdiqlash kutilayotgan dars yo‘q.</div>'}
 function renderHistory(){$("historyList").innerHTML=db.history.length?db.history.map(h=>`<div class="admin-row"><strong>${esc(h.action)}</strong><div class="mini">${esc(h.time)}</div><div style="margin-top:5px">${esc(h.details)}</div></div>`).join(""):'<div class="empty">Tarix bo‘sh.</div>'}
 
 let teacherDiplomaDraft=[];
@@ -9012,15 +9106,22 @@ $("exportExcelBtn").onclick=()=>{
       const sub=l.substituteTeacherId ? teacherById(l.substituteTeacherId) : null;
       rows.push({
         "O‘qituvchi": scheduleTeacherName(t),
-        "Hafta kuni": l.day || "",
+        "Ilmiy darajasi": t.degree || "",
+        "Lavozimi": t.position || "",
+        "Hafta kuni": l.day,
+        "Hafta turi": l.weekType==="doim" ? "Doimiy" : (l.weekType==="surat" ? "Surat" : (l.weekType==="maxraj" ? "Maxraj" : ("Bir kunlik "+(l.singleDate||"")))),
         "Juftlik": l.pair + "-juftlik",
-        "Fan nomi": l.subject || "",
-        "Guruh": lessonGroupLabel(l),
-        "Xona": roomDisplay(l.room,l.roomBuilding,l.roomId),
-        "Dars turi": l.type || "",
-        "Hafta turi": l.weekType==="doim" ? "Doimiy" : l.weekType==="surat" ? "Surat" : l.weekType==="maxraj" ? "Maxraj" : "Bir kunlik · "+(l.singleDate||""),
-        "O‘qish davri": lessonEducationType(l)==="sirtqi" ? `Sirtqi · ${lessonWeekRange(l).start}–${lessonWeekRange(l).end}-hafta` : "",
-        "Holati": l.cancelled ? "Bekor qilingan" : (l.status==="approved" ? "Tasdiqlangan" : "Kutilmoqda")
+        "Boshlanish vaqti": l.start,
+        "Tugash vaqti": l.end,
+        "Fan nomi": l.subject,
+        "Guruh / yo‘nalish": lessonGroupLabel(l),
+        "Talabalar soni": l.groupSize || "",
+        "Xona": l.room,
+        "Bino": l.roomBuilding || (roomById(l.roomId)?.building || ""),
+        "Dars turi": l.type,
+        "Almashtiruvchi o‘qituvchi": sub ? scheduleTeacherName(sub) : "",
+        "Holati": l.cancelled ? "Bekor qilingan" : (l.status==="approved" ? "Tasdiqlangan" : "Tasdiqlash kutilmoqda"),
+        "Izoh": l.note || ""
       });
     });
   });
@@ -9030,13 +9131,45 @@ $("exportExcelBtn").onclick=()=>{
     return;
   }
 
-  const headers=Object.keys(rows[0]).filter(h=>rows.some(r=>String(r[h]??"").trim()!==""));
-  const ws = XLSX.utils.json_to_sheet(rows.map(r=>Object.fromEntries(headers.map(h=>[h,r[h]]))),{header:headers});
+  const ws = XLSX.utils.json_to_sheet(rows);
 
-  ws["!cols"]=headers.map(h=>({wch:Math.max(13,Math.min(34,h.length+8))}));
+  const widths = [
+    {wch:32},{wch:20},{wch:20},{wch:15},{wch:13},{wch:12},
+    {wch:16},{wch:16},{wch:32},{wch:20},{wch:15},{wch:12},
+    {wch:18},{wch:16},{wch:32},{wch:24},{wch:30}
+  ];
+  ws["!cols"]=widths;
 
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Dars jadvali");
+
+  // Xonalar varag‘i
+  const roomRows=db.rooms.map(r=>({
+    "Xona":r.name,
+    "Sig‘imi":r.capacity,
+    "Sig‘im holati":r.capacityEstimated?"Taxminiy":"Aniq",
+    "Xona turi":r.type,
+    "Bino":r.building
+  }));
+  if(roomRows.length){
+    const roomWs=XLSX.utils.json_to_sheet(roomRows);
+    roomWs["!cols"]=[{wch:12},{wch:12},{wch:16},{wch:24},{wch:18}];
+    XLSX.utils.book_append_sheet(wb, roomWs, "Xonalar");
+  }
+
+  // O‘qituvchilar varag‘i
+  const teacherRows=db.teachers.map(t=>({
+    "Ism-familiya":t.name,
+    "Ilmiy darajasi":t.degree || "",
+    "Lavozimi":t.position || "",
+    "Kafedra":t.department || "",
+    "Telefon":t.phone || "",
+    "Holati":t.availability || "",
+    "Izoh":t.availabilityNote || ""
+  }));
+  const teacherWs=XLSX.utils.json_to_sheet(teacherRows);
+  teacherWs["!cols"]=[{wch:32},{wch:20},{wch:20},{wch:35},{wch:18},{wch:15},{wch:30}];
+  XLSX.utils.book_append_sheet(wb, teacherWs, "O‘qituvchilar");
 
   const d=new Date();
   const fileName=`dars_jadvali_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}.xlsx`;
@@ -9157,7 +9290,7 @@ $("calendarBtn").onclick=()=>{
   for(let p=1;p<=8;p++){
     html+=`<div class="calendar-cell calendar-head">${p}-juftlik<br>${pairTimes[p].start}–${pairTimes[p].end}</div>`;
     days.forEach(d=>{
-      const ls=allApprovedLessons().filter(l=>l.day===d&&l.pair===p&&(l.weekType==="doim"||l.weekType===currentWeek));
+      const ls=allApprovedLessons().filter(l=>l.day===d&&l.pair===p&&lessonVisibleOnScheduleWeek(l));
       html+=`<div class="calendar-cell">${ls.length?ls.map(l=>`
         <div class="calendar-lesson">
           <span class="calendar-lesson-type ${calendarLessonTypeClass(l.type)}">${esc(l.type||"Dars")}</span>
@@ -9282,17 +9415,40 @@ $("freeRoomBtn").onclick=()=>{
   renderFreeRooms();
 };
 
+function freeTeacherCurrentWeekNumber(){
+  const settings=db.settings||{};
+  const key=typeof semesterPeriodKey==="function"
+    ?semesterPeriodKey(settings.academicYear,settings.semester)
+    :`${settings.academicYear}||${settings.semester}`;
+  const startStr=settings.semesterStartDates?.[key];
+  if(startStr){
+    const start=new Date(startStr+"T00:00:00");
+    const today=new Date();
+    start.setHours(0,0,0,0);
+    today.setHours(0,0,0,0);
+    if(!Number.isNaN(start.getTime())){
+      const diff=Math.round((today-start)/86400000);
+      if(diff>=0)return Math.max(1,Math.min(60,Math.floor(diff/7)+1));
+    }
+  }
+  // Semestr sanasi kiritilmagan bo‘lsa, tizimda tanlangan hafta qo‘llanadi.
+  return Math.max(1,Math.min(60,Number(settings.dashboardSelectedWeekByPeriod?.[key]||1)));
+}
 $("freeTeacherBtn").onclick=()=>{
   const ni=nowInfo();
   const workDays=["Dushanba","Seshanba","Chorshanba","Payshanba","Juma","Shanba"];
   const defaultDay=workDays.includes(ni.day)?ni.day:"Dushanba";
-  let defaultPair=Object.entries(pairTimes).find(([p,t])=>ni.minutes>=mins(t.start)&&ni.minutes<=mins(t.end));
-  defaultPair=defaultPair?Number(defaultPair[0]):1;
+  // Dars davom etayotgan bo‘lsa joriy, tanaffusda bo‘lsa keyingi juftlik.
+  let defaultPair=8;
+  for(let p=1;p<=8;p++){
+    if(ni.minutes<=mins(pairTimes[p].end)){defaultPair=p;break;}
+  }
+  const defaultWeekNo=freeTeacherCurrentWeekNumber();
 
-  const html=`<div class="form">
+  const html=`<div class="form free-teacher-now-controls">
     <div><label>Kun<select id="freeTeacherDay">${workDays.map(d=>`<option value="${d}" ${d===defaultDay?"selected":""}>${d}</option>`).join("")}</select></label></div>
     <div><label>Juftlik<select id="freeTeacherPair">${[1,2,3,4,5,6,7,8].map(p=>`<option value="${p}" ${p===defaultPair?"selected":""}>${p}-juftlik · ${pairTimes[p].start}–${pairTimes[p].end}</option>`).join("")}</select></label></div>
-    <div><label>Hafta raqami<select id="freeTeacherWeekNo">${Array.from({length:60},(_,i)=>`<option value="${i+1}">${i+1}-hafta</option>`).join("")}</select></label></div>
+    <div><label>Hafta raqami<select id="freeTeacherWeekNo">${Array.from({length:60},(_,i)=>`<option value="${i+1}" ${i+1===defaultWeekNo?"selected":""}>${i+1}-hafta</option>`).join("")}</select></label></div>
   </div>
   <div class="note" id="freeTeacherInfo" style="margin-top:8px"></div>
   <div class="grid" id="freeTeacherResults"></div>`;
@@ -9305,7 +9461,9 @@ $("freeTeacherBtn").onclick=()=>{
     const weekNo=Number($("freeTeacherWeekNo").value||1);
     const week=weekNo%2===1?"surat":"maxraj";
     const free=scopedTeachers().filter(t=>t.availability==="available"&&!globalTeacherBusy(t,day,pair,week,weekNo));
-    $("freeTeacherInfo").innerHTML=`<b>${esc(day)}</b> · <b>${pair}-juftlik</b> · ${weekNo}-hafta (${week==="surat"?"Surat":"Maxraj"})`;
+    $("freeTeacherInfo").innerHTML=`<b>${esc(day)}</b> · <b>${pair}-juftlik (${esc(pairTimes[pair].start)}–${esc(pairTimes[pair].end)})</b> · <b>${weekNo}-hafta</b> (${week==="surat"?"Surat":"Maxraj"})`;
+    const subtitle=document.querySelector("#advancedModal .modal-top .note");
+    if(subtitle)subtitle.textContent=`${day}, ${pair}-juftlik · ${weekNo}-hafta`;
     $("freeTeacherResults").innerHTML=free.map(t=>`<div class="card"><h3>${esc(scheduleTeacherName(t))}</h3><div class="mini">${esc(t.position)} · ${esc(t.degree)}</div></div>`).join("")||'<div class="empty">Bo‘sh o‘qituvchi yo‘q.</div>';
   }
   ["freeTeacherDay","freeTeacherPair","freeTeacherWeekNo"].forEach(id=>$(id).addEventListener("change",renderFreeTeachers));
@@ -10847,11 +11005,10 @@ renderAdvanced();
             <select id="stPairTo">${[1,2,3,4,5,6,7,8].map(i=>`<option value="${i}"${i===8?' selected':''}>${i}-juftlik · ${pairTimes[i].start}–${pairTimes[i].end}</option>`).join('')}</select>
           </label>
         </div>
-        <div class="full">
+        <div class="st-group-field">
           <label>Guruhlar</label>
           <div id="stGroupPicker">
             <button id="stGroupTrigger" type="button" aria-expanded="false"><span id="stGroupTriggerText">Guruhlarni tanlang</span><span class="st-group-trigger-arrow">▾</span></button>
-            <div id="stGroupSelectedChips"></div>
             <div id="stGroupDropdown">
               <div class="st-group-toolbar">
                 <div class="st-group-search-wrap"><input id="stGroupSearch" type="text" placeholder="Guruh nomini yozing..."></div>
@@ -10897,8 +11054,8 @@ renderAdvanced();
       }
       if(triggerText){
         if(!selected.length)triggerText.textContent='Guruhlarni tanlang';
-        else if(selected.length<=2)triggerText.textContent=selected.join(', ');
-        else triggerText.textContent=`${selected.length} ta guruh tanlandi`;
+        else triggerText.textContent=selected.join(', ');
+        triggerText.title=selected.join(', ');
       }
       if(picker)picker.classList.toggle('has-selection',selected.length>0);
       if(!box)return;
@@ -11113,7 +11270,7 @@ renderAdvanced();
   // 4. Guruh bo‘yicha oyna nazorati
   g('groupGapBtn')?.addEventListener('click',()=>{
     const groups=groupSchedules(); let blocks=''; Object.keys(groups).sort().forEach(gr=>{
-      const by={};groups[gr].filter(l=>l.weekType==='doim'||l.weekType===currentWeek).forEach(l=>(by[l.day]??=[]).push(Number(l.pair)));
+      const by={};groups[gr].filter(l=>lessonVisibleOnScheduleWeek(l)).forEach(l=>(by[l.day]??=[]).push(Number(l.pair)));
       let rows='';Object.entries(by).forEach(([day,ps])=>{const a=[...new Set(ps)].sort((x,y)=>x-y),gap=[];for(let i=1;i<a.length;i++)for(let p=a[i-1]+1;p<a[i];p++)gap.push(p);if(gap.length)rows+=`<div><b>${day}</b>: ${gap.map(p=>`<span class="gap-chip">${p}-juftlik</span>`).join('')}</div>`});
       if(rows)blocks+=`<div class="card"><h3>${sEsc(gr)}</h3>${rows}</div>`;
     });
@@ -11632,7 +11789,7 @@ renderAdvanced();
         !l.cancelled &&
         l.status==="approved" &&
         l.day===day &&
-        (l.weekType==="doim" || l.weekType===currentWeek) &&
+        lessonVisibleOnScheduleWeek(l) &&
         (!currentPair || Number(l.pair)===currentPair)
       );
       lessons.forEach(l=>rows.push({t,l}));
@@ -11686,23 +11843,12 @@ renderAdvanced();
     const inClass=Number(document.getElementById('inClassCount')?.textContent||0);
     const todayLessons=Number(document.getElementById('todayLessonsCount')?.textContent||0);
     const currentDep=String(db?.currentUser?.department||'').trim();
-    // Ro‘yxatdagi va amalda jadvalga biriktirilgan guruhlarni bir xil hisoblaymiz.
-    const groupNames=new Set();
-    const addGroup=g=>{
-      const name=String(typeof g==='string'?g:(g?.name||g?.group||g?.title||g?.code||'')).trim();
-      if(name)groupNames.add(name);
-    };
-    const registry=currentDep && db?.departmentWorkspaces?.[currentDep]?.groups
-      ? db.departmentWorkspaces[currentDep].groups : (db?.groups||[]);
-    (Array.isArray(registry)?registry:[]).forEach(addGroup);
-    const visibleTeachers=typeof scopedTeachers==='function'?scopedTeachers():(db?.teachers||[]);
-    visibleTeachers.forEach(t=>(t.schedule||[]).forEach(l=>{
-      addGroup(l.group);
-      (Array.isArray(l.additionalGroups)?l.additionalGroups:[]).forEach(addGroup);
-    }));
+    let groups=[];
+    if(currentDep && db?.departmentWorkspaces?.[currentDep]?.groups) groups=db.departmentWorkspaces[currentDep].groups||[];
+    else groups=db?.groups||[];
     const setCount=(title,val)=>{const c=map[title]; if(c) c.querySelector('.shortcut-count').textContent=String(val)};
     setCount('Kalendar', todayLessons);
-    setCount('Guruh kalendari', groupNames.size);
+    setCount('Guruh kalendari', groups.length);
     setCount('Hozir darsda', inClass);
     setCount('Bo‘sh o‘qituvchi', Math.max(totalTeachers-inClass,0));
     setCount('Statistika', totalTeachers);
@@ -12080,7 +12226,7 @@ renderAdvanced();
     }));
     return out;
   }
-  function activeWeek(l){return l.weekType==="doim"||l.weekType===currentWeek}
+  function activeWeek(l){return lessonVisibleOnScheduleWeek(l)}
   function todayName(){return typeof nowInfo==="function"?nowInfo().day:""}
   function localISO(){
     const d=new Date(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");
@@ -12163,6 +12309,37 @@ renderAdvanced();
 #advancedModal .group-calendar-actions > button{white-space:nowrap;min-height:36px;padding:7px 9px}
 @media(max-width:760px){#advancedModal .group-calendar-toolbar{flex-wrap:wrap!important;overflow-x:visible;overflow-y:visible}#advancedModal .group-calendar-left{flex-wrap:wrap!important}#advancedModal .group-calendar-actions{flex-wrap:wrap!important}#advancedModal #groupCalendarSelect{max-width:100%!important}}
 </style>
+<script id="integratedTestAutocomplete">
+(function(){
+ 'use strict';
+ function strings(items){return [...new Set(items.map(x=>String(x||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'uz'))}
+ function dataset(){
+  let store={};try{store=JSON.parse(localStorage.getItem('dispatchDB')||'{}')||{}}catch{}
+  const subs=[],groups=[];
+  for(const item of (Array.isArray(store.subjects)?store.subjects:[]))subs.push(typeof item==='string'?item:item.name);
+  for(const item of (Array.isArray(store.groups)?store.groups:[]))groups.push(typeof item==='string'?item:(item.name||item.code));
+  for(const teacher of (Array.isArray(store.teachers)?store.teachers:[])){
+   for(const lesson of (Array.isArray(teacher.lessons)?teacher.lessons:[])){
+    subs.push(lesson.subject);groups.push(lesson.group);
+    for(const group of (lesson.additionalGroups||[]))groups.push(group);
+   }
+  }
+  try{for(const r of JSON.parse(localStorage.getItem('integratedStudentTestResults_v1')||'[]')){subs.push(r.subject);groups.push(r.group)}}catch{}
+  return {subjects:strings(subs),groups:strings(groups)};
+ }
+ function fill(node,items){if(node)node.replaceChildren(...items.map(x=>new Option(x,x)))}
+ function update(){
+  const d=dataset();fill(document.getElementById('itGroupOptions'),d.groups);
+  const frame=document.getElementById('itFrame');
+  try{fill(frame?.contentDocument?.getElementById('subjectNameOptions'),d.subjects)}catch{}
+ }
+ function start(){const frame=document.getElementById('itFrame');frame?.addEventListener('load',update);update();
+  document.getElementById('itIdentity')?.addEventListener('focusin',update,{once:false});
+  document.getElementById('itEditor')?.addEventListener('click',update,{once:false});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+})();
+</script>
 </body></html>`);
     w.document.close();w.focus();setTimeout(()=>w.print(),250);
   };
@@ -12488,7 +12665,7 @@ renderAdvanced();
       rooms().find(r=>String(r.name||"").trim().toLowerCase()===String(l.room||"").trim().toLowerCase() &&
       (!l.roomBuilding||String(r.building||"").trim().toLowerCase()===String(l.roomBuilding||"").trim().toLowerCase()));
   }
-  function weekOk(l){return l.weekType==="doim"||l.weekType===currentWeek}
+  function weekOk(l){return lessonVisibleOnScheduleWeek(l)}
   function openU(title,sub,html){
     if(typeof openAdvanced==="function")return openAdvanced(title,sub,html);
     if(U("genericTitle"))U("genericTitle").textContent=title;
@@ -12706,7 +12883,7 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
   const BULK_META={
     teacher:{label:"O‘qituvchilar",headers:["To‘liq F.I.Sh.","Qisqartirilgan F.I.Sh.","Kafedra","Lavozim","Telefon","Ilmiy daraja","Rasm URL","Holati","Mavjud emas izohi","Tug‘ilgan sana","Tug‘ilgan joyi","Jinsi","Fuqaroligi","Pasport seriya va raqami","JShShIR","Yashash manzili","E-mail","Oilaviy holati","Ma’lumoti","Tamomlagan OTM","Mutaxassisligi","Ishga qabul qilingan sana","Umumiy ish staji","Pedagogik ish staji","Kafedradagi ish staji","Chet tillari","Malaka oshirish ma’lumotlari","Sertifikatlari","ORCID","Scopus Author ID","Web of Science ResearcherID","Google Scholar profili","Qo‘shimcha izoh","Diplomlar soni"]},
     room:{label:"Xonalar",headers:["Xona","Bino","Sig‘im","Tur"]},
-    lesson:{label:"Darslar",headers:["O‘qituvchi","Fan nomi","Guruh / yo‘nalish","Qo‘shimcha guruhlar","Talabalar soni","Hafta kuni","Hafta turi","Bir kunlik sana","Ta’lim shakli","Boshlanish haftasi","Tugash haftasi","Juftlik","Vaqt","Xona","Bino","Dars turi","Almashtiruvchi o‘qituvchi","Holat","Izoh"]},
+    lesson:{label:"Darslar",headers:["O‘qituvchi","Fan nomi","Guruh / yo‘nalish","Qo‘shimcha guruhlar","Talabalar soni","Hafta kuni","Hafta turi","Bir kunlik sana","Ta’lim shakli","Juftlik","Vaqt","Xona","Bino","Dars turi","Almashtiruvchi o‘qituvchi","Holat","Izoh"]},
     groupstudy:{label:"Guruhlar / Guruh davri",headers:["O‘quv yili","Semestr","Yo‘nalish kodi","Guruhning to‘liq nomi","Guruhning qisqartirilgan nomi","Ta’lim shakli","Talabalar soni","Boshlanish haftasi","Tugash haftasi","Boshlanish juftligi","Tugash juftligi","O‘qish kunlari","Ruxsat etilgan binolar","Izoh"]},
     subject:{label:"Fanlar",headers:["Fan kodi","Fan nomi","Mashg‘ulot turi","Kafedra","Izoh"]},
     workload:{label:"O‘qituvchi–fan yuklamasi",headers:["O‘qituvchi","Kafedra","Fan","Guruh","Haftalik juftlik","Mashg‘ulot turi","Izoh"]},
@@ -12762,7 +12939,6 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
         out.push({
           "O‘qituvchi":scheduleTeacherName(t),"Fan nomi":l.subject||"","Guruh / yo‘nalish":l.group||"","Qo‘shimcha guruhlar":(l.additionalGroups||[]).join(", "),"Talabalar soni":Number(l.groupSize||0),
           "Hafta kuni":l.day||"","Hafta turi":l.weekType||"doim","Bir kunlik sana":l.singleDate||"","Ta’lim shakli":l.educationType||"kunduzgi",
-          "Boshlanish haftasi":Number(l.startWeek||1),"Tugash haftasi":Number(l.endWeek||db.settings?.semesterWeeks||16),
           "Juftlik":Number(l.pair||0),"Vaqt":p?`${p.start}-${p.end}`:(l.start&&l.end?`${l.start}-${l.end}`:""),"Xona":l.room||"","Bino":l.roomBuilding||"","Dars turi":l.type||"",
           "Almashtiruvchi o‘qituvchi":sub?scheduleTeacherName(sub):"","Holat":l.status||"approved","Izoh":l.note||""
         });
@@ -12849,11 +13025,11 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
     try{
       const meta=BULK_META[type]||BULK_META.teacher;
       let rows=bulkExportRows(type);
-      if(!rows.length)return showAlert?.("Eksport uchun ma’lumot mavjud emas.","warn");
-      const headers=meta.headers.filter(h=>rows.some(r=>String(r[h]??"").trim()!==""));
-      if(!headers.length)return showAlert?.("To‘ldirilgan ma’lumot mavjud emas.","warn");
-      const ws=XLSX.utils.json_to_sheet(rows.map(r=>Object.fromEntries(headers.map(h=>[h,r[h]??""]))),{header:headers});
-      ws["!cols"]=headers.map(h=>({wch:Math.max(14,Math.min(32,String(h).length+6))}));
+      if(!rows.length){
+        const empty={};meta.headers.forEach(h=>empty[h]="");rows=[empty];
+      }
+      const ws=XLSX.utils.json_to_sheet(rows,{header:meta.headers});
+      ws["!cols"]=meta.headers.map(h=>({wch:Math.max(14,Math.min(32,String(h).length+6))}));
       const wb=XLSX.utils.book_new();
       const sheetName=String(meta.label||"Ma’lumot")
         .replace(/[\\/:*?\[\]]+/g,"_")
@@ -12861,6 +13037,17 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
         .trim()
         .slice(0,31)||"Ma’lumot";
       XLSX.utils.book_append_sheet(wb,ws,sheetName);
+      if(type==="teacher"){
+        const diplomaRows=[];
+        teachers().forEach(t=>(Array.isArray(t.diplomas)?t.diplomas:[]).forEach((d,i)=>diplomaRows.push({
+          "O‘qituvchi":t.name||"","Kafedra":t.department||"","Diplom tartibi":i+1,"Daraja turi":d?.level||"","Diplom seriya/raqami":d?.number||"","OTM":d?.university||"","Mutaxassislik":d?.specialty||"","Berilgan sana":d?.date||"","Diplom fayli/URL":d?.fileUrl||""
+        })));
+        const dh=["O‘qituvchi","Kafedra","Diplom tartibi","Daraja turi","Diplom seriya/raqami","OTM","Mutaxassislik","Berilgan sana","Diplom fayli/URL"];
+        const drows=diplomaRows.length?diplomaRows:[Object.fromEntries(dh.map(h=>[h,""]))];
+        const dws=XLSX.utils.json_to_sheet(drows,{header:dh});
+        dws["!cols"]=dh.map(h=>({wch:Math.max(14,Math.min(34,String(h).length+8))}));
+        XLSX.utils.book_append_sheet(wb,dws,"O‘qituvchi diplomlari");
+      }
       const file=`${String(meta.label).replace(/[\/:*?"<>|]+/g,"_").replace(/\s+/g,"_")}.xlsx`;
       XLSX.writeFile(wb,file);
       showAlert?.(`${meta.label} Excelga chiqarildi.`,"ok");
@@ -13025,8 +13212,6 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
             assignNumber(existing,"groupSize",raw(["Guruh soni","Talabalar soni","Group size"]));
             assignText(existing,"type",raw(["Turi","Tur","Dars turi","Type"]));
             assignText(existing,"educationType",raw(["Ta’lim shakli","Talim shakli","Education type"]));
-            assignNumber(existing,"startWeek",raw(["Boshlanish haftasi","Start week"]),x=>Math.max(1,Math.round(x)));
-            assignNumber(existing,"endWeek",raw(["Tugash haftasi","End week"]),x=>Math.max(1,Math.round(x)));
             if(present(["Qo‘shimcha guruhlar","Qo'shimcha guruhlar","Additional groups"]))existing.additionalGroups=bulkList(raw(["Qo‘shimcha guruhlar","Qo'shimcha guruhlar","Additional groups"]));
             if(present(["Almashtiruvchi o‘qituvchi","Almashtiruvchi oqituvchi","Substitute teacher"])){
               const subName=txt(["Almashtiruvchi o‘qituvchi","Almashtiruvchi oqituvchi","Substitute teacher"]);
@@ -13116,8 +13301,8 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
           const sub=teachers().find(z=>bulkNorm(scheduleTeacherName(z))===bulkNorm(subName)||bulkNorm(z.name)===bulkNorm(subName));
           const educationType=txt(["Ta’lim shakli","Talim shakli","Education type"])||"kunduzgi";
           const l={id:newLessonId(),day,weekType,singleDate:weekType==="single"?txt(["Bir kunlik sana","Sana","Date"]):"",educationType,
-            startWeek:present(["Boshlanish haftasi","Start week"])?Math.max(1,Math.round(Number(raw(["Boshlanish haftasi","Start week"]))||1)):1,
-            endWeek:present(["Tugash haftasi","End week"])?Math.max(1,Math.round(Number(raw(["Tugash haftasi","End week"]))||1)):Math.max(1,Number(db.settings?.semesterWeeks||16)),
+            startWeek:1,
+            endWeek:Math.max(1,Number(db.settings?.semesterWeeks||16)),
             pair,start:p.start,end:p.end,subject,group,additionalGroups:present(["Qo‘shimcha guruhlar","Qo'shimcha guruhlar","Additional groups"])?bulkList(raw(["Qo‘shimcha guruhlar","Qo'shimcha guruhlar","Additional groups"])):[],
             groupSize:present(["Guruh soni","Talabalar soni","Group size"])?Number(raw(["Guruh soni","Talabalar soni","Group size"]))||0:0,
             room:rr.name,roomId:rr.id,roomBuilding:building||rr.building||"",type:txt(["Turi","Tur","Dars turi","Type"])||"Ma’ruza",substituteTeacherId:sub?sub.id:"",status:txt(["Holat","Status"])||"approved",cancelled:false,note:txt(["Izoh","Note"])};
@@ -13327,9 +13512,6 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
       try{if(typeof window.syncAutomaticWeekType==="function")window.syncAutomaticWeekType(true)}catch(e){}
       try{if(typeof window.refreshLessonSubjectOptions==="function")window.refreshLessonSubjectOptions()}catch(e){}
       try{if(typeof window.refreshLessonGroupOptions==="function")window.refreshLessonGroupOptions()}catch(e){}
-      if(type==="lesson" || type==="groupstudy" || type==="room" || type==="teacher"){
-        document.dispatchEvent(new CustomEvent("platforma:schedule-updated",{detail:{source:"excel-import",type,added,updated}}));
-      }
       const reasonText=type==="lesson"&&skip?Object.entries(skipReasons).slice(0,8).map(([k,v])=>`${v}× ${k}`).join("<br>"):"";
       showAlert?.(`${added} ta yangi yozuv qo‘shildi, ${updated} ta mavjud yozuv yangilandi. ${skip} ta o‘tkazib yuborildi.${reasonText?`<br><br><b>O‘tkazilgan qatorlar sababi:</b><br>${reasonText}`:""}<br><span class="mini">Excelda bo‘sh kataklar eski ma’lumotni o‘chirmaydi.</span>`,skip&&type==="lesson"?"warn":"ok");
     }catch(err){
@@ -13447,16 +13629,12 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
   function dragDownload(blob,name){const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);}
   function dragExportFileName(ext){return `Drag_Drop_${dragFilterTeacher||"barcha_oqituvchilar"}_${(dragFilterGroup||"barcha_guruhlar").replace(/[^\w\u0400-\u04ff-]/g,"_")}_${dragFilterWeek}.${ext}`;}
   async function dragDoExcel(){
-    const raw=dragExportRows();
-    const keep=dragExportHead.map((_,i)=>i).filter(i=>raw.some(r=>String(r[i]??"").trim()!==""));
-    const head=keep.map(i=>dragExportHead[i]);
-    const data=raw.map(r=>keep.map(i=>r[i]));
-    if(!data.length){showAlert?.("Eksport uchun dars topilmadi.","warn");return;}
+    const data=dragExportRows();if(!data.length){showAlert?.("Eksport uchun dars topilmadi.","warn");return;}
     if(typeof ExcelJS!=="undefined"){
-      const wb=new ExcelJS.Workbook();const sheet=wb.addWorksheet("Drag Drop");sheet.addRow(head);data.forEach(x=>sheet.addRow(x));sheet.getRow(1).font={bold:true,color:{argb:"FFFFFFFF"}};sheet.getRow(1).fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF4191BF"}};sheet.columns.forEach(c=>c.width=21);sheet.views=[{state:"frozen",ySplit:1}];sheet.autoFilter={from:"A1",to:sheet.getRow(1).getCell(head.length).address};
+      const wb=new ExcelJS.Workbook();const sheet=wb.addWorksheet("Drag Drop");sheet.addRow(dragExportHead);data.forEach(x=>sheet.addRow(x));sheet.getRow(1).font={bold:true,color:{argb:"FFFFFFFF"}};sheet.getRow(1).fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF4191BF"}};sheet.columns.forEach(c=>c.width=21);sheet.views=[{state:"frozen",ySplit:1}];sheet.autoFilter={from:"A1",to:"L1"};
       const bytes=await wb.xlsx.writeBuffer();dragDownload(new Blob([bytes],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),dragExportFileName("xlsx"));
     }else if(typeof XLSX!=="undefined"){
-      const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet([head,...data]);XLSX.utils.book_append_sheet(wb,ws,"Drag Drop");XLSX.writeFile(wb,dragExportFileName("xlsx"));
+      const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet([dragExportHead,...data]);XLSX.utils.book_append_sheet(wb,ws,"Drag Drop");XLSX.writeFile(wb,dragExportFileName("xlsx"));
     }else showAlert?.("Excel kutubxonasi yuklanmagan.","error");
   }
   function dragExportDocument(){const rows=dragExportRows();return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;margin:24px}h2{text-align:center}table{border-collapse:collapse;width:100%;font-size:10px}td,th{border:1px solid #777;padding:6px;vertical-align:top}th{background:#d9edf7}@page{size:A4 landscape;margin:12mm}</style></head><body><h2>Drag & Drop — dars jadvali</h2><p>${escU(dragFilterWeek==="all"?"Hammasi":dragFilterWeek)} · ${rows.length} ta dars</p><table><thead><tr>${dragExportHead.map(h=>`<th>${escU(h)}</th>`).join("")}</tr></thead><tbody>${rows.map(row=>`<tr>${row.map(v=>`<td>${escU(v)}</td>`).join("")}</tr>`).join("")}</tbody></table>
@@ -15039,7 +15217,7 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
   }
   function activeLessons(t){
     const list=(t?.schedule||[]).filter(l=>!l.cancelled&&l.status==='approved');
-    return list.filter(l=>l.weekType==='doim'||l.weekType===currentWeek);
+    return list.filter(l=>lessonVisibleOnScheduleWeek(l));
   }
   function updateCard(){
     const ts=activeTeachers();
@@ -15595,7 +15773,7 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
       if(!p)return base;
       const start=Math.max(Number(base.start||1),Number(p.startWeek||1));
       const end=Math.min(Number(base.end||currentWeeks()),Number(p.endWeek||currentWeeks()));
-      return start<=end?{start,end}:base;
+      return {start,end};
     };
   }
   // Lesson validation also enforces allowed buildings and period completeness.
@@ -18648,13 +18826,13 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
     // Bu varaqda barcha darslar saqlanadi; ko‘rinadigan kalendar esa joriy haftani ko‘rsatadi.
     const imp=wb.addWorksheet('Import ma’lumotlari');
     imp.state='veryHidden';
-    const headers=['O‘qituvchi','Hafta kuni','Hafta turi','Bir kunlik sana','Juftlik','Boshlanish vaqti','Tugash vaqti','Fan nomi','Guruh / yo‘nalish','Talabalar soni','Xona','Bino','Dars turi','Ta’lim shakli','Boshlanish haftasi','Tugash haftasi','Holati','Izoh'];
+    const headers=['O‘qituvchi','Hafta kuni','Hafta turi','Bir kunlik sana','Juftlik','Boshlanish vaqti','Tugash vaqti','Fan nomi','Guruh / yo‘nalish','Talabalar soni','Xona','Bino','Dars turi','Ta’lim shakli','Holati','Izoh'];
     imp.addRow(headers);
     (t.schedule||[]).slice().sort((a,b)=>(dayRank[a.day]||99)-(dayRank[b.day]||99)||Number(a.pair||0)-Number(b.pair||0)).forEach(l=>{
       const pt=(typeof pairTimes!=='undefined'&&pairTimes[Number(l.pair)])||{};
       imp.addRow([
         scheduleTeacherName(t)||'',l.day||'',weekLabel[l.weekType]||l.weekType||'Doimiy',l.singleDate||'',`${Number(l.pair||1)}-juftlik`,
-        l.start||pt.start||'',l.end||pt.end||'',l.subject||'',lessonGroups(l).join(', '),Number(l.groupSize||0)||'',l.room||'',l.roomBuilding||'',l.type||'',educationType(l),l.startWeek||'',l.endWeek||'',
+        l.start||pt.start||'',l.end||pt.end||'',l.subject||'',lessonGroups(l).join(', '),Number(l.groupSize||0)||'',l.room||'',l.roomBuilding||'',l.type||'',educationType(l),
         l.cancelled?'Bekor qilingan':String(l.status||'pending')==='approved'?'Tasdiqlangan':'Tasdiqlash kutilmoqda',l.note||''
       ]);
     });
@@ -18700,7 +18878,7 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
             if(!room){room={id:Date.now()+Math.random(),name:x.rp.name,capacity:Number(value(x.r,['Xona sig‘imi','Sig‘im',"Sig'imi",'Capacity'])||value(x.r,['Talabalar soni','Guruh soni','Group size'])||30),capacityEstimated:true,capacitySource:'excel-auto',type:String(value(x.r,['Xona turi','Auditoriya turi'])||'Oddiy auditoriya'),building:x.rp.building||'1-bino'};db.rooms=db.rooms||[];db.rooms.push(room);createdRooms++}
           }
           const pt=pairTimes[x.pair],st=lessonStatus(value(x.r,['Holati','Holat','Status'])),edu=normT(value(x.r,['Ta’lim shakli',"Ta'lim shakli",'Education type']))||'kunduzgi';
-          const lesson={id:x.old?.id||Date.now()+Math.random(),day:x.day,weekType:x.weekType,singleDate:String(value(x.r,['Bir kunlik sana','Sana','Date'])||'').trim(),pair:x.pair,start:String(value(x.r,['Boshlanish vaqti','Start'])||'').trim()||pt.start,end:String(value(x.r,['Tugash vaqti','End'])||'').trim()||pt.end,subject:x.subject,group:x.group,additionalGroups:[],groupSize:Number(value(x.r,['Talabalar soni','Guruh soni','Group size'])||1),room:room?room.name:'',roomId:room?room.id:'',roomBuilding:room?(room.building||''):(x.rp.building||''),type:String(value(x.r,['Dars turi','Turi','Type'])||'Ma’ruza'),substituteTeacherId:'',status:st.status,cancelled:st.cancelled,note:String(value(x.r,['Izoh','Note'])||''),educationType:edu.includes('sirt')?'sirtqi':'kunduzgi',startWeek:Number(value(x.r,['Boshlanish haftasi','Start week'])||1),endWeek:Number(value(x.r,['Tugash haftasi','End week'])||((db.settings&&db.settings.semesterWeeks)||16))};
+          const lesson={id:x.old?.id||Date.now()+Math.random(),day:x.day,weekType:x.weekType,singleDate:String(value(x.r,['Bir kunlik sana','Sana','Date'])||'').trim(),pair:x.pair,start:String(value(x.r,['Boshlanish vaqti','Start'])||'').trim()||pt.start,end:String(value(x.r,['Tugash vaqti','End'])||'').trim()||pt.end,subject:x.subject,group:x.group,additionalGroups:[],groupSize:Number(value(x.r,['Talabalar soni','Guruh soni','Group size'])||1),room:room?room.name:'',roomId:room?room.id:'',roomBuilding:room?(room.building||''):(x.rp.building||''),type:String(value(x.r,['Dars turi','Turi','Type'])||'Ma’ruza'),substituteTeacherId:'',status:st.status,cancelled:st.cancelled,note:String(value(x.r,['Izoh','Note'])||''),educationType:edu.includes('sirt')?'sirtqi':'kunduzgi',startWeek:1,endWeek:Number((db.settings&&db.settings.semesterWeeks)||16)};
           if(lesson.weekType==='single'&&!lesson.singleDate){skipped++;reasons.push(`${x.idx+2}-qator: Bir kunlik dars uchun sana ko‘rsatilmagan.`);continue}
           const check=typeof validateLesson==='function'?validateLesson(lesson,t.id,x.old?.id||null):{errs:[]};if(check.errs?.length){skipped++;reasons.push(`${x.idx+2}-qator: ${check.errs.join('; ')}`);continue}
           if(x.old){Object.assign(x.old,lesson,{id:x.old.id});updated++}else{t.schedule=t.schedule||[];t.schedule.push(lesson);added++}
@@ -18802,8 +18980,7 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
     const arr=[];
     (t?.schedule||[]).forEach(l=>{
       if(l.cancelled||String(l.status||'pending')!=='approved')return;
-      if(!lessonWithinStudyPeriod(l))return;
-      if(!lessonPassesWeekFilter(l))return;
+      if(!lessonPassesWeekFilter(l)||!lessonVisibleOnScheduleWeek(l))return;
       if(calendarLessonType!=='all' && !matchesCalendarLessonType(l.type,calendarLessonType))return;
       arr.push({...l,teacher:t});
     });
@@ -18867,9 +19044,6 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
     const im=q('calendarExcelImport');if(im)im.onclick=()=>q('calendarExcelFile')?.click();
     const file=q('calendarExcelFile');if(file)file.onchange=importCalendarExcel;
   }
-  document.addEventListener("platforma:schedule-updated",()=>{
-    if(q('advancedModal')?.classList.contains('open') && q('calendarTeacherSelect')) renderCalendar();
-  });
   function openCalendar(){
     calendarBatchExport=false;
     const who=selectedTeacher();
@@ -19024,8 +19198,8 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
       ws.getColumn(1).width=15;for(let c=2;c<=7;c++)ws.getColumn(c).width=28;ws.pageSetup={orientation:'landscape',fitToPage:true,fitToWidth:1,fitToHeight:0,paperSize:9,horizontalCentered:true,margins:{left:.2,right:.2,top:.3,bottom:.3,header:.1,footer:.1}};
 
       const imp=wb.addWorksheet('Import ma’lumotlari');imp.state='veryHidden';
-      imp.addRow(['O‘qituvchi','Hafta kuni','Hafta turi','Bir kunlik sana','Juftlik','Boshlanish vaqti','Tugash vaqti','Fan nomi','Guruh / yo‘nalish','Talabalar soni','Xona','Bino','Dars turi','Ta’lim shakli','Boshlanish haftasi','Tugash haftasi','Holati','Izoh']);
-      ls.slice().sort((a,b)=>String(a.teacher?.name||'').localeCompare(String(b.teacher?.name||''),'uz')||days.indexOf(a.day)-days.indexOf(b.day)||Number(a.pair||0)-Number(b.pair||0)).forEach(l=>{const pt=(typeof pairTimes!=='undefined'&&pairTimes[Number(l.pair)])||{};imp.addRow([l.teacher?.name||'',l.day||'',weekLabel[weekTypeOf(l)]||l.weekType||'Doimiy',l.singleDate||'',`${Number(l.pair||1)}-juftlik`,l.start||pt.start||'',l.end||pt.end||'',l.subject||'',lessonGroups(l).join(', '),Number(l.groupSize||0)||'',l.room||'',l.roomBuilding||'',l.type||'',educationType(l),l.startWeek||'',l.endWeek||'',l.cancelled?'Bekor qilingan':String(l.status||'pending')==='approved'?'Tasdiqlangan':'Tasdiqlash kutilmoqda',l.note||''])});
+      imp.addRow(['O‘qituvchi','Hafta kuni','Hafta turi','Bir kunlik sana','Juftlik','Boshlanish vaqti','Tugash vaqti','Fan nomi','Guruh / yo‘nalish','Talabalar soni','Xona','Bino','Dars turi','Ta’lim shakli','Holati','Izoh']);
+      ls.slice().sort((a,b)=>String(a.teacher?.name||'').localeCompare(String(b.teacher?.name||''),'uz')||days.indexOf(a.day)-days.indexOf(b.day)||Number(a.pair||0)-Number(b.pair||0)).forEach(l=>{const pt=(typeof pairTimes!=='undefined'&&pairTimes[Number(l.pair)])||{};imp.addRow([l.teacher?.name||'',l.day||'',weekLabel[weekTypeOf(l)]||l.weekType||'Doimiy',l.singleDate||'',`${Number(l.pair||1)}-juftlik`,l.start||pt.start||'',l.end||pt.end||'',l.subject||'',lessonGroups(l).join(', '),Number(l.groupSize||0)||'',l.room||'',l.roomBuilding||'',l.type||'',educationType(l),l.cancelled?'Bekor qilingan':String(l.status||'pending')==='approved'?'Tasdiqlangan':'Tasdiqlash kutilmoqda',l.note||''])});
       const buffer=await wb.xlsx.writeBuffer(),blob=new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
       triggerCalendarDownload(blob,currentTeacher?cleanFileName(scheduleTeacherName(currentTeacher))+'_umumiy_kalendar_jadvali.xlsx':'umumiy_kalendar_jadvali.xlsx');
       if(!silent)showCalendarMsg(`${currentTeacher?'<b>'+escC(scheduleTeacherName(currentTeacher))+'</b>':'<b>Umumiy kalendar</b>'} Excelga chiqarildi.`,'ok');
@@ -19076,7 +19250,7 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
       if(!parsed.length)return showCalendarMsg(`Mos dars qatori topilmadi.${reasons.length?'<br>'+reasons.slice(0,8).map(x=>'• '+escC(x)).join('<br>'):''}`,'warn');
       const replacing=new Set();parsed.forEach(x=>{const same=(x.t.schedule||[]).filter(l=>!l.cancelled&&l.day===x.day&&Number(l.pair)===x.pair&&String(l.weekType||'doim')===x.weekType);let old=same.length===1?same[0]:null;if(!old&&same.length>1){const ex=same.filter(l=>normC(l.subject)===normC(x.subject)&&normC(l.group)===normC(x.group));if(ex.length===1)old=ex[0]}x.old=old;if(old?.id!=null)replacing.add(String(old.id))});
       const prev=window.__excelImportReplacingLessonIds;window.__excelImportReplacingLessonIds=replacing;let added=0,updated=0,createdRooms=0;
-      try{for(const x of parsed){let room=null;if(String(x.rp.name||'').trim()){room=(db.rooms||[]).find(rr=>{const rn=typeof normalizePhysicalRoom==='function'?normalizePhysicalRoom(rr.name):normC(rr.name),xn=typeof normalizePhysicalRoom==='function'?normalizePhysicalRoom(x.rp.name):normC(x.rp.name),rb=typeof normalizeBuilding==='function'?normalizeBuilding(rr.building):normC(rr.building),xb=typeof normalizeBuilding==='function'?normalizeBuilding(x.rp.building):normC(x.rp.building);return rn===xn&&(!x.rp.building||rb===xb)});if(!room){room={id:Date.now()+Math.random(),name:x.rp.name,capacity:Number(value(x.r,['Xona sig‘imi','Sig‘im',"Sig'imi",'Capacity'])||value(x.r,['Talabalar soni','Guruh soni','Group size'])||30),capacityEstimated:true,capacitySource:'excel-auto',type:String(value(x.r,['Xona turi','Auditoriya turi'])||'Oddiy auditoriya'),building:x.rp.building||'1-bino'};db.rooms=db.rooms||[];db.rooms.push(room);createdRooms++}}const pt=pairTimes[x.pair],st=statusInfo(value(x.r,['Holati','Holat','Status'])),edu=normC(value(x.r,['Ta’lim shakli',"Ta'lim shakli",'Education type']))||'kunduzgi';const lesson={id:x.old?.id||Date.now()+Math.random(),day:x.day,weekType:x.weekType,singleDate:String(value(x.r,['Bir kunlik sana','Sana','Date'])||'').trim(),pair:x.pair,start:String(value(x.r,['Boshlanish vaqti','Start'])||'').trim()||pt.start,end:String(value(x.r,['Tugash vaqti','End'])||'').trim()||pt.end,subject:x.subject,group:x.group,additionalGroups:[],groupSize:Number(value(x.r,['Talabalar soni','Guruh soni','Group size'])||1),room:room?room.name:'',roomId:room?room.id:'',roomBuilding:room?(room.building||''):(x.rp.building||''),type:String(value(x.r,['Dars turi','Turi','Type'])||'Ma’ruza'),substituteTeacherId:'',status:st.status,cancelled:st.cancelled,note:String(value(x.r,['Izoh','Note'])||''),educationType:edu.includes('sirt')?'sirtqi':'kunduzgi',startWeek:Number(value(x.r,['Boshlanish haftasi','Start week'])||1),endWeek:Number(value(x.r,['Tugash haftasi','End week'])||((db.settings&&db.settings.semesterWeeks)||16))};if(lesson.weekType==='single'&&!lesson.singleDate){skipped++;reasons.push(`${x.idx+2}-qator: bir kunlik dars sanasi yo‘q.`);continue}const check=typeof validateLesson==='function'?validateLesson(lesson,x.t.id,x.old?.id||null):{errs:[]};if(check.errs?.length){lesson.excelImportConflict=true;lesson.excelImportConflictText=check.errs.join('; ')}else{lesson.excelImportConflict=false;lesson.excelImportConflictText=''}if(x.old){Object.assign(x.old,lesson,{id:x.old.id});updated++}else{x.t.schedule=x.t.schedule||[];x.t.schedule.push(lesson);added++}}}finally{window.__excelImportReplacingLessonIds=prev instanceof Set?prev:null}
+      try{for(const x of parsed){let room=null;if(String(x.rp.name||'').trim()){room=(db.rooms||[]).find(rr=>{const rn=typeof normalizePhysicalRoom==='function'?normalizePhysicalRoom(rr.name):normC(rr.name),xn=typeof normalizePhysicalRoom==='function'?normalizePhysicalRoom(x.rp.name):normC(x.rp.name),rb=typeof normalizeBuilding==='function'?normalizeBuilding(rr.building):normC(rr.building),xb=typeof normalizeBuilding==='function'?normalizeBuilding(x.rp.building):normC(x.rp.building);return rn===xn&&(!x.rp.building||rb===xb)});if(!room){room={id:Date.now()+Math.random(),name:x.rp.name,capacity:Number(value(x.r,['Xona sig‘imi','Sig‘im',"Sig'imi",'Capacity'])||value(x.r,['Talabalar soni','Guruh soni','Group size'])||30),capacityEstimated:true,capacitySource:'excel-auto',type:String(value(x.r,['Xona turi','Auditoriya turi'])||'Oddiy auditoriya'),building:x.rp.building||'1-bino'};db.rooms=db.rooms||[];db.rooms.push(room);createdRooms++}}const pt=pairTimes[x.pair],st=statusInfo(value(x.r,['Holati','Holat','Status'])),edu=normC(value(x.r,['Ta’lim shakli',"Ta'lim shakli",'Education type']))||'kunduzgi';const lesson={id:x.old?.id||Date.now()+Math.random(),day:x.day,weekType:x.weekType,singleDate:String(value(x.r,['Bir kunlik sana','Sana','Date'])||'').trim(),pair:x.pair,start:String(value(x.r,['Boshlanish vaqti','Start'])||'').trim()||pt.start,end:String(value(x.r,['Tugash vaqti','End'])||'').trim()||pt.end,subject:x.subject,group:x.group,additionalGroups:[],groupSize:Number(value(x.r,['Talabalar soni','Guruh soni','Group size'])||1),room:room?room.name:'',roomId:room?room.id:'',roomBuilding:room?(room.building||''):(x.rp.building||''),type:String(value(x.r,['Dars turi','Turi','Type'])||'Ma’ruza'),substituteTeacherId:'',status:st.status,cancelled:st.cancelled,note:String(value(x.r,['Izoh','Note'])||''),educationType:edu.includes('sirt')?'sirtqi':'kunduzgi',startWeek:1,endWeek:Number((db.settings&&db.settings.semesterWeeks)||16)};if(lesson.weekType==='single'&&!lesson.singleDate){skipped++;reasons.push(`${x.idx+2}-qator: bir kunlik dars sanasi yo‘q.`);continue}const check=typeof validateLesson==='function'?validateLesson(lesson,x.t.id,x.old?.id||null):{errs:[]};if(check.errs?.length){lesson.excelImportConflict=true;lesson.excelImportConflictText=check.errs.join('; ')}else{lesson.excelImportConflict=false;lesson.excelImportConflictText=''}if(x.old){Object.assign(x.old,lesson,{id:x.old.id});updated++}else{x.t.schedule=x.t.schedule||[];x.t.schedule.push(lesson);added++}}}finally{window.__excelImportReplacingLessonIds=prev instanceof Set?prev:null}
       if(added||updated||createdRooms){try{if(typeof addHistory==='function')addHistory('Umumiy kalendar Excel import',`${chosen?chosen.name:'Umumiy'} · ${added} yangi · ${updated} yangilandi`)}catch(_e){}save();renderAll();renderCalendar()}
       const detail=reasons.slice(0,10).map(x=>'• '+escC(x)).join('<br>');showCalendarMsg(`Import yakunlandi. Yangi: <b>${added}</b> · Yangilandi: <b>${updated}</b>${createdRooms?` · Yangi xona: <b>${createdRooms}</b>`:''}${skipped?`<br>Kiritilmadi: <b>${skipped}</b>${detail?'<br>'+detail:''}`:''}`,skipped?'warn':'ok');
     }catch(err){console.error(err);showCalendarMsg('Excel importda xatolik: '+escC(err.message||err),'error')}
@@ -19279,9 +19453,9 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
  function teachers(){const data=getDB();try{return typeof scopedTeachers==='function'?scopedTeachers():(data.teachers||[])}catch(e){return data.teachers||[]}}
  function tname(t){try{return typeof scheduleTeacherName==='function'?scheduleTeacherName(t):(t.shortName||t.name||'')}catch(e){return t.name||''}}
  function lg(l){return [...new Set([l.group,...(Array.isArray(l.additionalGroups)?l.additionalGroups:[])].map(x=>String(x||'').trim()).filter(Boolean))]}
- function groups(){const set=new Set();teachers().forEach(t=>(t.schedule||[]).forEach(l=>{if(l.cancelled||String(l.status||'pending')!=='approved')return;lg(l).forEach(g=>{if(lessonWithinStudyPeriod({...l,group:g,additionalGroups:[]}))set.add(g)})}));return [...set].filter(Boolean).sort((a,b)=>a.localeCompare(b,'uz',{numeric:true}))}
+ function groups(){const d=getDB(),set=new Set();(d.groups||[]).forEach(g=>{const n=typeof g==='string'?g:(g.name||g.group||g.title||g.code||'');if(n)set.add(String(n).trim())});teachers().forEach(t=>(t.schedule||[]).forEach(l=>lg(l).forEach(g=>set.add(g))));return [...set].filter(Boolean).sort((a,b)=>a.localeCompare(b,'uz',{numeric:true}))}
  function passesType(type){const v=String(type||'').toLowerCase().replace(/[ʻʼ’‘`]/g,"'");return activeType==='all'||(activeType==='lecture'?(v.includes('maruza')||v.includes("ma'ruza")):v.includes('amaliy'))}
- function lessons(){const out=[];teachers().forEach(t=>(t.schedule||[]).forEach(l=>{if(l.cancelled||String(l.status||'pending')!=='approved'||!passesType(l.type)||!lessonWithinStudyPeriod(l))return;const w=String(l.weekType||'doim').toLowerCase();if(activeWeek!=='all'&&w!=='doim'&&w!==activeWeek)return;const gs=lg(l);if(activeGroup&&!gs.includes(activeGroup))return;gs.forEach(g=>{if(lessonWithinStudyPeriod({...l,group:g,additionalGroups:[]})&&(!activeGroup||activeGroup===g))out.push({...l,teacher:t,displayGroup:g})})}));return out}
+ function lessons(){const out=[];teachers().forEach(t=>(t.schedule||[]).forEach(l=>{if(l.cancelled||String(l.status||'pending')!=='approved'||!passesType(l.type))return;const w=String(l.weekType||'doim').toLowerCase();if(activeWeek!=='all'&&w!=='doim'&&w!==activeWeek)return;const gs=lg(l);if(activeGroup&&!gs.includes(activeGroup))return;gs.forEach(g=>{if(!activeGroup||activeGroup===g)out.push({...l,teacher:t,displayGroup:g})})}));return out}
  function room(l){try{return typeof roomDisplay==='function'?roomDisplay(l.room,l.roomBuilding,l.roomId):[l.roomBuilding,l.room].filter(Boolean).join('-')}catch(e){return [l.roomBuilding,l.room].filter(Boolean).join('-')}}
  function timing(p){try{const x=pairTimes[p]||{};return `${x.start||''}–${x.end||''}`}catch(e){return ''}}
  function content(){const ls=lessons(), gs=groups();const opts='<option value="">Umumiy (barcha guruhlar)</option>'+gs.map(g=>`<option value="${esc(g)}" ${activeGroup===g?'selected':''}>${esc(g)}</option>`).join('');
@@ -19293,9 +19467,6 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
  return `<div class="group-calendar-toolbar"><div class="group-calendar-left"><div><label for="groupCalendarSelect">Guruh</label><select id="groupCalendarSelect">${opts}</select></div><div><label>Hafta turi</label>${filter}</div><div><label>Mashg‘ulot turi</label><div class="calendar-week-filter">${[['all','Hammasi'],['lecture','Ma’ruza'],['practical','Amaliy']].map(([k,v])=>`<button type="button" class="calendar-week-btn ${activeType===k?'active':''}" data-group-type="${k}">${v}</button>`).join('')}</div></div></div><div class="group-calendar-actions"><button class="calendar-batch-toggle ${batchExport?'on':''}" id="groupBatchToggle" type="button"><span class="batch-dot"></span>Barchasi: ${batchExport?'ON':'OFF'}</button><button class="btn success" id="groupCalExcel" type="button">Excelga eksport</button><button class="btn purple" id="groupCalWord" type="button">Wordga yuklash</button><button class="btn primary" id="groupCalImport" type="button">Excel import</button><input type="file" id="groupCalImportFile" accept=".xlsx,.xls" style="display:none"><button class="btn ghost" id="groupCalPrint" type="button">Chop etish</button></div></div><div class="group-calendar-summary">${activeGroup?`Guruh: <b>${esc(activeGroup)}</b>`:'Barcha guruhlarning umumiy jadvali'} · ${activeWeek==='all'?'Surat + Maxraj + Doimiy':wl[activeWeek]+' + Doimiy'} · ${ls.length} ta dars yozuvi</div><div id="groupCalendarTable">${grid}</div>`;
  }
  function render(){const b=byId('advancedBody');if(!b)return;b.innerHTML=content();byId('groupCalendarSelect').onchange=e=>{activeGroup=e.target.value;render()};b.querySelectorAll('[data-group-week]').forEach(x=>x.onclick=()=>{activeWeek=x.dataset.groupWeek;render()});b.querySelectorAll('[data-group-type]').forEach(x=>x.onclick=()=>{activeType=x.dataset.groupType;render()});byId('groupBatchToggle').onclick=()=>{batchExport=!batchExport;render()};byId('groupCalExcel').onclick=exportExcel;byId('groupCalWord').onclick=exportWord;byId('groupCalPrint').onclick=printIt;byId('groupCalImport').onclick=()=>byId('groupCalImportFile').click();byId('groupCalImportFile').onchange=importGroupExcel}
- document.addEventListener("platforma:schedule-updated",()=>{
-   if(byId('advancedModal')?.classList.contains('open') && byId('groupCalendarSelect')) render();
- });
  function open(){activeGroup='';activeWeek='all';activeType='all';batchExport=false;if(typeof openAdvanced==='function')openAdvanced('Umumiy guruh kalendar jadvali','Barcha guruhlar · Hammasi',content());else{const m=byId('advancedModal');if(!m)return;m.classList.add('open');const h=m.querySelector('h2');if(h)h.textContent='Umumiy guruh kalendar jadvali';}render()}
  function download(blob,name){const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500)}
  function cleanName(s){return String(s||'Umumiy').replace(/[\\/:*?"<>|]/g,'_').replace(/\s+/g,'_').slice(0,85)}
@@ -19323,8 +19494,8 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
    ws.pageSetup={orientation:'landscape',fitToPage:true,fitToWidth:1,fitToHeight:0,paperSize:9,horizontalCentered:true,margins:{left:.2,right:.2,top:.3,bottom:.3,header:.1,footer:.1}};
    // Import uchun xom dars yozuvlari: ko‘rinadigan kalendar formatini buzmaydi.
    const imp=wb.addWorksheet('Import ma’lumotlari');imp.state='veryHidden';
-   imp.addRow(['O‘qituvchi','Hafta kuni','Hafta turi','Bir kunlik sana','Juftlik','Boshlanish vaqti','Tugash vaqti','Fan nomi','Guruh / yo‘nalish','Talabalar soni','Xona','Bino','Dars turi','Ta’lim shakli','Boshlanish haftasi','Tugash haftasi','Holati','Izoh']);
-   ls.forEach(l=>{const pt=(typeof pairTimes!=='undefined'&&pairTimes[l.pair])||{};imp.addRow([tname(l.teacher),l.day||'',labelWeek(l),l.singleDate||'',l.pair,l.start||pt.start||'',l.end||pt.end||'',l.subject||'',l.displayGroup||l.group||'',l.groupSize||'',l.room||'',l.roomBuilding||'',l.type||'',l.educationType||'kunduzgi',l.startWeek||'',l.endWeek||'',l.cancelled?'Bekor qilingan':l.status==='approved'?'Tasdiqlangan':'Tasdiqlash kutilmoqda',l.note||''])});
+   imp.addRow(['O‘qituvchi','Hafta kuni','Hafta turi','Bir kunlik sana','Juftlik','Boshlanish vaqti','Tugash vaqti','Fan nomi','Guruh / yo‘nalish','Talabalar soni','Xona','Bino','Dars turi','Ta’lim shakli','Holati','Izoh']);
+   ls.forEach(l=>{const pt=(typeof pairTimes!=='undefined'&&pairTimes[l.pair])||{};imp.addRow([tname(l.teacher),l.day||'',labelWeek(l),l.singleDate||'',l.pair,l.start||pt.start||'',l.end||pt.end||'',l.subject||'',l.displayGroup||l.group||'',l.groupSize||'',l.room||'',l.roomBuilding||'',l.type||'',l.educationType||'kunduzgi',l.cancelled?'Bekor qilingan':l.status==='approved'?'Tasdiqlangan':'Tasdiqlash kutilmoqda',l.note||''])});
    const buffer=await wb.xlsx.writeBuffer();return new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
  }
  function xml(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;')}
@@ -19446,7 +19617,7 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
        const old=(teacher.schedule||[]).find(l=>l.day===day&&Number(l.pair)===p&&key(l.weekType||'doim')===weekType&&key(l.group)===key(group)&&key(l.subject)===key(subject));
        const pt=(typeof pairTimes!=='undefined'&&pairTimes[p])||{};
        const status=key(field(r,'Holati'));
-       const lesson={day,pair:p,weekType,singleDate:String(field(r,'Bir kunlik sana')||'').trim(),subject,group,start:String(field(r,'Boshlanish vaqti')||pt.start||''),end:String(field(r,'Tugash vaqti')||pt.end||''),groupSize:Number(field(r,'Talabalar soni'))||1,room:roomName,roomBuilding:building,type:String(field(r,'Dars turi')||'Ma’ruza'),educationType:String(field(r,'Ta’lim shakli')||'kunduzgi'),startWeek:Number(field(r,'Boshlanish haftasi'))||1,endWeek:Number(field(r,'Tugash haftasi'))||16,status:status.includes('tasdiq')&&!status.includes('kutil')?'approved':'pending',cancelled:status.includes('bekor'),note:String(field(r,'Izoh')||'')};
+       const lesson={day,pair:p,weekType,singleDate:String(field(r,'Bir kunlik sana')||'').trim(),subject,group,start:String(field(r,'Boshlanish vaqti')||pt.start||''),end:String(field(r,'Tugash vaqti')||pt.end||''),groupSize:Number(field(r,'Talabalar soni'))||1,room:roomName,roomBuilding:building,type:String(field(r,'Dars turi')||'Ma’ruza'),educationType:String(field(r,'Ta’lim shakli')||'kunduzgi'),startWeek:1,endWeek:Number(db.settings?.semesterWeeks||16),status:status.includes('tasdiq')&&!status.includes('kutil')?'approved':'pending',cancelled:status.includes('bekor'),note:String(field(r,'Izoh')||'')};
        if(old){Object.assign(old,lesson);updated++}else{(teacher.schedule||(teacher.schedule=[])).push({...lesson,id:Date.now()+Math.random(),additionalGroups:[]});added++}changed.add(teacher);
      }
      if(typeof save==='function')save();if(typeof renderAll==='function')renderAll();render();
@@ -19499,5 +19670,615 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
 #advancedModal .group-calendar-actions > button{white-space:nowrap;min-height:36px;padding:7px 9px}
 @media(max-width:760px){#advancedModal .group-calendar-toolbar{flex-wrap:wrap!important;overflow-x:visible;overflow-y:visible}#advancedModal .group-calendar-left{flex-wrap:wrap!important}#advancedModal .group-calendar-actions{flex-wrap:wrap!important}#advancedModal #groupCalendarSelect{max-width:100%!important}}
 </style>
+<section id="itEditor" hidden><div class="it-head"><h2>Testlar — boshqaruv</h2><button id="itEditorClose" type="button">Yopish ×</button></div><iframe id="itFrame" title="Test tuzish" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;uz&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width,initial-scale=1&quot;&gt;&lt;title&gt;Oddiy test&lt;/title&gt;
+&lt;style&gt;:root{font-family:Segoe UI,Arial,sans-serif;color:#203750;background:#f3f6f9}*{box-sizing:border-box}body{margin:0}.wrap{max-width:1480px;margin:32px auto;padding:0 15px}.top{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:18px}.top h1{font-size:25px;margin:0}.muted{color:#718293;font-size:13px}.panel{border:1px solid #dbe4ec;border-radius:12px;background:white;padding:23px;margin-bottom:16px;box-shadow:0 3px 10px #152b4110}h2{font-size:17px;margin:0 0 16px}input,textarea{width:100%;font:inherit;font-size:15px;border:1px solid #cad7e2;border-radius:8px;padding:11px;background:white;color:#21364a}textarea{min-height:85px;resize:vertical}label{display:block;font-weight:700;font-size:13px;margin:0 0 7px}.space{margin-bottom:15px}.tools{display:flex;flex-wrap:wrap;gap:9px;align-items:center}button{font:inherit;border:1px solid #d0dce5;border-radius:8px;background:#fff;color:#254967;padding:10px 15px;cursor:pointer;font-weight:700}button:hover{background:#eef6fb}.primary{background:#2684b6;color:#fff;border-color:#2684b6}.primary:hover{background:#1975a6}.item{border:1px solid #e2e9ef;border-radius:9px;padding:13px 15px;margin:9px 0;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.item b{display:block;margin-bottom:5px}.item small{color:#58816b;font-size:12px}.item button{padding:6px 9px;font-size:12px}.hide{display:none!important}.option{display:block;padding:12px;border:1px solid #dce7ef;border-radius:8px;margin:9px 0;cursor:pointer}.option:has(input:checked){background:#eef8fd;border-color:#60aeda}.option input{width:auto;margin-right:10px}.score{font-size:30px;font-weight:800;color:#16815c}.msg{color:#a35420;font-size:13px;margin-top:10px}.testq{border-bottom:1px solid #e4ebf1;padding:12px 0}.testq:last-child{border:0}.settings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:15px 0}.settings label{margin-bottom:0}.settings input{margin-top:6px}.toolbar-row{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;margin:15px 0;padding:14px;border:1px solid #dbe7f0;border-radius:12px;background:linear-gradient(180deg,#f9fcfe 0%,#f4f9fc 100%)}.toolbar-field{flex:1 1 210px;min-width:180px}.toolbar-field label{margin:0;font-weight:700;font-size:13px}.toolbar-field input{margin-top:6px;height:52px}.toolbar-actions{display:flex;align-items:flex-end;gap:9px;flex-wrap:wrap;flex:999 1 560px}.toolbar-actions button{height:52px;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;padding:10px 16px;border-radius:10px}.exam-status{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 8px}.timer{font-weight:800;color:#176b94;border:1px solid #cfe3ef;border-radius:7px;padding:8px 12px;background:#f4fbff}.timer.warning{color:#b42318;background:#fff1f0;border-color:#f5c9c9}.stamp{background:#e7f5fc;color:#267caa;border-radius:30px;padding:5px 10px;font-size:12px;font-weight:700}@media(max-width:900px){.toolbar-row{align-items:stretch}.toolbar-actions{flex-basis:100%}.toolbar-actions button{flex:1 1 180px}}@media(max-width:600px){.wrap{margin:14px auto}.panel{padding:16px}.top h1{font-size:21px}.toolbar-row{padding:12px}.toolbar-field,.toolbar-actions{flex-basis:100%}.toolbar-actions button{width:100%}}
+/* Fan va kirish ma&#x27;lumotlari bir qatorda */
+.auth-config{display:grid;grid-template-columns:minmax(230px,1.8fr) minmax(180px,1fr) minmax(180px,1fr) auto;gap:14px;align-items:end;margin:0 0 16px;padding:14px 16px;border:1px solid #dbe6ef;border-radius:14px;background:linear-gradient(180deg,#fbfdff 0%,#f5f9fc 100%)}
+.auth-config label{display:flex;flex-direction:column;gap:6px;margin:0!important;font:600 12px Arial,sans-serif;color:#344054}
+.auth-config input{margin-top:0;height:44px;font:400 13px Arial,sans-serif}
+.access-overlay{display:none;position:fixed;inset:0;background:rgba(20,38,57,.58);z-index:1000;align-items:center;justify-content:center;padding:16px}
+.access-overlay.open{display:flex}.access-card{background:#fff;border:1px solid #dbe4ec;border-radius:12px;box-shadow:0 20px 70px #07182b44;padding:24px;width:min(410px,100%)}
+.access-card h2{margin:0 0 7px;font-size:19px}.access-card p{margin:0 0 18px}.access-card label{font:600 12px Arial,sans-serif;display:block;margin-bottom:12px}.access-card input{margin-top:6px;height:42px;font:400 13px Arial,sans-serif}.access-buttons{display:flex;gap:10px;justify-content:flex-end}.access-error{min-height:22px;color:#ae3026;font-size:12px}
+.exam-subject{font:700 14px Arial,sans-serif;color:#17466c;margin-bottom:10px}
+@media(max-width:560px){.auth-config{grid-template-columns:1fr;padding:12px}}
+/* Ixcham, rasmiy va qat&#x27;iy bir qatorli boshqaruv paneli */
+.wrap{max-width:1680px;margin:22px auto;padding:0 16px}
+/* Bitta satr: yorliqlar mustaqil kataklarda, bir-birini bosmaydi. */
+.toolbar-row{display:flex;align-items:flex-end;flex-wrap:nowrap;gap:9px;max-width:100%;width:100%;overflow-x:auto;overflow-y:hidden;margin:14px 0;padding:14px;background:#f7fafc;border:1px solid #dbe4ec;border-radius:10px;scrollbar-width:thin}
+.toolbar-field{flex:0 0 125px;min-width:125px;max-width:125px}
+.toolbar-field:nth-child(2){flex:0 0 115px;min-width:115px;max-width:115px}
+.toolbar-field label{display:flex;flex-direction:column;gap:6px;white-space:nowrap;margin:0;font:600 11px/1.25 Arial,&#x27;Segoe UI&#x27;,sans-serif;color:#344054}
+.toolbar-field input{display:block;box-sizing:border-box;min-width:0;width:100%;height:40px;min-height:40px;margin:0;padding:7px 10px;border-radius:7px;font:400 12px Arial,&#x27;Segoe UI&#x27;,sans-serif}
+.toolbar-actions{display:contents}
+.toolbar-actions button{flex:0 0 auto;width:auto;min-width:0;height:40px;min-height:40px;padding:0 11px;white-space:nowrap;border-radius:7px;font:600 11px/1.2 Arial,&#x27;Segoe UI&#x27;,sans-serif;letter-spacing:0;box-shadow:none}
+.toolbar-actions .primary{font-weight:700}
+@media(max-width:600px){.toolbar-row{gap:7px;padding:10px}.toolbar-field{flex-basis:115px;min-width:115px;max-width:115px}.toolbar-field:nth-child(2){flex-basis:105px;min-width:105px;max-width:105px}.toolbar-actions button{width:auto;padding:0 10px}}
+
+/* Aralashtirishni boshqarish uchun ixcham yoqish/o‘chirish kalitlari */
+.toolbar-row .shuffle-toggle{display:inline-flex;align-items:center;justify-content:space-between;gap:10px;flex:0 0 auto;margin:0;padding:0 10px;height:40px;border:1px solid #d0dce5;border-radius:7px;background:#fff;color:#254967;font:600 11px/1.2 Arial,&#x27;Segoe UI&#x27;,sans-serif;white-space:nowrap;cursor:pointer;user-select:none}
+.shuffle-toggle input{position:absolute;opacity:0;width:1px;height:1px;padding:0;pointer-events:none}
+.switch-track{width:34px;height:19px;flex:0 0 34px;border-radius:20px;background:#a8b6c3;position:relative;transition:background .18s ease}
+.switch-track::after{content:&#x27;&#x27;;position:absolute;left:3px;top:3px;width:13px;height:13px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0002;transition:transform .18s ease}
+.shuffle-toggle input:checked+.switch-track{background:#2188b9}
+.shuffle-toggle input:checked+.switch-track::after{transform:translateX(15px)}
+.shuffle-toggle:has(input:focus-visible){outline:2px solid #79bddd;outline-offset:2px}
+.subject-caption{font:600 11px Arial,sans-serif;color:#587389;margin:0 0 10px}.auth-config input:focus{border-color:#388dc0;outline:2px solid #d9edf9}
+.subject-delete-btn{align-self:end;margin:0!important;height:44px;min-width:210px;border:1px solid #e4b3b3;border-radius:10px;background:linear-gradient(180deg,#fff7f6 0%,#fff0ef 100%);color:#a52323;font:700 12px Arial,sans-serif;white-space:nowrap;padding:0 18px;cursor:pointer;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.subject-delete-btn:hover{background:linear-gradient(180deg,#fff1f0 0%,#ffe5e2 100%)}.subject-delete-btn:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:980px){.auth-config{grid-template-columns:repeat(2,minmax(0,1fr))}.subject-delete-btn{width:100%;min-width:unset}}
+
+/* Fan ro‘yxatini tanlash mumkinligini ko‘rsatuvchi belgi */
+.auth-config &gt; label:first-child{position:relative;min-width:0}
+.auth-config &gt; label:first-child::after{content:&#x27;▾&#x27;;position:absolute;right:11px;bottom:8px;height:28px;min-width:30px;display:flex;align-items:center;justify-content:center;color:#176d9f;background:#edf6fc;border-left:1px solid #c7dfea;border-radius:0 6px 6px 0;font:bold 20px/1 Arial,sans-serif;pointer-events:none}
+.auth-config #subjectName{padding-right:49px!important;border:1px solid #91bad4!important;background:#fff!important;cursor:text}
+.auth-config #subjectName:hover{border-color:#388fc0!important;background:#fbfdff!important}
+.auth-config #subjectName:focus{border-color:#2387be!important;box-shadow:0 0 0 3px rgba(35,135,190,.10)}
+
+/* Fan tanlash oynasi: ro‘yxatni alohida ko‘rinadigan qilish */
+.auth-config > label.subject-main-label::after{display:none!important}
+.auth-config .subject-main-label{min-width:0}
+.subject-input-group{display:flex;gap:7px;align-items:center;width:100%;min-width:0}
+.auth-config .subject-input-group #subjectName{flex:1 1 45%;min-width:95px;padding-right:10px!important;height:44px}
+.auth-config .subject-input-group #subjectQuickSelect{
+  flex:0 1 48%;min-width:136px;max-width:210px;width:auto;height:44px;
+  padding:0 9px;border:1px solid #74b3d4;border-radius:9px;
+  color:#175a80;background:#eaf6fd;font:700 12px Arial,sans-serif;
+  cursor:pointer;box-shadow:0 1px 3px rgba(20,70,100,.08);
+}
+.auth-config .subject-input-group #subjectQuickSelect:hover{background:#def1fc;border-color:#2588bb}
+.auth-config .subject-available-count{font:600 10px Arial,sans-serif;color:#327ea7;margin-top:2px}
+@media(max-width:560px){
+ .subject-input-group{flex-wrap:wrap}
+ .auth-config .subject-input-group #subjectQuickSelect{max-width:none;flex:1 1 100%}
+}
+
+/* Fan va test kirish ma’lumotlari: barcha boshqaruvlar yagona satrda */
+.auth-config{
+ display:grid!important;
+ grid-template-columns:minmax(360px,2.5fr) minmax(150px,1fr) minmax(150px,1fr) minmax(190px,auto)!important;
+ gap:12px!important;align-items:end!important;
+ width:100%!important;min-width:0!important;
+}
+.auth-config>label{min-width:0!important;display:flex!important;flex-direction:column!important;justify-content:flex-end!important;gap:6px!important;margin:0!important}
+.auth-config>label>input,.auth-config .subject-input-group input,.auth-config .subject-input-group select{height:44px!important;min-height:44px!important;box-sizing:border-box!important;margin:0!important}
+.auth-config .subject-input-group{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(145px,.58fr)!important;gap:8px!important;width:100%!important;min-width:0!important;align-items:center!important}
+.auth-config .subject-input-group #subjectName,.auth-config .subject-input-group #subjectQuickSelect{width:100%!important;min-width:0!important;max-width:none!important;flex:none!important}
+.auth-config #subjectAvailableCount{display:none!important}
+.auth-config #deleteSubject{height:44px!important;min-height:44px!important;align-self:end!important;margin:0!important;min-width:190px!important;white-space:nowrap!important}
+@media(max-width:1050px){
+ .auth-config{grid-template-columns:minmax(310px,2fr) minmax(130px,1fr) minmax(130px,1fr) minmax(170px,auto)!important;gap:8px!important;padding:12px!important}
+ .auth-config #deleteSubject{min-width:170px!important;padding:0 8px!important;font-size:11px!important}
+}
+@media(max-width:790px){
+ .auth-config{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;align-items:end!important}
+ .auth-config>label.subject-main-label{flex:0 0 320px!important}
+ .auth-config>label:not(.subject-main-label){flex:0 0 145px!important}
+ .auth-config #deleteSubject{flex:0 0 175px!important}
+}
+
+/* Xatoli savol qatorini muharrir ichida ko‘rsatish */
+#source.question-error-active{outline:2px solid #df7063!important;border-color:#cf4435!important;
+ box-shadow:0 0 0 3px rgba(207,68,53,.10)!important}
+&lt;/style&gt;&lt;/head&gt;
+&lt;body&gt;&lt;main class=&quot;wrap&quot;&gt;&lt;span class=&quot;hide&quot; id=&quot;count&quot; aria-hidden=&quot;true&quot;&gt;0 ta savol&lt;/span&gt;
+&lt;section class=&quot;panel&quot; id=&quot;edit&quot;&gt;
+&lt;div class=&quot;auth-config&quot;&gt;&lt;label class=&quot;subject-main-label&quot;&gt;Fan nomi
+&lt;div class=&quot;subject-input-group&quot;&gt;
+&lt;input id=&quot;subjectName&quot; type=&quot;text&quot; list=&quot;subjectNameOptions&quot; placeholder=&quot;Fan nomini yozing&quot; autocomplete=&quot;off&quot;&gt;
+&lt;select id=&quot;subjectQuickSelect&quot; aria-label=&quot;Mavjud fanlardan tanlash&quot; title=&quot;Mavjud fanlardan birini tanlash&quot;&gt;
+&lt;option value=&quot;&quot;&gt;▼ Mavjud fanlar&lt;/option&gt;
+&lt;/select&gt;
+&lt;/div&gt;
+&lt;small id=&quot;subjectAvailableCount&quot; class=&quot;subject-available-count&quot;&gt;Mavjud fanlar ro‘yxati&lt;/small&gt;
+&lt;datalist id=&quot;subjectNameOptions&quot;&gt;&lt;/datalist&gt;
+&lt;/label&gt;&lt;label&gt;Test logini&lt;input id=&quot;accessLogin&quot; type=&quot;text&quot; placeholder=&quot;Login belgilang&quot; autocomplete=&quot;off&quot;&gt;&lt;/label&gt;&lt;label&gt;Test paroli&lt;input id=&quot;accessPassword&quot; type=&quot;password&quot; placeholder=&quot;Parol belgilang&quot; autocomplete=&quot;new-password&quot;&gt;&lt;/label&gt;&lt;button type=&quot;button&quot; id=&quot;deleteSubject&quot; class=&quot;subject-delete-btn&quot;&gt;Fanni butunlay o‘chirish&lt;/button&gt;&lt;/div&gt;
+&lt;div class=&quot;subject-caption&quot; id=&quot;subjectNotice&quot;&gt;Har bir fan uchun savollar va login-parol alohida saqlanadi.&lt;/div&gt;&lt;div class=&quot;space&quot;&gt;&lt;textarea id=&quot;source&quot; style=&quot;min-height:245px;font-family:Consolas,monospace&quot; spellcheck=&quot;false&quot; placeholder=&quot;#### Suv sarfining o‘lchov birligi qaysi?&amp;#10;==== m/s&amp;#10;++++ m³/s&amp;#10;==== Pa&amp;#10;==== kW&amp;#10;&amp;#10;#### Suvning kimyoviy formulasi nima?&amp;#10;++++ H₂O&amp;#10;==== CO₂&amp;#10;==== O₂&amp;#10;==== NaCl&quot;&gt;&lt;/textarea&gt;&lt;/div&gt;
+&lt;div class=&quot;toolbar-row&quot;&gt;&lt;div class=&quot;toolbar-field&quot;&gt;&lt;label&gt;Savollar soni&lt;input type=&quot;number&quot; id=&quot;questionLimit&quot; min=&quot;1&quot; step=&quot;1&quot; value=&quot;30&quot;&gt;&lt;/label&gt;&lt;/div&gt;&lt;div class=&quot;toolbar-field&quot;&gt;&lt;label&gt;Vaqt (daqiqa)&lt;input type=&quot;number&quot; id=&quot;timeLimit&quot; min=&quot;1&quot; step=&quot;1&quot; value=&quot;30&quot;&gt;&lt;/label&gt;&lt;/div&gt;&lt;div class=&quot;toolbar-actions&quot;&gt;&lt;button class=&quot;primary&quot; id=&quot;add&quot;&gt;Saqlash&lt;/button&gt;&lt;label class=&quot;shuffle-toggle&quot;&gt;&lt;span&gt;Savollarni aralashtirish&lt;/span&gt;&lt;input type=&quot;checkbox&quot; id=&quot;shuffleQuestions&quot; checked&gt;&lt;span class=&quot;switch-track&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;/label&gt;&lt;label class=&quot;shuffle-toggle&quot;&gt;&lt;span&gt;Javoblarni aralashtirish&lt;/span&gt;&lt;input type=&quot;checkbox&quot; id=&quot;shuffleAnswers&quot; checked&gt;&lt;span class=&quot;switch-track&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;/label&gt;&lt;button class=&quot;primary&quot; id=&quot;take&quot;&gt;Testni yechish&lt;/button&gt;&lt;button type=&quot;button&quot; id=&quot;itReportOpen&quot; style=&quot;background:#173b5f;color:#fff;border-color:#173b5f&quot; onclick=&quot;parent.postMessage({type:&#x27;open-integrated-test-report&#x27;},&#x27;*&#x27;)&quot;&gt;Test hisoboti&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div id=&quot;msg&quot; class=&quot;msg&quot;&gt;&lt;/div&gt;&lt;/section&gt;
+&lt;section class=&quot;panel&quot;&gt;&lt;h2&gt;Saqlangan savollar &lt;span class=&quot;muted&quot; id=&quot;total&quot;&gt;&lt;/span&gt;&lt;/h2&gt;&lt;div id=&quot;list&quot;&gt;&lt;/div&gt;&lt;/section&gt;
+&lt;section class=&quot;panel hide&quot; id=&quot;exam&quot;&gt;&lt;div class=&quot;exam-subject&quot; id=&quot;examSubject&quot;&gt;&lt;/div&gt;&lt;div class=&quot;tools&quot; style=&quot;justify-content:space-between&quot;&gt;&lt;h2&gt;Testni yechish&lt;/h2&gt;&lt;button id=&quot;back&quot;&gt;← Orqaga&lt;/button&gt;&lt;/div&gt;&lt;div class=&quot;exam-status&quot;&gt;&lt;span class=&quot;stamp&quot; id=&quot;examCount&quot;&gt;&lt;/span&gt;&lt;span class=&quot;timer&quot; id=&quot;timer&quot;&gt;00:00&lt;/span&gt;&lt;/div&gt;&lt;div id=&quot;examList&quot;&gt;&lt;/div&gt;&lt;button class=&quot;primary&quot; id=&quot;finish&quot;&gt;Natijani ko‘rish&lt;/button&gt;&lt;div id=&quot;result&quot;&gt;&lt;/div&gt;&lt;/section&gt;
+&lt;/main&gt;&lt;div class=&quot;access-overlay&quot; id=&quot;accessOverlay&quot; role=&quot;dialog&quot; aria-modal=&quot;true&quot; aria-labelledby=&quot;accessTitle&quot;&gt;&lt;form class=&quot;access-card&quot; id=&quot;accessForm&quot;&gt;&lt;h2 id=&quot;accessTitle&quot;&gt;Testga kirish&lt;/h2&gt;&lt;p class=&quot;muted&quot; id=&quot;accessSubject&quot;&gt;&lt;/p&gt;&lt;label&gt;Login&lt;input id=&quot;studentLogin&quot; type=&quot;text&quot; required autocomplete=&quot;off&quot;&gt;&lt;/label&gt;&lt;label&gt;Parol&lt;input id=&quot;studentPassword&quot; type=&quot;password&quot; required autocomplete=&quot;off&quot;&gt;&lt;/label&gt;&lt;div class=&quot;access-error&quot; id=&quot;accessError&quot;&gt;&lt;/div&gt;&lt;div class=&quot;access-buttons&quot;&gt;&lt;button type=&quot;button&quot; id=&quot;cancelAccess&quot;&gt;Bekor qilish&lt;/button&gt;&lt;button class=&quot;primary&quot; type=&quot;submit&quot;&gt;Testni boshlash&lt;/button&gt;&lt;/div&gt;&lt;/form&gt;&lt;/div&gt;&lt;script&gt;
+const $=id=&gt;document.getElementById(id),escapeHTML=s=&gt;String(s).replace(/[&amp;&lt;&gt;&quot;&#x27;]/g,c=&gt;({&#x27;&amp;&#x27;:&#x27;&amp;amp;&#x27;,&#x27;&lt;&#x27;:&#x27;&amp;lt;&#x27;,&#x27;&gt;&#x27;:&#x27;&amp;gt;&#x27;,&#x27;&quot;&#x27;:&#x27;&amp;quot;&#x27;,&quot;&#x27;&quot;:&#x27;&amp;#39;&#x27;}[c]));
+const KEY=&#x27;oddiy_test_marker_v1&#x27;, META_KEY=&#x27;oddiy_test_auth_settings_v1&#x27;;
+const BANKS_KEY=&#x27;integratedTestSubjectBanks_v2&#x27;, SUBJECTS_KEY=&#x27;integratedTestSubjects_v2&#x27;;
+let questions=[],currentSubject=&#x27;&#x27;,mixed=null,examQuestions=null,deadline=0,timerHandle=null,completed=false;
+function readJSON(key,fallback){try{const v=JSON.parse(localStorage.getItem(key)||&#x27;null&#x27;);return v&amp;&amp;typeof v===&#x27;object&#x27;?v:fallback}catch{return fallback}}
+function getSubjects(){return readJSON(SUBJECTS_KEY,{})}
+function getBanks(){return readJSON(BANKS_KEY,{})}
+function normSubject(s){return String(s||&#x27;&#x27;).trim().replace(/\s+/g,&#x27; &#x27;).toLocaleLowerCase(&#x27;uz&#x27;)}
+function saveCurrent(){
+ if(!currentSubject)return;
+ const login=$(&#x27;accessLogin&#x27;).value.trim().toLocaleLowerCase();
+ if(login&amp;&amp;Object.entries(getSubjects()).some(([k,v])=&gt;k!==currentSubject&amp;&amp;String(v.accessLogin||&#x27;&#x27;).trim().toLocaleLowerCase()===login)){notify(&#x27;Bu login boshqa fanga biriktirilgan. Har bir fan uchun alohida login kiriting.&#x27;);return false}
+ const subjects=getSubjects(),banks=getBanks(),prev=subjects[currentSubject]||{};
+ subjects[currentSubject]={...prev,subjectName:prev.subjectName||currentSubject,accessLogin:$(&#x27;accessLogin&#x27;).value.trim(),accessPassword:$(&#x27;accessPassword&#x27;).value,timeLimit:$(&#x27;timeLimit&#x27;).value||&#x27;30&#x27;,questionLimit:$(&#x27;questionLimit&#x27;).value||&#x27;30&#x27;,shuffleQuestions:$(&#x27;shuffleQuestions&#x27;).checked,shuffleAnswers:$(&#x27;shuffleAnswers&#x27;).checked};
+ banks[currentSubject]=questions;
+ localStorage.setItem(SUBJECTS_KEY,JSON.stringify(subjects));localStorage.setItem(BANKS_KEY,JSON.stringify(banks));return true;
+}
+function switchSubject(){
+ const key=normSubject($(&#x27;subjectName&#x27;).value);if(key===currentSubject)return;
+ if(currentSubject)saveCurrent();
+ currentSubject=key;const meta=getSubjects()[key]||{},bank=getBanks()[key];if(!meta.subjectName&amp;&amp;key){const all=getSubjects();all[key]={...meta,subjectName:$(&#x27;subjectName&#x27;).value.trim()};localStorage.setItem(SUBJECTS_KEY,JSON.stringify(all))}questions=Array.isArray(bank)?bank:[];
+ $(&#x27;accessLogin&#x27;).value=meta.accessLogin||&#x27;&#x27;;$(&#x27;accessPassword&#x27;).value=meta.accessPassword||&#x27;&#x27;;
+ $(&#x27;timeLimit&#x27;).value=meta.timeLimit||&#x27;30&#x27;;$(&#x27;questionLimit&#x27;).value=meta.questionLimit||&#x27;30&#x27;;
+ $(&#x27;shuffleQuestions&#x27;).checked=meta.shuffleQuestions!==false;$(&#x27;shuffleAnswers&#x27;).checked=meta.shuffleAnswers!==false;
+ $(&#x27;subjectNotice&#x27;).textContent=key?(meta.accessLogin?&#x27;Tanlangan fan: &#x27;+(meta.subjectName||$(&#x27;subjectName&#x27;).value)+&#x27; · &#x27;+questions.length+&#x27; ta savol&#x27;:&#x27;Yangi fan: login-parolni belgilang va savollarni saqlang.&#x27;):&#x27;Fan nomini kiriting yoki tanlang.&#x27;;
+ mixed=null;render();$(&#x27;deleteSubject&#x27;).disabled=!Object.prototype.hasOwnProperty.call(getSubjects(),key);
+}
+// Avvalgi yagona fan yozuvlarini bir marta tegishli fanga ko‘chirish.
+if(!localStorage.getItem(&#x27;integratedTestMigration_v2&#x27;)){
+ const old=readJSON(META_KEY,{}),oldBank=readJSON(KEY,[]),key=normSubject(old.subjectName);
+ if(key){const all=getSubjects(),banks=getBanks();if(!all[key])all[key]={...old,questionLimit:localStorage.getItem(&#x27;integratedTestLimit_v1&#x27;)||&#x27;30&#x27;,shuffleQuestions:true,shuffleAnswers:true};if(!banks[key]&amp;&amp;Array.isArray(oldBank))banks[key]=oldBank;localStorage.setItem(SUBJECTS_KEY,JSON.stringify(all));localStorage.setItem(BANKS_KEY,JSON.stringify(banks))}
+ localStorage.setItem(&#x27;integratedTestMigration_v2&#x27;,&#x27;1&#x27;);
+}
+const listSubjects=Object.values(getSubjects()).map(x=&gt;x.subjectName).filter(Boolean);
+$(&#x27;subjectNameOptions&#x27;).innerHTML=listSubjects.map(x=&gt;&#x27;&lt;option value=&quot;&#x27;+escapeHTML(x)+&#x27;&quot;&gt;&lt;/option&gt;&#x27;).join(&#x27;&#x27;);
+$(&#x27;subjectName&#x27;).value=listSubjects[0]||&#x27;&#x27;;
+$(&#x27;subjectName&#x27;).addEventListener(&#x27;change&#x27;,switchSubject);
+$(&#x27;subjectName&#x27;).addEventListener(&#x27;blur&#x27;,switchSubject);
+
+function refreshVisibleSubjectChoices(){
+ const list=$(&#x27;subjectQuickSelect&#x27;),hint=$(&#x27;subjectAvailableCount&#x27;);
+ if(!list)return;
+ const names=Object.values(getSubjects()).map(v=&gt;v.subjectName).filter(Boolean);
+ const previous=list.value;
+ list.replaceChildren(new Option(names.length?&#x27;▼ Mavjud fanlar (&#x27;+names.length+&#x27;)&#x27;:&#x27;▼ Fanlar mavjud emas&#x27;,&#x27;&#x27;));
+ names.forEach(name=&gt;list.add(new Option(name,name)));
+ if(names.includes(previous))list.value=previous;
+ if(hint)hint.textContent=names.length?&#x27;Bazadagi fanlar: &#x27;+names.join(&#x27;, &#x27;):&#x27;Hozircha saqlangan fan yo‘q&#x27;;
+}
+$(&#x27;subjectQuickSelect&#x27;).addEventListener(&#x27;change&#x27;,function(){
+ if(!this.value)return;
+ $(&#x27;subjectName&#x27;).value=this.value;
+ $(&#x27;subjectName&#x27;).dispatchEvent(new Event(&#x27;change&#x27;,{bubbles:true}));
+});
+new MutationObserver(refreshVisibleSubjectChoices).observe($(&#x27;subjectNameOptions&#x27;),{childList:true});
+refreshVisibleSubjectChoices();
+
+for(const id of [&#x27;accessLogin&#x27;,&#x27;accessPassword&#x27;,&#x27;timeLimit&#x27;,&#x27;questionLimit&#x27;,&#x27;shuffleQuestions&#x27;,&#x27;shuffleAnswers&#x27;])$(id).addEventListener(&#x27;change&#x27;,()=&gt;{if(!currentSubject)switchSubject();saveCurrent()});
+switchSubject();
+// A subject can be fully removed only after explicit confirmation.
+function deleteSelectedSubject(){
+ const key=normSubject($(&#x27;subjectName&#x27;).value);
+ const subjects=getSubjects();
+ if(!key||!Object.prototype.hasOwnProperty.call(subjects,key)){
+  notify(&#x27;O‘chirish uchun saqlangan fanni tanlang.&#x27;);return;
+ }
+ const title=subjects[key].subjectName||$(&#x27;subjectName&#x27;).value.trim()||key;
+ if(!confirm(&#x27;«&#x27;+title+&#x27;» fanini BUTUNLAY O‘CHIRASIZMI?\n\nSavollar, login, parol, test sozlamalari va shu fan bo‘yicha barcha natijalar qayta tiklanmaydigan qilib o‘chiriladi.&#x27;))return;
+ const banks=getBanks();delete subjects[key];delete banks[key];
+ // Results saved by students in the same storage are removed as well.
+ const resultKey=&#x27;integratedStudentTestResults_v1&#x27;;
+ let results=[];
+ try{const saved=JSON.parse(localStorage.getItem(resultKey)||&#x27;[]&#x27;);if(Array.isArray(saved))results=saved;}catch{}
+ results=results.filter(r=&gt;normSubject(r.subject)!==key);
+ localStorage.setItem(SUBJECTS_KEY,JSON.stringify(subjects));
+ localStorage.setItem(BANKS_KEY,JSON.stringify(banks));
+ localStorage.setItem(resultKey,JSON.stringify(results));
+ // Prevent legacy single-subject data from recreating the deleted subject.
+ const legacy=readJSON(META_KEY,{});
+ if(normSubject(legacy.subjectName)===key){localStorage.removeItem(META_KEY);localStorage.removeItem(KEY);localStorage.removeItem(&#x27;integratedTestLimit_v1&#x27;);}
+ localStorage.setItem(&#x27;integratedTestMigration_v2&#x27;,&#x27;1&#x27;);
+ currentSubject=&#x27;&#x27;;questions=[];mixed=null;examQuestions=null;completed=false;stopTimer();
+ $(&#x27;exam&#x27;).classList.add(&#x27;hide&#x27;);$(&#x27;accessOverlay&#x27;).classList.remove(&#x27;open&#x27;);$(&#x27;source&#x27;).value=&#x27;&#x27;;
+ $(&#x27;subjectNameOptions&#x27;).innerHTML=Object.values(subjects).map(v=&gt;&#x27;&lt;option value=&quot;&#x27;+escapeHTML(v.subjectName||&#x27;&#x27;)+&#x27;&quot;&gt;&lt;/option&gt;&#x27;).join(&#x27;&#x27;);
+ $(&#x27;subjectName&#x27;).value=&#x27;&#x27;;$(&#x27;accessLogin&#x27;).value=&#x27;&#x27;;$(&#x27;accessPassword&#x27;).value=&#x27;&#x27;;
+ $(&#x27;questionLimit&#x27;).value=&#x27;30&#x27;;$(&#x27;timeLimit&#x27;).value=&#x27;30&#x27;;$(&#x27;shuffleQuestions&#x27;).checked=true;$(&#x27;shuffleAnswers&#x27;).checked=true;
+ $(&#x27;subjectNotice&#x27;).textContent=&#x27;Fan tanlang yoki yangi fan nomini kiriting.&#x27;;
+ render();$(&#x27;deleteSubject&#x27;).disabled=true;notify(&#x27;«&#x27;+title+&#x27;» fani va unga tegishli barcha test ma’lumotlari o‘chirildi.&#x27;);
+ parent.postMessage({type:&#x27;integrated-test-subject-deleted&#x27;},&#x27;*&#x27;);
+}
+$(&#x27;deleteSubject&#x27;).addEventListener(&#x27;click&#x27;,deleteSelectedSubject);
+function saveTestSettings(){if(!currentSubject)switchSubject();saveCurrent();const names=Object.values(getSubjects()).map(x=&gt;x.subjectName).filter(Boolean);$(&#x27;subjectNameOptions&#x27;).innerHTML=names.map(x=&gt;&#x27;&lt;option value=&quot;&#x27;+escapeHTML(x)+&#x27;&quot;&gt;&lt;/option&gt;&#x27;).join(&#x27;&#x27;)}
+function showAccess(){
+ if(!questions.length){notify(&#x27;Avval savollarni saqlang.&#x27;);return}
+ if(!$(&#x27;subjectName&#x27;).value.trim()||!$(&#x27;accessLogin&#x27;).value.trim()||!$(&#x27;accessPassword&#x27;).value){notify(&#x27;Fan nomi, login va parolni kiriting.&#x27;);return}
+ saveTestSettings();$(&#x27;accessSubject&#x27;).textContent=$(&#x27;subjectName&#x27;).value.trim();$(&#x27;studentLogin&#x27;).value=&#x27;&#x27;;$(&#x27;studentPassword&#x27;).value=&#x27;&#x27;;$(&#x27;accessError&#x27;).textContent=&#x27;&#x27;;$(&#x27;accessOverlay&#x27;).classList.add(&#x27;open&#x27;);$(&#x27;studentLogin&#x27;).focus();
+}
+$(&#x27;cancelAccess&#x27;).onclick=()=&gt;$(&#x27;accessOverlay&#x27;).classList.remove(&#x27;open&#x27;);
+$(&#x27;accessForm&#x27;).addEventListener(&#x27;submit&#x27;,e=&gt;{e.preventDefault();if($(&#x27;studentLogin&#x27;).value.trim()!==$(&#x27;accessLogin&#x27;).value.trim()||$(&#x27;studentPassword&#x27;).value!==$(&#x27;accessPassword&#x27;).value){$(&#x27;accessError&#x27;).textContent=&#x27;Login yoki parol noto‘g‘ri.&#x27;;return}
+ $(&#x27;accessOverlay&#x27;).classList.remove(&#x27;open&#x27;);startTest();});
+
+function stopTimer(){if(timerHandle!==null){clearInterval(timerHandle);timerHandle=null}}
+function updateTimer(){if(completed||!examQuestions)return;const remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));const min=Math.floor(remaining/60),sec=remaining%60;$(&#x27;timer&#x27;).textContent=`Qolgan vaqt: ${String(min).padStart(2,&#x27;0&#x27;)}:${String(sec).padStart(2,&#x27;0&#x27;)}`;$(&#x27;timer&#x27;).classList.toggle(&#x27;warning&#x27;,remaining&lt;=60);if(remaining===0)endTest(true)}
+function endTest(expired){if(completed||!examQuestions)return;completed=true;stopTimer();let right=0;for(let i=0;i&lt;examQuestions.length;i++){const chosen=document.querySelector(`input[name=&quot;ans${i}&quot;]:checked`);if(chosen&amp;&amp;examQuestions[i].options[Number(chosen.value)]?.correct)right++}const pct=Math.round(right/examQuestions.length*100);$(&#x27;result&#x27;).innerHTML=`&lt;p class=&quot;score&quot;&gt;${right}/${examQuestions.length} — ${pct}%&lt;/p&gt;&lt;p class=&quot;muted&quot;&gt;${expired?&#x27;Vaqt tugadi. Test avtomatik yakunlandi.&#x27;:&#x27;Test yakunlandi.&#x27;}&lt;/p&gt;`;$(&#x27;examList&#x27;).querySelectorAll(&#x27;input&#x27;).forEach(x=&gt;x.disabled=true);$(&#x27;finish&#x27;).disabled=true;$(&#x27;timer&#x27;).textContent=expired?&#x27;Vaqt tugadi&#x27;:&#x27;Yakunlandi&#x27;}
+function notify(t){$(&#x27;msg&#x27;).textContent=t}
+function normalize(s){return String(s).trim().toLocaleLowerCase(&#x27;uz&#x27;)}
+function parseText(text){
+ const lines=String(text).replace(/\r\n?/g,&#x27;\n&#x27;).replace(/^\uFEFF/,&#x27;&#x27;).split(&#x27;\n&#x27;);
+ let out=[],current=null,field=null,questionNumber=0;
+ function fail(message,line){
+   const e=new Error(message+&#x27; (qator: &#x27;+line+&#x27;)&#x27;);
+   e.line=line;
+   throw e;
+ }
+ function finish(){
+   if(!current)return;
+   const n=questionNumber;
+   if(!current.q.trim())fail(n+&#x27;-savolda savol matni yo‘q&#x27;,current.line);
+   const correct=current.options.filter(x=&gt;x.correct);
+   if(correct.length!==1)fail(n+&#x27;-savolda aynan bitta ++++ bo‘lishi kerak&#x27;,
+      correct.length&gt;1?correct[1].line:current.line);
+   if(current.options.length&lt;2)fail(n+&#x27;-savolda kamida 2 ta javob varianti bo‘lishi kerak&#x27;,current.line);
+   const seen=new Map();
+   for(const option of current.options){
+     if(!option.text.trim())fail(n+&#x27;-savolda bo‘sh javob varianti mavjud&#x27;,option.line);
+     const key=normalize(option.text);
+     if(seen.has(key))fail(n+&#x27;-savolda takroriy javob bor&#x27;,option.line);
+     seen.set(key,option.line);
+   }
+   out.push({q:current.q.trim(),options:current.options.map(x=&gt;({text:x.text.trim(),correct:x.correct}))});
+   current=null;field=null;
+ }
+ for(let i=0;i&lt;lines.length;i++){
+  const line=lines[i],row=i+1;
+  const match=line.match(/^\s*(####|\+\+\+\+|====)\s*(.*)$/);
+  if(match){
+   const mark=match[1],value=match[2].trim();
+   if(mark===&#x27;####&#x27;){
+     finish();questionNumber++;
+     current={q:value,options:[],line:row};field=&#x27;q&#x27;;
+   }else if(current){
+     current.options.push({text:value,correct:mark===&#x27;++++&#x27;,line:row});field=&#x27;option&#x27;;
+   }else fail(&#x27;Javobdan oldin #### bilan savol yozing&#x27;,row);
+  }else if(line.trim()){
+   if(!current)fail(&#x27;Savol boshida #### belgisi bo‘lishi kerak&#x27;,row);
+   if(/^\s*(?:#{1,3}|#{5,}|\+{1,3}|\+{5,}|={1,3}|={5,})\s/.test(line))
+     fail(&#x27;Belgi noto‘g‘ri yozilgan: ####, ++++ yoki ==== ishlating&#x27;,row);
+   if(field===&#x27;q&#x27;)current.q+=&#x27;\n&#x27;+line.trim();
+   else if(field===&#x27;option&#x27;&amp;&amp;current.options.length)current.options[current.options.length-1].text+=&#x27;\n&#x27;+line.trim();
+  }
+ }
+ finish();
+ if(!out.length)fail(&#x27;Savol topilmadi. Savol boshiga #### yozing&#x27;,1);
+ return out;
+}
+function showQuestionError(error){
+ const area=$(&#x27;source&#x27;);
+ if(!area||!Number.isInteger(error.line))return;
+ const lines=area.value.replace(/\r\n?/g,&#x27;\n&#x27;).split(&#x27;\n&#x27;);
+ const row=Math.max(1,Math.min(error.line,lines.length));
+ let pos=0;
+ for(let i=0;i&lt;row-1;i++)pos+=lines[i].length+1;
+ area.focus();
+ area.setSelectionRange(pos,pos+lines[row-1].length);
+ const before=area.value.slice(0,pos);
+ const count=before.split(&#x27;\n&#x27;).length-1;
+ const lineHeight=parseFloat(getComputedStyle(area).lineHeight)||23;
+ area.scrollTop=Math.max(0,count*lineHeight-area.clientHeight/3);
+ area.classList.add(&#x27;question-error-active&#x27;);
+ clearTimeout(area._errorTimer);
+ area._errorTimer=setTimeout(()=&gt;area.classList.remove(&#x27;question-error-active&#x27;),4000);
+}
+
+// Matematik ifodalarni MathML ko‘rinishiga keltirish (internetsiz ishlaydi).
+function mathMarkup(source){
+ const raw=String(source).trim();
+ if(!raw)return &#x27;&#x27;;
+ const xml=s=&gt;String(s).replace(/[&amp;&lt;&gt;&quot;&#x27;]/g,c=&gt;({&#x27;&amp;&#x27;:&#x27;&amp;amp;&#x27;,&#x27;&lt;&#x27;:&#x27;&amp;lt;&#x27;,&#x27;&gt;&#x27;:&#x27;&amp;gt;&#x27;,&#x27;&quot;&#x27;:&#x27;&amp;quot;&#x27;,&quot;&#x27;&quot;:&#x27;&amp;quot;&#x27;}[c]));
+ const wrap=v=&gt;&#x27;&lt;mrow&gt;&#x27;+v+&#x27;&lt;/mrow&gt;&#x27;;
+ function stripOuter(t){
+   t=t.trim();
+   while(t.startsWith(&#x27;(&#x27;)&amp;&amp;t.endsWith(&#x27;)&#x27;)){
+     let depth=0,whole=true;
+     for(let i=0;i&lt;t.length;i++){
+       if(t[i]===&#x27;(&#x27;)depth++;
+       if(t[i]===&#x27;)&#x27;){depth--;if(depth===0&amp;&amp;i&lt;t.length-1){whole=false;break}}
+     }
+     if(!whole||depth!==0)break;
+     t=t.slice(1,-1).trim();
+   }
+   return t;
+ }
+ function topSplit(t,chars){
+   let depth=0;
+   for(let i=0;i&lt;t.length;i++){
+     if(t[i]===&#x27;(&#x27;)depth++;
+     else if(t[i]===&#x27;)&#x27;)depth--;
+     else if(depth===0&amp;&amp;chars.includes(t[i]))return i;
+   }
+   return -1;
+ }
+ function expr(t){
+   t=stripOuter(t);
+   // Kasrning surat va maxraji.
+   let slash=topSplit(t,&#x27;/&#x27;);
+   if(slash&gt;=0){
+     return &#x27;&lt;mfrac&gt;&#x27;+wrap(expr(t.slice(0,slash)))+wrap(expr(t.slice(slash+1)))+&#x27;&lt;/mfrac&gt;&#x27;;
+   }
+   let out=&#x27;&#x27;;
+   for(let i=0;i&lt;t.length;){
+     let c=t[i],node=&#x27;&#x27;;
+     if(/\s/.test(c)){i++;continue}
+     if(c===&#x27;√&#x27;){
+       i++;let inside=&#x27;&#x27;;
+       if(t[i]===&#x27;(&#x27;){let d=1,start=++i;while(i&lt;t.length&amp;&amp;d){if(t[i]===&#x27;(&#x27;)d++;else if(t[i]===&#x27;)&#x27;)d--;if(d)i++}inside=t.slice(start,i);if(t[i]===&#x27;)&#x27;)i++}
+       else{inside=t[i]||&#x27;&#x27;;i++}
+       node=&#x27;&lt;msqrt&gt;&#x27;+expr(inside)+&#x27;&lt;/msqrt&gt;&#x27;;
+     }else if(c===&#x27;(&#x27;){
+       let d=1,start=++i;while(i&lt;t.length&amp;&amp;d){if(t[i]===&#x27;(&#x27;)d++;else if(t[i]===&#x27;)&#x27;)d--;if(d)i++}
+       node=&#x27;&lt;mo&gt;(&lt;/mo&gt;&#x27;+expr(t.slice(start,i))+&#x27;&lt;mo&gt;)&lt;/mo&gt;&#x27;;if(t[i]===&#x27;)&#x27;)i++;
+     }else if(/[0-9]/.test(c)){
+       let j=i+1;while(j&lt;t.length&amp;&amp;/[0-9.,]/.test(t[j]))j++;
+       node=&#x27;&lt;mn&gt;&#x27;+xml(t.slice(i,j))+&#x27;&lt;/mn&gt;&#x27;;i=j;
+     }else if(/[A-Za-zα-ωΑ-ΩηρπΔ]/.test(c)){node=&#x27;&lt;mi&gt;&#x27;+xml(c)+&#x27;&lt;/mi&gt;&#x27;;i++}
+     else{node=&#x27;&lt;mo&gt;&#x27;+xml(c)+&#x27;&lt;/mo&gt;&#x27;;i++}
+     if(t[i]===&#x27;^&#x27;){
+       i++;let sup=&#x27;&#x27;;
+       if(t[i]===&#x27;(&#x27;){let d=1,start=++i;while(i&lt;t.length&amp;&amp;d){if(t[i]===&#x27;(&#x27;)d++;else if(t[i]===&#x27;)&#x27;)d--;if(d)i++}sup=t.slice(start,i);if(t[i]===&#x27;)&#x27;)i++}
+       else {let j=i;while(j&lt;t.length&amp;&amp;/[A-Za-z0-9]/.test(t[j]))j++;sup=t.slice(i,j);i=j}
+       node=&#x27;&lt;msup&gt;&#x27;+wrap(node)+wrap(expr(sup))+&#x27;&lt;/msup&gt;&#x27;;
+     }
+     out+=node;
+   }
+   return out;
+ }
+ return &#x27;&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot; class=&quot;test-math&quot; display=&quot;inline&quot;&gt;&#x27;+expr(raw)+&#x27;&lt;/math&gt;&#x27;;
+}
+function formatMathText(value){
+ const raw=String(value);
+ const esc=s=&gt;String(s).replace(/[&amp;&lt;&gt;&quot;&#x27;]/g,c=&gt;({&#x27;&amp;&#x27;:&#x27;&amp;amp;&#x27;,&#x27;&lt;&#x27;:&#x27;&amp;lt;&#x27;,&#x27;&gt;&#x27;:&#x27;&amp;gt;&#x27;,&#x27;&quot;&#x27;:&#x27;&amp;quot;&#x27;,&quot;&#x27;&quot;:&#x27;&amp;#39;&#x27;}[c]));
+ // Matn ichida ham kvadrat tenglama ildizlari formulasini aniqlaydi.
+ const quadratic=/\(\s*-?\s*b\s*[±+\-]\s*√\s*\(\s*b\s*\^\s*2\s*-\s*4\s*a\s*c\s*\)\s*\)\s*\/\s*(?:\(\s*2\s*a\s*\)|2\s*a)/g;
+ function inlineMath(t){
+   const tokens=[];
+   function save(formula){const id=tokens.length;tokens.push(mathMarkup(formula));return &#x27;\uE000&#x27;+id+&#x27;\uE001&#x27;}
+   // [[...]] yozuvi boshqa formulalar uchun ham qo‘llanadi.
+   t=t.replace(/\[\[([\s\S]*?)\]\]/g,(_,formula)=&gt;save(formula));
+   t=t.replace(quadratic,formula=&gt;save(formula));
+   return esc(t).replace(/\uE000(\d+)\uE001/g,(_,i)=&gt;tokens[Number(i)]||&#x27;&#x27;);
+ }
+ return raw.split(&#x27;\n&#x27;).map(line=&gt;{
+   const trimmed=line.trim();
+   if(/^[\s0-9A-Za-zα-ωΑ-ΩρπηπΔ()√±+\-*/^=.,]+$/.test(trimmed)&amp;&amp;/[√±^=]/.test(trimmed)&amp;&amp;!/\s[A-Za-z]{3,}\s/.test(trimmed)){
+     return mathMarkup(trimmed);
+   }
+   return inlineMath(line);
+ }).join(&#x27;&lt;br&gt;&#x27;);
+}
+function formatText(items){return items.map(q=&gt;`#### ${q.q}\n`+q.options.map(o=&gt;(o.correct?&#x27;++++ &#x27;:&#x27;==== &#x27;)+o.text).join(&#x27;\n&#x27;)).join(&#x27;\n\n&#x27;)+&#x27;\n&#x27;}
+function save(){if(!saveCurrent())throw Error(&#x27;Bu login boshqa fanga biriktirilgan.&#x27;);saveTestSettings();mixed=null;render()}
+function render(){
+ $(&#x27;count&#x27;).textContent=questions.length+&#x27; ta savol&#x27;;$(&#x27;total&#x27;).textContent=&#x27;(&#x27;+questions.length+&#x27;)&#x27;;
+ $(&#x27;list&#x27;).innerHTML=questions.length?questions.map((q,i)=&gt;`&lt;div class=&quot;item&quot;&gt;&lt;div&gt;&lt;b&gt;${i+1}. ${formatMathText(q.q)}&lt;/b&gt;${q.options.map(o=&gt;`&lt;small style=&quot;display:block;color:${o.correct?&#x27;#16815c&#x27;:&#x27;#62788c&#x27;}&quot;&gt;${o.correct?&#x27;++++&#x27;:&#x27;====&#x27;} ${formatMathText(o.text)}&lt;/small&gt;`).join(&#x27;&#x27;)}&lt;/div&gt;&lt;button data-delete=&quot;${i}&quot;&gt;O‘chirish&lt;/button&gt;&lt;/div&gt;`).join(&#x27;&#x27;):&#x27;&lt;p class=&quot;muted&quot;&gt;Savollar kiritilmagan.&lt;/p&gt;&#x27;;
+}
+$(&#x27;add&#x27;).onclick=()=&gt;{try{switchSubject();if(!currentSubject)throw Error(&#x27;Avval fan nomini kiriting.&#x27;);if(!$(&#x27;accessLogin&#x27;).value.trim()||!$(&#x27;accessPassword&#x27;).value)throw Error(&#x27;Shu fan uchun login va parolni kiriting.&#x27;);let parsed=parseText($(&#x27;source&#x27;).value);questions.push(...parsed);save();$(&#x27;source&#x27;).value=&#x27;&#x27;;notify(`${parsed.length} ta savol saqlandi.`)}catch(e){notify(&#x27;Xatolik: &#x27;+e.message);showQuestionError(e)}};
+$(&#x27;list&#x27;).onclick=e=&gt;{let btn=e.target.closest(&#x27;[data-delete]&#x27;);if(!btn)return;questions.splice(Number(btn.dataset.delete),1);save();notify(&#x27;Savol o‘chirildi.&#x27;)};
+function shuffleArr(a){const b=a.slice();for(let i=b.length-1;i&gt;0;i--){let j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+function buildMix(){if(!questions.length)throw Error(&#x27;Avval savollarni saqlang.&#x27;);return questions.map(q=&gt;({...q,options:q.options.map(o=&gt;({...o}))}))}
+function storeShuffle(){if(!currentSubject)switchSubject();saveCurrent()}
+$(&#x27;shuffleQuestions&#x27;).addEventListener(&#x27;change&#x27;,storeShuffle);
+$(&#x27;shuffleAnswers&#x27;).addEventListener(&#x27;change&#x27;,storeShuffle);
+$(&#x27;take&#x27;).onclick=()=&gt;{switchSubject();showAccess()};
+function startTest(){try{
+ const limitInput=$(&#x27;questionLimit&#x27;).value.trim(),durationInput=$(&#x27;timeLimit&#x27;).value.trim();
+ const requested=limitInput===&#x27;&#x27;?30:Number(limitInput),duration=Number(durationInput);
+ if(!Number.isInteger(requested)||requested&lt;1)throw Error(&#x27;Savollar soni musbat butun son bo‘lishi kerak.&#x27;);
+ const limit=Math.min(requested,questions.length);
+ if(!Number.isInteger(duration)||duration&lt;1||duration&gt;1440)throw Error(&#x27;Test vaqtini 1 dan 1440 daqiqagacha kiriting.&#x27;);
+ // Har safar test boshlanganda yoqilgan kalitlarga muvofiq aralashtiriladi.
+ const full=$(&#x27;shuffleQuestions&#x27;).checked?shuffleArr(buildMix()):buildMix();
+ examQuestions=full.slice(0,limit).map(q=&gt;({...q,options:$(&#x27;shuffleAnswers&#x27;).checked?shuffleArr(q.options):q.options.map(o=&gt;({...o}))}));
+ completed=false;stopTimer();$(&#x27;finish&#x27;).disabled=false;
+ $(&#x27;examCount&#x27;).textContent=`${examQuestions.length} ta savol`;
+ $(&#x27;examList&#x27;).innerHTML=examQuestions.map((q,i)=&gt;`&lt;div class=&quot;testq&quot;&gt;&lt;b&gt;${i+1}. ${formatMathText(q.q)}&lt;/b&gt;${q.options.map((o,j)=&gt;`&lt;label class=&quot;option&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;ans${i}&quot; value=&quot;${j}&quot;&gt;${formatMathText(o.text)}&lt;/label&gt;`).join(&#x27;&#x27;)}&lt;/div&gt;`).join(&#x27;&#x27;);
+ $(&#x27;examSubject&#x27;).textContent=$(&#x27;subjectName&#x27;).value.trim();$(&#x27;result&#x27;).innerHTML=&#x27;&#x27;;$(&#x27;exam&#x27;).classList.remove(&#x27;hide&#x27;);deadline=Date.now()+duration*60000;updateTimer();timerHandle=setInterval(updateTimer,1000);$(&#x27;exam&#x27;).scrollIntoView({behavior:&#x27;smooth&#x27;});
+ }catch(e){notify(e.message)}}
+$(&#x27;back&#x27;).onclick=()=&gt;{stopTimer();examQuestions=null;completed=false;$(&#x27;exam&#x27;).classList.add(&#x27;hide&#x27;)};
+$(&#x27;finish&#x27;).onclick=()=&gt;{if(!completed)endTest(false)};
+render();
+&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></section>
+<style id="integratedTestReportStyles">
+#itReport{position:fixed;inset:0;z-index:260000;background:rgba(15,35,55,.56);display:flex;justify-content:center;align-items:center;padding:18px;font:13px Arial,sans-serif;color:#203750}
+#itReport[hidden]{display:none!important}
+.it-report-card{width:min(1120px,98vw);max-height:94vh;background:#fff;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 22px 70px #142c4950}
+.it-report-header{display:flex;align-items:center;justify-content:space-between;background:#2f86b6;color:#fff;padding:16px 20px;gap:10px}
+.it-report-header h2{margin:0;font-size:19px}.it-report-header button{background:#fff;border:1px solid #c8d6e3;padding:8px 12px;border-radius:7px;color:#173b5f;font-weight:700}
+.it-report-body{padding:18px;overflow:auto}.it-report-filters{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:16px}
+.it-report-filters label{display:flex;flex-direction:column;gap:6px;font-weight:700;min-width:200px;flex:1}.it-report-filters input{height:39px;border:1px solid #cad6e2;border-radius:7px;padding:0 10px;background:#fff;color:#173b5f;font:inherit}
+.it-report-filters button{height:39px;border:1px solid #cad6e2;border-radius:7px;background:#f6fafd;color:#173b5f;padding:0 12px;font-weight:700}
+.it-report-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}.it-report-metrics div{background:#f7fbfd;border:1px solid #dce6ee;border-radius:9px;padding:12px 15px}.it-report-metrics small{display:block;color:#718497;font-size:11px;margin-bottom:5px}.it-report-metrics b{font-size:21px;color:#173b5f}
+.it-report-tablewrap{overflow:auto;border:1px solid #dce6ee;border-radius:9px}.it-report-tablewrap table{width:100%;border-collapse:collapse;min-width:760px}.it-report-tablewrap th,.it-report-tablewrap td{padding:11px 10px;text-align:left;border-bottom:1px solid #e5ebf0;font-size:12px}.it-report-tablewrap th{background:#edf5fa;color:#254b69;font-weight:700}.it-report-tablewrap td{color:#2f4154}.it-report-tablewrap tr:last-child td{border-bottom:0}.it-report-foot{font-size:11px;color:#778899;margin:13px 0 0}
+@media(max-width:650px){#itReport{padding:7px}.it-report-body{padding:12px}.it-report-metrics{grid-template-columns:1fr}.it-report-filters label{min-width:100%}}
+</style>
+<section id="itReport" hidden aria-label="Test hisoboti">
+ <div class="it-report-card">
+ <div class="it-report-header"><h2>Test hisoboti</h2><button type="button" id="itReportClose">Yopish ×</button></div>
+ <div class="it-report-body">
+  <div class="it-report-filters"><label>Fan<input id="itReportSubject" list="itReportSubjectOptions" placeholder="Barcha fanlar — tanlang yoki yozing" autocomplete="off"><datalist id="itReportSubjectOptions"></datalist></label><label>Guruh<input id="itReportGroup" list="itReportGroupOptions" placeholder="Barcha guruhlar — tanlang yoki yozing" autocomplete="off"><datalist id="itReportGroupOptions"></datalist></label><button type="button" id="itReportReset">Filtrlarni tozalash</button><button type="button" id="itReportCsv">CSV yuklab olish</button></div>
+  <div class="it-report-metrics"><div><small>Test topshirishlar</small><b id="itReportCount">0</b></div><div><small>O‘rtacha natija</small><b id="itReportAvg">0%</b></div><div><small>O‘tgan savollardan to‘g‘ri</small><b id="itReportCorrect">0 / 0</b></div></div>
+  <div class="it-report-tablewrap"><table><thead><tr><th>№</th><th>Ism-familiya</th><th>Guruh</th><th>Fan</th><th>To‘g‘ri / jami</th><th>Natija</th><th>Topshirgan vaqt</th></tr></thead><tbody id="itReportRows"></tbody></table></div>
+ </div></div></section>
+<section id="itStudent" hidden><div class="it-head"><h2 id="itStudentSubject">Test sinovi</h2><button id="itExit" type="button">Chiqish ×</button></div>
+<div class="it-content"><div class="it-card" id="itIdentity"><h3>Talaba ma’lumotlari</h3><p class="it-note">Testni boshlashdan avval ism-familiyangiz va guruhingizni kiriting.</p><form id="itIdentityForm"><div class="it-grid"><label>Ism va familiya<input id="itName" required minlength="3" autocomplete="name" placeholder="Ism Familiya"></label><label>Guruh<input id="itGroup" list="itGroupOptions" required placeholder="Guruhni tanlang yoki yozing" autocomplete="off"><datalist id="itGroupOptions"></datalist></label></div><p class="it-error" id="itIdentityError"></p><button class="it-action" type="submit">Testni boshlash</button></form></div>
+<div class="it-card" id="itExam" hidden><div class="it-testbar"><div><h3 id="itExamTitle">Test</h3><span id="itExamMeta" class="it-note"></span></div><span id="itTimer">30:00</span></div><div id="itQuestionList"></div><button class="it-action" id="itFinish" type="button">Testni yakunlash</button><div id="itResult" aria-live="polite"></div></div></div></section><script id="integratedSimpleTestCode">
+(function(){
+ 'use strict';
+ const q=id=>document.getElementById(id);
+ const SUBJECTS_KEY='integratedTestSubjects_v2', BANKS_KEY='integratedTestSubjectBanks_v2';
+ let activeStudent=null, activeQs=[],endAt=0,ticker=null,finished=false,activeSubject='';
+ const safe=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ function registry(){try{return JSON.parse(localStorage.getItem(SUBJECTS_KEY)||'{}')}catch{return {}}}
+ function settings(){return registry()[activeSubject]||{}}
+ function questionBank(){try{const a=JSON.parse(localStorage.getItem(BANKS_KEY)||'{}')[activeSubject];return Array.isArray(a)?a:[]}catch{return []}}
+ 
+// Matematik ifodalarni MathML ko‘rinishiga keltirish (internetsiz ishlaydi).
+function mathMarkup(source){
+ const raw=String(source).trim();
+ if(!raw)return '';
+ const xml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&quot;'}[c]));
+ const wrap=v=>'<mrow>'+v+'</mrow>';
+ function stripOuter(t){
+   t=t.trim();
+   while(t.startsWith('(')&&t.endsWith(')')){
+     let depth=0,whole=true;
+     for(let i=0;i<t.length;i++){
+       if(t[i]==='(')depth++;
+       if(t[i]===')'){depth--;if(depth===0&&i<t.length-1){whole=false;break}}
+     }
+     if(!whole||depth!==0)break;
+     t=t.slice(1,-1).trim();
+   }
+   return t;
+ }
+ function topSplit(t,chars){
+   let depth=0;
+   for(let i=0;i<t.length;i++){
+     if(t[i]==='(')depth++;
+     else if(t[i]===')')depth--;
+     else if(depth===0&&chars.includes(t[i]))return i;
+   }
+   return -1;
+ }
+ function expr(t){
+   t=stripOuter(t);
+   // Kasrning surat va maxraji.
+   let slash=topSplit(t,'/');
+   if(slash>=0){
+     return '<mfrac>'+wrap(expr(t.slice(0,slash)))+wrap(expr(t.slice(slash+1)))+'</mfrac>';
+   }
+   let out='';
+   for(let i=0;i<t.length;){
+     let c=t[i],node='';
+     if(/\s/.test(c)){i++;continue}
+     if(c==='√'){
+       i++;let inside='';
+       if(t[i]==='('){let d=1,start=++i;while(i<t.length&&d){if(t[i]==='(')d++;else if(t[i]===')')d--;if(d)i++}inside=t.slice(start,i);if(t[i]===')')i++}
+       else{inside=t[i]||'';i++}
+       node='<msqrt>'+expr(inside)+'</msqrt>';
+     }else if(c==='('){
+       let d=1,start=++i;while(i<t.length&&d){if(t[i]==='(')d++;else if(t[i]===')')d--;if(d)i++}
+       node='<mo>(</mo>'+expr(t.slice(start,i))+'<mo>)</mo>';if(t[i]===')')i++;
+     }else if(/[0-9]/.test(c)){
+       let j=i+1;while(j<t.length&&/[0-9.,]/.test(t[j]))j++;
+       node='<mn>'+xml(t.slice(i,j))+'</mn>';i=j;
+     }else if(/[A-Za-zα-ωΑ-ΩηρπΔ]/.test(c)){node='<mi>'+xml(c)+'</mi>';i++}
+     else{node='<mo>'+xml(c)+'</mo>';i++}
+     if(t[i]==='^'){
+       i++;let sup='';
+       if(t[i]==='('){let d=1,start=++i;while(i<t.length&&d){if(t[i]==='(')d++;else if(t[i]===')')d--;if(d)i++}sup=t.slice(start,i);if(t[i]===')')i++}
+       else {let j=i;while(j<t.length&&/[A-Za-z0-9]/.test(t[j]))j++;sup=t.slice(i,j);i=j}
+       node='<msup>'+wrap(node)+wrap(expr(sup))+'</msup>';
+     }
+     out+=node;
+   }
+   return out;
+ }
+ return '<math xmlns="http://www.w3.org/1998/Math/MathML" class="test-math" display="inline">'+expr(raw)+'</math>';
+}
+function formatMathText(value){
+ const raw=String(value);
+ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ // Matn ichida ham kvadrat tenglama ildizlari formulasini aniqlaydi.
+ const quadratic=/\(\s*-?\s*b\s*[±+\-]\s*√\s*\(\s*b\s*\^\s*2\s*-\s*4\s*a\s*c\s*\)\s*\)\s*\/\s*(?:\(\s*2\s*a\s*\)|2\s*a)/g;
+ function inlineMath(t){
+   const tokens=[];
+   function save(formula){const id=tokens.length;tokens.push(mathMarkup(formula));return '\uE000'+id+'\uE001'}
+   // [[...]] yozuvi boshqa formulalar uchun ham qo‘llanadi.
+   t=t.replace(/\[\[([\s\S]*?)\]\]/g,(_,formula)=>save(formula));
+   t=t.replace(quadratic,formula=>save(formula));
+   return esc(t).replace(/\uE000(\d+)\uE001/g,(_,i)=>tokens[Number(i)]||'');
+ }
+ return raw.split('\n').map(line=>{
+   const trimmed=line.trim();
+   if(/^[\s0-9A-Za-zα-ωΑ-ΩρπηπΔ()√±+\-*/^=.,]+$/.test(trimmed)&&/[√±^=]/.test(trimmed)&&!/\s[A-Za-z]{3,}\s/.test(trimmed)){
+     return mathMarkup(trimmed);
+   }
+   return inlineMath(line);
+ }).join('<br>');
+}
+
+ function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+ function stop(){if(ticker!==null){clearInterval(ticker);ticker=null}}
+ function openEditor(){q('itEditor').hidden=false;q('itStudent').hidden=true;document.body.style.overflow='hidden'}
+ function closeEditor(){q('itEditor').hidden=true;document.body.style.overflow=''}
+ function openStudent(){stop();finished=false;activeQs=[];q('itEditor').hidden=true;q('itStudent').hidden=false;q('itIdentity').hidden=false;q('itExam').hidden=true;q('itName').value='';q('itGroup').value='';q('itIdentityError').textContent='';q('itStudentSubject').textContent=settings().subjectName||'Test';q('loginModal')?.classList.remove('open');document.body.classList.remove('login-required');document.body.style.overflow='hidden';q('itName').focus()}
+ function exitStudent(){if(!finished&&activeQs.length&&!confirm('Testni yakunlamasdan chiqmoqchimisiz?'))return;stop();activeQs=[];q('itStudent').hidden=true;document.body.style.overflow='';document.body.classList.add('login-required');q('loginModal')?.classList.add('open');q('loginPassword').value=''}
+ function updateClock(){if(finished)return;const sec=Math.max(0,Math.ceil((endAt-Date.now())/1000));q('itTimer').textContent=String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');if(sec<=0)finish(true)}
+ function finish(expired){if(finished)return;finished=true;stop();let right=0;activeQs.forEach((item,i)=>{const selected=q('itQuestionList').querySelector('input[name="itAnswer'+i+'"]:checked');if(selected&&item.options[Number(selected.value)]?.correct)right++});const total=activeQs.length,pct=Math.round(right/total*100);
+  q('itResult').innerHTML='<div class="it-score">'+right+' / '+total+' — '+pct+'%</div><p class="it-note">'+(expired?'Vaqt tugadi, test avtomatik yakunlandi.':'Test yakunlandi.')+'</p>';
+  q('itQuestionList').querySelectorAll('input').forEach(el=>el.disabled=true);q('itFinish').disabled=true;
+  try{let records=JSON.parse(localStorage.getItem('integratedStudentTestResults_v1')||'[]');if(!Array.isArray(records))records=[];records.push({subject:settings().subjectName||'',name:activeStudent.name,group:activeStudent.group,correct:right,total,percent:pct,finishedAt:new Date().toISOString()});localStorage.setItem('integratedStudentTestResults_v1',JSON.stringify(records))}catch(e){console.warn('Natijani saqlash:',e)}
+ }
+ function begin(){const bank=questionBank();if(!bank.length){q('itIdentityError').textContent='Hozircha test savollari mavjud emas.';return}
+  const meta=settings();
+  let config={questions:meta.shuffleQuestions!==false,answers:meta.shuffleAnswers!==false};
+  
+  let desired=Number(meta.questionLimit||30);if(!Number.isInteger(desired)||desired<1)desired=30;
+  let duration=Number(meta.timeLimit||localStorage.getItem('integratedTestTime_v1')||30);if(!Number.isInteger(duration)||duration<1)duration=30;
+  let ordered=config.questions?shuffle(bank):bank.slice();activeQs=ordered.slice(0,Math.min(desired,bank.length)).map(x=>({q:x.q,options:config.answers?shuffle(x.options):x.options.slice()}));
+  q('itIdentity').hidden=true;q('itExam').hidden=false;q('itExamTitle').textContent=meta.subjectName||'Test';q('itExamMeta').textContent=activeStudent.name+' · '+activeStudent.group+' · '+activeQs.length+' ta savol';q('itResult').innerHTML='';q('itFinish').disabled=false;
+  q('itQuestionList').innerHTML=activeQs.map((x,i)=>'<div class="it-question"><b>'+(i+1)+'. '+formatMathText(x.q)+'</b>'+x.options.map((opt,j)=>'<label class="it-choice"><input type="radio" name="itAnswer'+i+'" value="'+j+'"> '+formatMathText(opt.text)+'</label>').join('')+'</div>').join('');
+  finished=false;endAt=Date.now()+duration*60000;updateClock();ticker=setInterval(updateClock,1000);
+ }
+ function attach(){if(!q('doLoginBtn'))return;
+  const gate=(e)=>{const usr=String(q('loginUser')?.value||'').trim().toLowerCase(),pw=String(q('loginPassword')?.value||'');const found=Object.entries(registry()).find(([key,meta])=>meta.accessLogin&&String(meta.accessLogin).trim().toLowerCase()===usr);if(!found)return false;const [subjectKey,s]=found;
+   e.stopImmediatePropagation();e.preventDefault();
+   const err=q('loginError');if(pw!==String(s.accessPassword||'')){if(err){err.className='alert show error';err.textContent='Test logini yoki paroli noto‘g‘ri.'}return true}
+   activeSubject=subjectKey;if(!questionBank().length){if(err){err.className='alert show error';err.textContent='Bu fan uchun test savollari hali kiritilmagan.'}return true}
+   if(err){err.className='alert';err.textContent=''}openStudent();return true};
+  q('doLoginBtn').addEventListener('click',gate,true);
+  [q('loginUser'),q('loginPassword')].forEach(el=>el?.addEventListener('keydown',e=>{if(e.key==='Enter'){if(gate(e))return}},true));
+  q('itEditorClose').onclick=closeEditor;q('itExit').onclick=exitStudent;
+  q('itIdentityForm').addEventListener('submit',e=>{e.preventDefault();const name=q('itName').value.trim(),group=q('itGroup').value.trim();if(name.length<3||!group){q('itIdentityError').textContent='Ism-familiya va guruhni to‘liq kiriting.';return}activeStudent={name,group};begin()});
+  q('itFinish').onclick=()=>finish(false);
+  function installMenu(){
+   const menu=q('hemisGroupManage')||document.querySelector('.hemis-sidebar .hemis-menu-group');
+   if(!menu)return;
+   let b=q('itSidebarButton');
+   if(!b){
+     b=document.createElement('button');
+     b.type='button';
+     b.id='itSidebarButton';
+     b.className='hemis-side-link';
+     b.innerHTML='<span class="menu-icon">▣</span><span class="menu-text">Testlar</span><span class="menu-arrow">‹</span>';
+     b.addEventListener('click',openEditor);
+     menu.appendChild(b);
+   }
+   const info=q('simpleInfoBtn');
+   if(info && info.parentElement===menu && info.nextElementSibling!==b){
+     info.insertAdjacentElement('afterend',b);
+   }
+ }
+  installMenu();const observer=new MutationObserver(installMenu);observer.observe(document.body,{subtree:true,childList:true});
+  window.openIntegratedTestEditor=openEditor;
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',attach);else attach();
+})();
+</script><script id="integratedTestReportLogic">
+(function(){
+ 'use strict';
+ const KEY='integratedStudentTestResults_v1';
+ const $=id=>document.getElementById(id);
+ let current=[];
+ function records(){try{const r=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(r)?r:[]}catch{return []}}
+ const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+ function refreshOptions(){
+  const data=records();
+  for(const [id,field,listId] of [['itReportSubject','subject','itReportSubjectOptions'],['itReportGroup','group','itReportGroupOptions']]){
+   const el=$(id),keep=el.value;
+   const values=[...new Set(data.map(x=>String(x[field]||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+   $(listId).replaceChildren(...values.map(x=>new Option(x,x)));
+   el.value=keep;
+  }
+ }
+ function filtered(){const subject=$('itReportSubject').value.trim().toLocaleLowerCase(),group=$('itReportGroup').value.trim().toLocaleLowerCase();return records().filter(x=>(!subject||String(x.subject||'').toLocaleLowerCase().includes(subject))&&(!group||String(x.group||'').toLocaleLowerCase().includes(group)))}
+ function showReport(){refreshOptions();render();$('itReport').hidden=false}
+ function render(){current=filtered();const count=current.length,correct=current.reduce((n,x)=>n+(Number(x.correct)||0),0),total=current.reduce((n,x)=>n+(Number(x.total)||0),0);
+  $('itReportCount').textContent=String(count);$('itReportAvg').textContent=(count?Math.round(current.reduce((n,x)=>n+(Number(x.percent)||0),0)/count):0)+'%';$('itReportCorrect').textContent=correct+' / '+total;
+  $('itReportRows').innerHTML=count?current.slice().reverse().map((x,i)=>{const d=x.finishedAt?new Date(x.finishedAt):null;const date=d&&!isNaN(d)?d.toLocaleString('uz-UZ'):'';return '<tr><td>'+(i+1)+'</td><td>'+esc(x.name)+'</td><td>'+esc(x.group)+'</td><td>'+esc(x.subject)+'</td><td>'+esc(x.correct)+' / '+esc(x.total)+'</td><td><b>'+esc(x.percent)+'%</b></td><td>'+esc(date)+'</td></tr>'}).join(''):'<tr><td colspan="7" style="text-align:center;padding:22px;color:#788899">Tanlangan fan va guruh bo‘yicha natijalar mavjud emas.</td></tr>';
+ }
+ function csv(){if(!current.length)return alert('Hisobotda natijalar yo‘q.');const rows=[['Ism-familiya','Guruh','Fan','To‘g‘ri','Jami','Natija (%)','Vaqt'],...current.map(x=>[x.name,x.group,x.subject,x.correct,x.total,x.percent,x.finishedAt])];const safe=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const out='\uFEFF'+rows.map(row=>row.map(safe).join(';')).join('\r\n');const url=URL.createObjectURL(new Blob([out],{type:'text/csv;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download='test_hisoboti.csv';link.click();setTimeout(()=>URL.revokeObjectURL(url),2000)}
+ function init(){
+  window.addEventListener('message',e=>{if(e.source!==$('itFrame')?.contentWindow||e.data?.type!=='open-integrated-test-report')return;showReport()});
+  $('itReportClose').addEventListener('click',()=>{$('itReport').hidden=true});
+  $('itReportSubject').addEventListener('input',render);$('itReportGroup').addEventListener('input',render);
+  $('itReportReset').addEventListener('click',()=>{$('itReportSubject').value='';$('itReportGroup').value='';render()});
+  $('itReportCsv').addEventListener('click',csv);
+  $('itReport').addEventListener('click',e=>{if(e.target===$('itReport'))$('itReport').hidden=true});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
 </body>
 </html>
