@@ -7602,6 +7602,7 @@ async function applyRemoteCloudState(remote){
   if(typeof purgeDeletedLessonMirrors==="function")purgeDeletedLessonMirrors();
 
   persistLocalDB();
+  if(typeof window.refreshIntegratedTestCloudCache==='function')window.refreshIntegratedTestCloudCache();
 
   if(typeof renderAll==="function")renderAll();
   if(typeof renderManagers==="function")renderManagers();
@@ -19793,7 +19794,7 @@ function saveCurrent(){
  const subjects=getSubjects(),banks=getBanks(),prev=subjects[currentSubject]||{};
  subjects[currentSubject]={...prev,subjectName:prev.subjectName||currentSubject,accessLogin:$(&#x27;accessLogin&#x27;).value.trim(),accessPassword:$(&#x27;accessPassword&#x27;).value,timeLimit:$(&#x27;timeLimit&#x27;).value||&#x27;30&#x27;,questionLimit:$(&#x27;questionLimit&#x27;).value||&#x27;30&#x27;,shuffleQuestions:$(&#x27;shuffleQuestions&#x27;).checked,shuffleAnswers:$(&#x27;shuffleAnswers&#x27;).checked};
  banks[currentSubject]=questions;
- localStorage.setItem(SUBJECTS_KEY,JSON.stringify(subjects));localStorage.setItem(BANKS_KEY,JSON.stringify(banks));return true;
+ localStorage.setItem(SUBJECTS_KEY,JSON.stringify(subjects));localStorage.setItem(BANKS_KEY,JSON.stringify(banks));parent.postMessage({type:'it-cloud-update'},'*');return true;
 }
 function switchSubject(){
  const key=normSubject($(&#x27;subjectName&#x27;).value);if(key===currentSubject)return;
@@ -19866,7 +19867,7 @@ function deleteSelectedSubject(){
  $(&#x27;questionLimit&#x27;).value=&#x27;30&#x27;;$(&#x27;timeLimit&#x27;).value=&#x27;30&#x27;;$(&#x27;shuffleQuestions&#x27;).checked=true;$(&#x27;shuffleAnswers&#x27;).checked=true;
  $(&#x27;subjectNotice&#x27;).textContent=&#x27;Fan tanlang yoki yangi fan nomini kiriting.&#x27;;
  render();$(&#x27;deleteSubject&#x27;).disabled=true;notify(&#x27;«&#x27;+title+&#x27;» fani va unga tegishli barcha test ma’lumotlari o‘chirildi.&#x27;);
- parent.postMessage({type:&#x27;integrated-test-subject-deleted&#x27;},&#x27;*&#x27;);
+ parent.postMessage({type:&#x27;it-cloud-update&#x27;},&#x27;*&#x27;);parent.postMessage({type:&#x27;integrated-test-subject-deleted&#x27;},&#x27;*&#x27;);
 }
 $(&#x27;deleteSubject&#x27;).addEventListener(&#x27;click&#x27;,deleteSelectedSubject);
 function saveTestSettings(){if(!currentSubject)switchSubject();saveCurrent();const names=Object.values(getSubjects()).map(x=&gt;x.subjectName).filter(Boolean);$(&#x27;subjectNameOptions&#x27;).innerHTML=names.map(x=&gt;&#x27;&lt;option value=&quot;&#x27;+escapeHTML(x)+&#x27;&quot;&gt;&lt;/option&gt;&#x27;).join(&#x27;&#x27;)}
@@ -20188,7 +20189,7 @@ function formatMathText(value){
  function finish(expired){if(finished)return;finished=true;stop();let right=0;activeQs.forEach((item,i)=>{const selected=q('itQuestionList').querySelector('input[name="itAnswer'+i+'"]:checked');if(selected&&item.options[Number(selected.value)]?.correct)right++});const total=activeQs.length,pct=Math.round(right/total*100);
   q('itResult').innerHTML='<div class="it-score">'+right+' / '+total+' — '+pct+'%</div><p class="it-note">'+(expired?'Vaqt tugadi, test avtomatik yakunlandi.':'Test yakunlandi.')+'</p>';
   q('itQuestionList').querySelectorAll('input').forEach(el=>el.disabled=true);q('itFinish').disabled=true;
-  try{let records=JSON.parse(localStorage.getItem('integratedStudentTestResults_v1')||'[]');if(!Array.isArray(records))records=[];records.push({subject:settings().subjectName||'',name:activeStudent.name,group:activeStudent.group,correct:right,total,percent:pct,finishedAt:new Date().toISOString()});localStorage.setItem('integratedStudentTestResults_v1',JSON.stringify(records))}catch(e){console.warn('Natijani saqlash:',e)}
+  try{let records=JSON.parse(localStorage.getItem('integratedStudentTestResults_v1')||'[]');if(!Array.isArray(records))records=[];records.push({subject:settings().subjectName||'',name:activeStudent.name,group:activeStudent.group,correct:right,total,percent:pct,finishedAt:new Date().toISOString()});localStorage.setItem('integratedStudentTestResults_v1',JSON.stringify(records));window.dispatchEvent(new Event('it-cloud-student-result'))}catch(e){console.warn('Natijani saqlash:',e)}
  }
  function begin(){const bank=questionBank();if(!bank.length){q('itIdentityError').textContent='Hozircha test savollari mavjud emas.';return}
   const meta=settings();
@@ -20268,6 +20269,44 @@ function formatMathText(value){
   $('itReport').addEventListener('click',e=>{if(e.target===$('itReport'))$('itReport').hidden=true});
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+<script id="integratedTestFirestoreSync">
+(function(){
+'use strict';
+const SUBJECTS='integratedTestSubjects_v2',BANKS='integratedTestSubjectBanks_v2',RESULTS='integratedStudentTestResults_v1';
+function read(key,empty){try{const v=JSON.parse(localStorage.getItem(key)||'null');return v&&typeof v==='object'?v:empty}catch(e){return empty}}
+const initialLocal={subjects:read(SUBJECTS,{}),banks:read(BANKS,{}),results:read(RESULTS,[])};
+function bridgeSave(){
+ if(typeof db==='undefined')return;
+ db.integratedTestCloud={subjects:read(SUBJECTS,{}),banks:read(BANKS,{}),results:read(RESULTS,[])};
+ if(typeof save==='function')save();
+}
+window.refreshIntegratedTestCloudCache=function(){
+ let data=db?.integratedTestCloud;
+ if(!data){
+   // Preserve the tests created on the original device when upgrading.
+   if(Object.keys(initialLocal.subjects).length){
+     data=initialLocal;
+     db.integratedTestCloud=JSON.parse(JSON.stringify(initialLocal));
+     const migrate=()=>{if(typeof cloudReady!=='undefined'&&cloudReady){save()}else setTimeout(migrate,700)};
+     setTimeout(migrate,700);
+   }else return;
+ }
+ localStorage.setItem(SUBJECTS,JSON.stringify(data.subjects||{}));
+ localStorage.setItem(BANKS,JSON.stringify(data.banks||{}));
+ localStorage.setItem(RESULTS,JSON.stringify(data.results||[]));
+ // Old iframe local variables have their own cache: re-open fresh frame on next edit.
+ const frame=document.getElementById('itFrame');
+ if(frame&&frame.contentWindow){try{frame.contentWindow.location.reload()}catch(e){}}
+ window.dispatchEvent(new Event('integrated-test-cloud-ready'));
+};
+window.addEventListener('message',e=>{
+ if(e.source!==document.getElementById('itFrame')?.contentWindow||e.data?.type!=='it-cloud-update')return;
+ bridgeSave();
+});
+window.addEventListener('it-cloud-student-result',bridgeSave);
+// Saved test data is included in the platform's existing Firestore db snapshot.
 })();
 </script>
 </body>
