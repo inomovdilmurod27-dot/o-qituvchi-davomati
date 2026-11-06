@@ -19834,7 +19834,8 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
 .test-mode-noise #noiseMonitoringOptions{position:relative;display:flex;align-items:center;gap:5px;padding:4px 6px;border:1px solid #d5e5ed;background:#f1f9fd;border-radius:8px;height:36px}
 .test-mode-noise #noiseMonitoringOptions[hidden]{display:none!important}
 .test-mode-noise .compact-number-label{white-space:nowrap}
-.test-mode-noise .compact-number-label input{width:48px}
+.test-mode-noise .compact-number-label input{width:55px}
+.test-mode-noise #noiseDuration{width:76px;min-width:76px;text-align:center}
 .test-mode-noise #noiseHelpText{min-width:270px;max-width:345px;white-space:normal}
 &lt;/style&gt;&lt;/head&gt;
 &lt;body&gt;&lt;main class=&quot;wrap&quot;&gt;&lt;span class=&quot;hide&quot; id=&quot;count&quot; aria-hidden=&quot;true&quot;&gt;0 ta savol&lt;/span&gt;
@@ -19867,7 +19868,7 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
     &lt;div id=&quot;noiseMonitoringOptions&quot; hidden style=&quot;display:none&quot;&gt;
       &lt;label class=&quot;compact-number-label&quot;&gt;Ogohlantirish &lt;input id=&quot;noiseWarnings&quot; type=&quot;number&quot; min=&quot;0&quot; max=&quot;100&quot; step=&quot;1&quot; value=&quot;2&quot; aria-label=&quot;Shovqin ogohlantirishlari soni&quot;&gt;&lt;/label&gt;
       &lt;label class=&quot;compact-number-label&quot;&gt;Sezgirlik &lt;input id=&quot;noiseSensitivity&quot; type=&quot;number&quot; min=&quot;1&quot; max=&quot;10&quot; step=&quot;1&quot; value=&quot;5&quot; aria-label=&quot;Mikrofon shovqin sezgirligi&quot;&gt;&lt;/label&gt;
-      &lt;label class=&quot;compact-number-label&quot;&gt;Davomiylik (soniya) &lt;input id=&quot;noiseDuration&quot; type=&quot;number&quot; min=&quot;0.2&quot; max=&quot;60&quot; step=&quot;0.2&quot; value=&quot;1&quot; aria-label=&quot;Shovqin necha soniya davom etsa ogohlantirish beriladi&quot;&gt;&lt;/label&gt;
+      &lt;label class=&quot;compact-number-label&quot;&gt;Davomiylik (soniya) &lt;input id=&quot;noiseDuration&quot; type=&quot;number&quot; min=&quot;0.1&quot; max=&quot;60&quot; step=&quot;0.1&quot; inputmode=&quot;decimal&quot; value=&quot;1&quot; aria-label=&quot;Shovqin necha soniya davom etsa ogohlantirish beriladi&quot;&gt;&lt;/label&gt;
       &lt;button type=&quot;button&quot; class=&quot;small-help-button&quot; id=&quot;noiseHelpBtn&quot; title=&quot;Shovqin nazorati&quot; aria-label=&quot;Shovqin nazorati izohi&quot;&gt;ⓘ&lt;/button&gt;
       &lt;div id=&quot;noiseHelpText&quot; class=&quot;hint-popover&quot; hidden&gt;Test vaqtida mikrofon ruxsati so‘raladi. Davomli baland tovush aniqlanganda ogohlantirish chiqadi. 0 — birinchi shovqindayoq test yakunlanadi; N — N marta ogohlantirish, keyingisida yakunlash. Sezgirlik 1–10: katta son kichikroq tovushni ham sezadi. Davomiylikni soniyalarda o‘zingiz belgilang: masalan, 1 soniya davomida belgilangan darajadan yuqori tovush bo‘lsa, ogohlantirish chiqadi. Mikrofon faqat tovush balandligini o‘lchaydi, gaplashishni alohida aniqlay olmaydi. Tovush yozib olinmaydi va serverga yuborilmaydi.&lt;/div&gt;
     &lt;/div&gt;
@@ -19917,7 +19918,7 @@ function saveCurrent(){
  const login=$(&#x27;accessLogin&#x27;).value.trim().toLocaleLowerCase();
  if(login&amp;&amp;Object.entries(getSubjects()).some(([k,v])=&gt;k!==currentSubject&amp;&amp;String(v.accessLogin||&#x27;&#x27;).trim().toLocaleLowerCase()===login)){notify(&#x27;Bu login boshqa fanga biriktirilgan. Har bir fan uchun alohida login kiriting.&#x27;);return false}
  const subjects=getSubjects(),banks=getBanks(),prev=subjects[currentSubject]||{};
- subjects[currentSubject]={...prev,subjectName:prev.subjectName||currentSubject,accessLogin:$(&#x27;accessLogin&#x27;).value.trim(),accessPassword:$(&#x27;accessPassword&#x27;).value,timeLimit:$(&#x27;timeLimit&#x27;).value||&#x27;30&#x27;,questionLimit:$(&#x27;questionLimit&#x27;).value||&#x27;30&#x27;,shuffleQuestions:$(&#x27;shuffleQuestions&#x27;).checked,shuffleAnswers:$(&#x27;shuffleAnswers&#x27;).checked,smartTest:$(&#x27;smartTest&#x27;).checked,showTestAnswers:$(&#x27;showTestAnswers&#x27;).checked,testProtection:$(&#x27;testProtection&#x27;).checked,protectionWarnings:Math.max(0,Math.min(100,Math.trunc(Number($(&#x27;protectionWarnings&#x27;).value)||0))),noiseMonitoring:$(&#x27;noiseMonitoring&#x27;).checked,noiseWarnings:Math.max(0,Math.min(100,Math.trunc(Number($(&#x27;noiseWarnings&#x27;).value)||0))),noiseSensitivity:Math.max(1,Math.min(10,Math.trunc(Number($(&#x27;noiseSensitivity&#x27;).value)||5))),noiseDuration:Math.max(0.2,Math.min(60,Number($(&#x27;noiseDuration&#x27;).value)||1)),smartRepeatGap:Math.max(0,Math.min(300,Math.trunc(Number($(&#x27;smartRepeatGap&#x27;).value)||0))),smartCorrectRequired:Math.max(1,Math.min(20,Math.trunc(Number($(&#x27;smartCorrectRequired&#x27;).value)||1)))};
+ subjects[currentSubject]={...prev,subjectName:prev.subjectName||currentSubject,accessLogin:$(&#x27;accessLogin&#x27;).value.trim(),accessPassword:$(&#x27;accessPassword&#x27;).value,timeLimit:$(&#x27;timeLimit&#x27;).value||&#x27;30&#x27;,questionLimit:$(&#x27;questionLimit&#x27;).value||&#x27;30&#x27;,shuffleQuestions:$(&#x27;shuffleQuestions&#x27;).checked,shuffleAnswers:$(&#x27;shuffleAnswers&#x27;).checked,smartTest:$(&#x27;smartTest&#x27;).checked,showTestAnswers:$(&#x27;showTestAnswers&#x27;).checked,testProtection:$(&#x27;testProtection&#x27;).checked,protectionWarnings:Math.max(0,Math.min(100,Math.trunc(Number($(&#x27;protectionWarnings&#x27;).value)||0))),noiseMonitoring:$(&#x27;noiseMonitoring&#x27;).checked,noiseWarnings:Math.max(0,Math.min(100,Math.trunc(Number($(&#x27;noiseWarnings&#x27;).value)||0))),noiseSensitivity:Math.max(1,Math.min(10,Math.trunc(Number($(&#x27;noiseSensitivity&#x27;).value)||5))),noiseDuration:Math.max(0.1,Math.min(60,Number($(&#x27;noiseDuration&#x27;).value)||1)),smartRepeatGap:Math.max(0,Math.min(300,Math.trunc(Number($(&#x27;smartRepeatGap&#x27;).value)||0))),smartCorrectRequired:Math.max(1,Math.min(20,Math.trunc(Number($(&#x27;smartCorrectRequired&#x27;).value)||1)))};
  banks[currentSubject]=questions;
  localStorage.setItem(SUBJECTS_KEY,JSON.stringify(subjects));localStorage.setItem(BANKS_KEY,JSON.stringify(banks));parent.postMessage({type:&#x27;it-cloud-update&#x27;},&#x27;*&#x27;);return true;
 }
@@ -19927,7 +19928,7 @@ function switchSubject(){
  currentSubject=key;const meta=getSubjects()[key]||{},bank=getBanks()[key];if(!meta.subjectName&amp;&amp;key){const all=getSubjects();all[key]={...meta,subjectName:$(&#x27;subjectName&#x27;).value.trim()};localStorage.setItem(SUBJECTS_KEY,JSON.stringify(all))}questions=Array.isArray(bank)?bank:[];
  $(&#x27;accessLogin&#x27;).value=meta.accessLogin||&#x27;&#x27;;$(&#x27;accessPassword&#x27;).value=meta.accessPassword||&#x27;&#x27;;
  $(&#x27;timeLimit&#x27;).value=meta.timeLimit||&#x27;30&#x27;;$(&#x27;questionLimit&#x27;).value=meta.questionLimit||&#x27;30&#x27;;
- $(&#x27;shuffleQuestions&#x27;).checked=meta.shuffleQuestions!==false;$(&#x27;shuffleAnswers&#x27;).checked=meta.shuffleAnswers!==false;$(&#x27;smartTest&#x27;).checked=false;$(&#x27;showTestAnswers&#x27;).checked=meta.showTestAnswers===true;$(&#x27;testProtection&#x27;).checked=false;$(&#x27;protectionWarnings&#x27;).value=Number.isInteger(Number(meta.protectionWarnings))&amp;&amp;Number(meta.protectionWarnings)&gt;=0?Math.min(100,Number(meta.protectionWarnings)):2;toggleProtectionOptions();$(&#x27;noiseMonitoring&#x27;).checked=meta.noiseMonitoring===true;$(&#x27;noiseWarnings&#x27;).value=Number.isInteger(Number(meta.noiseWarnings))?Math.max(0,Math.min(100,Number(meta.noiseWarnings))):2;$(&#x27;noiseSensitivity&#x27;).value=Number.isInteger(Number(meta.noiseSensitivity))?Math.max(1,Math.min(10,Number(meta.noiseSensitivity))):5;$(&#x27;noiseDuration&#x27;).value=Math.max(0.2,Math.min(60,Number(meta.noiseDuration)||1));toggleNoiseOptions();$(&#x27;smartRepeatGap&#x27;).value=Number.isInteger(Number(meta.smartRepeatGap))&amp;&amp;Number(meta.smartRepeatGap)&gt;=0?Math.min(300,Number(meta.smartRepeatGap)):5;$(&#x27;smartCorrectRequired&#x27;).value=Number.isInteger(Number(meta.smartCorrectRequired))&amp;&amp;Number(meta.smartCorrectRequired)&gt;=1?Math.min(20,Number(meta.smartCorrectRequired)):2;toggleSmartOptions();
+ $(&#x27;shuffleQuestions&#x27;).checked=meta.shuffleQuestions!==false;$(&#x27;shuffleAnswers&#x27;).checked=meta.shuffleAnswers!==false;$(&#x27;smartTest&#x27;).checked=false;$(&#x27;showTestAnswers&#x27;).checked=meta.showTestAnswers===true;$(&#x27;testProtection&#x27;).checked=false;$(&#x27;protectionWarnings&#x27;).value=Number.isInteger(Number(meta.protectionWarnings))&amp;&amp;Number(meta.protectionWarnings)&gt;=0?Math.min(100,Number(meta.protectionWarnings)):2;toggleProtectionOptions();$(&#x27;noiseMonitoring&#x27;).checked=meta.noiseMonitoring===true;$(&#x27;noiseWarnings&#x27;).value=Number.isInteger(Number(meta.noiseWarnings))?Math.max(0,Math.min(100,Number(meta.noiseWarnings))):2;$(&#x27;noiseSensitivity&#x27;).value=Number.isInteger(Number(meta.noiseSensitivity))?Math.max(1,Math.min(10,Number(meta.noiseSensitivity))):5;$(&#x27;noiseDuration&#x27;).value=Math.max(0.1,Math.min(60,Number(meta.noiseDuration)||1));toggleNoiseOptions();$(&#x27;smartRepeatGap&#x27;).value=Number.isInteger(Number(meta.smartRepeatGap))&amp;&amp;Number(meta.smartRepeatGap)&gt;=0?Math.min(300,Number(meta.smartRepeatGap)):5;$(&#x27;smartCorrectRequired&#x27;).value=Number.isInteger(Number(meta.smartCorrectRequired))&amp;&amp;Number(meta.smartCorrectRequired)&gt;=1?Math.min(20,Number(meta.smartCorrectRequired)):2;toggleSmartOptions();
  $(&#x27;subjectNotice&#x27;).textContent=key?(meta.accessLogin?&#x27;Tanlangan fan: &#x27;+(meta.subjectName||$(&#x27;subjectName&#x27;).value)+&#x27; · &#x27;+questions.length+&#x27; ta savol&#x27;:&#x27;Yangi fan: login-parolni belgilang va savollarni saqlang.&#x27;):&#x27;Fan nomini kiriting yoki tanlang.&#x27;;
  mixed=null;render();$(&#x27;deleteSubject&#x27;).disabled=!Object.prototype.hasOwnProperty.call(getSubjects(),key);
 }
@@ -20400,26 +20401,26 @@ body.it-protected-mode #itQuestionList{background-image:none!important;backgroun
 </style>
 <style id="itAnswerNavigatorStyle">
 /* Talaba uchun javob berilgan/berilmagan savollar navigatsiyasi. */
-#itStudent #itQuestionNavigator{flex:0 0 100%;width:100%;border-top:1px solid #e6edf3;padding-top:9px;margin-top:2px}
+#itStudent #itQuestionNavigator{width:100%;border:1px solid #dbe5ee;border-radius:10px;background:#f9fbfd;padding:10px 12px;margin:0 0 14px}
 #itStudent #itQuestionNavigator[hidden]{display:none!important}
 #itStudent .it-nav-summary{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:12px;font-weight:700;color:#415b70;margin-bottom:7px}
 #itStudent .it-nav-summary .answered{color:#087c52}
 #itStudent .it-nav-summary .missing{color:#b45309}
-#itStudent .it-nav-grid{display:flex;flex-wrap:wrap;gap:5px;max-height:92px;overflow-y:auto;overscroll-behavior:contain;padding:1px 2px 3px}
+#itStudent .it-nav-grid{display:flex;flex-wrap:wrap;gap:5px;max-height:none;overflow:visible;padding:1px 0 2px}
 #itStudent .it-nav-number{width:31px;height:29px;border-radius:6px;border:1px solid #e1ad66;background:#fff8ed;color:#9a5809;font-weight:800;font-size:11px;cursor:pointer;display:inline-grid;place-items:center;padding:0}
 #itStudent .it-nav-number.answered{border-color:#8fcbb0;background:#e8f8ef;color:#087c52}
 #itStudent .it-nav-number:hover,#itStudent .it-nav-number:focus-visible{outline:2px solid #69a8d1;outline-offset:1px}
-#itStudent #itQuestionList .it-question{scroll-margin-top:235px}
+#itStudent #itQuestionList .it-question{scroll-margin-top:90px}
 @media(max-width:620px){
  #itStudent .it-nav-summary{font-size:11px;gap:8px}
- #itStudent .it-nav-grid{max-height:88px;gap:4px}
+ #itStudent .it-nav-grid{max-height:none;gap:4px}
  #itStudent .it-nav-number{width:30px;height:28px;font-size:10px}
- #itStudent #itQuestionList .it-question{scroll-margin-top:250px}
+ #itStudent #itQuestionList .it-question{scroll-margin-top:85px}
 }
 </style>
 <section id="itStudent" hidden><div class="it-head"><h2 id="itStudentSubject">Test sinovi</h2><button id="itExit" type="button">Chiqish ×</button></div>
 <div class="it-content"><div class="it-card" id="itIdentity"><h3>Talaba ma’lumotlari</h3><p class="it-note">Testni boshlashdan avval ism-familiyangiz va guruhingizni kiriting.</p><form id="itIdentityForm"><div class="it-grid"><label>Ism va familiya<input id="itName" required minlength="3" autocomplete="name" placeholder="Ism Familiya"></label><label>Guruh<input id="itGroup" list="itGroupOptions" required placeholder="Guruhni tanlang yoki yozing" autocomplete="off"><datalist id="itGroupOptions"></datalist></label></div><p class="it-error" id="itIdentityError"></p><button class="it-action" type="submit">Testni boshlash</button></form></div>
-<div class="it-card" id="itExam" hidden><div class="it-testbar"><div><h3 id="itExamTitle">Test</h3><span id="itExamMeta" class="it-note"></span></div><span id="itTimer">30:00</span><div id="itQuestionNavigator" hidden aria-label="Savollar bo‘yicha javoblar holati"><div id="itNavSummary" class="it-nav-summary" aria-live="polite"></div><div id="itNavGrid" class="it-nav-grid"></div></div></div><div id="itNoiseStatus" class="it-noise-status" hidden role="status"></div><div id="itSmartProgress" hidden></div><div id="itAnswerSummary" hidden aria-live="polite"></div><div id="itProtectionNotice" hidden role="status" style="background:#fff7ed;border:1px solid #fed7aa;color:#92400e;border-radius:8px;padding:10px 13px;margin:10px 0;font-weight:700;font-size:12px"></div><div id="itQuestionList"></div><div id="itSmartFeedback" class="it-smart-only" hidden aria-live="polite"></div><button type="button" id="itSmartNext" class="it-action it-smart-only" hidden>Javobni tekshirish</button><button class="it-action" id="itFinish" type="button">Testni yakunlash</button><div id="itResult" aria-live="polite"></div></div></div></section><script id="integratedSimpleTestCode">
+<div class="it-card" id="itExam" hidden><div class="it-testbar"><div><h3 id="itExamTitle">Test</h3><span id="itExamMeta" class="it-note"></span></div><span id="itTimer">30:00</span></div><div id="itQuestionNavigator" hidden aria-label="Savollar bo‘yicha javoblar holati"><div id="itNavSummary" class="it-nav-summary" aria-live="polite"></div><div id="itNavGrid" class="it-nav-grid"></div></div><div id="itNoiseStatus" class="it-noise-status" hidden role="status"></div><div id="itSmartProgress" hidden></div><div id="itAnswerSummary" hidden aria-live="polite"></div><div id="itProtectionNotice" hidden role="status" style="background:#fff7ed;border:1px solid #fed7aa;color:#92400e;border-radius:8px;padding:10px 13px;margin:10px 0;font-weight:700;font-size:12px"></div><div id="itQuestionList"></div><div id="itSmartFeedback" class="it-smart-only" hidden aria-live="polite"></div><button type="button" id="itSmartNext" class="it-action it-smart-only" hidden>Javobni tekshirish</button><button class="it-action" id="itFinish" type="button">Testni yakunlash</button><div id="itResult" aria-live="polite"></div></div></div></section><script id="integratedSimpleTestCode">
 (function(){
  'use strict';
  const q=id=>document.getElementById(id);
@@ -20432,7 +20433,7 @@ body.it-protected-mode #itQuestionList{background-image:none!important;backgroun
  let pendingNoiseDialog=null;
  let noiseStream=null,noiseContext=null,noiseAnalyser=null,noiseTimer=null,noiseHighSince=0,noiseLastAlert=0,noiseRequestId=0;
  function setupNoise(meta,saved){
-  noise={enabled:meta.noiseMonitoring===true,warnings:Number.isInteger(Number(meta.noiseWarnings))?Math.max(0,Math.min(100,Number(meta.noiseWarnings))):2,sensitivity:Number.isInteger(Number(meta.noiseSensitivity))?Math.max(1,Math.min(10,Number(meta.noiseSensitivity))):5,duration:Math.max(0.2,Math.min(60,Number(meta.noiseDuration??saved?.duration)||1)),violations:Math.max(0,Number(saved?.violations)||0)};
+  noise={enabled:meta.noiseMonitoring===true,warnings:Number.isInteger(Number(meta.noiseWarnings))?Math.max(0,Math.min(100,Number(meta.noiseWarnings))):2,sensitivity:Number.isInteger(Number(meta.noiseSensitivity))?Math.max(1,Math.min(10,Number(meta.noiseSensitivity))):5,duration:Math.max(0.1,Math.min(60,Number(meta.noiseDuration??saved?.duration)||1)),violations:Math.max(0,Number(saved?.violations)||0)};
   updateNoiseStatus(noise.enabled?'Mikrofon ruxsati kutilmoqda.':'');
  }
  function noiseActive(){return !!(noise.enabled&&!finished&&activeStudent&&activeQs.length&&!q('itStudent').hidden&&!q('itExam').hidden)}
@@ -20724,7 +20725,7 @@ function formatMathText(value){
    if(b){b.classList.toggle('answered',chosen);b.setAttribute('aria-label',(i+1)+'-savol: '+(chosen?'javob berilgan':'javob berilmagan'));b.title=(i+1)+'-savol — '+(chosen?'Javob berilgan':'Javob berilmagan');}
   });
   const missing=activeQs.length-answered;
-  summary.innerHTML='<span class="answered">✓ Javob berilgan: '+answered+'</span><span class="missing">○ Belgilanmagan: '+missing+'</span><span>Savolga o‘tish uchun raqamini bosing</span>';
+  summary.innerHTML='<span class="answered">✓ Javob berilgan: '+answered+'</span><span class="missing">○ Belgilanmagan: '+missing+'</span><span>Raqamni bosing — savolga o‘tasiz</span>';
  }
  function buildQuestionNavigator(){
   const grid=q('itNavGrid');if(!grid)return;
