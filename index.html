@@ -19867,8 +19867,9 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
     &lt;div id=&quot;noiseMonitoringOptions&quot; hidden style=&quot;display:none&quot;&gt;
       &lt;label class=&quot;compact-number-label&quot;&gt;Ogohlantirish &lt;input id=&quot;noiseWarnings&quot; type=&quot;number&quot; min=&quot;0&quot; max=&quot;100&quot; step=&quot;1&quot; value=&quot;2&quot; aria-label=&quot;Shovqin ogohlantirishlari soni&quot;&gt;&lt;/label&gt;
       &lt;label class=&quot;compact-number-label&quot;&gt;Sezgirlik &lt;input id=&quot;noiseSensitivity&quot; type=&quot;number&quot; min=&quot;1&quot; max=&quot;10&quot; step=&quot;1&quot; value=&quot;5&quot; aria-label=&quot;Mikrofon shovqin sezgirligi&quot;&gt;&lt;/label&gt;
+      &lt;label class=&quot;compact-number-label&quot;&gt;Davomiylik (soniya) &lt;input id=&quot;noiseDuration&quot; type=&quot;number&quot; min=&quot;0.2&quot; max=&quot;60&quot; step=&quot;0.2&quot; value=&quot;1&quot; aria-label=&quot;Shovqin necha soniya davom etsa ogohlantirish beriladi&quot;&gt;&lt;/label&gt;
       &lt;button type=&quot;button&quot; class=&quot;small-help-button&quot; id=&quot;noiseHelpBtn&quot; title=&quot;Shovqin nazorati&quot; aria-label=&quot;Shovqin nazorati izohi&quot;&gt;ⓘ&lt;/button&gt;
-      &lt;div id=&quot;noiseHelpText&quot; class=&quot;hint-popover&quot; hidden&gt;Test vaqtida mikrofon ruxsati so‘raladi. Davomli baland tovush aniqlanganda ogohlantirish chiqadi. 0 — birinchi shovqindayoq test yakunlanadi; N — N marta ogohlantirish, keyingisida yakunlash. Sezgirlik 1–10: katta son kichikroq tovushni ham sezadi. Qisqa va tasodifiy tovushlar hisobga olinmasligi uchun tekshirishda davomiylik cheklovi bor. Tovush yozib olinmaydi va serverga yuborilmaydi.&lt;/div&gt;
+      &lt;div id=&quot;noiseHelpText&quot; class=&quot;hint-popover&quot; hidden&gt;Test vaqtida mikrofon ruxsati so‘raladi. Davomli baland tovush aniqlanganda ogohlantirish chiqadi. 0 — birinchi shovqindayoq test yakunlanadi; N — N marta ogohlantirish, keyingisida yakunlash. Sezgirlik 1–10: katta son kichikroq tovushni ham sezadi. Davomiylikni soniyalarda o‘zingiz belgilang: masalan, 1 soniya davomida belgilangan darajadan yuqori tovush bo‘lsa, ogohlantirish chiqadi. Mikrofon faqat tovush balandligini o‘lchaydi, gaplashishni alohida aniqlay olmaydi. Tovush yozib olinmaydi va serverga yuborilmaydi.&lt;/div&gt;
     &lt;/div&gt;
   &lt;/div&gt;
   &lt;div class=&quot;test-mode-stack test-mode-smart&quot;&gt;
@@ -19916,7 +19917,7 @@ function saveCurrent(){
  const login=$(&#x27;accessLogin&#x27;).value.trim().toLocaleLowerCase();
  if(login&amp;&amp;Object.entries(getSubjects()).some(([k,v])=&gt;k!==currentSubject&amp;&amp;String(v.accessLogin||&#x27;&#x27;).trim().toLocaleLowerCase()===login)){notify(&#x27;Bu login boshqa fanga biriktirilgan. Har bir fan uchun alohida login kiriting.&#x27;);return false}
  const subjects=getSubjects(),banks=getBanks(),prev=subjects[currentSubject]||{};
- subjects[currentSubject]={...prev,subjectName:prev.subjectName||currentSubject,accessLogin:$(&#x27;accessLogin&#x27;).value.trim(),accessPassword:$(&#x27;accessPassword&#x27;).value,timeLimit:$(&#x27;timeLimit&#x27;).value||&#x27;30&#x27;,questionLimit:$(&#x27;questionLimit&#x27;).value||&#x27;30&#x27;,shuffleQuestions:$(&#x27;shuffleQuestions&#x27;).checked,shuffleAnswers:$(&#x27;shuffleAnswers&#x27;).checked,smartTest:$(&#x27;smartTest&#x27;).checked,showTestAnswers:$(&#x27;showTestAnswers&#x27;).checked,testProtection:$(&#x27;testProtection&#x27;).checked,protectionWarnings:Math.max(0,Math.min(100,Math.trunc(Number($(&#x27;protectionWarnings&#x27;).value)||0))),noiseMonitoring:$(&#x27;noiseMonitoring&#x27;).checked,noiseWarnings:Math.max(0,Math.min(100,Math.trunc(Number($(&#x27;noiseWarnings&#x27;).value)||0))),noiseSensitivity:Math.max(1,Math.min(10,Math.trunc(Number($(&#x27;noiseSensitivity&#x27;).value)||5))),smartRepeatGap:Math.max(0,Math.min(300,Math.trunc(Number($(&#x27;smartRepeatGap&#x27;).value)||0))),smartCorrectRequired:Math.max(1,Math.min(20,Math.trunc(Number($(&#x27;smartCorrectRequired&#x27;).value)||1)))};
+ subjects[currentSubject]={...prev,subjectName:prev.subjectName||currentSubject,accessLogin:$(&#x27;accessLogin&#x27;).value.trim(),accessPassword:$(&#x27;accessPassword&#x27;).value,timeLimit:$(&#x27;timeLimit&#x27;).value||&#x27;30&#x27;,questionLimit:$(&#x27;questionLimit&#x27;).value||&#x27;30&#x27;,shuffleQuestions:$(&#x27;shuffleQuestions&#x27;).checked,shuffleAnswers:$(&#x27;shuffleAnswers&#x27;).checked,smartTest:$(&#x27;smartTest&#x27;).checked,showTestAnswers:$(&#x27;showTestAnswers&#x27;).checked,testProtection:$(&#x27;testProtection&#x27;).checked,protectionWarnings:Math.max(0,Math.min(100,Math.trunc(Number($(&#x27;protectionWarnings&#x27;).value)||0))),noiseMonitoring:$(&#x27;noiseMonitoring&#x27;).checked,noiseWarnings:Math.max(0,Math.min(100,Math.trunc(Number($(&#x27;noiseWarnings&#x27;).value)||0))),noiseSensitivity:Math.max(1,Math.min(10,Math.trunc(Number($(&#x27;noiseSensitivity&#x27;).value)||5))),noiseDuration:Math.max(0.2,Math.min(60,Number($(&#x27;noiseDuration&#x27;).value)||1)),smartRepeatGap:Math.max(0,Math.min(300,Math.trunc(Number($(&#x27;smartRepeatGap&#x27;).value)||0))),smartCorrectRequired:Math.max(1,Math.min(20,Math.trunc(Number($(&#x27;smartCorrectRequired&#x27;).value)||1)))};
  banks[currentSubject]=questions;
  localStorage.setItem(SUBJECTS_KEY,JSON.stringify(subjects));localStorage.setItem(BANKS_KEY,JSON.stringify(banks));parent.postMessage({type:&#x27;it-cloud-update&#x27;},&#x27;*&#x27;);return true;
 }
@@ -19926,7 +19927,7 @@ function switchSubject(){
  currentSubject=key;const meta=getSubjects()[key]||{},bank=getBanks()[key];if(!meta.subjectName&amp;&amp;key){const all=getSubjects();all[key]={...meta,subjectName:$(&#x27;subjectName&#x27;).value.trim()};localStorage.setItem(SUBJECTS_KEY,JSON.stringify(all))}questions=Array.isArray(bank)?bank:[];
  $(&#x27;accessLogin&#x27;).value=meta.accessLogin||&#x27;&#x27;;$(&#x27;accessPassword&#x27;).value=meta.accessPassword||&#x27;&#x27;;
  $(&#x27;timeLimit&#x27;).value=meta.timeLimit||&#x27;30&#x27;;$(&#x27;questionLimit&#x27;).value=meta.questionLimit||&#x27;30&#x27;;
- $(&#x27;shuffleQuestions&#x27;).checked=meta.shuffleQuestions!==false;$(&#x27;shuffleAnswers&#x27;).checked=meta.shuffleAnswers!==false;$(&#x27;smartTest&#x27;).checked=false;$(&#x27;showTestAnswers&#x27;).checked=meta.showTestAnswers===true;$(&#x27;testProtection&#x27;).checked=false;$(&#x27;protectionWarnings&#x27;).value=Number.isInteger(Number(meta.protectionWarnings))&amp;&amp;Number(meta.protectionWarnings)&gt;=0?Math.min(100,Number(meta.protectionWarnings)):2;toggleProtectionOptions();$(&#x27;noiseMonitoring&#x27;).checked=meta.noiseMonitoring===true;$(&#x27;noiseWarnings&#x27;).value=Number.isInteger(Number(meta.noiseWarnings))?Math.max(0,Math.min(100,Number(meta.noiseWarnings))):2;$(&#x27;noiseSensitivity&#x27;).value=Number.isInteger(Number(meta.noiseSensitivity))?Math.max(1,Math.min(10,Number(meta.noiseSensitivity))):5;toggleNoiseOptions();$(&#x27;smartRepeatGap&#x27;).value=Number.isInteger(Number(meta.smartRepeatGap))&amp;&amp;Number(meta.smartRepeatGap)&gt;=0?Math.min(300,Number(meta.smartRepeatGap)):5;$(&#x27;smartCorrectRequired&#x27;).value=Number.isInteger(Number(meta.smartCorrectRequired))&amp;&amp;Number(meta.smartCorrectRequired)&gt;=1?Math.min(20,Number(meta.smartCorrectRequired)):2;toggleSmartOptions();
+ $(&#x27;shuffleQuestions&#x27;).checked=meta.shuffleQuestions!==false;$(&#x27;shuffleAnswers&#x27;).checked=meta.shuffleAnswers!==false;$(&#x27;smartTest&#x27;).checked=false;$(&#x27;showTestAnswers&#x27;).checked=meta.showTestAnswers===true;$(&#x27;testProtection&#x27;).checked=false;$(&#x27;protectionWarnings&#x27;).value=Number.isInteger(Number(meta.protectionWarnings))&amp;&amp;Number(meta.protectionWarnings)&gt;=0?Math.min(100,Number(meta.protectionWarnings)):2;toggleProtectionOptions();$(&#x27;noiseMonitoring&#x27;).checked=meta.noiseMonitoring===true;$(&#x27;noiseWarnings&#x27;).value=Number.isInteger(Number(meta.noiseWarnings))?Math.max(0,Math.min(100,Number(meta.noiseWarnings))):2;$(&#x27;noiseSensitivity&#x27;).value=Number.isInteger(Number(meta.noiseSensitivity))?Math.max(1,Math.min(10,Number(meta.noiseSensitivity))):5;$(&#x27;noiseDuration&#x27;).value=Math.max(0.2,Math.min(60,Number(meta.noiseDuration)||1));toggleNoiseOptions();$(&#x27;smartRepeatGap&#x27;).value=Number.isInteger(Number(meta.smartRepeatGap))&amp;&amp;Number(meta.smartRepeatGap)&gt;=0?Math.min(300,Number(meta.smartRepeatGap)):5;$(&#x27;smartCorrectRequired&#x27;).value=Number.isInteger(Number(meta.smartCorrectRequired))&amp;&amp;Number(meta.smartCorrectRequired)&gt;=1?Math.min(20,Number(meta.smartCorrectRequired)):2;toggleSmartOptions();
  $(&#x27;subjectNotice&#x27;).textContent=key?(meta.accessLogin?&#x27;Tanlangan fan: &#x27;+(meta.subjectName||$(&#x27;subjectName&#x27;).value)+&#x27; · &#x27;+questions.length+&#x27; ta savol&#x27;:&#x27;Yangi fan: login-parolni belgilang va savollarni saqlang.&#x27;):&#x27;Fan nomini kiriting yoki tanlang.&#x27;;
  mixed=null;render();$(&#x27;deleteSubject&#x27;).disabled=!Object.prototype.hasOwnProperty.call(getSubjects(),key);
 }
@@ -19964,10 +19965,10 @@ function toggleSmartOptions(){const enabled=$(&#x27;smartTest&#x27;).checked;if(
 $(&#x27;smartTest&#x27;).addEventListener(&#x27;change&#x27;,toggleSmartOptions);
 function toggleProtectionOptions(){const on=$(&#x27;testProtection&#x27;).checked;const el=$(&#x27;testProtectionOptions&#x27;);el.hidden=!on;el.style.display=on?&#x27;flex&#x27;:&#x27;none&#x27;;$(&#x27;protectionWarnings&#x27;).disabled=!on;}
 $(&#x27;testProtection&#x27;).addEventListener(&#x27;change&#x27;,toggleProtectionOptions);
-function toggleNoiseOptions(){const on=$(&#x27;noiseMonitoring&#x27;).checked,el=$(&#x27;noiseMonitoringOptions&#x27;);el.hidden=!on;el.style.display=on?&#x27;flex&#x27;:&#x27;none&#x27;;$(&#x27;noiseWarnings&#x27;).disabled=!on;$(&#x27;noiseSensitivity&#x27;).disabled=!on;}
+function toggleNoiseOptions(){const on=$(&#x27;noiseMonitoring&#x27;).checked,el=$(&#x27;noiseMonitoringOptions&#x27;);el.hidden=!on;el.style.display=on?&#x27;flex&#x27;:&#x27;none&#x27;;$(&#x27;noiseWarnings&#x27;).disabled=!on;$(&#x27;noiseSensitivity&#x27;).disabled=!on;$(&#x27;noiseDuration&#x27;).disabled=!on;}
 $(&#x27;noiseMonitoring&#x27;).addEventListener(&#x27;change&#x27;,toggleNoiseOptions);
 $(&#x27;noiseHelpBtn&#x27;).addEventListener(&#x27;click&#x27;,()=>{$(&#x27;noiseHelpText&#x27;).hidden=!$(&#x27;noiseHelpText&#x27;).hidden});
-for(const id of [&#x27;accessLogin&#x27;,&#x27;accessPassword&#x27;,&#x27;timeLimit&#x27;,&#x27;questionLimit&#x27;,&#x27;shuffleQuestions&#x27;,&#x27;shuffleAnswers&#x27;,&#x27;smartTest&#x27;,&#x27;showTestAnswers&#x27;,&#x27;smartRepeatGap&#x27;,&#x27;smartCorrectRequired&#x27;,&#x27;testProtection&#x27;,&#x27;protectionWarnings&#x27;,&#x27;noiseMonitoring&#x27;,&#x27;noiseWarnings&#x27;,&#x27;noiseSensitivity&#x27;])$(id).addEventListener(&#x27;change&#x27;,()=&gt;{if(!currentSubject)switchSubject();saveCurrent()});
+for(const id of [&#x27;accessLogin&#x27;,&#x27;accessPassword&#x27;,&#x27;timeLimit&#x27;,&#x27;questionLimit&#x27;,&#x27;shuffleQuestions&#x27;,&#x27;shuffleAnswers&#x27;,&#x27;smartTest&#x27;,&#x27;showTestAnswers&#x27;,&#x27;smartRepeatGap&#x27;,&#x27;smartCorrectRequired&#x27;,&#x27;testProtection&#x27;,&#x27;protectionWarnings&#x27;,&#x27;noiseMonitoring&#x27;,&#x27;noiseWarnings&#x27;,&#x27;noiseSensitivity&#x27;,&#x27;noiseDuration&#x27;])$(id).addEventListener(&#x27;change&#x27;,()=&gt;{if(!currentSubject)switchSubject();saveCurrent()});
 switchSubject();
 // A subject can be fully removed only after explicit confirmation.
 function deleteSelectedSubject(){
@@ -19995,7 +19996,7 @@ function deleteSelectedSubject(){
  $(&#x27;exam&#x27;).classList.add(&#x27;hide&#x27;);$(&#x27;accessOverlay&#x27;).classList.remove(&#x27;open&#x27;);$(&#x27;source&#x27;).value=&#x27;&#x27;;
  $(&#x27;subjectNameOptions&#x27;).innerHTML=Object.values(subjects).map(v=&gt;&#x27;&lt;option value=&quot;&#x27;+escapeHTML(v.subjectName||&#x27;&#x27;)+&#x27;&quot;&gt;&lt;/option&gt;&#x27;).join(&#x27;&#x27;);
  $(&#x27;subjectName&#x27;).value=&#x27;&#x27;;$(&#x27;accessLogin&#x27;).value=&#x27;&#x27;;$(&#x27;accessPassword&#x27;).value=&#x27;&#x27;;
- $(&#x27;questionLimit&#x27;).value=&#x27;30&#x27;;$(&#x27;timeLimit&#x27;).value=&#x27;30&#x27;;$(&#x27;shuffleQuestions&#x27;).checked=true;$(&#x27;shuffleAnswers&#x27;).checked=true;$(&#x27;testProtection&#x27;).checked=false;$(&#x27;protectionWarnings&#x27;).value=&#x27;2&#x27;;toggleProtectionOptions();$(&#x27;noiseMonitoring&#x27;).checked=false;$(&#x27;noiseWarnings&#x27;).value=&#x27;2&#x27;;$(&#x27;noiseSensitivity&#x27;).value=&#x27;5&#x27;;toggleNoiseOptions();
+ $(&#x27;questionLimit&#x27;).value=&#x27;30&#x27;;$(&#x27;timeLimit&#x27;).value=&#x27;30&#x27;;$(&#x27;shuffleQuestions&#x27;).checked=true;$(&#x27;shuffleAnswers&#x27;).checked=true;$(&#x27;testProtection&#x27;).checked=false;$(&#x27;protectionWarnings&#x27;).value=&#x27;2&#x27;;toggleProtectionOptions();$(&#x27;noiseMonitoring&#x27;).checked=false;$(&#x27;noiseWarnings&#x27;).value=&#x27;2&#x27;;$(&#x27;noiseSensitivity&#x27;).value=&#x27;5&#x27;;$(&#x27;noiseDuration&#x27;).value=&#x27;1&#x27;;toggleNoiseOptions();
  $(&#x27;subjectNotice&#x27;).textContent=&#x27;Fan tanlang yoki yangi fan nomini kiriting.&#x27;;
  render();$(&#x27;deleteSubject&#x27;).disabled=true;notify(&#x27;«&#x27;+title+&#x27;» fani va unga tegishli barcha test ma’lumotlari o‘chirildi.&#x27;);
  parent.postMessage({type:&#x27;it-cloud-update&#x27;},&#x27;*&#x27;);parent.postMessage({type:&#x27;integrated-test-subject-deleted&#x27;},&#x27;*&#x27;);
@@ -20331,6 +20332,24 @@ render();
 <div id="itProtectionDialog" role="alertdialog" aria-modal="true" aria-labelledby="itPdTitle" aria-describedby="itPdDescription" hidden>
  <div class="it-pd-card"><div class="it-pd-icon" aria-hidden="true" id="itPdIcon">!</div><h2 id="itPdTitle">Ogohlantirish</h2><p class="it-pd-desc" id="itPdDescription"></p><div class="it-pd-counter" id="itPdCounter"></div><button class="it-pd-button" id="itPdConfirm" type="button">Testga qaytish</button></div>
 </div>
+<style id="itNoiseDialogStyle">
+#itNoiseDialog[hidden]{display:none!important}
+#itNoiseDialog{position:fixed;inset:0;z-index:2147483600;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(10,24,46,.72);backdrop-filter:blur(5px);font-family:"Segoe UI",Arial,sans-serif}
+#itNoiseDialog .it-pd-card{width:min(440px,100%);padding:30px 27px 25px;border-radius:18px;background:#fff;text-align:center;box-shadow:0 25px 85px rgba(0,0,0,.3);animation:itNoiseEnter .22s ease-out}
+#itNoiseDialog .it-pd-icon{width:76px;height:76px;margin:0 auto 17px;border-radius:50%;display:grid;place-items:center;background:#fff0d4;color:#a85b00;font-size:37px;font-weight:800}
+#itNoiseDialog.it-pd-ended .it-pd-icon{background:#fee8e7;color:#b42318}
+#itNoiseDialog h2{font-size:23px;color:#122f4a;margin:0 0 11px;font-weight:800}
+#itNoiseDialog .it-pd-desc{font-size:14px;line-height:1.65;color:#46566b;margin:0 0 16px}
+#itNoiseDialog .it-pd-counter{background:#fff7e9;color:#89500b;border:1px solid #ffe2a6;border-radius:10px;padding:11px 13px;margin:0 0 19px;font-size:13px;font-weight:700}
+#itNoiseDialog.it-pd-ended .it-pd-counter{background:#fff0f0;border-color:#fecaca;color:#9b2525}
+#itNoiseDialog .it-pd-button{display:block;width:100%;border:0;border-radius:10px;background:#156da3;color:#fff;font-weight:800;font-size:15px;padding:13px 18px;cursor:pointer}
+#itNoiseDialog.it-pd-ended .it-pd-button{background:#a72b2b}
+@keyframes itNoiseEnter{from{transform:translateY(13px) scale(.97);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+@media(max-width:480px){#itNoiseDialog .it-pd-card{padding:25px 20px}#itNoiseDialog h2{font-size:21px}}
+</style>
+<div id="itNoiseDialog" role="alertdialog" aria-modal="true" aria-labelledby="itNoiseTitle" aria-describedby="itNoiseDescription" hidden>
+ <div class="it-pd-card"><div class="it-pd-icon" aria-hidden="true" id="itNoiseIcon">!</div><h2 id="itNoiseTitle">Shovqin nazorati: ogohlantirish!</h2><p class="it-pd-desc" id="itNoiseDescription"></p><div class="it-pd-counter" id="itNoiseCounter"></div><button class="it-pd-button" id="itNoiseConfirm" type="button">Tushundim, testga qaytish</button></div>
+</div>
 <style id="itNoiseStyles">
 #itStudent .it-noise-status{display:flex;align-items:center;justify-content:space-between;gap:9px;margin:0 0 10px;padding:9px 12px;background:#f0f8fc;border:1px solid #c5deed;border-radius:8px;font:700 12px Arial,sans-serif;color:#235573}
 #itStudent .it-noise-status[hidden]{display:none!important}
@@ -20379,9 +20398,28 @@ body.it-protected-mode #itQuestionList{background-image:none!important;backgroun
   #itStudent #itTimer{font-size:15px;min-width:82px}
 }
 </style>
+<style id="itAnswerNavigatorStyle">
+/* Talaba uchun javob berilgan/berilmagan savollar navigatsiyasi. */
+#itStudent #itQuestionNavigator{flex:0 0 100%;width:100%;border-top:1px solid #e6edf3;padding-top:9px;margin-top:2px}
+#itStudent #itQuestionNavigator[hidden]{display:none!important}
+#itStudent .it-nav-summary{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:12px;font-weight:700;color:#415b70;margin-bottom:7px}
+#itStudent .it-nav-summary .answered{color:#087c52}
+#itStudent .it-nav-summary .missing{color:#b45309}
+#itStudent .it-nav-grid{display:flex;flex-wrap:wrap;gap:5px;max-height:92px;overflow-y:auto;overscroll-behavior:contain;padding:1px 2px 3px}
+#itStudent .it-nav-number{width:31px;height:29px;border-radius:6px;border:1px solid #e1ad66;background:#fff8ed;color:#9a5809;font-weight:800;font-size:11px;cursor:pointer;display:inline-grid;place-items:center;padding:0}
+#itStudent .it-nav-number.answered{border-color:#8fcbb0;background:#e8f8ef;color:#087c52}
+#itStudent .it-nav-number:hover,#itStudent .it-nav-number:focus-visible{outline:2px solid #69a8d1;outline-offset:1px}
+#itStudent #itQuestionList .it-question{scroll-margin-top:235px}
+@media(max-width:620px){
+ #itStudent .it-nav-summary{font-size:11px;gap:8px}
+ #itStudent .it-nav-grid{max-height:88px;gap:4px}
+ #itStudent .it-nav-number{width:30px;height:28px;font-size:10px}
+ #itStudent #itQuestionList .it-question{scroll-margin-top:250px}
+}
+</style>
 <section id="itStudent" hidden><div class="it-head"><h2 id="itStudentSubject">Test sinovi</h2><button id="itExit" type="button">Chiqish ×</button></div>
 <div class="it-content"><div class="it-card" id="itIdentity"><h3>Talaba ma’lumotlari</h3><p class="it-note">Testni boshlashdan avval ism-familiyangiz va guruhingizni kiriting.</p><form id="itIdentityForm"><div class="it-grid"><label>Ism va familiya<input id="itName" required minlength="3" autocomplete="name" placeholder="Ism Familiya"></label><label>Guruh<input id="itGroup" list="itGroupOptions" required placeholder="Guruhni tanlang yoki yozing" autocomplete="off"><datalist id="itGroupOptions"></datalist></label></div><p class="it-error" id="itIdentityError"></p><button class="it-action" type="submit">Testni boshlash</button></form></div>
-<div class="it-card" id="itExam" hidden><div class="it-testbar"><div><h3 id="itExamTitle">Test</h3><span id="itExamMeta" class="it-note"></span></div><span id="itTimer">30:00</span></div><div id="itNoiseStatus" class="it-noise-status" hidden role="status"></div><div id="itSmartProgress" hidden></div><div id="itAnswerSummary" hidden aria-live="polite"></div><div id="itProtectionNotice" hidden role="status" style="background:#fff7ed;border:1px solid #fed7aa;color:#92400e;border-radius:8px;padding:10px 13px;margin:10px 0;font-weight:700;font-size:12px"></div><div id="itQuestionList"></div><div id="itSmartFeedback" class="it-smart-only" hidden aria-live="polite"></div><button type="button" id="itSmartNext" class="it-action it-smart-only" hidden>Javobni tekshirish</button><button class="it-action" id="itFinish" type="button">Testni yakunlash</button><div id="itResult" aria-live="polite"></div></div></div></section><script id="integratedSimpleTestCode">
+<div class="it-card" id="itExam" hidden><div class="it-testbar"><div><h3 id="itExamTitle">Test</h3><span id="itExamMeta" class="it-note"></span></div><span id="itTimer">30:00</span><div id="itQuestionNavigator" hidden aria-label="Savollar bo‘yicha javoblar holati"><div id="itNavSummary" class="it-nav-summary" aria-live="polite"></div><div id="itNavGrid" class="it-nav-grid"></div></div></div><div id="itNoiseStatus" class="it-noise-status" hidden role="status"></div><div id="itSmartProgress" hidden></div><div id="itAnswerSummary" hidden aria-live="polite"></div><div id="itProtectionNotice" hidden role="status" style="background:#fff7ed;border:1px solid #fed7aa;color:#92400e;border-radius:8px;padding:10px 13px;margin:10px 0;font-weight:700;font-size:12px"></div><div id="itQuestionList"></div><div id="itSmartFeedback" class="it-smart-only" hidden aria-live="polite"></div><button type="button" id="itSmartNext" class="it-action it-smart-only" hidden>Javobni tekshirish</button><button class="it-action" id="itFinish" type="button">Testni yakunlash</button><div id="itResult" aria-live="polite"></div></div></div></section><script id="integratedSimpleTestCode">
 (function(){
  'use strict';
  const q=id=>document.getElementById(id);
@@ -20390,10 +20428,11 @@ body.it-protected-mode #itQuestionList{background-image:none!important;backgroun
  let activeStudent=null, activeQs=[],endAt=0,ticker=null,finished=false,activeSubject='';
  let smartState=null,showAnswerFeedback=false;
  let protection={enabled:false,warnings:2,violations:0};
- let noise={enabled:false,warnings:2,sensitivity:5,violations:0};
+ let noise={enabled:false,warnings:2,sensitivity:5,duration:1,violations:0};
+ let pendingNoiseDialog=null;
  let noiseStream=null,noiseContext=null,noiseAnalyser=null,noiseTimer=null,noiseHighSince=0,noiseLastAlert=0,noiseRequestId=0;
  function setupNoise(meta,saved){
-  noise={enabled:meta.noiseMonitoring===true,warnings:Number.isInteger(Number(meta.noiseWarnings))?Math.max(0,Math.min(100,Number(meta.noiseWarnings))):2,sensitivity:Number.isInteger(Number(meta.noiseSensitivity))?Math.max(1,Math.min(10,Number(meta.noiseSensitivity))):5,violations:Math.max(0,Number(saved?.violations)||0)};
+  noise={enabled:meta.noiseMonitoring===true,warnings:Number.isInteger(Number(meta.noiseWarnings))?Math.max(0,Math.min(100,Number(meta.noiseWarnings))):2,sensitivity:Number.isInteger(Number(meta.noiseSensitivity))?Math.max(1,Math.min(10,Number(meta.noiseSensitivity))):5,duration:Math.max(0.2,Math.min(60,Number(meta.noiseDuration??saved?.duration)||1)),violations:Math.max(0,Number(saved?.violations)||0)};
   updateNoiseStatus(noise.enabled?'Mikrofon ruxsati kutilmoqda.':'');
  }
  function noiseActive(){return !!(noise.enabled&&!finished&&activeStudent&&activeQs.length&&!q('itStudent').hidden&&!q('itExam').hidden)}
@@ -20410,13 +20449,13 @@ body.it-protected-mode #itQuestionList{background-image:none!important;backgroun
   if(noiseContext){try{noiseContext.close()}catch(e){}noiseContext=null}
   noiseAnalyser=null;noiseHighSince=0;
  }
- async function startNoiseMonitor(){
-  stopNoiseMonitor();if(!noiseActive())return;
+ async function startNoiseMonitor(preapprovedStream=null){
+  stopNoiseMonitor();if(!noiseActive()){if(preapprovedStream)preapprovedStream.getTracks().forEach(t=>t.stop());return;}
   const request=noiseRequestId;
   if(!navigator.mediaDevices?.getUserMedia){updateNoiseStatus('Bu qurilmada mikrofon nazorati mavjud emas (HTTPS kerak bo‘lishi mumkin).',true,true);return}
   updateNoiseStatus('Mikrofon ruxsatini tasdiqlang.',false);
   try{
-   const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:false,autoGainControl:false},video:false});
+   const stream=preapprovedStream||await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:false,autoGainControl:false},video:false});
    if(request!==noiseRequestId||!noiseActive()){stream.getTracks().forEach(t=>t.stop());return}
    const Context=window.AudioContext||window.webkitAudioContext;
    if(!Context){stream.getTracks().forEach(t=>t.stop());updateNoiseStatus('Ovoz tahlili bu brauzerda ishlamaydi.',true,true);return}
@@ -20433,26 +20472,45 @@ body.it-protected-mode #itQuestionList{background-image:none!important;backgroun
     analyser.getByteTimeDomainData(buf);
     let sum=0;for(let i=0;i<buf.length;i++){const v=(buf[i]-128)/128;sum+=v*v}
     const rms=Math.sqrt(sum/buf.length);
-    // 1 — faqat juda baland; 10 — yuqori sezgirlik. 1.8 s davomli tovush.
+    // Sezgirlik darajasi va o‘qituvchi belgilagan davomiylik asosida tekshiriladi.
     const threshold=0.13-(noise.sensitivity-1)*0.012;
+    if(pendingNoiseDialog){sustained=0;return}
     if(rms>threshold){sustained+=200}else{sustained=0}
-    if(sustained>=1800&&Date.now()-noiseLastAlert>12000){sustained=0;noiseLastAlert=Date.now();handleNoiseWarning()}
+    if(sustained>=noise.duration*1000&&Date.now()-noiseLastAlert>3000){sustained=0;noiseLastAlert=Date.now();handleNoiseWarning()}
    },200);
   }catch(e){if(request!==noiseRequestId)return;updateNoiseStatus('Mikrofon ruxsati berilmadi yoki qurilma band. Ruxsat berib qayta yoqing.',true,true)}
  }
+ function renderNoiseDialog(ended){
+  pendingNoiseDialog={ended,violations:noise.violations,warnings:noise.warnings};
+  const el=q('itNoiseDialog');if(!el)return;
+  el.classList.toggle('it-pd-ended',ended);
+  q('itNoiseIcon').textContent=ended?'×':'!';
+  q('itNoiseTitle').textContent=ended?'Test avtomatik yakunlandi':'Shovqin nazorati: ogohlantirish!';
+  q('itNoiseDescription').textContent=ended
+   ? 'Belgilangan davomiylikdagi shovqin takroran aniqlandi. Ogohlantirishlar chegarasi oshgani uchun test yakunlandi.'
+   : 'Test davomida belgilangan darajadan yuqori shovqin aniqlandi. Iltimos, tinch muhitda testni davom ettiring.';
+  q('itNoiseCounter').textContent=ended
+   ? 'Shovqin holatlari: '+noise.violations+' ta · Test yakunlandi'
+   : 'Ogohlantirish: '+noise.violations+' / '+noise.warnings+' · Qolgan: '+Math.max(0,noise.warnings-noise.violations)+' ta';
+  q('itNoiseConfirm').textContent=ended?'Natijani ko‘rish':'Tushundim, testga qaytish';
+  el.hidden=false;
+  q('itNoiseConfirm').focus();
+ }
+ q('itNoiseConfirm').addEventListener('click',()=>{
+  q('itNoiseDialog').hidden=true;pendingNoiseDialog=null;
+ });
  function handleNoiseWarning(){
-  if(!noiseActive())return;
+  if(!noiseActive()||pendingNoiseDialog)return;
   noise.violations++;
   const exceeded=noise.violations>noise.warnings;
   if(exceeded){
    updateNoiseStatus('Shovqin chegarasi oshdi. Test yakunlandi.',true);
    if(smartState)finishSmart(false,true);else finish(false,false,true);
-   alert('Shovqin bo‘yicha belgilangan ogohlantirishlar chegarasi oshdi. Test yakunlandi.');
   }else{
    updateNoiseStatus('Ogohlantirish! Test davomida baland shovqin aniqlandi.',true);
    persistExam();
-   alert('Shovqin aniqlandi! Ogohlantirish '+noise.violations+'/'+noise.warnings+'. Iltimos, tinch muhitda testni davom ettiring.');
   }
+  renderNoiseDialog(exceeded);
  }
  function protectionActive(){return !!(protection.enabled&&activeStudent&&activeQs.length&&!finished&&q('itStudent')&&!q('itStudent').hidden&&q('itExam')&&!q('itExam').hidden)}
  function protectionLabel(){return 'Test himoyasi: oynadan chiqish '+protection.violations+' marta. Ruxsat etilgan ogohlantirish: '+protection.warnings+' ta.'}
@@ -20648,10 +20706,37 @@ function formatMathText(value){
    if(input)input.checked=true;
   });
   q('loginModal')?.classList.remove('open');document.body.classList.remove('login-required');document.body.style.overflow='hidden';
-  if(!smartState)updateRegularAnswerFeedback();else updateAnswerSummary();
+  if(!smartState){updateRegularAnswerFeedback();updateQuestionNavigator();}else updateAnswerSummary();
   if(smartState){q('itTimer').textContent='Cheklanmagan vaqt';}else{updateClock();if(!finished)ticker=setInterval(updateClock,1000);}
   if(!finished&&noise.enabled)startNoiseMonitor();
   return true;
+ }
+ function updateQuestionNavigator(){
+  const nav=q('itQuestionNavigator'),summary=q('itNavSummary'),grid=q('itNavGrid');
+  if(!nav||!summary||!grid)return;
+  if(smartState||!activeQs.length||finished){nav.hidden=true;return;}
+  nav.hidden=false;
+  let answered=0;
+  activeQs.forEach((_,i)=>{
+   const chosen=!!q('itQuestionList').querySelector('input[name="itAnswer'+i+'"]:checked');
+   if(chosen)answered++;
+   const b=grid.children[i];
+   if(b){b.classList.toggle('answered',chosen);b.setAttribute('aria-label',(i+1)+'-savol: '+(chosen?'javob berilgan':'javob berilmagan'));b.title=(i+1)+'-savol — '+(chosen?'Javob berilgan':'Javob berilmagan');}
+  });
+  const missing=activeQs.length-answered;
+  summary.innerHTML='<span class="answered">✓ Javob berilgan: '+answered+'</span><span class="missing">○ Belgilanmagan: '+missing+'</span><span>Savolga o‘tish uchun raqamini bosing</span>';
+ }
+ function buildQuestionNavigator(){
+  const grid=q('itNavGrid');if(!grid)return;
+  grid.replaceChildren();
+  activeQs.forEach((_,i)=>{
+   const btn=document.createElement('button');btn.type='button';btn.className='it-nav-number';btn.textContent=String(i+1);
+   btn.addEventListener('click',()=>{
+    const target=q('itQuestionList').children[i];if(target)target.scrollIntoView({behavior:'smooth',block:'start'});
+   });
+   grid.append(btn);
+  });
+  updateQuestionNavigator();
  }
  function updateAnswerSummary(){
   const el=q('itAnswerSummary');
@@ -20682,16 +20767,17 @@ function formatMathText(value){
  function renderStudentQuestions(){
   q('itSmartNext').hidden=true;q('itSmartFeedback').hidden=true;q('itSmartProgress').hidden=true;q('itSmartProgress').style.display='none';
   q('itQuestionList').innerHTML=activeQs.map((x,i)=>'<div class="it-question"><b>'+(i+1)+'. '+formatMathText(x.q)+'</b>'+x.options.map((opt,j)=>'<label class="it-choice"><input type="radio" name="itAnswer'+i+'" value="'+j+'"> '+formatMathText(opt.text)+'</label>').join('')+'<div class="it-answer-feedback" data-answer-status="'+i+'" hidden></div></div>').join('');
+  buildQuestionNavigator();
   updateRegularAnswerFeedback();
  }
  function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
  function stop(){if(ticker!==null){clearInterval(ticker);ticker=null}}
  function openEditor(){stopNoiseMonitor();q('itEditor').hidden=false;q('itStudent').hidden=true;document.body.style.overflow='hidden'}
  function closeEditor(){q('itEditor').hidden=true;document.body.style.overflow=''}
- function openStudent(){stopNoiseMonitor();noise.enabled=false;pendingProtectionDialog=null;q('itProtectionDialog').hidden=true;stop();protection={enabled:false,warnings:2,violations:0};updateProtectionUI();finished=false;smartState=null;activeQs=[];q('itEditor').hidden=true;q('itStudent').hidden=false;q('itIdentity').hidden=false;q('itExam').hidden=true;q('itName').value='';q('itGroup').value='';q('itIdentityError').textContent='';q('itStudentSubject').textContent=settings().subjectName||'Test';q('loginModal')?.classList.remove('open');document.body.classList.remove('login-required');document.body.style.overflow='hidden';q('itName').focus()}
- function exitStudent(){if(!finished&&activeQs.length&&!confirm('Testni yakunlamasdan chiqmoqchimisiz?'))return;clearExamSession();stop();stopNoiseMonitor();noise.enabled=false;smartState=null;activeQs=[];protection.enabled=false;updateProtectionUI();q('itStudent').hidden=true;document.body.style.overflow='';document.body.classList.add('login-required');q('loginModal')?.classList.add('open');q('loginPassword').value=''}
+ function openStudent(){stopNoiseMonitor();pendingNoiseDialog=null;q('itNoiseDialog').hidden=true;noise.enabled=false;pendingProtectionDialog=null;q('itProtectionDialog').hidden=true;stop();protection={enabled:false,warnings:2,violations:0};updateProtectionUI();finished=false;smartState=null;activeQs=[];q('itEditor').hidden=true;q('itStudent').hidden=false;q('itIdentity').hidden=false;q('itExam').hidden=true;q('itName').value='';q('itGroup').value='';q('itIdentityError').textContent='';q('itStudentSubject').textContent=settings().subjectName||'Test';q('loginModal')?.classList.remove('open');document.body.classList.remove('login-required');document.body.style.overflow='hidden';q('itName').focus()}
+ function exitStudent(){q('itNoiseDialog').hidden=true;pendingNoiseDialog=null;if(!finished&&activeQs.length&&!confirm('Testni yakunlamasdan chiqmoqchimisiz?'))return;clearExamSession();stop();stopNoiseMonitor();noise.enabled=false;smartState=null;activeQs=[];protection.enabled=false;updateProtectionUI();q('itStudent').hidden=true;document.body.style.overflow='';document.body.classList.add('login-required');q('loginModal')?.classList.add('open');q('loginPassword').value=''}
  function updateClock(){if(finished)return;const sec=Math.max(0,Math.ceil((endAt-Date.now())/1000));q('itTimer').textContent=String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');if(sec<=0)finish(true)}
- function finish(expired,protectionEnded=false,noiseEnded=false){if(finished)return;if(smartState){finishSmart();return;}persistExam();finished=true;stop();stopNoiseMonitor();clearExamSession();let right=0;activeQs.forEach((item,i)=>{const selected=q('itQuestionList').querySelector('input[name="itAnswer'+i+'"]:checked');if(selected&&item.options[Number(selected.value)]?.correct)right++});const total=activeQs.length,pct=Math.round(right/total*100);
+ function finish(expired,protectionEnded=false,noiseEnded=false){if(finished)return;if(smartState){finishSmart();return;}persistExam();finished=true;stop();stopNoiseMonitor();clearExamSession();updateQuestionNavigator();let right=0;activeQs.forEach((item,i)=>{const selected=q('itQuestionList').querySelector('input[name="itAnswer'+i+'"]:checked');if(selected&&item.options[Number(selected.value)]?.correct)right++});const total=activeQs.length,pct=Math.round(right/total*100);
   q('itResult').innerHTML='<div class="it-score">'+right+' / '+total+' — '+pct+'%</div><p class="it-note">'+(noiseEnded?'Shovqin ogohlantirishlari chegarasi oshgani uchun test avtomatik yakunlandi.':protectionEnded?'Test himoyasi: oynadan chiqish chegarasi oshgani uchun test avtomatik yakunlandi.':expired?'Vaqt tugadi, test avtomatik yakunlandi.':'Test yakunlandi.')+'</p>';
   q('itQuestionList').querySelectorAll('input').forEach(el=>el.disabled=true);q('itFinish').disabled=true;
   updateRegularAnswerFeedback();
@@ -20759,7 +20845,7 @@ function formatMathText(value){
  }
  function finishSmart(protectionEnded=false,noiseEnded=false){
   if(finished)return;const st=smartStats();
-  finished=true;stop();stopNoiseMonitor();clearExamSession();smartState.done=true;
+  finished=true;stop();stopNoiseMonitor();clearExamSession();updateQuestionNavigator();smartState.done=true;
   q('itQuestionList').innerHTML='';q('itSmartNext').hidden=true;q('itSmartProgress').hidden=true;q('itSmartProgress').style.display='none';
   const pct=Math.round(st.initialRight/st.total*100),mastery=Math.round(st.mastered/st.total*100);
   q('itResult').innerHTML='<div class="it-score">Dastlabki natija: '+st.initialRight+' / '+st.total+' — '+pct+'%</div><p class="it-note">Mashqdan keyingi o‘zlashtirish: <b>'+st.mastered+' / '+st.total+' — '+mastery+'%</b><br>Xato javoblar soni: '+st.errors+' · Jami berilgan savollar: '+smartState.shown+'</p>';
@@ -20778,10 +20864,39 @@ function formatMathText(value){
 
   try{let records=JSON.parse(localStorage.getItem('integratedStudentTestResults_v1')||'[]');if(!Array.isArray(records))records=[];records.push({subject:settings().subjectName||'',name:activeStudent.name,group:activeStudent.group,correct:st.initialRight,total:st.total,percent:pct,smartTest:true,mastered:st.mastered,masteryPercent:mastery,wrongAnswers:st.errors,attempts:smartState.shown,protectionViolations:protection.violations,protectionLimit:protection.enabled?protection.warnings:null,protectionEnded:!!protectionEnded,noiseViolations:noise.violations,noiseLimit:noise.enabled?noise.warnings:null,noiseEnded:!!noiseEnded,repeatGap:smartState.repeatGap,correctRequired:smartState.correctRequired,wrongQuestions:Object.entries(smartState.wrong).map(([id,count])=>({question:activeQs[Number(id)].q,wrongCount:count})),finishedAt:new Date().toISOString()});localStorage.setItem('integratedStudentTestResults_v1',JSON.stringify(records));window.dispatchEvent(new Event('it-cloud-student-result'))}catch(e){console.warn('Aqlli test natijasi:',e)}
  }
- function begin(){const bank=questionBank();if(!bank.length){q('itIdentityError').textContent='Hozircha test savollari mavjud emas.';return}
+ let testBeginPending=false;
+ async function begin(){
+  if(testBeginPending)return;
+  const bank=questionBank();if(!bank.length){q('itIdentityError').textContent='Hozircha test savollari mavjud emas.';return}
   const meta=settings();
-  showAnswerFeedback=meta.showTestAnswers===true;
-  setupProtection(meta);setupNoise(meta);
+  // Shovqin nazorati yoqilganida test faqat mikrofon ruxsatidan keyin boshlanadi.
+  // Brauzer ruxsatni avval saqlagan bo‘lsa, qo‘shimcha dialog chiqmasligi mumkin.
+  let approvedStream=null;
+  const submitButton=q('itIdentityForm')?.querySelector('button[type="submit"]');
+  testBeginPending=true;
+  if(submitButton)submitButton.disabled=true;
+  try{
+   q('itIdentityError').textContent='';
+   if(meta.noiseMonitoring===true){
+    if(!window.isSecureContext||!navigator.mediaDevices?.getUserMedia){
+     q('itIdentityError').textContent='Mikrofon uchun xavfsiz HTTPS sayt kerak. GitHub Pages orqali oching.';
+     return;
+    }
+    if(!(window.AudioContext||window.webkitAudioContext)){
+     q('itIdentityError').textContent='Bu brauzer mikrofon orqali shovqin nazoratini qo‘llab-quvvatlamaydi.';
+     return;
+    }
+    q('itIdentityError').textContent='Test boshlanishi uchun mikrofonga ruxsat bering.';
+    try{
+     approvedStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:false,autoGainControl:false},video:false});
+    }catch(err){
+     q('itIdentityError').textContent='Mikrofonga ruxsat berilmadi. Brauzer sozlamalaridan mikrofonga ruxsat bering va testni qayta boshlang.';
+     return;
+    }
+   }
+   q('itIdentityError').textContent='';
+   showAnswerFeedback=meta.showTestAnswers===true;
+   setupProtection(meta);setupNoise(meta);
   let config={questions:meta.shuffleQuestions!==false,answers:meta.shuffleAnswers!==false};
   
   let desired=Number(meta.questionLimit||30);if(!Number.isInteger(desired)||desired<1)desired=30;
@@ -20792,7 +20907,13 @@ function formatMathText(value){
   q('itIdentity').hidden=true;q('itExam').hidden=false;q('itExamTitle').textContent=meta.subjectName||'Test';q('itExamMeta').textContent=activeStudent.name+' · '+activeStudent.group+' · '+activeQs.length+' ta savol';q('itResult').innerHTML='';q('itFinish').disabled=false;
   if(smartState){q('itFinish').hidden=true;endAt=0;finished=false;renderSmartQuestion();persistExam();q('itTimer').textContent='Cheklanmagan vaqt';updateAnswerSummary();}
   else{q('itFinish').hidden=false;renderStudentQuestions();finished=false;endAt=Date.now()+duration*60000;persistExam();updateClock();ticker=setInterval(updateClock,1000);}
-  if(noise.enabled)startNoiseMonitor();
+  if(noise.enabled)startNoiseMonitor(approvedStream);
+  approvedStream=null;
+  }finally{
+   if(approvedStream)approvedStream.getTracks().forEach(t=>t.stop());
+   testBeginPending=false;
+   if(submitButton)submitButton.disabled=false;
+  }
  }
  function attach(){if(!q('doLoginBtn'))return;
   const gate=(e)=>{const usr=String(q('loginUser')?.value||'').trim().toLowerCase(),pw=String(q('loginPassword')?.value||'');const found=Object.entries(registry()).find(([key,meta])=>meta.accessLogin&&String(meta.accessLogin).trim().toLowerCase()===usr);if(!found)return false;const [subjectKey,s]=found;
@@ -20806,7 +20927,7 @@ function formatMathText(value){
   q('itIdentityForm').addEventListener('submit',e=>{e.preventDefault();const name=q('itName').value.trim(),group=q('itGroup').value.trim();if(name.length<3||!group){q('itIdentityError').textContent='Ism-familiya va guruhni to‘liq kiriting.';return}activeStudent={name,group};begin()});
   q('itFinish').onclick=()=>finish(false);
   q('itSmartNext').onclick=smartAdvance;
-  q('itQuestionList').addEventListener('change',e=>{if(e.target.matches('input[type=radio]')){if(!smartState)updateRegularAnswerFeedback();persistExam()}});
+  q('itQuestionList').addEventListener('change',e=>{if(e.target.matches('input[type=radio]')){if(!smartState){updateRegularAnswerFeedback();updateQuestionNavigator();}persistExam()}});
   window.addEventListener('pagehide',persistExam);
   function installMenu(){
    const menu=q('hemisGroupManage')||document.querySelector('.hemis-sidebar .hemis-menu-group');
