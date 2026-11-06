@@ -20444,10 +20444,28 @@ body.it-protected-mode #itQuestionList{background-image:none!important;backgroun
  #itStudent .it-nav-number{width:30px;height:28px;font-size:10px}
  #itStudent #itQuestionList .it-question{scroll-margin-top:85px}
 }
+
+/* Yakunlashdan oldin javoblarni tekshirish paneli */
+#itStudent #itQuestionNavigator{margin:18px 0 14px!important;border-color:#cbdfe9!important;background:#f6fafc!important}
+#itStudent #itQuestionNavigator + #itFinish{display:block;margin-top:12px!important}
+
+/* Test boshlanishidan oldingi qoidalar va rozilik */
+#itStudent .it-rules{margin:17px 0 12px;border:1px solid #d7e4ee;border-radius:12px;background:#f7fafc;padding:15px 16px;color:#233e56}
+#itStudent .it-rules-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:850;color:#173c5b;margin-bottom:5px}
+#itStudent .it-rules-description{font-size:11px;color:#687f91;margin:0 0 11px}
+#itStudent .it-rule-row{display:flex;align-items:flex-start;gap:9px;padding:9px 0;font-size:12px;line-height:1.4}
+#itStudent .it-rule-row+.it-rule-row{border-top:1px solid #e1eaf0}
+#itStudent .it-rule-icon{flex:0 0 28px;width:28px;height:28px;display:grid;place-items:center;border-radius:8px;background:#fff0ed;color:#a93228;font-size:14px}
+#itStudent .it-rule-row strong{display:block;color:#223c53;font-size:12px}
+#itStudent .it-rule-row small{display:block;color:#708497;font-size:10.5px;margin-top:2px}
+#itStudent .it-rule-agree{display:flex;align-items:center;gap:9px;padding:11px 12px;margin:10px 0 12px;border-radius:9px;border:1px solid #c8deeb;background:#eff7fc;font-size:12px;font-weight:800;color:#193f5d;cursor:pointer}
+#itStudent .it-rule-agree input{width:17px;height:17px;flex:0 0 17px;accent-color:#237aa9;margin:0}
+#itStudent #itConsentStart:disabled{opacity:.5;cursor:not-allowed;filter:grayscale(.4)}
+@media(max-width:600px){#itStudent .it-rules{padding:12px;margin:13px 0 10px}#itStudent .it-rule-row{font-size:11.5px}}
 </style>
 <section id="itStudent" hidden><div class="it-head"><h2 id="itStudentSubject">Test sinovi</h2><button id="itExit" type="button">Chiqish ×</button></div>
-<div class="it-content"><div class="it-card" id="itIdentity"><h3>Talaba ma’lumotlari</h3><p class="it-note">Testni boshlashdan avval ism-familiyangiz va guruhingizni kiriting.</p><form id="itIdentityForm"><div class="it-grid"><label>Ism va familiya<input id="itName" required minlength="3" autocomplete="name" placeholder="Ism Familiya"></label><label>Guruh<input id="itGroup" list="itGroupOptions" required placeholder="Guruhni tanlang yoki yozing" autocomplete="off"><datalist id="itGroupOptions"></datalist></label></div><p class="it-error" id="itIdentityError"></p><button class="it-action" type="submit">Testni boshlash</button></form></div>
-<div class="it-card" id="itExam" hidden><div class="it-testbar"><div><h3 id="itExamTitle">Test</h3><span id="itExamMeta" class="it-note"></span></div><span id="itTimer">30:00</span></div><div id="itQuestionNavigator" hidden aria-label="Savollar bo‘yicha javoblar holati"><div id="itNavSummary" class="it-nav-summary" aria-live="polite"></div><div id="itNavGrid" class="it-nav-grid"></div></div><div id="itNoiseStatus" class="it-noise-status" hidden role="status"></div><div id="itSmartProgress" hidden></div><div id="itAnswerSummary" hidden aria-live="polite"></div><div id="itProtectionNotice" hidden role="status" style="background:#fff7ed;border:1px solid #fed7aa;color:#92400e;border-radius:8px;padding:10px 13px;margin:10px 0;font-weight:700;font-size:12px"></div><div id="itQuestionList"></div><div id="itSmartFeedback" class="it-smart-only" hidden aria-live="polite"></div><button type="button" id="itSmartNext" class="it-action it-smart-only" hidden>Javobni tekshirish</button><button class="it-action" id="itFinish" type="button">Testni yakunlash</button><div id="itResult" aria-live="polite"></div></div></div></section><script id="integratedSimpleTestCode">
+<div class="it-content"><div class="it-card" id="itIdentity"><h3>Talaba ma’lumotlari</h3><p class="it-note">Testni boshlashdan avval ism-familiyangiz va guruhingizni kiriting.</p><form id="itIdentityForm"><div class="it-grid"><label>Ism va familiya<input id="itName" required minlength="3" autocomplete="name" placeholder="Ism Familiya"></label><label>Guruh<input id="itGroup" list="itGroupOptions" required placeholder="Guruhni tanlang yoki yozing" autocomplete="off"><datalist id="itGroupOptions"></datalist></label></div><div class="it-rules" aria-labelledby="itRulesTitle"><div class="it-rules-title" id="itRulesTitle">🛡️ TEST QOIDALARI</div><p class="it-rules-description">Testni boshlashdan oldin qoidalar bilan tanishing.</p><div class="it-rule-row"><span class="it-rule-icon">🎙</span><div><strong>Gaplashish taqiqlanadi.</strong><small>Shovqin aniqlansa, ogohlantirish beriladi.</small></div></div><div class="it-rule-row"><span class="it-rule-icon">↗</span><div><strong>Test oynasidan chiqish taqiqlanadi.</strong><small>Boshqa sahifa yoki ilovaga o‘tish ogohlantiriladi.</small></div></div><div class="it-rule-row"><span class="it-rule-icon">⚠</span><div><strong>Ogohlantirishlar chegarasi oshsa, test yakunlanadi.</strong></div></div></div><label class="it-rule-agree"><input id="itRulesConsent" type="checkbox" required><span>Qoidalar bilan tanishdim va roziman.</span></label><p class="it-error" id="itIdentityError"></p><button class="it-action" id="itConsentStart" type="submit" disabled>Roziman, testni boshlash</button></form></div>
+<div class="it-card" id="itExam" hidden><div class="it-testbar"><div><h3 id="itExamTitle">Test</h3><span id="itExamMeta" class="it-note"></span></div><span id="itTimer">30:00</span></div><div id="itNoiseStatus" class="it-noise-status" hidden role="status"></div><div id="itSmartProgress" hidden></div><div id="itAnswerSummary" hidden aria-live="polite"></div><div id="itProtectionNotice" hidden role="status" style="background:#fff7ed;border:1px solid #fed7aa;color:#92400e;border-radius:8px;padding:10px 13px;margin:10px 0;font-weight:700;font-size:12px"></div><div id="itQuestionList"></div><div id="itSmartFeedback" class="it-smart-only" hidden aria-live="polite"></div><button type="button" id="itSmartNext" class="it-action it-smart-only" hidden>Javobni tekshirish</button><div id="itQuestionNavigator" hidden aria-label="Savollar bo‘yicha javoblar holati"><div id="itNavSummary" class="it-nav-summary" aria-live="polite"></div><div id="itNavGrid" class="it-nav-grid"></div></div><button class="it-action" id="itFinish" type="button">Testni yakunlash</button><div id="itResult" aria-live="polite"></div></div></div></section><script id="integratedSimpleTestCode">
 (function(){
  'use strict';
  const q=id=>document.getElementById(id);
@@ -20749,10 +20767,10 @@ function formatMathText(value){
    const chosen=!!q('itQuestionList').querySelector('input[name="itAnswer'+i+'"]:checked');
    if(chosen)answered++;
    const b=grid.children[i];
-   if(b){b.classList.toggle('answered',chosen);b.setAttribute('aria-label',(i+1)+'-savol: '+(chosen?'javob berilgan':'javob berilmagan'));b.title=(i+1)+'-savol — '+(chosen?'Javob berilgan':'Javob berilmagan');}
+   if(b){b.classList.toggle('answered',chosen);b.setAttribute('aria-label',(i+1)+'-savol: '+(chosen?'belgilangan':'belgilanmagan'));b.title=(i+1)+'-savol — '+(chosen?'Belgilangan':'Belgilanmagan');}
   });
   const missing=activeQs.length-answered;
-  summary.innerHTML='<span class="answered">✓ Javob berilgan: '+answered+'</span><span class="missing">○ Belgilanmagan: '+missing+'</span><span>Raqamni bosing — savolga o‘tasiz</span>';
+  summary.innerHTML='<span class="answered">✓ Belgilangan: '+answered+'</span><span class="missing">○ Belgilanmagan: '+missing+'</span><span>Raqamni bosing — savolga o‘tasiz</span>';
  }
  function buildQuestionNavigator(){
   const grid=q('itNavGrid');if(!grid)return;
@@ -20802,7 +20820,7 @@ function formatMathText(value){
  function stop(){if(ticker!==null){clearInterval(ticker);ticker=null}}
  function openEditor(){stopNoiseMonitor();q('itEditor').hidden=false;q('itStudent').hidden=true;document.body.style.overflow='hidden'}
  function closeEditor(){q('itEditor').hidden=true;document.body.style.overflow=''}
- function openStudent(){stopNoiseMonitor();pendingNoiseDialog=null;q('itNoiseDialog').hidden=true;noise.enabled=false;pendingProtectionDialog=null;q('itProtectionDialog').hidden=true;stop();protection={enabled:false,warnings:2,violations:0};updateProtectionUI();finished=false;smartState=null;activeQs=[];q('itEditor').hidden=true;q('itStudent').hidden=false;q('itIdentity').hidden=false;q('itExam').hidden=true;q('itName').value='';q('itGroup').value='';q('itIdentityError').textContent='';q('itStudentSubject').textContent=settings().subjectName||'Test';q('loginModal')?.classList.remove('open');document.body.classList.remove('login-required');document.body.style.overflow='hidden';q('itName').focus()}
+ function openStudent(){stopNoiseMonitor();pendingNoiseDialog=null;q('itNoiseDialog').hidden=true;noise.enabled=false;pendingProtectionDialog=null;q('itProtectionDialog').hidden=true;stop();protection={enabled:false,warnings:2,violations:0};updateProtectionUI();finished=false;smartState=null;activeQs=[];q('itEditor').hidden=true;q('itStudent').hidden=false;q('itIdentity').hidden=false;q('itExam').hidden=true;q('itName').value='';q('itGroup').value='';q('itIdentityError').textContent='';q('itRulesConsent').checked=false;q('itConsentStart').disabled=true;q('itStudentSubject').textContent=settings().subjectName||'Test';q('loginModal')?.classList.remove('open');document.body.classList.remove('login-required');document.body.style.overflow='hidden';q('itName').focus()}
  function exitStudent(){q('itNoiseDialog').hidden=true;pendingNoiseDialog=null;if(!finished&&activeQs.length&&!confirm('Testni yakunlamasdan chiqmoqchimisiz?'))return;clearExamSession();stop();stopNoiseMonitor();noise.enabled=false;smartState=null;activeQs=[];protection.enabled=false;updateProtectionUI();q('itStudent').hidden=true;document.body.style.overflow='';document.body.classList.add('login-required');q('loginModal')?.classList.add('open');q('loginPassword').value=''}
  function updateClock(){if(finished)return;const sec=Math.max(0,Math.ceil((endAt-Date.now())/1000));q('itTimer').textContent=String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');if(sec<=0)finish(true)}
  function finish(expired,protectionEnded=false,noiseEnded=false){if(finished)return;if(smartState){finishSmart();return;}persistExam();finished=true;stop();stopNoiseMonitor();clearExamSession();updateQuestionNavigator();let right=0;activeQs.forEach((item,i)=>{const selected=q('itQuestionList').querySelector('input[name="itAnswer'+i+'"]:checked');if(selected&&item.options[Number(selected.value)]?.correct)right++});const total=activeQs.length,pct=Math.round(right/total*100);
@@ -20952,7 +20970,8 @@ function formatMathText(value){
   q('doLoginBtn').addEventListener('click',gate,true);
   [q('loginUser'),q('loginPassword')].forEach(el=>el?.addEventListener('keydown',e=>{if(e.key==='Enter'){if(gate(e))return}},true));
   q('itEditorClose').onclick=closeEditor;q('itExit').onclick=exitStudent;
-  q('itIdentityForm').addEventListener('submit',e=>{e.preventDefault();const name=q('itName').value.trim(),group=q('itGroup').value.trim();if(name.length<3||!group){q('itIdentityError').textContent='Ism-familiya va guruhni to‘liq kiriting.';return}activeStudent={name,group};begin()});
+  q('itRulesConsent').addEventListener('change',()=>{q('itConsentStart').disabled=!q('itRulesConsent').checked});
+  q('itIdentityForm').addEventListener('submit',e=>{e.preventDefault();if(!q('itRulesConsent').checked){q('itIdentityError').textContent='Testni boshlash uchun qoidalarga rozilik bildiring.';return}const name=q('itName').value.trim(),group=q('itGroup').value.trim();if(name.length<3||!group){q('itIdentityError').textContent='Ism-familiya va guruhni to‘liq kiriting.';return}activeStudent={name,group};begin()});
   q('itFinish').onclick=()=>finish(false);
   q('itSmartNext').onclick=smartAdvance;
   q('itQuestionList').addEventListener('change',e=>{if(e.target.matches('input[type=radio]')){if(!smartState){updateRegularAnswerFeedback();updateQuestionNavigator();}persistExam()}});
