@@ -22496,6 +22496,13 @@ function formatMathText(value){
  function openStudent(){stopNoiseMonitor();pendingNoiseDialog=null;q('itNoiseDialog').hidden=true;noise.enabled=false;pendingProtectionDialog=null;q('itProtectionDialog').hidden=true;stop();protection={enabled:false,warnings:2,violations:0};updateProtectionUI();finished=false;smartState=null;activeQs=[];q('itEditor').hidden=true;q('itStudent').hidden=false;q('itIdentity').hidden=false;q('itExam').hidden=true;q('itName').value='';q('itGroup').value='';q('itIdentityError').textContent='';loadPracticeSettings(settings(),questionBank().length);loadStudentRules(settings());q('itStudentSubject').textContent=settings().subjectName||'Test';q('loginModal')?.classList.remove('open');document.body.classList.remove('login-required');document.body.style.overflow='hidden';q('itName').focus()}
  function exitStudent(){q('itNoiseDialog').hidden=true;pendingNoiseDialog=null;if(!finished&&activeQs.length&&!confirm('Testni yakunlamasdan chiqmoqchimisiz?'))return;clearExamSession();stop();stopNoiseMonitor();stopGaze();if(q("itGazeCalibration").open)q("itGazeCancel").click();noise.enabled=false;smartState=null;activeQs=[];protection.enabled=false;updateProtectionUI();q('itStudent').hidden=true;document.body.style.overflow='';document.body.classList.add('login-required');q('loginModal')?.classList.add('open');q('loginPassword').value=''}
  function updateClock(){if(finished)return;const sec=Math.max(0,Math.ceil((endAt-Date.now())/1000));q('itTimer').textContent=String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');if(sec<=0)finish(true)}
+ function saveFinishedAttempt(record){
+  const status=document.createElement('p');
+  status.className='it-note';
+  status.setAttribute('role','status');
+  q('itResult').append(status);
+  window.storeIntegratedTestAttempt(record,status,clearExamSession);
+ }
  function attemptReview(){
   const copy=q('itQuestionList').cloneNode(true);
   copy.querySelectorAll('input').forEach(input=>input.toggleAttribute('checked',input.checked));
@@ -22507,11 +22514,11 @@ function formatMathText(value){
    result:q('itResult').innerHTML
   };
  }
- function finish(expired,protectionEnded=false,noiseEnded=false){if(finished)return;if(smartState){finishSmart(protectionEnded,noiseEnded);return;}persistExam();finished=true;stop();stopNoiseMonitor();stopGaze();q("itGazeResume").hidden=true;clearExamSession();updateQuestionNavigator();let right=0;activeQs.forEach((item,i)=>{const selected=q('itQuestionList').querySelector('input[name="itAnswer'+i+'"]:checked');if(selected&&item.options[Number(selected.value)]?.correct)right++});const total=activeQs.length,pct=Math.round(right/total*100);
+ function finish(expired,protectionEnded=false,noiseEnded=false){if(finished)return;if(smartState){finishSmart(protectionEnded,noiseEnded);return;}persistExam();finished=true;stop();stopNoiseMonitor();stopGaze();q("itGazeResume").hidden=true;updateQuestionNavigator();let right=0;activeQs.forEach((item,i)=>{const selected=q('itQuestionList').querySelector('input[name="itAnswer'+i+'"]:checked');if(selected&&item.options[Number(selected.value)]?.correct)right++});const total=activeQs.length,pct=Math.round(right/total*100);
   q('itResult').innerHTML='<div class="it-score">'+right+' / '+total+' — '+pct+'%</div><p class="it-note">'+(noiseEnded?'Shovqin ogohlantirishlari chegarasi oshgani uchun test avtomatik yakunlandi.':protectionEnded?'Test himoyasi: oynadan chiqish chegarasi oshgani uchun test avtomatik yakunlandi.':expired?'Vaqt tugadi, test avtomatik yakunlandi.':'Test yakunlandi.')+'</p>';
   q('itQuestionList').querySelectorAll('input').forEach(el=>el.disabled=true);q('itFinish').disabled=true;
   updateRegularAnswerFeedback();
-  try{let records=JSON.parse(localStorage.getItem('integratedStudentTestResults_v1')||'[]');if(!Array.isArray(records))records=[];records.push({gazePhotoEnabled:gazeAttempt?.photoEnabled===true,gazePhotos:gazeAttempt?.photos??[],gazeWarnings:gazeAttempt?.warnings??null,gazeSensitivity:gazeAttempt?.sensitivity??null,gazeDuration:gazeAttempt?.duration??null,review:attemptReview(),subject:settings().subjectName||'',name:activeStudent.name,group:activeStudent.group,correct:right,total,percent:pct,protectionViolations:protection.violations,protectionLimit:protection.enabled?protection.warnings:null,protectionEnded:!!protectionEnded,noiseViolations:noise.violations,noiseLimit:noise.enabled?noise.warnings:null,noiseEnded:!!noiseEnded,finishedAt:new Date().toISOString()});localStorage.setItem('integratedStudentTestResults_v1',JSON.stringify(records));window.dispatchEvent(new Event('it-cloud-student-result'))}catch(e){console.warn('Natijani saqlash:',e)}
+  saveFinishedAttempt({gazePhotoEnabled:gazeAttempt?.photoEnabled===true,gazePhotos:gazeAttempt?.photos??[],gazeWarnings:gazeAttempt?.warnings??null,gazeSensitivity:gazeAttempt?.sensitivity??null,gazeDuration:gazeAttempt?.duration??null,review:attemptReview(),subject:settings().subjectName||'',name:activeStudent.name,group:activeStudent.group,correct:right,total,percent:pct,protectionViolations:protection.violations,protectionLimit:protection.enabled?protection.warnings:null,protectionEnded:!!protectionEnded,noiseViolations:noise.violations,noiseLimit:noise.enabled?noise.warnings:null,noiseEnded:!!noiseEnded,finishedAt:new Date().toISOString()});
  }
  // Aqlli rejim faqat o'qituvchi kalitni yoqqan fanlarda ishga tushadi.
  function smartStats(){
@@ -22575,7 +22582,7 @@ function formatMathText(value){
  }
  function finishSmart(protectionEnded=false,noiseEnded=false){
   if(finished)return;const st=smartStats();
-  finished=true;stop();stopNoiseMonitor();stopGaze();q("itGazeResume").hidden=true;clearExamSession();updateQuestionNavigator();smartState.done=true;
+  finished=true;stop();stopNoiseMonitor();stopGaze();q("itGazeResume").hidden=true;updateQuestionNavigator();smartState.done=true;
   q('itQuestionList').innerHTML='';q('itSmartNext').hidden=true;q('itSmartProgress').hidden=true;q('itSmartProgress').style.display='none';
   const pct=Math.round(st.initialRight/st.total*100),mastery=Math.round(st.mastered/st.total*100);
   q('itResult').innerHTML='<div class="it-score">Dastlabki natija: '+st.initialRight+' / '+st.total+' — '+pct+'%</div><p class="it-note">Mashqdan keyingi o‘zlashtirish: <b>'+st.mastered+' / '+st.total+' — '+mastery+'%</b><br>Xato javoblar soni: '+st.errors+' · Jami berilgan savollar: '+smartState.shown+'</p>';
@@ -22599,7 +22606,7 @@ function formatMathText(value){
   }
   updateAnswerSummary();
 
-  try{let records=JSON.parse(localStorage.getItem('integratedStudentTestResults_v1')||'[]');if(!Array.isArray(records))records=[];records.push({gazePhotoEnabled:gazeAttempt?.photoEnabled===true,gazePhotos:gazeAttempt?.photos??[],gazeWarnings:gazeAttempt?.warnings??null,gazeSensitivity:gazeAttempt?.sensitivity??null,gazeDuration:gazeAttempt?.duration??null,review:attemptReview(),subject:settings().subjectName||'',name:activeStudent.name,group:activeStudent.group,correct:st.initialRight,total:st.total,percent:pct,smartTest:true,mastered:st.mastered,masteryPercent:mastery,wrongAnswers:st.errors,attempts:smartState.shown,protectionViolations:protection.violations,protectionLimit:protection.enabled?protection.warnings:null,protectionEnded:!!protectionEnded,noiseViolations:noise.violations,noiseLimit:noise.enabled?noise.warnings:null,noiseEnded:!!noiseEnded,repeatGap:smartState.repeatGap,correctRequired:smartState.correctRequired,wrongQuestions:Object.entries(smartState.wrong).map(([id,count])=>({question:activeQs[Number(id)].q,wrongCount:count})),finishedAt:new Date().toISOString()});localStorage.setItem('integratedStudentTestResults_v1',JSON.stringify(records));window.dispatchEvent(new Event('it-cloud-student-result'))}catch(e){console.warn('Aqlli test natijasi:',e)}
+  saveFinishedAttempt({gazePhotoEnabled:gazeAttempt?.photoEnabled===true,gazePhotos:gazeAttempt?.photos??[],gazeWarnings:gazeAttempt?.warnings??null,gazeSensitivity:gazeAttempt?.sensitivity??null,gazeDuration:gazeAttempt?.duration??null,review:attemptReview(),subject:settings().subjectName||'',name:activeStudent.name,group:activeStudent.group,correct:st.initialRight,total:st.total,percent:pct,smartTest:true,mastered:st.mastered,masteryPercent:mastery,wrongAnswers:st.errors,attempts:smartState.shown,protectionViolations:protection.violations,protectionLimit:protection.enabled?protection.warnings:null,protectionEnded:!!protectionEnded,noiseViolations:noise.violations,noiseLimit:noise.enabled?noise.warnings:null,noiseEnded:!!noiseEnded,repeatGap:smartState.repeatGap,correctRequired:smartState.correctRequired,wrongQuestions:Object.entries(smartState.wrong).map(([id,count])=>({question:activeQs[Number(id)].q,wrongCount:count})),finishedAt:new Date().toISOString()});
  }
  let gazeStream=null,gazeVideo=null,gazeModel=null,gazeTimer=null,gazeAttempt=null,gazeRequest=0;
  function stopGaze(){
@@ -22964,13 +22971,16 @@ function formatMathText(value){
  'use strict';
  const KEY='integratedStudentTestResults_v1';
  const $=id=>document.getElementById(id);
- let current=[];
+ let current=[],cloudRows=[],stopAttempts=null,refreshTimer=null;
+ const reportStatus=document.createElement('p');
+ reportStatus.setAttribute('role','status');
  function records(){
   try{
    const rows=JSON.parse(localStorage.getItem(KEY)||'[]');
-   if(!Array.isArray(rows))return [];
+   const merged=[...(Array.isArray(rows)?rows:[]),...cloudRows]
+    .sort((a,b)=>String(a.finishedAt||'').localeCompare(String(b.finishedAt||'')));
    const scope=window.getTestTeacherSubjects?.();
-   return scope?rows.filter(row=>scope.includes(String(row.subject||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('uz'))):rows;
+   return scope?merged.filter(row=>scope.includes(String(row.subject||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('uz'))):merged;
   }catch{return []}
  }
  const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -22984,7 +22994,21 @@ function formatMathText(value){
   }
  }
  function filtered(){const subject=$('itReportSubject').value.trim().toLocaleLowerCase(),group=$('itReportGroup').value.trim().toLocaleLowerCase();return records().filter(x=>(!subject||String(x.subject||'').toLocaleLowerCase().includes(subject))&&(!group||String(x.group||'').toLocaleLowerCase().includes(group)))}
- function showReport(){refreshOptions();render();$('itReport').hidden=false}
+ function showReport(){
+  $('itReport').hidden=false;
+  $('itReportRows').closest('table').before(reportStatus);
+  refreshOptions();render();
+  stopAttempts?.();
+  reportStatus.textContent='Serverdagi natijalar yuklanmoqda…';
+  stopAttempts=firestoreDB.collection('integratedTestAttempts').onSnapshot({includeMetadataChanges:true},snapshot=>{
+   cloudRows=snapshot.docs.map(doc=>({...doc.data(),attemptId:doc.id}));
+   reportStatus.textContent=snapshot.metadata.fromCache?'Mahalliy nusxa ko‘rsatilmoqda. Server javobi kutilmoqda.':'Serverdagi urinishlar: '+cloudRows.length;
+   clearTimeout(refreshTimer);
+   refreshTimer=setTimeout(()=>{refreshOptions();render();},100);
+  },()=>{reportStatus.textContent='Serverdagi natijalarni o‘qib bo‘lmadi. Firebase ulanishi va kirish huquqini tekshiring.';});
+ }
+ function closeReport(){stopAttempts?.();stopAttempts=null;clearTimeout(refreshTimer);$('itReport').hidden=true;}
+
  function render(){current=filtered();const count=current.length,correct=current.reduce((n,x)=>n+(Number(x.correct)||0),0),total=current.reduce((n,x)=>n+(Number(x.total)||0),0);
   $('itReportCount').textContent=String(count);$('itReportAvg').textContent=(count?Math.round(current.reduce((n,x)=>n+(Number(x.percent)||0),0)/count):0)+'%';$('itReportCorrect').textContent=correct+' / '+total;
   $('itReportRows').innerHTML=count?current.slice().reverse().map((x,i)=>{const d=x.finishedAt?new Date(x.finishedAt):null;const date=d&&!isNaN(d)?d.toLocaleString('uz-UZ'):'';return '<tr data-attempt="'+i+'"><td>'+(i+1)+'</td><td><button type="button" class="it-attempt-link">'+esc(x.name)+'</button></td><td>'+esc(x.group)+'</td><td>'+esc(x.subject)+'</td><td>'+esc(x.correct)+' / '+esc(x.total)+'</td><td><b>'+esc(x.percent)+'%</b>'+(x.smartTest?'<br><small>Aqlli mashq: '+esc(x.masteryPercent)+'% o‘zlashtirilgan</small>':'')+'</td><td>'+(x.protectionLimit===null||x.protectionLimit===undefined?'—':esc(x.protectionViolations||0)+' marta'+(x.protectionEnded?' · avtomatik yakunlangan':''))+'</td><td>'+esc(date)+'</td></tr>'}).join(''):'<tr><td colspan="8" style="text-align:center;padding:22px;color:#788899">Tanlangan fan va guruh bo‘yicha natijalar mavjud emas.</td></tr>';
@@ -23122,14 +23146,25 @@ function formatMathText(value){
   $('itPhotoLoginCancel').onclick=()=>{$('itPhotoLoginForm').reset();$('itPhotoLogin').close();};
   $('itReportRows').addEventListener('click',e=>{
    const row=e.target.closest('tr[data-attempt]');
-   if(row)showAttempt(current[current.length-1-Number(row.dataset.attempt)]);
+   if(!row)return;
+   const record=current[current.length-1-Number(row.dataset.attempt)];
+   if(!record?.attemptId){showAttempt(record);return;}
+   reportStatus.textContent='Talabaning javoblari yuklanmoqda…';
+   const attempts=firestoreDB.collection('integratedTestAttempts');
+   Promise.all(Array.from({length:record.partCount},(_,i)=>attempts.doc(record.attemptId).collection('details').doc(String(i)).get()))
+    .then(parts=>{
+     const detail=JSON.parse(parts.map(part=>part.data()?.text||'').join(''));
+     if(!$('itReport').hidden)showAttempt({...record,...detail});
+     reportStatus.textContent='Serverdagi urinishlar: '+cloudRows.length;
+    }).catch(()=>{reportStatus.textContent='Talabaning javoblarini yuklab bo‘lmadi.';});
+
   });
   window.addEventListener('message',e=>{if(e.source!==$('itFrame')?.contentWindow||e.data?.type!=='open-integrated-test-report')return;showReport()});
-  $('itReportClose').addEventListener('click',()=>{$('itReport').hidden=true});
+  $('itReportClose').addEventListener('click',closeReport);
   $('itReportSubject').addEventListener('input',render);$('itReportGroup').addEventListener('input',render);
   $('itReportReset').addEventListener('click',()=>{$('itReportSubject').value='';$('itReportGroup').value='';render()});
   $('itReportCsv').addEventListener('click',csv);
-  $('itReport').addEventListener('click',e=>{if(e.target===$('itReport'))$('itReport').hidden=true});
+  $('itReport').addEventListener('click',e=>{if(e.target===$('itReport'))closeReport()});
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
@@ -23150,6 +23185,72 @@ function formatMathText(value){
   <button id="itPhotoLoginCancel" type="button">Bekor qilish</button>
  </form>
 </dialog>
+<script id="integratedTestAttemptStorage">
+(function(){
+ 'use strict';
+ const prefix='integratedTestPending:';
+ const attempts=firestoreDB.collection('integratedTestAttempts');
+ const sending=new Set();
+ const pending=new Map();
+ async function send(id,record,status,onSaved){
+  if(sending.has(id))return;
+  sending.add(id);
+  try{
+   const {review,gazePhotos,wrongQuestions,...summary}=record;
+   const detail=JSON.stringify({review,gazePhotos,wrongQuestions});
+   const partSize=100000;
+   const partCount=Math.ceil(detail.length/partSize);
+   if(partCount>=500)throw new Error('Urinish hajmi chegaradan oshdi.');
+   const ref=attempts.doc(id);
+   const batch=firestoreDB.batch();
+   for(let i=0;i<partCount;i++){
+    batch.set(ref.collection('details').doc(String(i)),{text:detail.slice(i*partSize,(i+1)*partSize)});
+   }
+   batch.set(ref,{...summary,partCount});
+   await batch.commit();
+   try{localStorage.removeItem(prefix+id);}catch(e){console.warn(e);}
+   pending.delete(id);
+   onSaved?.();
+   if(status)status.textContent='';
+  }catch(e){
+   console.warn('Test natijasi yuborilmadi:',e);
+   if(status)status.textContent=e?.code==='permission-denied'
+    ? 'Firebase natijani qabul qilmadi. O‘qituvchiga xabar bering.'
+    : 'Server tasdig‘i olinmadi. Natija qayta yuboriladi.';
+  }finally{sending.delete(id);}
+ }
+ window.storeIntegratedTestAttempt=function(record,status,clearSession){
+  const id=attempts.doc().id;
+  const item={record,status,onSaved:clearSession};
+  pending.set(id,item);
+  status.textContent='Natija serverga yuborilmoqda…';
+  try{
+   localStorage.setItem(prefix+id,JSON.stringify(record));
+   clearSession();
+   item.onSaved=null;
+   send(id,record,status);
+  }catch(e){
+   status.textContent='Brauzerda joy yetarli emas. Sahifani ochiq qoldiring, natija serverga yuborilmoqda…';
+   send(id,record,status,clearSession);
+  }
+ };
+ function retry(){
+  try{
+   const keys=Object.keys(localStorage).filter(key=>key.startsWith(prefix));
+   for(const key of keys){
+    const id=key.slice(prefix.length);
+    if(pending.has(id))continue;
+    try{const record=JSON.parse(localStorage.getItem(key));if(record)pending.set(id,{record});}
+    catch(e){console.warn('Kutilayotgan natija:',e);}
+   }
+  }catch(e){console.warn('Natijalar navbati:',e);}
+  for(const [id,{record,status,onSaved}] of pending)send(id,record,status,onSaved);
+ }
+ window.addEventListener('online',retry);
+ setInterval(retry,15000);
+ retry();
+})();
+</script>
 <script id="integratedTestFirestoreSync">
 (function(){
 'use strict';
@@ -23184,7 +23285,6 @@ window.addEventListener('message',e=>{
  if(e.source!==document.getElementById('itFrame')?.contentWindow||e.data?.type!=='it-cloud-update')return;
  bridgeSave();
 });
-window.addEventListener('it-cloud-student-result',bridgeSave);
 // Saved test data is included in the platform's existing Firestore db snapshot.
 })();
 </script>
