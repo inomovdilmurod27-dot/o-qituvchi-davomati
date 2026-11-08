@@ -21157,16 +21157,13 @@ document.addEventListener(&quot;DOMContentLoaded&quot;, ()=&gt;{ buildAnswerKeyF
 .auth-config .subject-input-group{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(145px,.58fr)!important;gap:8px!important;width:100%!important;min-width:0!important;align-items:center!important}
 .auth-config .subject-input-group #subjectName,.auth-config .subject-input-group #subjectQuickSelect{width:100%!important;min-width:0!important;max-width:none!important;flex:none!important}
 .auth-config #subjectAvailableCount{display:none!important}
-.auth-config #deleteSubject{height:44px!important;min-height:44px!important;align-self:end!important;margin:0!important;min-width:190px!important;white-space:nowrap!important}
 @media(max-width:1050px){
  .auth-config{grid-template-columns:minmax(310px,2fr) minmax(130px,1fr) minmax(130px,1fr) minmax(170px,auto)!important;gap:8px!important;padding:12px!important}
- .auth-config #deleteSubject{min-width:170px!important;padding:0 8px!important;font-size:11px!important}
 }
 @media(max-width:790px){
  .auth-config{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;align-items:end!important}
  .auth-config&gt;label.subject-main-label{flex:0 0 320px!important}
  .auth-config&gt;label:not(.subject-main-label){flex:0 0 145px!important}
- .auth-config #deleteSubject{flex:0 0 175px!important}
 }
 
 /* Xatoli savol qatorini muharrir ichida ko‘rsatish */
@@ -21357,7 +21354,7 @@ document.addEventListener(&quot;DOMContentLoaded&quot;, ()=&gt;{ buildAnswerKeyF
 .test-editor-top .test-credentials{position:relative;overflow:visible}
 .test-editor-top .test-credentials:has(.credential-help[open]){z-index:3}
 .test-editor-top .credential-help p{box-sizing:border-box;overflow-wrap:anywhere;line-height:1.45}
-.test-editor-top #deleteSubject{justify-self:start;width:auto}
+
 @media(min-width:951px){
  #edit&gt;.test-editor-top{flex:1 0 auto}
  .test-editor-questions .space{flex:1;display:flex;margin:0}
@@ -21365,14 +21362,14 @@ document.addEventListener(&quot;DOMContentLoaded&quot;, ()=&gt;{ buildAnswerKeyF
 }
 .test-editor-top .auth-config{padding:8px 10px!important;gap:6px!important}
 .test-editor-top .test-credentials{padding:3px 6px 6px}
-.test-editor-top .auth-config :is(input,select,button#deleteSubject){height:36px!important;min-height:36px!important;padding-block:5px!important}
+.test-editor-top .auth-config :is(input,select){height:36px!important;min-height:36px!important;padding-block:5px!important}
 .test-editor-top .test-credentials .credential-heading{font-size:14px}
 .credential-heading{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;line-height:1.2}
 .credential-heading .credential-help{flex:none}
 .credential-heading .credential-help summary{box-sizing:border-box}
 @media(max-width:700px){.test-editor-top{grid-template-columns:minmax(0,1fr)}}
 .test-editor-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
-.test-editor-top .test-editor-actions button{width:100%!important;min-width:0!important;min-height:36px!important;margin:0;padding:5px 6px!important;font-size:12px}
+.test-editor-top .test-editor-actions button{width:100%!important;min-width:0!important;height:36px!important;min-height:36px!important;margin:0;padding:5px 6px!important;font-size:12px}
 &lt;/style&gt;&lt;/head&gt;
 &lt;body&gt;&lt;main class=&quot;wrap&quot;&gt;&lt;span class=&quot;hide&quot; id=&quot;count&quot; aria-hidden=&quot;true&quot;&gt;0 ta savol&lt;/span&gt;
 &lt;section class=&quot;panel&quot; id=&quot;edit&quot;&gt;
