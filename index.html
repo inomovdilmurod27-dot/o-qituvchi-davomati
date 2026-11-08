@@ -6587,6 +6587,10 @@ body.hemis-layout .pro-actions{
 #itGazeCancel{border:1px solid #c6d7e5;border-radius:8px;background:#f4f8fb;color:#234d69;padding:7px 14px;font-weight:700;cursor:pointer}
 #itGazePoint{position:absolute;transform:translate(-50%,-50%);border-radius:50%;width:36px;height:36px;border:0;background:#237fab;color:white;font-weight:700;cursor:pointer}
 
+#itAttemptReview .it-unanswered-report{margin-top:16px;padding:14px 16px;border:1px solid #edcf95;border-radius:12px;background:#fff8e8;color:#724b13}
+#itAttemptReview .it-unanswered-report h3{margin:0 0 10px;font-size:15px}
+#itAttemptReview .it-unanswered-report ul{display:flex;flex-wrap:wrap;gap:7px;margin:0;padding:0;list-style:none}
+#itAttemptReview .it-unanswered-report li{padding:4px 10px;border:1px solid #edcf95;border-radius:999px;background:#fffdf7;font-size:13px}
 #itStudent .it-choice[data-result="correct"],#itAttemptReview .it-choice[data-result="correct"]{background:#e7f6ed;border-color:#91d5ac;color:#14643a}
 #itStudent .it-choice[data-result="incorrect"],#itAttemptReview .it-choice[data-result="incorrect"]{background:#fff0ef;border-color:#e7a4a0;color:#a32323}
 #itStudent .it-choice[data-result="correct"],#itStudent .it-choice[data-result="incorrect"],#itAttemptReview .it-choice[data-result="incorrect"]{cursor:default}
@@ -22504,12 +22508,34 @@ function formatMathText(value){
   window.storeIntegratedTestAttempt(record,status,clearExamSession);
  }
  function attemptReview(){
-  const copy=q('itQuestionList').cloneNode(true);
-  copy.querySelectorAll('input').forEach(input=>input.toggleAttribute('checked',input.checked));
+  const firstAnswers=new Map();
+  for(const entry of smartState?.history||[]){
+   if(!firstAnswers.has(entry.id))firstAnswers.set(entry.id,entry);
+  }
+  const unanswered=[];
+  const questions=activeQs.map((item,i)=>{
+   const first=firstAnswers.get(i);
+   const input=smartState?null:q('itQuestionList').querySelector('input[name="itAnswer'+i+'"]:checked');
+   if(smartState?!first:!input)unanswered.push(i+1);
+   const selected=smartState?first?.answerText:input?item.options[Number(input.value)]?.text:undefined;
+   const options=item.options.map(option=>{
+    const chosen=selected!==undefined&&option.text===selected;
+    const result=option.correct?'correct':chosen?'incorrect':'';
+    const mark=result==='correct'?'<span class="it-option-mark" aria-label="To‘g‘ri javob">✓</span>'
+     :result==='incorrect'?'<span class="it-option-mark" aria-label="Xato javob">×</span>':'';
+    return '<div class="it-choice" data-result="'+result+'"><input type="radio" disabled'
+     +(chosen?' checked':'')+' aria-label="Talaba tanlovi"> '+formatMathText(option.text)+mark+'</div>';
+   }).join('');
+   const note=selected===undefined
+    ? '<p class="it-note">'+(first?'Tanlangan javob matni saqlanmagan.':'Javob berilmagan.')+'</p>':'';
+   return '<div class="it-question"><b>'+(i+1)+'. '+formatMathText(item.q)+'</b>'+note+options+'</div>';
+  }).join('');
   return {
    settings:attemptConfig,
-   activity:smartState?.history.map(entry=>[entry.id+1,activeQs[entry.id]?.options[entry.option]?.text??null,entry.correct])??null,
-   questions:copy.innerHTML,
+   teacherAnswers:true,
+   unanswered,
+   activity:smartState?.history.map(entry=>[entry.id+1,entry.answerText??null,entry.correct])??null,
+   questions,
    summary:q('itAnswerSummary').hidden?'':q('itAnswerSummary').textContent,
    result:q('itResult').innerHTML
   };
@@ -22567,7 +22593,7 @@ function formatMathText(value){
   // Birinchi urinishda to'g'ri ishlangan savol o'zlashtirilgan hisoblanadi.
   const mastered=correct&&(!s.wrong[id]||s.correctStreak[id]>=(Number.isInteger(Number(s.correctRequired))?s.correctRequired:2));
   if(mastered)s.mastered[id]=true;
-  s.history.push({id,correct,option:Number(chosen.value),at:s.shown});s.shown++;
+  s.history.push({id,correct,option:Number(chosen.value),answerText:activeQs[id].options[Number(chosen.value)]?.text,at:s.shown});s.shown++;
   if(!mastered){
    // Kamida besh boshqa savol o'tishi uchun navbatga qaytariladi.
    s.queue.push({id,due:s.shown+(Number.isInteger(Number(s.repeatGap))?s.repeatGap:5)});
@@ -23014,11 +23040,12 @@ function formatMathText(value){
   $('itReportRows').innerHTML=count?current.slice().reverse().map((x,i)=>{const d=x.finishedAt?new Date(x.finishedAt):null;const date=d&&!isNaN(d)?d.toLocaleString('uz-UZ'):'';return '<tr data-attempt="'+i+'"><td>'+(i+1)+'</td><td><button type="button" class="it-attempt-link">'+esc(x.name)+'</button></td><td>'+esc(x.group)+'</td><td>'+esc(x.subject)+'</td><td>'+esc(x.correct)+' / '+esc(x.total)+'</td><td><b>'+esc(x.percent)+'%</b>'+(x.smartTest?'<br><small>Aqlli mashq: '+esc(x.masteryPercent)+'% o‘zlashtirilgan</small>':'')+'</td><td>'+(x.protectionLimit===null||x.protectionLimit===undefined?'—':esc(x.protectionViolations||0)+' marta'+(x.protectionEnded?' · avtomatik yakunlangan':''))+'</td><td>'+esc(date)+'</td></tr>'}).join(''):'<tr><td colspan="8" style="text-align:center;padding:22px;color:#788899">Tanlangan fan va guruh bo‘yicha natijalar mavjud emas.</td></tr>';
  }
  function csv(){if(!current.length)return alert('Hisobotda natijalar yo‘q.');const rows=[['Ism-familiya','Guruh','Fan','To‘g‘ri','Jami','Natija (%)','Vaqt'],...current.map(x=>[x.name,x.group,x.subject,x.correct,x.total,x.percent,x.finishedAt])];const safe=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const out='\uFEFF'+rows.map(row=>row.map(safe).join(';')).join('\r\n');const url=URL.createObjectURL(new Blob([out],{type:'text/csv;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download='test_hisoboti.csv';link.click();setTimeout(()=>URL.revokeObjectURL(url),2000)}
- function appendReviewMarkup(target,markup){
+ function appendReviewMarkup(target,markup,skipQuestions=false){
   const doc=new DOMParser().parseFromString(String(markup||''),'text/html');
   const tags=new Set(['DIV','P','B','STRONG','SMALL','H3','SPAN','LABEL','INPUT','BR','SUB','SUP','I','EM']);
   function copy(source,parent){
    for(const child of source.childNodes){
+    if(skipQuestions&&(child.classList?.contains('it-question')||child.tagName==='H3'))continue;
     if(child.nodeType===3){parent.append(child.textContent);continue;}
     if(!tags.has(child.tagName)){parent.append(child.textContent);continue;}
     const node=document.createElement(child.tagName.toLowerCase());
@@ -23115,7 +23142,15 @@ function formatMathText(value){
   if(review){
    if(review.summary){const summary=document.createElement('p');summary.className='it-note';summary.textContent=review.summary;target.append(summary);}
    appendReviewMarkup(target,review.questions);
-   appendReviewMarkup(target,review.result);
+   let unanswered=review.unanswered;
+   if(!Array.isArray(unanswered)&&review.teacherAnswers){
+    const questions=[...target.querySelectorAll('.it-question')];
+    const answered=new Set((review.activity||[]).map(entry=>entry[0]));
+    if(record.smartTest||questions.some(question=>question.querySelector('input[type="radio"]'))){
+     unanswered=questions.map((question,i)=>(record.smartTest?answered.has(i+1):question.querySelector('input:checked'))?null:i+1).filter(Boolean);
+    }
+   }
+   appendReviewMarkup(target,review.result,review.teacherAnswers===true);
    if(review.activity?.length){
     const details=document.createElement('details');
     const title=document.createElement('summary');
@@ -23128,6 +23163,20 @@ function formatMathText(value){
     }
     details.append(title,list);
     target.append(details);
+   }
+   if(unanswered?.length){
+    const panel=document.createElement('section');
+    panel.className='it-unanswered-report';
+    const heading=document.createElement('h3');
+    heading.textContent='Javob berilmagan savollar · '+unanswered.length+' ta';
+    const list=document.createElement('ul');
+    for(const number of unanswered){
+     const item=document.createElement('li');
+     item.textContent=number+'-savol';
+     list.append(item);
+    }
+    panel.append(heading,list);
+    target.append(panel);
    }
   }else target.textContent='Natija: '+record.correct+' / '+record.total+' — '+record.percent+'%';
   $('itAttemptReview').showModal();
