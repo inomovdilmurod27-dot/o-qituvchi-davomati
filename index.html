@@ -5847,9 +5847,8 @@ body.hemis-layout #adminPanel .post-save-toggle{
 #dataCollectionModal{background:rgba(16,35,55,.62);backdrop-filter:blur(3px)}
 #dataCollectionModal .modal-card{width:min(1480px,99vw)!important;max-height:97vh!important;padding:0!important;border:0!important;border-radius:14px!important;overflow:hidden!important;box-shadow:0 28px 80px rgba(15,23,42,.28)!important}
 #dataCollectionModal{padding:62px 10px 12px!important;align-items:flex-start!important}
-#dataCollectionModal .modal-card{margin:6px auto 0!important;border:1px solid #cbd7e2!important;border-top:5px solid #183f59!important;box-shadow:0 28px 80px rgba(15,23,42,.30)!important}
+#dataCollectionModal .modal-card{margin:6px auto 0!important;border:0!important;box-shadow:0 28px 80px rgba(15,23,42,.30)!important}
 #dataCollectionModal .modal-top{padding:17px 20px;background:#244f69;color:#fff;align-items:center;border-bottom:1px solid #173b51;box-shadow:0 5px 14px rgba(15,23,42,.13);position:relative}
-#dataCollectionModal .modal-top:after{content:'';position:absolute;left:0;right:0;bottom:-9px;height:9px;background:#f3f6f9;border-bottom:1px solid #dbe3ea}
 #dataCollectionModal .modal-top h2{color:#fff!important;font-size:20px!important}
 #dataCollectionModal .modal-top .note{color:rgba(255,255,255,.86)!important}
 #dataCollectionModal .modal-top .close{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.3);color:#fff}
@@ -6612,7 +6611,24 @@ html:has(#itEditor:not([hidden]),#itAnalyzer[open],#simpleInfoModal.open,#dataCo
 }
 html:has(#itEditor:not([hidden]),#itAnalyzer[open],#simpleInfoModal.open,#dataCollectionModal.open)::-webkit-scrollbar,body:has(#itEditor:not([hidden]),#itAnalyzer[open],#simpleInfoModal.open,#dataCollectionModal.open)::-webkit-scrollbar{display:none!important}
 #itEditor:not([hidden]){display:flex;flex-direction:column;overflow:hidden!important}
-#itEditor>.it-head{flex:none}
+:is(#itEditor,#itAnalyzer)>.it-head{flex:none;position:relative;isolation:isolate;overflow:hidden;gap:12px;background:linear-gradient(110deg,#0b2544,#14476c 60%,#126576)!important;border-bottom:2px solid #70d6e2!important}
+:is(#itEditor,#itAnalyzer)>.it-head::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 84% 115%,#70d6e25c,transparent 57%),repeating-linear-gradient(135deg,transparent 0 20px,#ffffff08 20px 21px)}
+:is(#itEditor,#itAnalyzer)>.it-head h2{display:flex;align-items:center;gap:12px;color:#fff;font-size:clamp(16px,2vw,24px);margin:0}
+:is(#itEditor,#itAnalyzer) .it-editor-mark{display:grid;place-items:center;width:38px;height:38px;flex:none;border:1px solid #a5edf06b;border-radius:10px;background:#b6f2ff1f;color:#bff6ff}
+:is(#itEditor,#itAnalyzer) .it-editor-mark svg{width:21px;height:21px}
+:is(#itEditorClose,#itAnalyzer>.it-head .win-close){position:relative;flex:none;border:1px solid #b6f2ff6b!important;background:#ffffff20!important;color:#fff!important}
+:is(#itEditorClose,#itAnalyzer>.it-head .win-close):hover,:is(#itEditorClose,#itAnalyzer>.it-head .win-close):focus-visible{background:#ffffff38!important}
+#itEditor>.it-head::after{content:"";position:absolute;inset:0 auto 0 0;width:min(440px,65%);z-index:-1;pointer-events:none;opacity:0;background:radial-gradient(ellipse at 50% 100%,#70d6e276,transparent 65%);animation:test-header-wave 12s ease-in-out infinite}
+@keyframes test-header-wave{0%,10%{left:0;transform:translateX(-100%);opacity:0}24%,58%{opacity:.8}76%,100%{left:100%;transform:translateX(0);opacity:0}}
+#itAnalyzer .it-chart-motion{position:absolute;right:88px;top:8px;width:min(44%,440px);height:calc(100% - 16px);z-index:-1;pointer-events:none;color:#8af4ff;opacity:.64}
+#itAnalyzer .it-chart-motion path{fill:none;stroke:currentColor;stroke-width:2;stroke-dasharray:100;animation:test-chart-draw 9s ease-in-out infinite}
+#itAnalyzer .it-chart-motion circle{fill:currentColor;animation:test-chart-point 9s ease-in-out infinite;opacity:0}
+#itAnalyzer .it-chart-motion circle:first-of-type{animation-delay:-1s}
+@keyframes test-chart-draw{0%,9%{stroke-dashoffset:100;opacity:0}48%,72%{stroke-dashoffset:0;opacity:1}92%,100%{stroke-dashoffset:0;opacity:0}}
+@keyframes test-chart-point{0%,39%,92%,100%{opacity:0}50%,72%{opacity:1}}
+@media(prefers-reduced-motion:reduce){#itEditor>.it-head::after,#itAnalyzer .it-chart-motion *{animation:none}}
+
+
 #itEditor iframe{display:block;flex:1 1 0;min-height:0;width:100%;border:0;background:#f3f6f9}
 .it-content{max-width:900px;margin:26px auto;padding:0 16px}.it-card{background:#fff;border:1px solid #dbe4ed;border-radius:12px;padding:24px;margin-bottom:16px}
 .it-card h3{margin:0 0 16px;font-size:20px;color:#173b5f}.it-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
@@ -6660,7 +6676,49 @@ body.hemis-layout header.topbar .topbar-right :is(.pro-search-btn,.hemis-manage-
 .brand .brand-rotation :is(h1,p){grid-area:1/1;justify-self:start;width:max-content;margin:0;line-height:1.25;color:#fff;white-space:nowrap}
 .brand .brand-rotation h1{font-size:clamp(17px,2vw,29px);font-weight:800;animation:brand-title 112s linear infinite}
 .brand .brand-rotation p{font-size:clamp(14px,1.65vw,24px);font-weight:700;animation:brand-department 112s linear infinite}
-.brand:hover .brand-rotation :is(h1,p){animation-play-state:paused}
+.brand:has(.brand-rotation) .logo{position:relative;overflow:visible}
+.bd-orbit{position:absolute;inset:-6px;width:calc(100% + 12px);height:calc(100% + 12px);pointer-events:none;opacity:0;animation:bd-orbit 36s linear infinite}
+@keyframes bd-orbit{
+ 0%,1%{opacity:0;transform:rotate(0deg)}
+ 4%{opacity:1}
+ 24%{opacity:1}
+ 27%,100%{opacity:0;transform:rotate(360deg)}
+}
+.brand:has(.brand-rotation){position:relative;isolation:isolate}
+.bd-water-wave{position:absolute;inset:0 0 0 48px;overflow:hidden;pointer-events:none;z-index:-1}
+.bd-water-wave svg{position:absolute;left:0;top:50%;width:min(240px,45%);height:30px;opacity:0;animation:bd-water-wave 36s linear infinite}
+@keyframes bd-water-wave{
+ 0%,27%{left:0;transform:translate(-100%,-50%);opacity:0}
+ 34%{opacity:.7}
+ 54%{opacity:.45}
+ 64%,100%{left:100%;transform:translate(0,-50%);opacity:0}
+}
+@media(prefers-reduced-motion:reduce){.bd-orbit,.bd-water-wave{display:none}}
+header.topbar .clock:has(.clock-minute-ring){position:relative;padding-right:38px!important}
+.clock-minute-ring{position:absolute;right:7px;top:50%;width:24px;height:24px;transform:translateY(-50%);pointer-events:none}
+.clock-minute-ring circle{fill:none;stroke:#ffffff35;stroke-width:2.5}
+.clock-minute-ring #clockMinuteProgress{stroke:#8af4ff;stroke-linecap:round}
+@media(max-width:760px){
+ body.hemis-layout header.topbar .clock:has(.clock-minute-ring){
+  display:flex!important;flex:0 0 auto;flex-direction:column;align-items:center;justify-content:center;
+  min-width:0!important;height:36px!important;min-height:36px!important;
+  padding:2px 24px 2px 5px!important;
+ }
+ body.hemis-layout header.topbar .clock .d{font-size:8px!important}
+ body.hemis-layout header.topbar .clock .t{font-size:10px!important;letter-spacing:0!important}
+ header.topbar .clock-minute-ring{right:3px;width:19px;height:19px}
+}
+
+body.hemis-layout header.topbar #languageSelect{
+ display:block!important;flex:none;width:auto;min-width:0;height:34px;padding:0 5px;
+ border:1px solid #ffffff38;border-radius:8px;background:#174761;color:white;
+ font:600 12px Arial,sans-serif;
+}
+header.topbar .topbar-language{position:relative;flex:none;color:#a8eaf5}
+header.topbar .topbar-language svg{position:absolute;left:6px;top:50%;width:17px;height:17px;transform:translateY(-50%);pointer-events:none}
+body.hemis-layout header.topbar .topbar-language #languageSelect{width:60px;padding-left:22px;padding-right:2px;cursor:pointer}
+@media(max-width:760px){body.hemis-layout header.topbar .topbar-language #languageSelect{width:54px;height:30px;font-size:10px;padding-left:19px}header.topbar .topbar-language svg{left:5px;width:14px;height:14px}}
+#startupSettingsBtn[hidden]{display:none!important}
 @keyframes brand-title{0%{visibility:visible;transform:translateX(0)}50%{visibility:visible;transform:translateX(100cqw)}50.01%,100%{visibility:hidden;transform:translateX(100cqw)}}
 @keyframes brand-department{0%,49.99%{visibility:hidden;transform:translateX(0)}50%{visibility:visible;transform:translateX(0)}100%{visibility:visible;transform:translateX(100cqw)}}
 @media(prefers-reduced-motion:reduce){.brand .brand-rotation{display:block}.brand .brand-rotation :is(h1,p){animation:none;width:auto;white-space:normal}}
@@ -6668,7 +6726,7 @@ body.hemis-layout header.topbar .topbar-right :is(.pro-search-btn,.hemis-manage-
 </head>
 <body>
 <header class="topbar">
-<div class="brand"><div class="logo">BD</div><div class="brand-rotation"><h1>Buxoro davlat texnika universiteti</h1><p>Ekologiya, irrigatsiya va gidrotexnika kafedrasi</p></div></div>
+<div class="brand"><span class="bd-water-wave" aria-hidden="true"><svg viewBox="0 0 240 30" fill="none"><defs><linearGradient id="bdWaveColor" x1="0" x2="240" gradientUnits="userSpaceOnUse"><stop stop-color="#7de9ff" stop-opacity="0"/><stop offset=".62" stop-color="#7de9ff"/><stop offset="1" stop-color="#d8fbff" stop-opacity="0"/></linearGradient></defs><path d="M0 16 C30 16 40 6 70 6 S110 23 143 23 S188 10 218 10 L240 10" stroke="url(#bdWaveColor)" stroke-width="1.6"/><path d="M0 22 C30 22 42 13 70 13 S111 29 143 29 S188 17 218 17 L240 17" stroke="url(#bdWaveColor)" stroke-width="1" opacity=".55"/></svg></span><div class="logo">BD<svg class="bd-orbit" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="3" r="2.5" fill="#fff"/><circle cx="44" cy="5.6" r="2" fill="#8af4ff"/><circle cx="54" cy="12.7" r="1.5" fill="#53d5f0"/><circle cx="60" cy="23" r="1" fill="#a6e8ef"/></svg></div><div class="brand-rotation"><h1>Buxoro davlat texnika universiteti</h1><p>Ekologiya, irrigatsiya va gidrotexnika kafedrasi</p></div></div>
 <button class="nav-btn active" id="homeBtn">Bosh sahifa</button>
 <button class="nav-btn week-btn" id="suratBtn">Surat</button>
 <button class="nav-btn week-btn" id="maxrajBtn">Maxraj</button>
@@ -6683,8 +6741,8 @@ body.hemis-layout header.topbar .topbar-right :is(.pro-search-btn,.hemis-manage-
 <button class="nav-btn" id="smartTimeBtn">ClassMatch</button>
 <button class="nav-btn" id="exceptionBtn">Istisno</button>
 <button class="nav-btn" id="structureBtn">Tuzilma</button>
-<select class="nav-btn" id="languageSelect" style="min-width:105px"><option value="uz">O‘zbekcha</option><option value="ru">Русский</option><option value="en">English</option></select>
-<div class="clock"><div class="d" id="date"></div><div class="t" id="time"></div></div>
+<select class="nav-btn" id="languageSelect" aria-label="Til / Language / Язык"><option value="uz" aria-label="O‘zbekcha">UZ</option><option value="ru" aria-label="Русский">RU</option><option value="en" aria-label="English">EN</option></select>
+<div class="clock"><div class="d" id="date"></div><div class="t" id="time"></div><svg class="clock-minute-ring" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="11"/><circle id="clockMinuteProgress" cx="14" cy="14" r="11" pathLength="60" stroke-dasharray="0 60" transform="rotate(-90 14 14)"/><path id="clockHourHand" d="M14 14V9" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><path id="clockMinuteHand" d="M14 14V6" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><path id="clockSecondHand" d="M14 15.5V5" stroke="#8af4ff" stroke-width="1" stroke-linecap="round"/><circle cx="14" cy="14" r="1" style="fill:#fff;stroke:none"/></svg></div>
 </header>
 <main>
 <section class="hero">
@@ -8576,7 +8634,11 @@ function validateLesson(candidate,teacherId,editingLessonId=null){
  return {errs:[...new Set(errs)],warns:[...new Set(warns)]}
 }
 
-function updateClock(){const d=new Date();$("date").textContent=`${String(d.getDate()).padStart(2,"0")}.${String(d.getMonth()+1).padStart(2,"0")}.${d.getFullYear()}`;$("time").textContent=d.toLocaleTimeString("uz-UZ",{hour12:false})}
+function updateClock(){const d=new Date();$("clockMinuteProgress").setAttribute("stroke-dasharray",d.getSeconds()+" 60");
+  $("clockHourHand").setAttribute("transform",`rotate(${(d.getHours()%12)*30+d.getMinutes()/2} 14 14)`);
+  $("clockMinuteHand").setAttribute("transform",`rotate(${d.getMinutes()*6+d.getSeconds()/10} 14 14)`);
+  $("clockSecondHand").setAttribute("transform",`rotate(${d.getSeconds()*6} 14 14)`);
+  $("date").textContent=`${String(d.getDate()).padStart(2,"0")}.${String(d.getMonth()+1).padStart(2,"0")}.${d.getFullYear()}`;$("time").textContent=d.toLocaleTimeString("uz-UZ",{hour12:false})}
 function updateWeekUI(){
   const weekLabel=$("weekLabel");
   if(weekLabel)weekLabel.textContent=String(currentWeek||"surat").toUpperCase();
@@ -9330,6 +9392,8 @@ function updateCurrentUserBadge(){
   if(roleEl)roleEl.textContent=role;
 }
 function applyRoleUI(){
+  const startupButton=document.getElementById('startupSettingsBtn');
+  if(startupButton)startupButton.hidden=!['admin','superadmin'].includes(db.currentUser?.role);
   $("adminBtn").style.display=roleCanEdit()?"inline-block":"none";
   $("loginBtn").textContent=`${db.currentUser?.name||"Mehmon"} · ${db.currentUser?.role||"viewer"}`;
   const mt=document.getElementById("managerAdminTabBtn");
@@ -10604,7 +10668,8 @@ renderAdvanced();
             console.error('Login audit xatosi:',e);
           }
 
-          if(loggedUser.role==='mudiri'){
+          if(String(db.currentUser?.id)!==String(loggedUser.id)||document.body.classList.contains('login-required'))return;
+          if(!openHabitualModule(loggedUser)&&loggedUser.role==='mudiri'){
             try{openDepartmentManagerCabinet();}catch(e){console.error('Mudiri kabinetini ochish xatosi:',e);}
           }
         },0);
@@ -10616,6 +10681,70 @@ renderAdvanced();
         }
       }
     };
+
+    const startupModules=new Set([
+      'calendarBtn','freeRoomBtn','freeTeacherBtn','statsBtn','monitorBtn',
+      'teacherSelfScheduleBtn','dataCollectionSideBtn','itSidebarButton'
+    ]);
+    const startupSettingsKey='dispatchStartupSettings';
+    function startupSettings(){
+      try{
+        const saved=JSON.parse(localStorage.getItem(startupSettingsKey)||'null');
+        const threshold=Number(saved?.threshold);
+        return {enabled:saved?.enabled!==false,threshold:Number.isInteger(threshold)&&threshold>=1&&threshold<=10?threshold:3};
+      }catch{return {enabled:true,threshold:3};}
+    }
+    document.addEventListener('click',event=>{
+      if(!event.target.closest('#startupSettingsBtn')||!['admin','superadmin'].includes(db.currentUser?.role)||document.body.classList.contains('login-required'))return;
+      const config=startupSettings();
+      openAdvanced('Aqlli boshlash','Sozlamalar shu brauzerda saqlanadi.',
+        `<form id="startupSettingsForm"><p><label><input name="enabled" type="checkbox" ${config.enabled?'checked':''}> Aqlli boshlashni yoqish</label></p>
+        <p><label>Bir xil modulni tanlash soni <input name="threshold" type="number" min="1" max="10" required value="${config.threshold}"></label></p>
+        <p>Platforma oxirgi 5 ta tanlovni hisobga oladi. Chegara 5 dan katta bo‘lsa, shuncha oxirgi tanlov tekshiriladi.</p>
+        <button type="submit" class="primary">Saqlash</button><p role="status"></p></form>`);
+      const form=g('startupSettingsForm');
+      form.onsubmit=event=>{
+        event.preventDefault();
+        if(!['admin','superadmin'].includes(db.currentUser?.role)||document.body.classList.contains('login-required')||!form.reportValidity())return;
+        const enabled=form.elements.enabled.checked;
+        const threshold=form.elements.threshold.valueAsNumber;
+        const status=form.querySelector('[role="status"]');
+        try{
+          localStorage.setItem(startupSettingsKey,JSON.stringify({enabled,threshold}));
+          if(!enabled)startupObservation=null;
+          status.textContent='Sozlamalar saqlandi.';
+        }catch{status.textContent='Sozlamalarni saqlab bo‘lmadi.';}
+      };
+    });
+    let startupObservation=null;
+    document.addEventListener('click',event=>{
+      if(!startupObservation||!event.isTrusted||document.body.classList.contains('login-required'))return;
+      const button=event.target.closest('button[id]');
+      if(!button||!startupModules.has(button.id)||button.disabled)return;
+      const {key,history,userId}=startupObservation;
+      if(String(db.currentUser?.id)!==userId){startupObservation=null;return;}
+      startupObservation=null;
+      try{localStorage.setItem(key,JSON.stringify([...history,button.id].slice(-10)));}catch{}
+    },true);
+    function openHabitualModule(user){
+      const userId=String(user.id??'');
+      startupObservation=null;
+      const config=startupSettings();
+      if(!userId||!config.enabled)return false;
+      const key='dispatchStartup:'+JSON.stringify([userId,user.role,user.department]);
+      let history=[];
+      try{
+        const saved=JSON.parse(localStorage.getItem(key)||'[]');
+        if(Array.isArray(saved))history=saved.filter(id=>startupModules.has(id)).slice(-10);
+      }catch{}
+      startupObservation={key,history,userId};
+      const recent=history.slice(-Math.max(5,config.threshold));
+      const preferred=recent.find(id=>recent.filter(item=>item===id).length>=config.threshold);
+      const button=preferred?g(preferred):null;
+      if(!button||button.disabled||button.hidden||getComputedStyle(button).display==='none')return false;
+      button.click();
+      return true;
+    }
 
     window.performDispatchLogin=doLogin;
 
@@ -11685,12 +11814,37 @@ renderAdvanced();
     ru:{'Bosh sahifa':'Главная','Surat':'Числитель','Maxraj':'Знаменатель','Admin':'Админ','Kalendar':'Календарь','Bo‘sh xona':'Свободная аудитория','Bo‘sh o‘qituvchi':'Свободный преподаватель','Statistika':'Статистика','Monitor':'Монитор','Mos xona':'Подходящая аудитория','Bo‘sh vaqt':'Свободное время','Jadval sifati':'Качество расписания','Guruh “oyna”si':'Окна группы','Istisno':'Исключения','Tuzilma':'Структура','O‘qituvchilar':'Преподаватели','Bugungi darslar':'Занятия сегодня'},
     en:{'Bosh sahifa':'Home','Surat':'Numerator week','Maxraj':'Denominator week','Admin':'Admin','Kalendar':'Calendar','Bo‘sh xona':'Free room','Bo‘sh o‘qituvchi':'Free teacher','Statistika':'Statistics','Monitor':'Monitor','Mos xona':'Suitable room','Bo‘sh vaqt':'Free time','Jadval sifati':'Schedule quality','Guruh “oyna”si':'Group gaps','Istisno':'Exceptions','Tuzilma':'Structure','O‘qituvchilar':'Teachers','Bugungi darslar':'Today’s classes'}
   };
-  const originalText=new Map();
-  function applyLanguage(lang){
-    document.documentElement.lang=lang==='uz'?'uz':lang;
-    document.querySelectorAll('button,.section-title h3,.stat').forEach(el=>{if(!originalText.has(el))originalText.set(el,el.childNodes.length===1?el.textContent:null);const orig=originalText.get(el);if(orig&&lang!=='uz'&&dict[lang]?.[orig.trim()])el.textContent=dict[lang][orig.trim()];else if(orig&&lang==='uz')el.textContent=orig;});
-    localStorage.setItem('uiLanguage',lang);
+  for(const [uz,ru,en] of [["Kirish", "Вход", "Sign in"], ["Chiqish", "Выйти", "Sign out"], ["Qidiruv", "Поиск", "Search"], ["Boshqaruv", "Управление", "Management"], ["Ma’lumotlar", "Данные", "Data"], ["Ma’lumot yig‘ish", "Сбор данных", "Data collection"], ["Davomat", "Посещаемость", "Attendance"], ["Dars jadvali", "Расписание занятий", "Class schedule"], ["Fan nomi", "Название предмета", "Subject name"], ["Talaba", "Студент", "Student"], ["O‘qituvchi", "Преподаватель", "Teacher"], ["Login", "Логин", "Username"], ["Parol", "Пароль", "Password"], ["Saqlash", "Сохранить", "Save"], ["O‘chirish", "Удалить", "Delete"], ["Yopish", "Закрыть", "Close"], ["Bekor qilish", "Отмена", "Cancel"], ["Testlar — boshqaruv", "Управление тестами", "Test management"], ["Testni yechish", "Пройти тест", "Take the test"], ["Test hisoboti", "Отчёт по тесту", "Test report"], ["Test parametrlari", "Параметры теста", "Test settings"], ["Test natijalari", "Результаты теста", "Test results"], ["Himoya va test rejimi", "Защита и режим теста", "Protection and test mode"], ["Savollar soni", "Количество вопросов", "Number of questions"], ["Vaqt (daqiqa)", "Время (минуты)", "Time (minutes)"], ["Savollarni aralashtirish", "Перемешивать вопросы", "Shuffle questions"], ["Javoblarni aralashtirish", "Перемешивать ответы", "Shuffle answers"], ["Test javoblari", "Ответы на тест", "Test answers"], ["To‘g‘ri javoblarni ko‘rsatish", "Показывать правильные ответы", "Show correct answers"], ["Talaba test sozlamalarini tanlasin", "Разрешить студенту выбрать настройки", "Allow student settings"], ["Izoh yozish", "Оставить комментарий", "Leave a comment"], ["Test himoyasi", "Защита теста", "Test protection"], ["Aqlli test", "Умный тест", "Smart test"], ["Shovqin nazorati", "Контроль шума", "Noise monitoring"], ["Nigoh nazorati", "Контроль взгляда", "Gaze monitoring"], ["Test nazorati", "Контроль теста", "Test monitoring"], ["Suratga olish", "Сделать снимок", "Take a photo"], ["Ogohlantirish", "Предупреждение", "Warning"], ["Sezgirlik", "Чувствительность", "Sensitivity"], ["Davomiylik", "Длительность", "Duration"], ["Chegara", "Предел", "Limit"], ["Oraliq", "Интервал", "Interval"], ["To‘g‘ri", "Правильно", "Correct"], ["Testni yakunlash", "Завершить тест", "Finish test"], ["Talaba izohi", "Комментарий студента", "Student comment"], ["Testni boshlash", "Начать тест", "Start test"], ["Savollar", "Вопросы", "Questions"], ["Saqlangan savollar", "Сохранённые вопросы", "Saved questions"], ["Buxoro davlat texnika universiteti", "Бухарский государственный технический университет", "Bukhara State Technical University"], ["Ekologiya, irrigatsiya va gidrotexnika kafedrasi", "Кафедра экологии, ирригации и гидротехники", "Department of Ecology, Irrigation and Hydraulic Engineering"]]){
+    dict.ru[uz]=ru;
+    dict.en[uz]=en;
   }
+  const translatedNodes=new WeakMap();
+  const interfaceSelector='button,label,legend,summary,option,h1,h2,h3,h4,th,.menu-text,.stat';
+  function translateInterface(doc,lang){
+    doc.documentElement.lang=lang;
+    for(const el of doc.querySelectorAll(interfaceSelector)){
+      for(const node of el.childNodes){
+        if(node.nodeType!==3)continue;
+        const current=node.data;
+        const previous=translatedNodes.get(node);
+        const original=previous?.rendered===current?previous.original:current;
+        const rendered=original.replace(/^(\s*(?:[^\p{L}\p{N}\s]+\s+)?)(.*?)(\s*)$/u,
+          (all,before,key,after)=>before+(dict[lang]?.[key]??key)+after);
+        if(rendered!==current)node.data=rendered;
+        if(rendered!==original)translatedNodes.set(node,{original,rendered});
+        else translatedNodes.delete(node);
+      }
+    }
+  }
+  function applyLanguage(lang){
+    if(!['uz','ru','en'].includes(lang))lang='uz';
+    localStorage.setItem('uiLanguage',lang);
+    translateInterface(document,lang);
+    const editor=document.getElementById('itFrame');
+    if(editor?.contentDocument)translateInterface(editor.contentDocument,lang);
+  }
+  document.getElementById('itFrame')?.addEventListener('load',()=>applyLanguage(localStorage.getItem('uiLanguage')||'uz'));
+  window.addEventListener('load',()=>applyLanguage(localStorage.getItem('uiLanguage')||'uz'));
   g('languageSelect')?.addEventListener('change',e=>applyLanguage(e.target.value));
 
   function initExtras(){
@@ -11808,16 +11962,6 @@ renderAdvanced();
     el.innerHTML=`<span class="menu-icon">${icon||'•'}</span><span class="menu-text">${label}</span><span class="menu-arrow">‹</span>`;
   }
 
-  function decorateLanguageSelect(sel){
-    if(!sel || sel.dataset.hemisDecorated==='1') return;
-    sel.dataset.hemisDecorated='1';
-    const wrap=document.createElement('div');
-    wrap.className='hemis-language-wrap';
-    wrap.innerHTML=`<div class="hemis-language-label"><span class="menu-icon">🌐</span><span class="menu-text">Til</span><span class="menu-arrow">‹</span></div>`;
-    sel.classList.remove('nav-btn');
-    wrap.appendChild(sel);
-    groupOther.appendChild(wrap);
-  }
 
   [pick('homeBtn'),pick('suratBtn'),pick('maxrajBtn')].filter(Boolean).forEach(el=>{el.style.display='none';el.setAttribute('aria-hidden','true');});
   // Ishchi bo‘lim endi Boshqaruv bo‘limining ichida turadi.
@@ -11843,10 +11987,17 @@ renderAdvanced();
   // Login/chiqish yuqori o‘ngdagi profil menyusida qoladi.
   [pick('calendarBtn'),pick('freeRoomBtn'),pick('freeTeacherBtn'),pick('smartRoomBtn'),pick('smartTimeBtn')].filter(Boolean).forEach(el=>{decorateButton(el,menuIcons[el.id]); groupFunctions.appendChild(el);});
   [pick('exceptionBtn'),pick('structureBtn')].filter(Boolean).forEach(el=>{decorateButton(el,menuIcons[el.id]); groupOther.appendChild(el);});
-  decorateLanguageSelect(pick('languageSelect'));
 
   const topbarRight=document.createElement('div');
   topbarRight.className='topbar-right';
+  const languageSelect=pick('languageSelect');
+  languageSelect.classList.remove('nav-btn');
+  languageSelect.removeAttribute('style');
+  const languageControl=document.createElement('div');
+  languageControl.className='topbar-language';
+  languageControl.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18M5 7h14M5 17h14"/></svg>';
+  languageControl.appendChild(languageSelect);
+  topbarRight.appendChild(languageControl);
   const clock=document.querySelector('.clock');
   if(clock) topbarRight.appendChild(clock);
 
@@ -12249,6 +12400,8 @@ renderAdvanced();
       </button>
       <div class="pro-net-status" id="proNetStatus"><span class="pro-net-dot"></span><span class="pro-net-text">Online</span></div>`;
     const badge=topRight.querySelector('.hemis-user-badge');
+    const languageControl=topRight.querySelector('.topbar-language');
+    if(languageControl)tools.appendChild(languageControl);
     topRight.insertBefore(tools,badge||null);
     tools.querySelector('.pro-search-btn').addEventListener('click',openSearch);
     updateNet();
@@ -14236,6 +14389,7 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
       <button class="ultra-btn" data-ultra="groupload"><span class="ico">◎</span><span class="menu-text">Guruh yuklamasi</span><span class="menu-arrow">‹</span></button>
       <button class="ultra-btn" data-ultra="qr"><span class="ico">▣</span><span class="menu-text">QR jadval</span><span class="menu-arrow">‹</span></button>
       <button class="ultra-btn" data-ultra="screen"><span class="ico">▰</span><span class="menu-text">Read-only ekran</span><span class="menu-arrow">‹</span></button>
+      <button type="button" class="ultra-btn" id="startupSettingsBtn" ${['admin','superadmin'].includes(db.currentUser?.role)?'':'hidden'}><span class="ico">⚙</span><span class="menu-text">Aqlli boshlash</span><span class="menu-arrow">‹</span></button>
       <button class="ultra-btn" data-ultra="global"><span class="ico">◆</span><span class="menu-text">Global dashboard</span><span class="menu-arrow">‹</span></button>`;
     sidebar.appendChild(s);
     s.addEventListener("click",ev=>{
@@ -17546,7 +17700,7 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
 <div id="simpleInfoModal" aria-hidden="true">
   <div class="sir-card">
     <div class="sir-top">
-      <h3>Ma’lumotlar</h3>
+      <h3><span class="it-editor-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4zM4 10h16M4 14h16M10 6v12"/></svg></span>Ma’lumotlar</h3>
       <button class="sir-btn" id="sirExportCsv">Excel eksport</button>
       <button class="sir-btn" id="sirImportCsv">Excel import</button>
       <button class="sir-btn danger" id="sirClose">✕</button>
@@ -18606,7 +18760,7 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
  const sourceOpts=[['','— Bog‘lanmagan —'],['name','F.I.Sh.'],['phone','Telefon'],['degree','Ilmiy daraja'],['position','Lavozim'],['department','Kafedra'],['passport','Pasport'],['pinfl','JShShIR'],['email','E-mail'],['birthDate','Tug‘ilgan sana'],['address','Manzil'],['specialty','Mutaxassislik']];
  function sourceValue(t,k){return k==='name'?(t.name||''):(t[k]??'')}
  function mount(){ensure();if(g('dataCollectionModal'))return;
-  document.body.insertAdjacentHTML('beforeend',`<div class="modal" id="dataCollectionModal"><div class="modal-card" style="width:min(1280px,98vw);max-height:94vh"><div class="modal-top"><div><h2 style="margin:0;color:var(--navy)">Ma’lumot yig‘ish</h2><p class="note" style="margin:4px 0 0">Boshqaruv panelining mustaqil moduli</p></div><button class="close win-close" id="dcCloseMain" aria-label="Yopish" title="Yopish">×</button></div><section id="dataCollectionTab" style="display:block;margin-top:12px"><div class="dc-shell"><div class="dc-head"><div><h3 style="margin:0;color:var(--navy)">Ma’lumot yig‘ish markazi</h3><div class="note">Namuna asosida o‘qituvchilardan ma’lumot yig‘ish, tekshirish va umumlashtirish.</div></div><div class="actions"><button class="btn primary" id="dcNew">+ Yangi so‘rov</button><button class="btn ghost" id="dcKioskOpen">To‘ldirish rejimi</button><label class="dc-persist-switch" style="margin-left:8px" title="ON — havola orqali kirilganda yuborilgan so‘rovlar ochiladi; OFF — odatiy login ochiladi"><span style="font-weight:800;margin-right:6px">Havola rejimi</span><input type="checkbox" id="dcKioskPersist"><span class="dc-persist-slider"></span><b id="dcKioskPersistText">OFF</b></label></div></div><div class="dc-kpis" id="dcKpis"></div><div class="dc-main-grid"><div class="dc-column-card"><div class="dc-column-title"><b>So‘rovlar</b><span class="mini">Tanlang yoki yarating</span></div><input class="dc-search" id="dcRequestSearch" placeholder="🔎 So‘rovni qidirish..."><div id="dcRequests"></div></div><div class="dc-column-card"><div class="dc-column-title"><b>O‘qituvchilar holati</b><span class="mini" id="dcResultSummary"></span></div><input class="dc-search" id="dcResultSearch" placeholder="🔎 O‘qituvchini qidirish..."><div class="dc-results" id="dcResults"></div></div></div><div id="dcEditor"></div></div></section></div></div>`);
+  document.body.insertAdjacentHTML('beforeend',`<div class="modal" id="dataCollectionModal"><div class="modal-card" style="width:min(1280px,98vw);max-height:94vh"><div class="modal-top"><div><h2><span class="it-editor-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5H5v16h14V5h-3M8 3h8v5H8zM8 12h8M8 16h8"/></svg></span>Ma’lumot yig‘ish</h2><p class="note" style="margin:4px 0 0">Boshqaruv panelining mustaqil moduli</p></div><button class="close win-close" id="dcCloseMain" aria-label="Yopish" title="Yopish">×</button></div><section id="dataCollectionTab" style="display:block;margin-top:12px"><div class="dc-shell"><div class="dc-head"><div><h3 style="margin:0;color:var(--navy)">Ma’lumot yig‘ish markazi</h3><div class="note">Namuna asosida o‘qituvchilardan ma’lumot yig‘ish, tekshirish va umumlashtirish.</div></div><div class="actions"><button class="btn primary" id="dcNew">+ Yangi so‘rov</button><button class="btn ghost" id="dcKioskOpen">To‘ldirish rejimi</button><label class="dc-persist-switch" style="margin-left:8px" title="ON — havola orqali kirilganda yuborilgan so‘rovlar ochiladi; OFF — odatiy login ochiladi"><span style="font-weight:800;margin-right:6px">Havola rejimi</span><input type="checkbox" id="dcKioskPersist"><span class="dc-persist-slider"></span><b id="dcKioskPersistText">OFF</b></label></div></div><div class="dc-kpis" id="dcKpis"></div><div class="dc-main-grid"><div class="dc-column-card"><div class="dc-column-title"><b>So‘rovlar</b><span class="mini">Tanlang yoki yarating</span></div><input class="dc-search" id="dcRequestSearch" placeholder="🔎 So‘rovni qidirish..."><div id="dcRequests"></div></div><div class="dc-column-card"><div class="dc-column-title"><b>O‘qituvchilar holati</b><span class="mini" id="dcResultSummary"></span></div><input class="dc-search" id="dcResultSearch" placeholder="🔎 O‘qituvchini qidirish..."><div class="dc-results" id="dcResults"></div></div></div><div id="dcEditor"></div></div></section></div></div>`);
   g('dcCloseMain').onclick=()=>g('dataCollectionModal').classList.remove('open');g('dataCollectionModal').addEventListener('click',e=>{if(e.target===g('dataCollectionModal'))g('dataCollectionModal').classList.remove('open')});
   g('dcNew').onclick=()=>editRequest(null);g('dcKioskOpen').onclick=openKiosk;window.dcRender=render;render();
   setupPersistentKioskToggle();
@@ -19724,7 +19878,7 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
 #itAnalyzer iframe{width:100%;height:100%;border:0}
 </style>
 <dialog id="itAnalyzer" aria-labelledby="itAnalyzerTitle">
- <div class="it-head"><h2 id="itAnalyzerTitle">Test tahlilchi</h2><form method="dialog"><button type="submit" class="win-close" aria-label="Yopish" title="Yopish">×</button></form></div>
+ <div class="it-head"><h2 id="itAnalyzerTitle"><span class="it-editor-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16M7 15l4-4 3 2 5-6"/><circle cx="19" cy="7" r="1.4"/></svg></span>Test tahlilchi</h2><svg class="it-chart-motion" aria-hidden="true" viewBox="0 0 360 48" preserveAspectRatio="none"><path pathLength="100" d="M2 42L59 33L105 37L158 23L207 28L263 11L310 17L358 4"/><circle cx="263" cy="11" r="3"/><circle cx="358" cy="4" r="3"/></svg><form method="dialog"><button type="submit" class="win-close" aria-label="Yopish" title="Yopish">×</button></form></div>
  <template id="itAnalyzerContent"><iframe title="Test tahlilchi" sandbox="allow-scripts allow-downloads allow-modals" allow="clipboard-write *" srcdoc="&lt;!DOCTYPE html&gt;
 &lt;html lang=&quot;uz&quot;&gt;
 &lt;head&gt;
@@ -21118,7 +21272,7 @@ document.addEventListener(&quot;DOMContentLoaded&quot;, ()=&gt;{ buildAnswerKeyF
  <div class="gaze-caption"><p id="itGazePrompt">Nuqtaga qarang va uni bosing.</p><button id="itGazeCancel" type="button">Bekor qilish</button></div>
  <button id="itGazePoint" type="button" aria-label="Kalibrlash nuqtasi">●</button>
 </dialog>
-<section id="itEditor" hidden><div class="it-head"><h2>Testlar — boshqaruv</h2><button id="itEditorClose" type="button" class="win-close" aria-label="Yopish" title="Yopish">×</button></div><iframe id="itFrame" title="Test tuzish" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;uz&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width,initial-scale=1&quot;&gt;&lt;title&gt;Oddiy test&lt;/title&gt;
+<section id="itEditor" hidden><div class="it-head"><h2><span class="it-editor-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="m7 9 1.5 1.5L11 8m2 1.5h4m-10 5 1.5 1.5 2.5-2.5m2 1.5h4"/></svg></span>Testlar — boshqaruv</h2><button id="itEditorClose" type="button" class="win-close" aria-label="Yopish" title="Yopish">×</button></div><iframe id="itFrame" title="Test tuzish" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;uz&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width,initial-scale=1&quot;&gt;&lt;title&gt;Oddiy test&lt;/title&gt;
 &lt;style&gt;:root{font-family:Segoe UI,Arial,sans-serif;color:#203750;background:#f3f6f9}*{box-sizing:border-box}body{margin:0}.wrap{max-width:1480px;margin:32px auto;padding:0 15px}.top{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:18px}.top h1{font-size:25px;margin:0}.muted{color:#718293;font-size:13px}.panel{border:1px solid #dbe4ec;border-radius:12px;background:white;padding:23px;margin-bottom:16px;box-shadow:0 3px 10px #152b4110}h2{font-size:17px;margin:0 0 16px}input,textarea{width:100%;font:inherit;font-size:15px;border:1px solid #cad7e2;border-radius:8px;padding:11px;background:white;color:#21364a}textarea{min-height:85px;resize:vertical}label{display:block;font-weight:700;font-size:13px;margin:0 0 7px}.space{margin-bottom:15px}.tools{display:flex;flex-wrap:wrap;gap:9px;align-items:center}button{font:inherit;border:1px solid #d0dce5;border-radius:8px;background:#fff;color:#254967;padding:10px 15px;cursor:pointer;font-weight:700}button:hover{background:#eef6fb}.primary{background:#2684b6;color:#fff;border-color:#2684b6}.primary:hover{background:#1975a6}.item{border:1px solid #e2e9ef;border-radius:9px;padding:13px 15px;margin:9px 0;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.item b{display:block;margin-bottom:5px}.item small{color:#58816b;font-size:12px}.item button{padding:6px 9px;font-size:12px}.hide{display:none!important}.option{display:block;padding:12px;border:1px solid #dce7ef;border-radius:8px;margin:9px 0;cursor:pointer}.option:has(input:checked){background:#eef8fd;border-color:#60aeda}.option input{width:auto;margin-right:10px}.score{font-size:30px;font-weight:800;color:#16815c}.msg{color:#a35420;font-size:13px;margin-top:10px}.testq{border-bottom:1px solid #e4ebf1;padding:12px 0}.testq:last-child{border:0}.settings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:15px 0}.settings label{margin-bottom:0}.settings input{margin-top:6px}.toolbar-row{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;margin:15px 0;padding:14px;border:1px solid #dbe7f0;border-radius:12px;background:linear-gradient(180deg,#f9fcfe 0%,#f4f9fc 100%)}.toolbar-field{flex:1 1 210px;min-width:180px}.toolbar-field label{margin:0;font-weight:700;font-size:13px}.toolbar-field input{margin-top:6px;height:52px}.toolbar-actions{display:flex;align-items:flex-end;gap:9px;flex-wrap:wrap;flex:999 1 560px}.toolbar-actions button{height:52px;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;padding:10px 16px;border-radius:10px}.exam-status{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 8px}.timer{font-weight:800;color:#176b94;border:1px solid #cfe3ef;border-radius:7px;padding:8px 12px;background:#f4fbff}.timer.warning{color:#b42318;background:#fff1f0;border-color:#f5c9c9}.stamp{background:#e7f5fc;color:#267caa;border-radius:30px;padding:5px 10px;font-size:12px;font-weight:700}@media(max-width:900px){.toolbar-row{align-items:stretch}.toolbar-actions{flex-basis:100%}.toolbar-actions button{flex:1 1 180px}}@media(max-width:600px){.wrap{margin:14px auto}.panel{padding:16px}.top h1{font-size:21px}.toolbar-row{padding:12px}.toolbar-field,.toolbar-actions{flex-basis:100%}.toolbar-actions button{width:100%}}
 /* Fan va kirish ma&#x27;lumotlari bir qatorda */
 .auth-config{display:grid;grid-template-columns:minmax(230px,1.8fr) minmax(180px,1fr) minmax(180px,1fr) auto;gap:14px;align-items:end;margin:0 0 16px;padding:14px 16px;border:1px solid #dbe6ef;border-radius:14px;background:linear-gradient(180deg,#fbfdff 0%,#f5f9fc 100%)}
@@ -21202,6 +21356,7 @@ document.addEventListener(&quot;DOMContentLoaded&quot;, ()=&gt;{ buildAnswerKeyF
 }
 
 /* Xatoli savol qatorini muharrir ichida ko‘rsatish */
+#source.question-error-active::selection{background:#ffe16b;color:#302600}
 #source.question-error-active{outline:2px solid #df7063!important;border-color:#cf4435!important;
  box-shadow:0 0 0 3px rgba(207,68,53,.10)!important}
 
@@ -21390,9 +21545,9 @@ document.addEventListener(&quot;DOMContentLoaded&quot;, ()=&gt;{ buildAnswerKeyF
 .test-editor-top .credential-help p{box-sizing:border-box;overflow-wrap:anywhere;line-height:1.45}
 
 @media(min-width:951px){
- #edit&gt;.test-editor-top{flex:1 0 auto}
+ #edit&gt;.test-editor-top{flex:1 1 auto;min-height:0}
  .test-editor-questions .space{flex:1;display:flex;margin:0}
- #edit .test-editor-questions #source{width:100%;min-height:160px!important}
+ #edit .test-editor-questions #source{flex:1 1 0;width:100%;height:auto!important;min-height:96px!important;margin:0;resize:none}
 }
 .test-editor-top .auth-config{padding:8px 10px!important;gap:6px!important}
 .test-editor-top .test-credentials{padding:3px 6px 6px}
@@ -21404,10 +21559,45 @@ document.addEventListener(&quot;DOMContentLoaded&quot;, ()=&gt;{ buildAnswerKeyF
 .test-editor-top .credential-heading .credential-help summary{box-sizing:border-box;width:15px;height:15px;border-color:#cfe0ef;color:#215779;font:700 10px/1 Arial,sans-serif}
 .test-editor-top .credential-heading .credential-help p{left:auto;right:0}
 @media(max-width:700px){.test-editor-top{grid-template-columns:minmax(0,1fr)}}
+@media(min-width:951px) and (max-height:720px){
+ #edit .test-editor-top .auth-config{gap:4px!important}
+ #edit .test-editor-top .auth-config :is(input,select),#edit .test-editor-actions button{height:30px!important;min-height:30px!important}
+ #edit .quiz-settings-group .shuffle-toggle{min-height:28px!important;padding-block:4px!important}
+ #edit .quiz-settings-group{padding:6px;gap:4px}
+}
+
 .test-editor-sidebar{display:flex;flex-direction:column;gap:8px;min-width:0}
 .test-editor-sidebar .auth-config{width:100%}
+#edit .test-editor-sidebar .auth-config &gt; .quiz-section-help{position:absolute;right:3px;top:3px}
 #edit .test-editor-sidebar #msg{box-sizing:border-box;flex:0 0 42px;height:42px;margin:0;padding:4px 10px;border:1px solid #f1b7b7;border-left:4px solid #c62828;border-radius:8px;background:#fff1f1;color:#a51d23;font:700 13px/1.18 Segoe UI,Arial,sans-serif;overflow:hidden;overflow-wrap:anywhere}
 #edit .test-editor-sidebar #msg:empty{visibility:hidden}
+#edit .test-editor-sidebar #msg.msg-saved{color:#166534;background:#edf9ef;border-color:#a9d8b4;border-left-color:#278649}
+#edit .test-editor-sidebar #msg.msg-jump{position:relative;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+#edit .test-editor-sidebar #msg.msg-jump::after{
+ content:&quot;&quot;;position:absolute;left:50%;top:50%;width:20px;height:20px;pointer-events:none;
+ background:center/contain no-repeat url(&quot;data:image/svg+xml,%3Csvg xmlns=&#x27;http://www.w3.org/2000/svg&#x27; viewBox=&#x27;0 0 24 24&#x27;%3E%3Cpath d=&#x27;M11 19c-2-1-3-3-4-4l-3-3a1.5 1.5 0 0 1 2-2l4 2V5a1.5 1.5 0 1 1 3 0v4h1a2 2 0 0 1 2 2h1a2 2 0 0 1 2 2v2c0 3-2 6-5 6h-2z&#x27; fill=&#x27;%23ffffff&#x27; stroke=&#x27;%23173b5f&#x27; stroke-width=&#x27;1.5&#x27; stroke-linejoin=&#x27;round&#x27;/%3E%3C/svg%3E&quot;);
+ transform:translateY(-50%) rotate(-45deg);opacity:0;animation:msg-point-in 3s ease-in-out infinite;
+}
+#edit .test-editor-sidebar #msg.msg-jump::before{
+ content:&quot;&quot;;position:absolute;left:50%;top:50%;width:20px;height:20px;border:2px solid #173b5f;border-radius:50%;
+ pointer-events:none;opacity:0;animation:msg-click-ring 3s ease-out infinite;
+}
+#edit .test-editor-sidebar #msg.msg-jump-ack::before,#edit .test-editor-sidebar #msg.msg-jump-ack::after{animation:none;opacity:0}
+@keyframes msg-point-in{
+ 0%{left:100%;opacity:0}
+ 40%,49%{left:50%;opacity:1;transform:translateY(-50%) rotate(-45deg)}
+ 56%{left:50%;opacity:1;transform:translateY(-50%) rotate(-45deg) scale(.77)}
+ 64%,82%{left:50%;opacity:1;transform:translateY(-50%) rotate(-45deg)}
+ 100%{left:50%;opacity:0}
+}
+@keyframes msg-click-ring{
+ 0%,55%{transform:translate(-50%,-50%) scale(.35);opacity:0}
+ 56%{transform:translate(-50%,-50%) scale(.35);opacity:.9}
+ 78%,100%{transform:translate(-50%,-50%) scale(1.65);opacity:0}
+}
+@media(prefers-reduced-motion:reduce){#edit .test-editor-sidebar #msg.msg-jump::before,#edit .test-editor-sidebar #msg.msg-jump::after{animation:none}}
+#edit .test-editor-sidebar #msg.msg-jump:is(:hover,:focus-visible){background:#ffe1e1;outline:2px solid #be343b;outline-offset:-2px}
+
 .test-editor-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
 .test-editor-top .test-editor-actions button{width:100%!important;min-width:0!important;height:36px!important;min-height:36px!important;margin:0;padding:5px 6px!important;font-size:12px}
 
@@ -21437,6 +21627,20 @@ document.addEventListener(&quot;DOMContentLoaded&quot;, ()=&gt;{ buildAnswerKeyF
 #quizSectionHelp h3{margin:0 32px 8px 0;color:#163a5b}
 #quizSectionHelp p{margin:6px 0}
 #quizSectionHelpClose{float:right;cursor:pointer}
+
+.quiz-settings-group[aria-labelledby=&quot;quizModesTitle&quot;]{position:relative;isolation:isolate}
+.quiz-mode-motion{position:absolute;left:8px;bottom:0;width:calc(100% - 16px);height:clamp(55px,9vh,84px);z-index:-1;pointer-events:none;color:#247eac}
+.quiz-motion-rail{stroke:#58a9cf;stroke-width:1.4;opacity:.45}
+.quiz-motion-signal{fill:#2598c6;stroke:none;animation:quiz-signal-travel 8s linear infinite}
+@keyframes quiz-signal-travel{from{cx:3%;opacity:.85}to{cx:97%;opacity:.85}}
+@media(prefers-reduced-motion:reduce){.quiz-motion-signal{animation:none;opacity:.35}}
+.quiz-mode-motion&gt;svg{overflow:visible}
+.quiz-motion-symbol{scale:1.125;opacity:.08;transform-box:fill-box;transform-origin:center;animation:quiz-symbol-pulse 12s ease-in-out infinite}
+.quiz-mode-motion&gt;svg:nth-of-type(2)&gt;.quiz-motion-symbol{animation-delay:3s}
+.quiz-mode-motion&gt;svg:nth-of-type(3)&gt;.quiz-motion-symbol{animation-delay:6s}
+.quiz-mode-motion&gt;svg:nth-of-type(4)&gt;.quiz-motion-symbol{animation-delay:9s}
+@keyframes quiz-symbol-pulse{0%,26%,100%{opacity:.08;transform:translateY(4px) scale(.93)}12%{opacity:.42;transform:translateY(-4px) scale(1.07)}}
+@media(prefers-reduced-motion:reduce){.quiz-motion-symbol{animation:none}}
 &lt;/style&gt;&lt;/head&gt;
 &lt;body&gt;&lt;main class=&quot;wrap&quot;&gt;&lt;span class=&quot;hide&quot; id=&quot;count&quot; aria-hidden=&quot;true&quot;&gt;0 ta savol&lt;/span&gt;
 &lt;section class=&quot;panel&quot; id=&quot;edit&quot;&gt;
@@ -21449,7 +21653,7 @@ document.addEventListener(&quot;DOMContentLoaded&quot;, ()=&gt;{ buildAnswerKeyF
 &lt;/div&gt;
 &lt;small id=&quot;subjectAvailableCount&quot; class=&quot;subject-available-count&quot;&gt;Mavjud fanlar ro‘yxati&lt;/small&gt;
 &lt;datalist id=&quot;subjectNameOptions&quot;&gt;&lt;/datalist&gt;
-&lt;/label&gt;&lt;div class=&quot;test-credentials test-credentials-student&quot; role=&quot;group&quot; aria-label=&quot;Talaba&quot;&gt;&lt;div class=&quot;credential-heading&quot;&gt;&lt;span&gt;Talaba&lt;/span&gt;&lt;details class=&quot;credential-help&quot;&gt;&lt;summary aria-label=&quot;Talaba kirishi haqida&quot;&gt;?&lt;/summary&gt;&lt;p&gt;Bu login va parol bilan talaba test topshirish oynasiga kiradi.&lt;/p&gt;&lt;/details&gt;&lt;/div&gt;&lt;div class=&quot;credential-fields&quot;&gt;&lt;label&gt;Login&lt;input id=&quot;accessLogin&quot; type=&quot;text&quot; placeholder=&quot;Login belgilang&quot; autocomplete=&quot;off&quot;&gt;&lt;/label&gt;&lt;label&gt;Parol&lt;input id=&quot;accessPassword&quot; type=&quot;text&quot; placeholder=&quot;Parol belgilang&quot; autocomplete=&quot;new-password&quot;&gt;&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;test-credentials test-credentials-teacher&quot; role=&quot;group&quot; aria-label=&quot;O‘qituvchi&quot;&gt;&lt;div class=&quot;credential-heading&quot;&gt;&lt;span&gt;O‘qituvchi&lt;/span&gt;&lt;details class=&quot;credential-help&quot;&gt;&lt;summary aria-label=&quot;O‘qituvchi kirishi haqida&quot;&gt;?&lt;/summary&gt;&lt;p&gt;Bu login va parol bilan o‘qituvchi o‘ziga biriktirilgan fanlarning test boshqaruvi va hisobotini ochadi.&lt;/p&gt;&lt;/details&gt;&lt;/div&gt;&lt;div class=&quot;credential-fields&quot;&gt;&lt;label&gt;Login&lt;input id=&quot;teacherTestLogin&quot; type=&quot;text&quot; autocomplete=&quot;off&quot;&gt;&lt;/label&gt;&lt;label&gt;Parol&lt;input id=&quot;teacherTestPassword&quot; type=&quot;text&quot; autocomplete=&quot;new-password&quot;&gt;&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;test-editor-actions&quot;&gt;&lt;button class=&quot;primary&quot; id=&quot;add&quot;&gt;Saqlash&lt;/button&gt;
+&lt;/label&gt;&lt;div class=&quot;test-credentials test-credentials-student&quot; role=&quot;group&quot; aria-label=&quot;Talaba&quot;&gt;&lt;div class=&quot;credential-heading&quot;&gt;&lt;span&gt;Talaba&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;credential-fields&quot;&gt;&lt;label&gt;Login&lt;input id=&quot;accessLogin&quot; type=&quot;text&quot; placeholder=&quot;Login belgilang&quot; autocomplete=&quot;off&quot;&gt;&lt;/label&gt;&lt;label&gt;Parol&lt;input id=&quot;accessPassword&quot; type=&quot;text&quot; placeholder=&quot;Parol belgilang&quot; autocomplete=&quot;new-password&quot;&gt;&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;test-credentials test-credentials-teacher&quot; role=&quot;group&quot; aria-label=&quot;O‘qituvchi&quot;&gt;&lt;div class=&quot;credential-heading&quot;&gt;&lt;span&gt;O‘qituvchi&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;credential-fields&quot;&gt;&lt;label&gt;Login&lt;input id=&quot;teacherTestLogin&quot; type=&quot;text&quot; autocomplete=&quot;off&quot;&gt;&lt;/label&gt;&lt;label&gt;Parol&lt;input id=&quot;teacherTestPassword&quot; type=&quot;text&quot; autocomplete=&quot;new-password&quot;&gt;&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;test-editor-actions&quot;&gt;&lt;button class=&quot;primary&quot; id=&quot;add&quot;&gt;Saqlash&lt;/button&gt;
   &lt;button class=&quot;primary&quot; id=&quot;take&quot;&gt;Testni yechish&lt;/button&gt;&lt;button type=&quot;button&quot; id=&quot;itReportOpen&quot; onclick=&quot;parent.postMessage({type:&#x27;open-integrated-test-report&#x27;},&#x27;*&#x27;)&quot;&gt;Test hisoboti&lt;/button&gt;&lt;button type=&quot;button&quot; id=&quot;deleteSubject&quot; class=&quot;subject-delete-btn&quot;&gt;O‘chirish&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;div id=&quot;msg&quot; class=&quot;msg&quot; role=&quot;status&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;div class=&quot;toolbar-row quiz-settings&quot; aria-label=&quot;Test sozlamalari&quot;&gt;
  &lt;div class=&quot;quiz-settings-grid&quot;&gt;
@@ -21554,6 +21758,12 @@ document.addEventListener(&quot;DOMContentLoaded&quot;, ()=&gt;{ buildAnswerKeyF
  &lt;/div&gt;
 &lt;/div&gt;
   &lt;/div&gt;&lt;/div&gt;&lt;button id=&quot;quizMonitoringButton&quot; type=&quot;button&quot; class=&quot;quiz-mode-emblem&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; viewBox=&quot;0 0 40 40&quot; fill=&quot;none&quot;&gt;&lt;path d=&quot;M20 4 33 9v10c0 8-5 13-13 17C12 32 7 27 7 19V9l13-5Z&quot; fill=&quot;#e2f0fb&quot; stroke=&quot;#4380a5&quot; stroke-width=&quot;2&quot;/&gt;&lt;path d=&quot;m14 20 4 4 8-9&quot; stroke=&quot;#2678a1&quot; stroke-width=&quot;2.5&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;&lt;span&gt;Test nazorati&lt;/span&gt;&lt;/button&gt;&lt;/div&gt;
+&lt;svg class=&quot;quiz-mode-motion&quot; aria-hidden=&quot;true&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;
+&lt;line class=&quot;quiz-motion-rail&quot; x1=&quot;3%&quot; x2=&quot;97%&quot; y1=&quot;91%&quot; y2=&quot;91%&quot;/&gt;&lt;circle class=&quot;quiz-motion-signal&quot; cx=&quot;3%&quot; cy=&quot;91%&quot; r=&quot;3&quot;/&gt;&lt;svg x=&quot;0%&quot; width=&quot;25%&quot; height=&quot;84%&quot; viewBox=&quot;0 0 90 100&quot; preserveAspectRatio=&quot;xMidYMid meet&quot;&gt;&lt;g class=&quot;quiz-motion-symbol&quot;&gt;&lt;path d=&quot;M40 4 72 16v20c0 22-13 38-32 48C21 74 8 58 8 36V16Z&quot;/&gt;&lt;path d=&quot;m25 43 10 10 20-22&quot;/&gt;&lt;/g&gt;&lt;/svg&gt;
+&lt;svg x=&quot;25%&quot; width=&quot;25%&quot; height=&quot;84%&quot; viewBox=&quot;0 0 90 100&quot; preserveAspectRatio=&quot;xMidYMid meet&quot;&gt;&lt;g class=&quot;quiz-motion-symbol&quot;&gt;&lt;path d=&quot;M20 20 60 12 72 52 40 76 10 52Zm0 0 20 56m20-64L10 52m62 0H10&quot;/&gt;&lt;circle cx=&quot;20&quot; cy=&quot;20&quot; r=&quot;5&quot;/&gt;&lt;circle cx=&quot;60&quot; cy=&quot;12&quot; r=&quot;5&quot;/&gt;&lt;circle cx=&quot;72&quot; cy=&quot;52&quot; r=&quot;5&quot;/&gt;&lt;circle cx=&quot;40&quot; cy=&quot;76&quot; r=&quot;5&quot;/&gt;&lt;circle cx=&quot;10&quot; cy=&quot;52&quot; r=&quot;5&quot;/&gt;&lt;/g&gt;&lt;/svg&gt;
+&lt;svg x=&quot;50%&quot; width=&quot;25%&quot; height=&quot;84%&quot; viewBox=&quot;0 0 90 100&quot; preserveAspectRatio=&quot;xMidYMid meet&quot;&gt;&lt;g class=&quot;quiz-motion-symbol&quot;&gt;&lt;path d=&quot;M4 44h12l8-16 10 34 12-48 11 58 9-28h14&quot;/&gt;&lt;path d=&quot;M4 83h76&quot; opacity=&quot;.4&quot;/&gt;&lt;/g&gt;&lt;/svg&gt;
+&lt;svg x=&quot;75%&quot; width=&quot;25%&quot; height=&quot;84%&quot; viewBox=&quot;0 0 90 100&quot; preserveAspectRatio=&quot;xMidYMid meet&quot;&gt;&lt;g class=&quot;quiz-motion-symbol&quot;&gt;&lt;path d=&quot;M4 44q38-42 76 0-38 42-76 0Z&quot;/&gt;&lt;circle cx=&quot;42&quot; cy=&quot;44&quot; r=&quot;12&quot;/&gt;&lt;path d=&quot;M4 22V10h12m52 0h12v12M4 66v12h12m52 0h12V66&quot; opacity=&quot;.65&quot;/&gt;&lt;/g&gt;&lt;/svg&gt;
+&lt;/svg&gt;
 &lt;/section&gt;
  &lt;/div&gt;
  
@@ -21705,24 +21915,22 @@ const quizSectionNotes={
  ]
 };
 const quizSectionDialog=$(&#x27;quizSectionHelp&#x27;);
-const credentialNotes=[
- [&#x27;.test-credentials-student&#x27;,&#x27;Talaba&#x27;,[
-  [&#x27;Login va parol&#x27;,&#x27;Talaba tanlangan fan testiga shu ma’lumotlar bilan kiradi.&#x27;],
-  [&#x27;Testni boshlash&#x27;,&#x27;Kirgandan keyin talaba ism-familiyasi va guruhini kiritadi.&#x27;]
- ]],
- [&#x27;.test-credentials-teacher&#x27;,&#x27;O‘qituvchi&#x27;,[
-  [&#x27;Login va parol&#x27;,&#x27;O‘qituvchi shu ma’lumotlar bilan o‘ziga biriktirilgan fanlarning test boshqaruviga kiradi.&#x27;],
-  [&#x27;Test hisoboti&#x27;,&#x27;O‘qituvchi o‘ziga biriktirilgan fanlar bo‘yicha test natijalarini ko‘radi.&#x27;]
- ]]
-];
-for(const [selector,title,notes] of credentialNotes){
- const summary=document.querySelector(selector+&#x27; .credential-help summary&#x27;);
- summary.setAttribute(&#x27;aria-haspopup&#x27;,&#x27;dialog&#x27;);
- summary.addEventListener(&#x27;click&#x27;,event=&gt;{
-  event.preventDefault();
-  openQuizHelp(title,notes);
- });
-}
+const authHelp=document.createElement(&#x27;button&#x27;);
+authHelp.type=&#x27;button&#x27;;
+authHelp.className=&#x27;quiz-section-help&#x27;;
+authHelp.textContent=&#x27;?&#x27;;
+authHelp.setAttribute(&#x27;aria-label&#x27;,&#x27;Fan va test boshqaruvi haqida&#x27;);
+authHelp.setAttribute(&#x27;aria-haspopup&#x27;,&#x27;dialog&#x27;);
+document.querySelector(&#x27;.test-editor-sidebar .auth-config&#x27;).append(authHelp);
+authHelp.onclick=()=&gt;openQuizHelp(&#x27;Fan va test boshqaruvi&#x27;,[
+ [&#x27;Fan nomi&#x27;,&#x27;Mavjud fanlar ro‘yxatidan fanni tanlang yoki yangi fan nomini yozing. Savollar va kirish ma’lumotlari har bir fan uchun alohida saqlanadi.&#x27;],
+ [&#x27;Talaba login va paroli&#x27;,&#x27;Talaba tanlangan fan testiga shu ma’lumotlar bilan kiradi. Test boshlanishidan oldin ism-familiyasi va guruhini kiritadi.&#x27;],
+ [&#x27;O‘qituvchi login va paroli&#x27;,&#x27;O‘qituvchi shu ma’lumotlar bilan o‘ziga biriktirilgan fanlarning test boshqaruvi va hisobotini ochadi.&#x27;],
+ [&#x27;Saqlash&#x27;,&#x27;Tanlangan fan uchun kiritilgan savollar va sozlamalarni saqlaydi.&#x27;],
+ [&#x27;Testni yechish&#x27;,&#x27;Tanlangan fan bo‘yicha testga kirish oynasini ochadi.&#x27;],
+ [&#x27;Test hisoboti&#x27;,&#x27;Test topshirgan talabalar natijalarini ko‘rish oynasini ochadi.&#x27;],
+ [&#x27;O‘chirish&#x27;,&#x27;Tanlangan fanni o‘chirishni tasdiqlash oynasini ochadi.&#x27;]
+]);
 function openQuizHelp(title,notes){
  $(&#x27;quizSectionHelpTitle&#x27;).textContent=title;
  const body=$(&#x27;quizSectionHelpBody&#x27;);
@@ -21805,9 +22013,28 @@ function fitEditorMessage(){
 }
 function notify(t){
  const message=$(&#x27;msg&#x27;);
- message.textContent=t;
- message.title=message.scrollHeight&gt;message.clientHeight?t:&#x27;&#x27;;
+ const match=String(t).match(/\(qator:\s*([1-9]\d*)\)\s*$/i);
+ const row=match?Number(match[1]):null;
+ message.textContent=row===null?t:String(t).replace(match[0],`(${row}‑qator)`);
+ message.classList.toggle(&#x27;msg-jump&#x27;,row!==null);
+ message.classList.toggle(&#x27;msg-saved&#x27;,/^\d+ ta savol saqlandi\.$/.test(t));
+ message.classList.remove(&#x27;msg-jump-ack&#x27;);
+ if(row!==null){
+  message.tabIndex=0;
+  message.setAttribute(&#x27;role&#x27;,&#x27;button&#x27;);
+  message.setAttribute(&#x27;aria-label&#x27;,t+&#x27; Muammoli qatorga o‘tish.&#x27;);
+  message.onclick=()=&gt;{message.classList.add(&#x27;msg-jump-ack&#x27;);showQuestionError({line:row});};
+  message.onkeydown=event=&gt;{
+   if(event.key===&#x27;Enter&#x27;||event.key===&#x27; &#x27;){event.preventDefault();message.click();}
+  };
+ }else{
+  message.removeAttribute(&#x27;tabindex&#x27;);
+  message.removeAttribute(&#x27;aria-label&#x27;);
+  message.setAttribute(&#x27;role&#x27;,&#x27;status&#x27;);
+  message.onclick=message.onkeydown=null;
+ }
  fitEditorMessage();
+ message.title=row!==null?t+&#x27; · Muammoli qatorga o‘tish uchun bosing.&#x27;:message.scrollHeight&gt;message.clientHeight?t:&#x27;&#x27;;
 }
 new ResizeObserver(fitEditorMessage).observe($(&#x27;msg&#x27;));
 function normalize(s){return String(s).trim().toLocaleLowerCase(&#x27;uz&#x27;)}
@@ -21847,7 +22074,7 @@ function parseText(text){
   }
  }
  finish();
- if(!out.length)fail(&#x27;Savol topilmadi. Savol oldiga ++++ yozing&#x27;,1);
+ if(!out.length)fail(&#x27;Savolni ++++ bilan boshlang.&#x27;,1);
  return out;
 }
 function showQuestionError(error){
@@ -21857,12 +22084,24 @@ function showQuestionError(error){
  const row=Math.max(1,Math.min(error.line,lines.length));
  let pos=0;
  for(let i=0;i&lt;row-1;i++)pos+=lines[i].length+1;
- area.focus();
+ area.focus({preventScroll:true});
  area.setSelectionRange(pos,pos+lines[row-1].length);
- const before=area.value.slice(0,pos);
- const count=before.split(&#x27;\n&#x27;).length-1;
- const lineHeight=parseFloat(getComputedStyle(area).lineHeight)||23;
- area.scrollTop=Math.max(0,count*lineHeight-area.clientHeight/3);
+ const style=getComputedStyle(area);
+ const mirror=document.createElement(&#x27;div&#x27;);
+ Object.assign(mirror.style,{
+  position:&#x27;fixed&#x27;,top:&#x27;0&#x27;,left:&#x27;0&#x27;,visibility:&#x27;hidden&#x27;,pointerEvents:&#x27;none&#x27;,
+  boxSizing:&#x27;border-box&#x27;,width:area.clientWidth+&#x27;px&#x27;,padding:style.padding,
+  font:style.font,lineHeight:style.lineHeight,letterSpacing:style.letterSpacing,
+  tabSize:style.tabSize,whiteSpace:area.wrap===&#x27;off&#x27;?&#x27;pre&#x27;:&#x27;pre-wrap&#x27;,overflowWrap:&#x27;break-word&#x27;
+ });
+ const marker=document.createElement(&#x27;span&#x27;);
+ marker.textContent=lines[row-1]||String.fromCharCode(8203);
+ mirror.append(area.value.slice(0,pos),marker,area.value.slice(pos+lines[row-1].length));
+ document.body.append(mirror);
+ const offset=marker.getBoundingClientRect().top-mirror.getBoundingClientRect().top;
+ mirror.remove();
+ area.scrollTop=Math.max(0,offset-area.clientHeight/2);
+ area.scrollIntoView({block:&#x27;nearest&#x27;,inline:&#x27;nearest&#x27;});
  area.classList.add(&#x27;question-error-active&#x27;);
  clearTimeout(area._errorTimer);
  area._errorTimer=setTimeout(()=&gt;area.classList.remove(&#x27;question-error-active&#x27;),4000);
@@ -23623,6 +23862,44 @@ window.addEventListener('message',e=>{
 #simpleInfoModal.open .sir-top{flex:0 0 auto}
 #simpleInfoModal.open .sir-body{overflow:auto}
 #simpleInfoModal.open .sir-col{min-height:0}
+</style>
+<style>
+:is(#itEditor,#itAnalyzer)>.it-head,#simpleInfoModal>.sir-card>.sir-top,#dataCollectionModal>.modal-card>.modal-top{
+ box-sizing:border-box!important;height:62px!important;min-height:62px!important;max-height:62px!important;flex:0 0 62px!important;
+ display:flex!important;align-items:center!important;gap:8px!important;padding:0 12px!important;
+}
+#simpleInfoModal>.sir-card>.sir-top,#dataCollectionModal>.modal-card>.modal-top{
+ position:relative;isolation:isolate;overflow:hidden;background:linear-gradient(110deg,#0b2544,#14476c 60%,#126576)!important;
+ border-top:0!important;border-bottom:2px solid #70d6e2!important;box-shadow:none!important;color:#fff;
+}
+:is(#itEditor,#itAnalyzer)>.it-head h2,#simpleInfoModal .sir-top h3,#dataCollectionModal .modal-top h2{
+ display:flex;align-items:center;gap:8px;margin:0!important;color:#fff!important;font-size:clamp(15px,2vw,22px)!important;
+}
+#simpleInfoModal .sir-top h3{margin-right:auto!important}
+#dataCollectionModal .modal-top .note{display:none}
+#simpleInfoModal .it-editor-mark,#dataCollectionModal .it-editor-mark{
+ display:grid;place-items:center;width:38px;height:38px;flex:none;border:1px solid #a5edf06b;border-radius:10px;background:#b6f2ff1f;color:#bff6ff
+}
+:is(#simpleInfoModal,#dataCollectionModal) .it-editor-mark svg{width:21px;height:21px}
+:is(#itEditorClose,#itAnalyzer .it-head .win-close,#sirClose,#dcCloseMain){
+ box-sizing:border-box!important;width:38px!important;height:38px!important;min-width:38px!important;min-height:38px!important;
+ padding:0!important;flex:none;border-radius:9px!important;border:1px solid #b6f2ff6b!important;background:#ffffff20!important;color:#fff!important;
+}
+#simpleInfoModal .sir-top :is(#sirExportCsv,#sirImportCsv){padding-inline:6px;font-size:clamp(9px,1.2vw,12px)}
+#dataCollectionModal .modal-top::after,#simpleInfoModal .sir-top::after{
+ content:"";position:absolute;right:64px;top:0;width:min(44%,440px);height:100%;z-index:-1;pointer-events:none;
+}
+#dataCollectionModal .modal-top::after{
+ background:radial-gradient(circle,#83f0ee 0 2px,transparent 3px) 0 0/24px 14px;
+ mask-image:linear-gradient(90deg,transparent,#000 50%,transparent);animation:dc-packet-flow 6s linear infinite;
+}
+#simpleInfoModal .sir-top::after{
+ background:repeating-linear-gradient(90deg,#8cf0ff64 0 6px,transparent 6px 14px);
+ mask-image:linear-gradient(0deg,#000,transparent);transform-origin:bottom;animation:sir-bars-rise 5s ease-in-out infinite;
+}
+@keyframes dc-packet-flow{from{background-position:0 0;opacity:.25}50%{opacity:.72}to{background-position:96px 28px;opacity:.25}}
+@keyframes sir-bars-rise{0%,100%{transform:scaleY(.25);opacity:.2}55%{transform:scaleY(.9);opacity:.65}}
+@media(prefers-reduced-motion:reduce){#dataCollectionModal .modal-top::after,#simpleInfoModal .sir-top::after{animation:none}}
 </style>
 </body>
 </html>
