@@ -21400,8 +21400,14 @@ document.addEventListener(&quot;DOMContentLoaded&quot;, ()=&gt;{ buildAnswerKeyF
 .test-editor-top .test-credentials .credential-heading{font-size:14px}
 .credential-heading{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;line-height:1.2}
 .credential-heading .credential-help{flex:none}
-.credential-heading .credential-help summary{box-sizing:border-box}
+.test-editor-top .credential-heading .credential-help{position:absolute;top:3px;right:3px}
+.test-editor-top .credential-heading .credential-help summary{box-sizing:border-box;width:15px;height:15px;border-color:#cfe0ef;color:#215779;font:700 10px/1 Arial,sans-serif}
+.test-editor-top .credential-heading .credential-help p{left:auto;right:0}
 @media(max-width:700px){.test-editor-top{grid-template-columns:minmax(0,1fr)}}
+.test-editor-sidebar{display:flex;flex-direction:column;gap:8px;min-width:0}
+.test-editor-sidebar .auth-config{width:100%}
+#edit .test-editor-sidebar #msg{box-sizing:border-box;flex:0 0 42px;height:42px;margin:0;padding:4px 10px;border:1px solid #f1b7b7;border-left:4px solid #c62828;border-radius:8px;background:#fff1f1;color:#a51d23;font:700 13px/1.18 Segoe UI,Arial,sans-serif;overflow:hidden;overflow-wrap:anywhere}
+#edit .test-editor-sidebar #msg:empty{visibility:hidden}
 .test-editor-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
 .test-editor-top .test-editor-actions button{width:100%!important;min-width:0!important;height:36px!important;min-height:36px!important;margin:0;padding:5px 6px!important;font-size:12px}
 
@@ -21434,7 +21440,7 @@ document.addEventListener(&quot;DOMContentLoaded&quot;, ()=&gt;{ buildAnswerKeyF
 &lt;/style&gt;&lt;/head&gt;
 &lt;body&gt;&lt;main class=&quot;wrap&quot;&gt;&lt;span class=&quot;hide&quot; id=&quot;count&quot; aria-hidden=&quot;true&quot;&gt;0 ta savol&lt;/span&gt;
 &lt;section class=&quot;panel&quot; id=&quot;edit&quot;&gt;
-&lt;div class=&quot;test-editor-top&quot;&gt;&lt;div class=&quot;test-editor-questions&quot;&gt;&lt;div class=&quot;subject-caption&quot; id=&quot;subjectNotice&quot;&gt;Har bir fan uchun savollar va login-parol alohida saqlanadi.&lt;/div&gt;&lt;div class=&quot;space&quot;&gt;&lt;textarea id=&quot;source&quot; style=&quot;min-height:245px;font-family:Consolas,monospace&quot; spellcheck=&quot;false&quot; placeholder=&quot;++++ Suv sarfining o‘lchov birligi qaysi?&amp;#10;==== m/s&amp;#10;====# m³/s&amp;#10;==== Pa&amp;#10;==== kW&amp;#10;&amp;#10;++++ Suvning kimyoviy formulasi nima?&amp;#10;====# H₂O&amp;#10;==== CO₂&amp;#10;==== O₂&amp;#10;==== NaCl&quot;&gt;&lt;/textarea&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;auth-config&quot;&gt;&lt;label class=&quot;subject-main-label&quot;&gt;Fan nomi
+&lt;div class=&quot;test-editor-top&quot;&gt;&lt;div class=&quot;test-editor-questions&quot;&gt;&lt;div class=&quot;subject-caption&quot; id=&quot;subjectNotice&quot;&gt;Har bir fan uchun savollar va login-parol alohida saqlanadi.&lt;/div&gt;&lt;div class=&quot;space&quot;&gt;&lt;textarea id=&quot;source&quot; style=&quot;min-height:245px;font-family:Consolas,monospace&quot; spellcheck=&quot;false&quot; placeholder=&quot;++++ Suv sarfining o‘lchov birligi qaysi?&amp;#10;==== m/s&amp;#10;====# m³/s&amp;#10;==== Pa&amp;#10;==== kW&amp;#10;&amp;#10;++++ Suvning kimyoviy formulasi nima?&amp;#10;====# H₂O&amp;#10;==== CO₂&amp;#10;==== O₂&amp;#10;==== NaCl&quot;&gt;&lt;/textarea&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;test-editor-sidebar&quot;&gt;&lt;div class=&quot;auth-config&quot;&gt;&lt;label class=&quot;subject-main-label&quot;&gt;Fan nomi
 &lt;div class=&quot;subject-input-group&quot;&gt;
 &lt;input id=&quot;subjectName&quot; type=&quot;text&quot; list=&quot;subjectNameOptions&quot; placeholder=&quot;Fan nomini yozing&quot; autocomplete=&quot;off&quot;&gt;
 &lt;select id=&quot;subjectQuickSelect&quot; aria-label=&quot;Mavjud fanlardan tanlash&quot; title=&quot;Mavjud fanlardan birini tanlash&quot;&gt;
@@ -21444,7 +21450,7 @@ document.addEventListener(&quot;DOMContentLoaded&quot;, ()=&gt;{ buildAnswerKeyF
 &lt;small id=&quot;subjectAvailableCount&quot; class=&quot;subject-available-count&quot;&gt;Mavjud fanlar ro‘yxati&lt;/small&gt;
 &lt;datalist id=&quot;subjectNameOptions&quot;&gt;&lt;/datalist&gt;
 &lt;/label&gt;&lt;div class=&quot;test-credentials test-credentials-student&quot; role=&quot;group&quot; aria-label=&quot;Talaba&quot;&gt;&lt;div class=&quot;credential-heading&quot;&gt;&lt;span&gt;Talaba&lt;/span&gt;&lt;details class=&quot;credential-help&quot;&gt;&lt;summary aria-label=&quot;Talaba kirishi haqida&quot;&gt;?&lt;/summary&gt;&lt;p&gt;Bu login va parol bilan talaba test topshirish oynasiga kiradi.&lt;/p&gt;&lt;/details&gt;&lt;/div&gt;&lt;div class=&quot;credential-fields&quot;&gt;&lt;label&gt;Login&lt;input id=&quot;accessLogin&quot; type=&quot;text&quot; placeholder=&quot;Login belgilang&quot; autocomplete=&quot;off&quot;&gt;&lt;/label&gt;&lt;label&gt;Parol&lt;input id=&quot;accessPassword&quot; type=&quot;text&quot; placeholder=&quot;Parol belgilang&quot; autocomplete=&quot;new-password&quot;&gt;&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;test-credentials test-credentials-teacher&quot; role=&quot;group&quot; aria-label=&quot;O‘qituvchi&quot;&gt;&lt;div class=&quot;credential-heading&quot;&gt;&lt;span&gt;O‘qituvchi&lt;/span&gt;&lt;details class=&quot;credential-help&quot;&gt;&lt;summary aria-label=&quot;O‘qituvchi kirishi haqida&quot;&gt;?&lt;/summary&gt;&lt;p&gt;Bu login va parol bilan o‘qituvchi o‘ziga biriktirilgan fanlarning test boshqaruvi va hisobotini ochadi.&lt;/p&gt;&lt;/details&gt;&lt;/div&gt;&lt;div class=&quot;credential-fields&quot;&gt;&lt;label&gt;Login&lt;input id=&quot;teacherTestLogin&quot; type=&quot;text&quot; autocomplete=&quot;off&quot;&gt;&lt;/label&gt;&lt;label&gt;Parol&lt;input id=&quot;teacherTestPassword&quot; type=&quot;text&quot; autocomplete=&quot;new-password&quot;&gt;&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;test-editor-actions&quot;&gt;&lt;button class=&quot;primary&quot; id=&quot;add&quot;&gt;Saqlash&lt;/button&gt;
-  &lt;button class=&quot;primary&quot; id=&quot;take&quot;&gt;Testni yechish&lt;/button&gt;&lt;button type=&quot;button&quot; id=&quot;itReportOpen&quot; onclick=&quot;parent.postMessage({type:&#x27;open-integrated-test-report&#x27;},&#x27;*&#x27;)&quot;&gt;Test hisoboti&lt;/button&gt;&lt;button type=&quot;button&quot; id=&quot;deleteSubject&quot; class=&quot;subject-delete-btn&quot;&gt;O‘chirish&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
+  &lt;button class=&quot;primary&quot; id=&quot;take&quot;&gt;Testni yechish&lt;/button&gt;&lt;button type=&quot;button&quot; id=&quot;itReportOpen&quot; onclick=&quot;parent.postMessage({type:&#x27;open-integrated-test-report&#x27;},&#x27;*&#x27;)&quot;&gt;Test hisoboti&lt;/button&gt;&lt;button type=&quot;button&quot; id=&quot;deleteSubject&quot; class=&quot;subject-delete-btn&quot;&gt;O‘chirish&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;div id=&quot;msg&quot; class=&quot;msg&quot; role=&quot;status&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;div class=&quot;toolbar-row quiz-settings&quot; aria-label=&quot;Test sozlamalari&quot;&gt;
  &lt;div class=&quot;quiz-settings-grid&quot;&gt;
   &lt;section class=&quot;quiz-settings-group&quot; aria-labelledby=&quot;quizGeneralTitle&quot;&gt;
@@ -21552,7 +21558,7 @@ document.addEventListener(&quot;DOMContentLoaded&quot;, ()=&gt;{ buildAnswerKeyF
  &lt;/div&gt;
  
 &lt;/div&gt;
-&lt;dialog id=&quot;quizSectionHelp&quot; aria-labelledby=&quot;quizSectionHelpTitle&quot;&gt;&lt;div&gt;&lt;button id=&quot;quizSectionHelpClose&quot; type=&quot;button&quot; aria-label=&quot;Yopish&quot;&gt;×&lt;/button&gt;&lt;h3 id=&quot;quizSectionHelpTitle&quot;&gt;&lt;/h3&gt;&lt;div id=&quot;quizSectionHelpBody&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;/dialog&gt;&lt;div id=&quot;msg&quot; class=&quot;msg&quot;&gt;&lt;/div&gt;&lt;/section&gt;
+&lt;dialog id=&quot;quizSectionHelp&quot; aria-labelledby=&quot;quizSectionHelpTitle&quot;&gt;&lt;div&gt;&lt;button id=&quot;quizSectionHelpClose&quot; type=&quot;button&quot; aria-label=&quot;Yopish&quot;&gt;×&lt;/button&gt;&lt;h3 id=&quot;quizSectionHelpTitle&quot;&gt;&lt;/h3&gt;&lt;div id=&quot;quizSectionHelpBody&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;/dialog&gt;&lt;/section&gt;
 &lt;section class=&quot;panel&quot;&gt;&lt;div class=&quot;bank-heading&quot;&gt;&lt;h2&gt;Saqlangan savollar &lt;span class=&quot;muted&quot; id=&quot;total&quot;&gt;&lt;/span&gt;&lt;/h2&gt;&lt;div class=&quot;bank-actions&quot;&gt;&lt;button type=&quot;button&quot; id=&quot;bankWordImport&quot;&gt;Word import&lt;/button&gt;&lt;button type=&quot;button&quot; id=&quot;bankWordExport&quot;&gt;Word eksport&lt;/button&gt;&lt;input id=&quot;bankWordFile&quot; type=&quot;file&quot; accept=&quot;.docx,.doc,.txt,.html,.htm&quot; hidden&gt;&lt;/div&gt;&lt;/div&gt;&lt;div id=&quot;list&quot;&gt;&lt;/div&gt;&lt;/section&gt;
 &lt;section class=&quot;panel hide&quot; id=&quot;exam&quot;&gt;&lt;div class=&quot;exam-subject&quot; id=&quot;examSubject&quot;&gt;&lt;/div&gt;&lt;div class=&quot;tools&quot; style=&quot;justify-content:space-between&quot;&gt;&lt;h2&gt;Testni yechish&lt;/h2&gt;&lt;button id=&quot;back&quot;&gt;← Orqaga&lt;/button&gt;&lt;/div&gt;&lt;div class=&quot;exam-status&quot;&gt;&lt;span class=&quot;stamp&quot; id=&quot;examCount&quot;&gt;&lt;/span&gt;&lt;span class=&quot;timer&quot; id=&quot;timer&quot;&gt;00:00&lt;/span&gt;&lt;/div&gt;&lt;div id=&quot;examList&quot;&gt;&lt;/div&gt;&lt;button class=&quot;primary&quot; id=&quot;finish&quot;&gt;Natijani ko‘rish&lt;/button&gt;&lt;div id=&quot;result&quot;&gt;&lt;/div&gt;&lt;/section&gt;
 &lt;div class=&quot;bank-edit-backdrop&quot; id=&quot;bankEditBackdrop&quot; hidden&gt;&lt;div class=&quot;bank-edit-card&quot; role=&quot;dialog&quot; aria-modal=&quot;true&quot; aria-labelledby=&quot;bankEditTitle&quot;&gt;&lt;h2 id=&quot;bankEditTitle&quot;&gt;Savolni tahrirlash&lt;/h2&gt;&lt;p class=&quot;muted&quot;&gt;++++ savol, ====# to‘g‘ri javob, ==== boshqa javoblar. Bir savolni tahrirlang.&lt;/p&gt;&lt;textarea id=&quot;bankEditText&quot; rows=&quot;10&quot; spellcheck=&quot;false&quot;&gt;&lt;/textarea&gt;&lt;div id=&quot;bankEditError&quot; class=&quot;msg&quot; role=&quot;alert&quot;&gt;&lt;/div&gt;&lt;div class=&quot;bank-edit-actions&quot;&gt;&lt;button type=&quot;button&quot; id=&quot;bankEditCancel&quot;&gt;Bekor qilish&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;primary&quot; id=&quot;bankEditSave&quot;&gt;O‘zgarishlarni saqlash&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/main&gt;&lt;div class=&quot;access-overlay&quot; id=&quot;accessOverlay&quot; role=&quot;dialog&quot; aria-modal=&quot;true&quot; aria-labelledby=&quot;accessTitle&quot;&gt;&lt;form class=&quot;access-card&quot; id=&quot;accessForm&quot;&gt;&lt;h2 id=&quot;accessTitle&quot;&gt;Testga kirish&lt;/h2&gt;&lt;p class=&quot;muted&quot; id=&quot;accessSubject&quot;&gt;&lt;/p&gt;&lt;label&gt;Login&lt;input id=&quot;studentLogin&quot; type=&quot;text&quot; required autocomplete=&quot;off&quot;&gt;&lt;/label&gt;&lt;label&gt;Parol&lt;input id=&quot;studentPassword&quot; type=&quot;password&quot; required autocomplete=&quot;off&quot;&gt;&lt;/label&gt;&lt;div class=&quot;access-error&quot; id=&quot;accessError&quot;&gt;&lt;/div&gt;&lt;div class=&quot;access-buttons&quot;&gt;&lt;button type=&quot;button&quot; id=&quot;cancelAccess&quot;&gt;Bekor qilish&lt;/button&gt;&lt;button class=&quot;primary&quot; type=&quot;submit&quot;&gt;Testni boshlash&lt;/button&gt;&lt;/div&gt;&lt;/form&gt;&lt;/div&gt;&lt;script&gt;/*!
@@ -21699,6 +21705,37 @@ const quizSectionNotes={
  ]
 };
 const quizSectionDialog=$(&#x27;quizSectionHelp&#x27;);
+const credentialNotes=[
+ [&#x27;.test-credentials-student&#x27;,&#x27;Talaba&#x27;,[
+  [&#x27;Login va parol&#x27;,&#x27;Talaba tanlangan fan testiga shu ma’lumotlar bilan kiradi.&#x27;],
+  [&#x27;Testni boshlash&#x27;,&#x27;Kirgandan keyin talaba ism-familiyasi va guruhini kiritadi.&#x27;]
+ ]],
+ [&#x27;.test-credentials-teacher&#x27;,&#x27;O‘qituvchi&#x27;,[
+  [&#x27;Login va parol&#x27;,&#x27;O‘qituvchi shu ma’lumotlar bilan o‘ziga biriktirilgan fanlarning test boshqaruviga kiradi.&#x27;],
+  [&#x27;Test hisoboti&#x27;,&#x27;O‘qituvchi o‘ziga biriktirilgan fanlar bo‘yicha test natijalarini ko‘radi.&#x27;]
+ ]]
+];
+for(const [selector,title,notes] of credentialNotes){
+ const summary=document.querySelector(selector+&#x27; .credential-help summary&#x27;);
+ summary.setAttribute(&#x27;aria-haspopup&#x27;,&#x27;dialog&#x27;);
+ summary.addEventListener(&#x27;click&#x27;,event=&gt;{
+  event.preventDefault();
+  openQuizHelp(title,notes);
+ });
+}
+function openQuizHelp(title,notes){
+ $(&#x27;quizSectionHelpTitle&#x27;).textContent=title;
+ const body=$(&#x27;quizSectionHelpBody&#x27;);
+ body.replaceChildren();
+ for(const [name,text] of notes){
+  const paragraph=document.createElement(&#x27;p&#x27;);
+  const label=document.createElement(&#x27;strong&#x27;);
+  label.textContent=name+&#x27;. &#x27;;
+  paragraph.append(label,text);
+  body.append(paragraph);
+ }
+ quizSectionDialog.showModal();
+}
 $(&#x27;quizSectionHelpClose&#x27;).onclick=()=&gt;quizSectionDialog.close();
 quizSectionDialog.addEventListener(&#x27;click&#x27;,e=&gt;{if(e.target===quizSectionDialog)quizSectionDialog.close();});
 for(const [id,notes] of Object.entries(quizSectionNotes)){
@@ -21710,19 +21747,7 @@ for(const [id,notes] of Object.entries(quizSectionNotes)){
  button.setAttribute(&#x27;aria-label&#x27;,heading.textContent+&#x27; haqida&#x27;);
  button.setAttribute(&#x27;aria-haspopup&#x27;,&#x27;dialog&#x27;);
  heading.parentElement.append(button);
- button.onclick=()=&gt;{
-  $(&#x27;quizSectionHelpTitle&#x27;).textContent=heading.textContent;
-  const body=$(&#x27;quizSectionHelpBody&#x27;);
-  body.replaceChildren();
-  for(const [name,text] of notes){
-   const paragraph=document.createElement(&#x27;p&#x27;);
-   const label=document.createElement(&#x27;strong&#x27;);
-   label.textContent=name+&#x27;. &#x27;;
-   paragraph.append(label,text);
-   body.append(paragraph);
-  }
-  quizSectionDialog.showModal();
- };
+ button.onclick=()=&gt;openQuizHelp(heading.textContent,notes);
 }
 for(const id of [&#x27;gazeMonitoring&#x27;,&#x27;gazePhoto&#x27;,&#x27;gazeSensitivity&#x27;,&#x27;gazeDuration&#x27;,&#x27;gazeLimit&#x27;,&#x27;accessLogin&#x27;,&#x27;accessPassword&#x27;,&#x27;teacherTestLogin&#x27;,&#x27;teacherTestPassword&#x27;,&#x27;timeLimit&#x27;,&#x27;questionLimit&#x27;,&#x27;shuffleQuestions&#x27;,&#x27;shuffleAnswers&#x27;,&#x27;smartTest&#x27;,&#x27;showTestAnswers&#x27;,&#x27;revealCorrectAnswers&#x27;,&#x27;allowStudentSettings&#x27;,&#x27;allowTestComment&#x27;,&#x27;smartRepeatGap&#x27;,&#x27;smartCorrectRequired&#x27;,&#x27;testProtection&#x27;,&#x27;protectionWarnings&#x27;,&#x27;noiseMonitoring&#x27;,&#x27;noiseWarnings&#x27;,&#x27;noiseSensitivity&#x27;,&#x27;noiseDuration&#x27;])$(id).addEventListener(&#x27;change&#x27;,()=&gt;{if(!currentSubject)switchSubject();saveCurrent()});
 switchSubject();
@@ -21771,7 +21796,20 @@ $(&#x27;accessForm&#x27;).addEventListener(&#x27;submit&#x27;,e=&gt;{e.preventDe
 function stopTimer(){if(timerHandle!==null){clearInterval(timerHandle);timerHandle=null}}
 function updateTimer(){if(completed||!examQuestions)return;const remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));const min=Math.floor(remaining/60),sec=remaining%60;$(&#x27;timer&#x27;).textContent=`Qolgan vaqt: ${String(min).padStart(2,&#x27;0&#x27;)}:${String(sec).padStart(2,&#x27;0&#x27;)}`;$(&#x27;timer&#x27;).classList.toggle(&#x27;warning&#x27;,remaining&lt;=60);if(remaining===0)endTest(true)}
 function endTest(expired){if(completed||!examQuestions)return;completed=true;stopTimer();let right=0;for(let i=0;i&lt;examQuestions.length;i++){const chosen=document.querySelector(`input[name=&quot;ans${i}&quot;]:checked`);if(chosen&amp;&amp;examQuestions[i].options[Number(chosen.value)]?.correct)right++}const pct=Math.round(right/examQuestions.length*100);$(&#x27;result&#x27;).innerHTML=`&lt;p class=&quot;score&quot;&gt;${right}/${examQuestions.length} — ${pct}%&lt;/p&gt;&lt;p class=&quot;muted&quot;&gt;${expired?&#x27;Vaqt tugadi. Test avtomatik yakunlandi.&#x27;:&#x27;Test yakunlandi.&#x27;}&lt;/p&gt;`;$(&#x27;examList&#x27;).querySelectorAll(&#x27;input&#x27;).forEach(x=&gt;x.disabled=true);$(&#x27;finish&#x27;).disabled=true;$(&#x27;timer&#x27;).textContent=expired?&#x27;Vaqt tugadi&#x27;:&#x27;Yakunlandi&#x27;}
-function notify(t){$(&#x27;msg&#x27;).textContent=t}
+function fitEditorMessage(){
+ const message=$(&#x27;msg&#x27;);
+ message.style.fontSize=&#x27;&#x27;;
+ for(let size=12;size&gt;=9&amp;&amp;message.scrollHeight&gt;message.clientHeight;size--){
+  message.style.fontSize=size+&#x27;px&#x27;;
+ }
+}
+function notify(t){
+ const message=$(&#x27;msg&#x27;);
+ message.textContent=t;
+ message.title=message.scrollHeight&gt;message.clientHeight?t:&#x27;&#x27;;
+ fitEditorMessage();
+}
+new ResizeObserver(fitEditorMessage).observe($(&#x27;msg&#x27;));
 function normalize(s){return String(s).trim().toLocaleLowerCase(&#x27;uz&#x27;)}
 function parseText(text){
  const lines=String(text).replace(/\r\n?/g,&#x27;\n&#x27;).replace(/^\uFEFF/,&#x27;&#x27;).split(&#x27;\n&#x27;);
