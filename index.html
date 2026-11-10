@@ -10271,7 +10271,7 @@ renderAdvanced();
 <div class="modal" id="loginModal">
 <div class="modal-card" style="max-width:480px">
 <div class="modal-top" style="display:block;position:relative;text-align:center;padding:14px 36px 17px;border-bottom:1px solid var(--border);margin-bottom:18px">
-<h2 style="margin:0;color:var(--navy);font-size:23px;font-weight:800;letter-spacing:.15px;line-height:1.35">Tizimga kirish</h2>
+<span class="login-seal" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="6" y="10" width="12" height="10" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 4v2"/></svg><i></i><i></i><i></i></span><h2 style="margin:0;color:var(--navy);font-size:23px;font-weight:800;letter-spacing:.15px;line-height:1.35">Tizimga kirish</h2>
 <button class="close win-close" id="closeLogin" style="position:absolute;right:0;top:4px" aria-label="Yopish" title="Yopish">×</button>
 </div>
 <div class="form" style="margin-top:12px">
@@ -10760,14 +10760,25 @@ renderAdvanced();
       };
     }
 
+    let autoLoginTimer;
+    doBtn?.addEventListener('click',()=>clearTimeout(autoLoginTimer),true);
     [userInput,passInput].forEach(el=>{
       if(!el)return;
-      el.addEventListener('input',clearError);
+      el.addEventListener('input',event=>{
+        clearError();
+        clearTimeout(autoLoginTimer);
+        if(event.isComposing||!userInput?.value.trim()||!passInput?.value)return;
+        autoLoginTimer=setTimeout(()=>{
+          if(modal?.classList.contains('open')&&userInput.value.trim()&&passInput.value&&!loginBusy){
+            doBtn?.click();
+          }
+        },900);
+      });
       el.addEventListener('keydown',e=>{
         if(e.key==='Enter'){
           e.preventDefault();
           e.stopPropagation();
-          doLogin();
+          doBtn?.click();
         }
       });
     });
@@ -22496,8 +22507,20 @@ body.it-protected-mode #itQuestionList{background-image:none!important;backgroun
 @media(max-width:600px){#itStudent .it-rules{padding:12px;margin:13px 0 10px}#itStudent .it-rule-row{font-size:11.5px}}
 </style>
 <section id="itStudent" hidden><div class="it-head"><h2 id="itStudentSubject">Test sinovi</h2><button id="itExit" type="button">Chiqish ×</button></div>
-<div class="it-content"><div class="it-card" id="itIdentity"><h3>Talaba ma’lumotlari</h3><p class="it-note">Testni boshlashdan avval ism-familiyangiz va guruhingizni kiriting.</p><form id="itIdentityForm"><div class="it-grid"><label>Ism va familiya<input id="itName" required minlength="3" autocomplete="name" placeholder="Ism Familiya"></label><label>Guruh<input id="itGroup" list="itGroupOptions" required placeholder="Guruhni tanlang yoki yozing" autocomplete="off"><datalist id="itGroupOptions"></datalist></label></div><fieldset id="itPracticeSettings" disabled hidden><legend>Mashq sozlamalari</legend><div class="it-grid"><label>Savollar soni<input id="itPractice_questionLimit" type="number" min="1" step="1" required></label><label>Vaqt (daqiqa)<input id="itPractice_timeLimit" type="number" min="1" step="1" required></label><label><input id="itPractice_shuffleQuestions" type="checkbox"> <span>Savollarni aralashtirish</span></label><label><input id="itPractice_shuffleAnswers" type="checkbox"> <span>Javoblarni aralashtirish</span></label><label><input id="itPractice_showTestAnswers" type="checkbox"> <span>Test javoblari</span></label><label><input id="itPractice_revealCorrectAnswers" type="checkbox"> <span>To‘g‘ri javoblarni ko‘rsatish</span></label><label><input id="itPractice_smartTest" type="checkbox"> <span>Aqlli test</span></label></div><div id="itPracticeSmartFields" class="it-grid" hidden><label>Takrorlash oralig‘i<input id="itPractice_smartRepeatGap" type="number" min="0" step="1" required max="300"></label><label>Ketma-ket to‘g‘ri javoblar soni<input id="itPractice_smartCorrectRequired" type="number" min="1" step="1" required max="20"></label></div><p id="itPracticeUnlimited" class="it-note" hidden>Aqlli testda vaqt cheklanmaydi.</p></fieldset><div class="it-rules" id="itRules" aria-labelledby="itRulesTitle"><div class="it-rules-title" id="itRulesTitle">🛡️ TEST QOIDALARI</div><p class="it-rules-description">Testni boshlashdan oldin qoidalar bilan tanishing.</p><div class="it-rule-row" id="itGazeRule" hidden><span class="it-rule-icon" aria-hidden="true">◎</span><div><strong>Test davomida ekranga qarang.</strong><small id="itGazeRuleDescription">Nigoh ekrandan belgilangan muddat chetda qolsa, ogohlantirish chiqadi.</small></div></div><div class="it-rule-row" id="itNoiseRule" hidden><span class="it-rule-icon">🎙</span><div><strong>Gaplashish taqiqlanadi.</strong><small>Shovqin aniqlansa, ogohlantirish beriladi.</small></div></div><div class="it-rule-row" id="itProtectionRule" hidden><span class="it-rule-icon">↗</span><div><strong>Test oynasidan chiqish taqiqlanadi.</strong><small>Boshqa sahifa yoki ilovaga o‘tish ogohlantiriladi.</small></div></div><div class="it-rule-row" id="itLimitRule" hidden><span class="it-rule-icon">⚠</span><div><strong>Ogohlantirishlar chegarasi oshsa, test yakunlanadi.</strong></div></div></div><label class="it-rule-agree" id="itRulesAgreement"><input id="itRulesConsent" type="checkbox" required><span>Qoidalar bilan tanishdim va roziman.</span></label><p class="it-error" id="itIdentityError"></p><button class="it-action" id="itConsentStart" type="submit" disabled>Roziman, testni boshlash</button></form></div>
-<div class="it-card" id="itExam" hidden><div class="it-testbar"><div><h3 id="itExamTitle">Test</h3><span id="itExamMeta" class="it-note"></span></div><span id="itTimer">30:00</span></div><button id="itGazeResume" type="button" class="it-action" hidden>Kamerani qayta yoqish</button><div id="itNoiseStatus" class="it-noise-status" hidden role="status"></div><div id="itSmartProgress" hidden></div><div id="itAnswerSummary" hidden aria-live="polite"></div><div id="itProtectionNotice" hidden role="status" style="background:#fff7ed;border:1px solid #fed7aa;color:#92400e;border-radius:8px;padding:10px 13px;margin:10px 0;font-weight:700;font-size:12px"></div><div id="itQuestionList"></div><div id="itSmartFeedback" class="it-smart-only" hidden aria-live="polite"></div><button type="button" id="itSmartNext" class="it-action it-smart-only" hidden>Javobni tekshirish</button><div id="itQuestionNavigator" hidden aria-label="Savollar bo‘yicha javoblar holati"><div id="itNavSummary" class="it-nav-summary" aria-live="polite"></div><div id="itNavGrid" class="it-nav-grid"></div></div><div id="itTestCommentBox" hidden style="margin:12px 0"><label for="itTestComment"><b>Izoh yozish</b></label><p class="it-note" id="itTestCommentHint">Testdagi muammo yoki kamchilikni yozib qoldirishingiz mumkin. Izoh ixtiyoriy.</p><textarea id="itTestComment" maxlength="1000" rows="3" aria-describedby="itTestCommentHint" placeholder="Masalan, 5-savoldagi rasm ochilmadi." style="display:block;width:100%;box-sizing:border-box;font:inherit;padding:9px;border:1px solid #cbd9e5;border-radius:7px;resize:vertical"></textarea></div><button class="it-action" id="itFinish" type="button">Testni yakunlash</button><div id="itResult" aria-live="polite"></div></div></div></section><script id="integratedSimpleTestCode">
+<div class="it-content"><div class="it-card" id="itIdentity"><h3>Talaba ma’lumotlari</h3><form id="itIdentityForm"><div class="it-grid"><label>Ism va familiya<input id="itName" required minlength="3" autocomplete="name" placeholder="Ism Familiya"></label><label>Guruh<input id="itGroup" list="itGroupOptions" required placeholder="Guruhni tanlang yoki yozing" autocomplete="off"><datalist id="itGroupOptions"></datalist></label></div><fieldset id="itPracticeSettings" aria-label="Mashq sozlamalari" disabled hidden><button type="button" id="itPracticeHelpBtn" aria-label="Mashq sozlamalari haqida" aria-haspopup="dialog">?</button><div class="it-grid"><label>Savollar soni<input id="itPractice_questionLimit" type="number" min="1" step="1" required></label><label>Vaqt (daqiqa)<input id="itPractice_timeLimit" type="number" min="1" step="1" required></label><label><input id="itPractice_shuffleQuestions" type="checkbox"> <span>Savollarni aralashtirish</span></label><label><input id="itPractice_shuffleAnswers" type="checkbox"> <span>Javoblarni aralashtirish</span></label><label><input id="itPractice_showTestAnswers" type="checkbox"> <span>Test javoblari</span></label><label><input id="itPractice_revealCorrectAnswers" type="checkbox"> <span>To‘g‘ri javoblarni ko‘rsatish</span></label><label><input id="itPractice_smartTest" type="checkbox"> <span>Aqlli test</span></label></div><div id="itPracticeSmartFields" class="it-grid" hidden><label>Takrorlash oralig‘i<input id="itPractice_smartRepeatGap" type="number" min="0" step="1" required max="300"></label><label>Ketma-ket to‘g‘ri javoblar soni<input id="itPractice_smartCorrectRequired" type="number" min="1" step="1" required max="20"></label></div><p id="itPracticeUnlimited" class="it-note" hidden>Aqlli testda vaqt cheklanmaydi.</p></fieldset><div class="it-rules" id="itRules" aria-labelledby="itRulesTitle"><div class="it-rules-title" id="itRulesTitle">🛡️ TEST QOIDALARI</div><p class="it-rules-description">Testni boshlashdan oldin qoidalar bilan tanishing.</p><div class="it-rule-row" id="itGazeRule" hidden><span class="it-rule-icon" aria-hidden="true">◎</span><div><strong>Test davomida ekranga qarang.</strong><small id="itGazeRuleDescription">Nigoh ekrandan belgilangan muddat chetda qolsa, ogohlantirish chiqadi.</small></div></div><div class="it-rule-row" id="itNoiseRule" hidden><span class="it-rule-icon">🎙</span><div><strong>Gaplashish taqiqlanadi.</strong><small>Shovqin aniqlansa, ogohlantirish beriladi.</small></div></div><div class="it-rule-row" id="itProtectionRule" hidden><span class="it-rule-icon">↗</span><div><strong>Test oynasidan chiqish taqiqlanadi.</strong><small>Boshqa sahifa yoki ilovaga o‘tish ogohlantiriladi.</small></div></div><div class="it-rule-row" id="itLimitRule" hidden><span class="it-rule-icon">⚠</span><div><strong>Ogohlantirishlar chegarasi oshsa, test yakunlanadi.</strong></div></div></div><label class="it-rule-agree" id="itRulesAgreement"><input id="itRulesConsent" type="checkbox" required><span>Qoidalar bilan tanishdim va roziman.</span></label><p class="it-error" id="itIdentityError"></p><button class="it-action" id="itConsentStart" type="submit" disabled>Roziman, testni boshlash</button></form></div>
+<div class="it-card" id="itExam" hidden><div class="it-testbar"><div><h3 id="itExamTitle">Test</h3><span id="itExamMeta" class="it-note"></span></div><span id="itTimer">30:00</span></div><button id="itGazeResume" type="button" class="it-action" hidden>Kamerani qayta yoqish</button><div id="itNoiseStatus" class="it-noise-status" hidden role="status"></div><div id="itSmartProgress" hidden></div><div id="itAnswerSummary" hidden aria-live="polite"></div><div id="itProtectionNotice" hidden role="status" style="background:#fff7ed;border:1px solid #fed7aa;color:#92400e;border-radius:8px;padding:10px 13px;margin:10px 0;font-weight:700;font-size:12px"></div><div id="itQuestionList"></div><div id="itSmartFeedback" class="it-smart-only" hidden aria-live="polite"></div><button type="button" id="itSmartNext" class="it-action it-smart-only" hidden>Javobni tekshirish</button><div id="itQuestionNavigator" hidden aria-label="Savollar bo‘yicha javoblar holati"><div id="itNavSummary" class="it-nav-summary" aria-live="polite"></div><div id="itNavGrid" class="it-nav-grid"></div></div><div id="itTestCommentBox" hidden style="margin:12px 0"><label for="itTestComment"><b>Izoh yozish</b></label><p class="it-note" id="itTestCommentHint">Testdagi muammo yoki kamchilikni yozib qoldirishingiz mumkin. Izoh ixtiyoriy.</p><textarea id="itTestComment" maxlength="1000" rows="3" aria-describedby="itTestCommentHint" placeholder="Masalan, 5-savoldagi rasm ochilmadi." style="display:block;width:100%;box-sizing:border-box;font:inherit;padding:9px;border:1px solid #cbd9e5;border-radius:7px;resize:vertical"></textarea></div><button class="it-action" id="itFinish" type="button">Testni yakunlash</button><div id="itResult" aria-live="polite"></div></div></div></section><dialog id="itPracticeHelp" aria-labelledby="itPracticeHelpTitle">
+<form method="dialog"><button aria-label="Yopish">×</button></form>
+<h3 id="itPracticeHelpTitle">Mashq sozlamalari</h3>
+<p><b>Savollar soni.</b> Mashqda nechta savol chiqishini tanlaysiz. Bazada savol kamroq bo‘lsa, mavjud savollar beriladi.</p>
+<p><b>Vaqt (daqiqa).</b> Oddiy mashq uchun ajratilgan vaqt. Vaqt tugasa, mashq avtomatik yakunlanadi.</p>
+<p><b>Savollarni aralashtirish.</b> Savollar aralash tartibda chiqadi.</p>
+<p><b>Javoblarni aralashtirish.</b> Har bir savolning javob variantlari aralash tartibda chiqadi.</p>
+<p><b>Test javoblari.</b> Yakunda qaysi javoblaringiz to‘g‘ri yoki xato ekanini ko‘rasiz.</p>
+<p><b>To‘g‘ri javoblarni ko‘rsatish.</b> Yakunda har bir savolning to‘g‘ri javobi ko‘rinadi.</p>
+<p><b>Aqlli test.</b> Vaqt cheklanmaydi. Xato ishlangan savol qayta beriladi.</p>
+<p><b>Takrorlash oralig‘i.</b> Masalan, 5 tanlasangiz, xato savol imkon qadar 5 ta boshqa savoldan keyin qaytadi.</p>
+<p><b>Ketma-ket to‘g‘ri javoblar soni.</b> Masalan, 2 tanlasangiz, savolni o‘zlashtirish uchun unga ketma-ket ikki marta to‘g‘ri javob berasiz.</p>
+</dialog><script id="integratedSimpleTestCode">
 (function(){
  'use strict';
  const q=id=>document.getElementById(id);
@@ -23406,6 +23429,13 @@ function formatMathText(value){
   q('doLoginBtn').addEventListener('click',gate,true);
   [q('loginUser'),q('loginPassword')].forEach(el=>el?.addEventListener('keydown',e=>{if(e.key==='Enter'){if(gate(e))return}},true));
   q('itEditorClose').onclick=closeEditor;q('itExit').onclick=exitStudent;
+  q('itPracticeHelpBtn').onclick=()=>q('itPracticeHelp').showModal();
+  q('itPracticeHelp').addEventListener('click',event=>{
+    if(event.target===event.currentTarget){
+      const rect=event.currentTarget.getBoundingClientRect();
+      if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)event.currentTarget.close();
+    }
+  });
   practiceField('smartTest').addEventListener('change',updatePracticeMode);
   q('itRulesConsent').addEventListener('change',()=>{q('itConsentStart').disabled=!q('itRulesConsent').checked});
   q('itIdentityForm').addEventListener('submit',e=>{e.preventDefault();if(!q('itRulesConsent').disabled&&!q('itRulesConsent').checked){q('itIdentityError').textContent='Testni boshlash uchun qoidalarga rozilik bildiring.';return}const name=q('itName').value.trim(),group=q('itGroup').value.trim();if(name.length<3||!group){q('itIdentityError').textContent='Ism-familiya va guruhni to‘liq kiriting.';return}activeStudent={name,group};begin()});
@@ -23900,6 +23930,63 @@ window.addEventListener('message',e=>{
 @keyframes dc-packet-flow{from{background-position:0 0;opacity:.25}50%{opacity:.72}to{background-position:96px 28px;opacity:.25}}
 @keyframes sir-bars-rise{0%,100%{transform:scaleY(.25);opacity:.2}55%{transform:scaleY(.9);opacity:.65}}
 @media(prefers-reduced-motion:reduce){#dataCollectionModal .modal-top::after,#simpleInfoModal .sir-top::after{animation:none}}
+</style>
+<style>
+#itStudent>.it-head{
+ position:relative;isolation:isolate;overflow:hidden;box-sizing:border-box;
+ height:62px!important;min-height:62px!important;display:flex;align-items:center;gap:12px;padding:0 12px!important;
+ background:linear-gradient(110deg,#0b2544,#14476c 60%,#126576)!important;border-bottom:2px solid #70d6e2!important;
+}
+#itStudent>.it-head h2{display:flex;align-items:center;gap:8px;min-width:0;margin:0;color:#fff;font-size:clamp(15px,2vw,22px)}
+#itStudent>.it-head h2::before{
+ content:"✓";display:grid;place-items:center;flex:none;width:36px;height:36px;
+ border:1px solid #a5edf06b;border-radius:10px;background:#b6f2ff1f;color:#bff6ff;font-size:21px;
+}
+#itStudent>.it-head #itExit{flex:none;min-height:38px;border-radius:9px;border:1px solid #b6f2ff6b!important;background:#ffffff20!important;color:#fff!important}
+#itStudent>.it-head #itExit:hover{background:#ffffff38!important}
+#itStudent>.it-head::after{
+ content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+ background:radial-gradient(circle,#8af4ff 0 1.5px,transparent 2.5px) 0 0/30px 18px;
+ mask-image:linear-gradient(90deg,transparent 24%,#000 70%,transparent);
+ animation:student-header-sparks 9s linear infinite;
+}
+@keyframes student-header-sparks{
+ 0%{background-position:0 0;opacity:.15}
+ 50%{opacity:.5}
+ 100%{background-position:90px -36px;opacity:.15}
+}
+@media(prefers-reduced-motion:reduce){#itStudent>.it-head::after{animation:none;opacity:.2}}
+</style>
+<style>
+#loginModal .login-seal{position:relative;display:inline-grid;place-items:center;width:42px;height:42px;margin:0 auto 7px;border-radius:14px;background:#eaf5fc;color:#24597e;border:1px solid #c6e0ef}
+#loginModal .login-seal svg{width:24px;height:24px}
+#loginModal .login-seal i{position:absolute;width:5px;height:5px;border-radius:50%;background:#269cb9;opacity:.3;animation:login-seal-pulse 3s ease-in-out infinite}
+#loginModal .login-seal i:nth-of-type(1){top:0;right:2px}
+#loginModal .login-seal i:nth-of-type(2){top:12px;right:-5px;animation-delay:.4s}
+#loginModal .login-seal i:nth-of-type(3){bottom:5px;right:-3px;animation-delay:.8s}
+@keyframes login-seal-pulse{0%,50%,100%{opacity:.3;transform:scale(.8)}25%{opacity:1;transform:scale(1.35);box-shadow:0 0 8px #58c3db}}
+@media(prefers-reduced-motion:reduce){#loginModal .login-seal i{animation:none}}
+</style>
+<style>
+#itStudent #itPracticeSettings{padding:14px;border:1px solid #c4deee;border-radius:14px;background:linear-gradient(135deg,#f6fbff,#edf6fc)}
+#itStudent #itPracticeSettings legend{padding:4px 10px;border:1px solid #c4deee;border-radius:8px;background:#fff;color:#154466;font-size:14px}
+#itStudent #itPracticeSettings .it-grid{gap:8px 12px}
+#itStudent #itPracticeSettings input[type="number"]{border:1px solid #c4d8e8;border-radius:8px;background:#fff;color:#173b5f;font-weight:700}
+#itStudent #itPracticeSettings label:has(input[type="checkbox"]){min-width:0;min-height:36px;padding:6px 10px;border:1px solid #d7e6f0;border-radius:8px;background:#fff;color:#254a65;font-size:13px;cursor:pointer}
+#itStudent #itPracticeSettings label:has(input[type="checkbox"]:checked){border-color:#8dc8e0;background:#e1f4fc}
+#itStudent #itPracticeSettings input[type="checkbox"]{flex:none;width:15px;height:15px;accent-color:#247fa8}
+#itStudent #itPracticeSettings input:focus-visible{outline:2px solid #2e91bc;outline-offset:2px}
+</style>
+<style>
+#itStudent #itPracticeSettings{position:relative}
+#itPracticeHelpBtn{position:absolute;right:3px;top:3px;width:15px;height:15px;padding:0;border:1px solid #c4deee;border-radius:50%;background:#fff;color:#215779;font:700 10px/1 Arial,sans-serif;cursor:pointer}
+#it-practice-review #itPracticeHelpBtn,.it-practice-review button[aria-haspopup="dialog"]{display:none}
+#itPracticeHelp{width:min(500px,calc(100% - 24px));max-height:85dvh;padding:16px;border:1px solid #c4deee;border-radius:12px;color:#173b5f;background:#fff;font:14px/1.45 Arial,sans-serif}
+#itPracticeHelp::backdrop{background:#173b5f60}
+#itPracticeHelp h3{margin:0 32px 10px 0}
+#itPracticeHelp p{margin:7px 0}
+#itPracticeHelp form{float:right;margin:0}
+#itPracticeHelp button{cursor:pointer}
 </style>
 </body>
 </html>
