@@ -5794,7 +5794,7 @@ body.hemis-layout #adminPanel .post-save-toggle{
 
 <style id="admin-tab-order-style">
 
-#adminPanel > .tabs .tab-order-toggle{
+#adminPanel>.modal-top>.tabs .tab-order-toggle{
   width:24px;
   height:24px;
   min-width:24px;
@@ -5814,30 +5814,30 @@ body.hemis-layout #adminPanel .post-save-toggle{
   user-select:none;
   transition:opacity .16s ease, background .16s ease, border-color .16s ease, color .16s ease;
 }
-#adminPanel > .tabs .tab-order-toggle:hover,
-#adminPanel > .tabs .tab-order-toggle:focus-visible{
+#adminPanel>.modal-top>.tabs .tab-order-toggle:hover,
+#adminPanel>.modal-top>.tabs .tab-order-toggle:focus-visible{
   opacity:.9;
   background:#f4f8fb;
   border-color:#d8e4ee;
   outline:none;
 }
-#adminPanel > .tabs .tab-order-toggle.active{
+#adminPanel>.modal-top>.tabs .tab-order-toggle.active{
   opacity:1;
   color:#0a315c;
   background:#edf5fb;
   border-color:#bcd5e8;
 }
-#adminPanel > .tabs.order-editing button[data-tab]{
+#adminPanel>.modal-top>.tabs.order-editing button[data-tab]{
   cursor:grab !important;
   user-select:none;
   border-style:dashed !important;
 }
-#adminPanel > .tabs.order-editing button[data-tab]:active{cursor:grabbing !important;}
-#adminPanel > .tabs.order-editing button[data-tab].tab-dragging{
+#adminPanel>.modal-top>.tabs.order-editing button[data-tab]:active{cursor:grabbing !important;}
+#adminPanel>.modal-top>.tabs.order-editing button[data-tab].tab-dragging{
   opacity:.42;
   transform:scale(.98);
 }
-#adminPanel > .tabs.order-editing button[data-tab].tab-drag-over{
+#adminPanel>.modal-top>.tabs.order-editing button[data-tab].tab-drag-over{
   box-shadow:0 0 0 2px rgba(36,95,158,.14) !important;
 }
 </style>
@@ -6801,38 +6801,43 @@ body.hemis-layout header.topbar .topbar-language #languageSelect{width:60px;padd
 </div>
 </div>
 <aside class="side-panel" id="adminPanel">
-<div class="modal-top"><div><h2 style="margin:0">Ishchi bo‘lim</h2><p class="note">O‘qituvchi, xona, guruh davri, dars, bayram, istisno va bino masofalarini boshqarish.</p></div><button class="close win-close" id="closeAdmin" aria-label="Yopish" title="Yopish">×</button></div>
-<div class="tabs">
+<div class="modal-top"><div><h2 style="margin:0">Ishchi bo‘lim</h2></div><div class="tabs">
 <button class="active" data-tab="teacherTab">O‘qituvchi</button>
-<button data-tab="roomTab">Xona</button>
+<button data-tab="roomTab">Xona va o‘quv taqvimi</button>
 <button data-tab="groupStudyAdminTab" id="groupStudyAdminTabBtn">Guruh davri</button>
 <button data-tab="lessonTab">Dars</button>
 
-<button data-tab="semesterTab">Semestr</button>
-<button data-tab="holidayTab">Bayramlar</button>
-<button data-tab="exceptionAdminTab">Istisno jadvali</button>
-<button data-tab="structureAdminTab">Tuzilma</button>
-<button data-tab="facultyDepartmentAdminTab" id="facultyDepartmentAdminTabBtn" style="display:none">Universitet nazorati</button>
-<button data-tab="buildingDistanceTab">Bino masofalari</button>
-<button data-tab="managerAdminTab" id="managerAdminTabBtn">Kafedra mudirlari</button>
+<button data-tab="structureAdminTab">Tuzilma va mudirlar</button>
 <span id="tabOrderToggle" class="tab-order-toggle" role="button" tabindex="0" aria-pressed="false" title="Tugmalar joylashuvini o‘zgartirish">↕</span>
 </div>
+<button class="close win-close" id="closeAdmin" aria-label="Yopish" title="Yopish">×</button></div>
 <div class="alert" id="adminAlert"></div>
 <section class="tab-section" id="teacherTab">
-<div class="admin-excel-tools" data-excel-type="teacher">
-  <div class="admin-excel-info"><strong>O‘qituvchilar — Excel</strong><span>O‘qituvchi modulidagi barcha maydonlar, qo‘shimcha ma’lumotlar va diplomlarni Excelga chiqarish yoki Excel/CSV orqali qo‘shish va yangilash.</span></div>
-  <div class="actions">
-    <button class="btn primary" type="button" onclick="document.getElementById('adminExcelFile_teacher').click()">Excel import</button>
-    <button class="btn success" type="button" onclick="window.ultraDoExport('teacher')">Excel export</button>
-    <button class="btn danger admin-clear-all-btn" type="button" onclick="window.clearAdminModule('teacher')">Hammasini o‘chirish</button>
-    <input id="adminExcelFile_teacher" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="if(this.files&amp;&amp;this.files[0]){window.ultraDoImport('teacher',this.files[0]);this.value='';}">
+<div class="admin-work-grid"><div class="form">
+<details class="teacher-form-help" id="teacherFormHelp">
+  <summary aria-label="O‘qituvchi bo‘limi izohi">?</summary>
+  <div tabindex="0" role="region" aria-label="Modul bo‘yicha izohlar">
+    <p><strong>To‘liq F.I.Sh..</strong> Ism, familiya va otasining ismini kiriting.</p>
+    <p><strong>Qisqartirilgan F.I.Sh..</strong> Jadvalda chiqadigan qisqa ism. Avtomatik hosil bo‘ladi, tahrirlash mumkin.</p>
+    <p><strong>Ilmiy darajasi.</strong> Darajani tanlang yoki yozing.</p>
+    <p><strong>Telefon.</strong> Bog‘lanish raqamini kiriting.</p>
+    <p><strong>Kafedra.</strong> O‘qituvchi ishlaydigan kafedrani tanlang.</p>
+    <p><strong>Lavozimi.</strong> Amaldagi lavozimni tanlang yoki yozing.</p>
+    <p><strong>Qo‘shimcha ma’lumot nomi.</strong> Masalan, «Pasport seriyasi» deb yozing.</p>
+    <p><strong>Yonidagi Saqlash.</strong> Shu nomda qiymat yoziladigan maydon ochadi.</p>
+    <p><strong>Nom yonidagi O‘chirish.</strong> Nom katagini tozalaydi.</p>
+    <p><strong>Maydon yonidagi O‘chirish.</strong> Shu maydonni barcha o‘qituvchilardan va keyingi eksportdan olib tashlaydi.</p>
+    <p><strong>Ma’lumotni saqlash.</strong> Asosiy va qo‘shimcha ma’lumotlarni saqlaydi.</p>
+    <p><strong>Excel import.</strong> Excel yoki CSV fayldan o‘qituvchilar ma’lumotlarini yuklaydi.</p>
+    <p><strong>Excel export.</strong> Saqlangan o‘qituvchilar ma’lumotlarini Excel faylga chiqaradi.</p>
+    <p><strong>Hammasini o‘chirish.</strong> Shu moduldagi yozuvlarni ro‘yxatdan o‘chiradi.</p>
+    <p><strong>Excelda yangi ustun.</strong> Ustun nomi va qiymati qo‘shimcha maydonga o‘tadi.</p>
   </div>
-</div>
+</details>
 
-<div class="form">
 <input id="editTeacherId" type="hidden"/>
 <div class="full"><label>To‘liq F.I.Sh.<input id="tName" placeholder="Masalan: Inomov Dilmurod Islom o‘g‘li"/></label></div>
-<div class="full"><label>Qisqartirilgan F.I.Sh.<input id="tShortName" placeholder="Masalan: Inomov D.I."/></label><small class="note" id="tShortNameHint">To‘liq F.I.Sh. yozilganda qisqartma avtomatik hosil bo‘ladi. Istasangiz qo‘lda o‘zgartirishingiz mumkin.</small></div>
+<div class="full"><label>Qisqartirilgan F.I.Sh.<input id="tShortName" placeholder="Masalan: Inomov D.I."/></label></div>
 <div><label>Ilmiy darajasi
         <input id="tDegree" list="degreeOptions" placeholder="Tanlang yoki yozing" value="-"/>
 <datalist id="degreeOptions">
@@ -6851,6 +6856,9 @@ body.hemis-layout header.topbar .topbar-language #languageSelect{width:60px;padd
 <option value="Pedagogika fanlari doktori (DSc)">
 </option></option></option></option></option></option></option></option></option></option></option></option></option></datalist>
 </label></div>
+
+<div><label>Telefon<input id="tPhone" placeholder="+998..."/></label></div>
+<div class="full"><label>Kafedra<select id="tDepartment"></select></label></div>
 <div><label>Lavozimi
         <input id="tPosition" list="positionOptions" placeholder="Tanlang yoki yozing" value="-"/>
 <datalist id="positionOptions">
@@ -6864,10 +6872,8 @@ body.hemis-layout header.topbar .topbar-language #languageSelect{width:60px;padd
 <option value="Kafedra mudiri">
 </option></option></option></option></option></option></option></option></datalist>
 </label></div>
-<div class="full"><label>Kafedra<select id="tDepartment"></select></label><small class="note" id="tDepartmentNote"></small></div>
-<div><label>Telefon<input id="tPhone" placeholder="+998..."/></label></div>
-<div><label>Rasm URL<input id="tImage" placeholder="https://..."/></label></div>
-<div><label>Holati<select id="tAvailability"><option value="available">Mavjud</option><option value="leave">Ta’til</option><option value="trip">Xizmat safari</option><option value="sick">Kasallik</option><option value="meeting">Yig‘ilish</option></select></label></div>
+<div hidden style="display:none!important"><div><label>Rasm URL<input id="tImage" placeholder="https://..."/></label></div>
+<h4 class="teacher-form-heading">Ish holati</h4><div><label>Holati<select id="tAvailability"><option value="available">Mavjud</option><option value="leave">Ta’til</option><option value="trip">Xizmat safari</option><option value="sick">Kasallik</option><option value="meeting">Yig‘ilish</option></select></label></div>
 <div><label>Mavjud emas izohi<input id="tAvailabilityNote" placeholder="Masalan: 20-sentabrgacha safarda"/></label></div>
 
 <div class="full teacher-extra-toggle-wrap">
@@ -6880,13 +6886,13 @@ body.hemis-layout header.topbar .topbar-language #languageSelect{width:60px;padd
   <div class="teacher-extra-head">
     <div>
       <strong>Qo‘shimcha ma’lumotlar</strong>
-      <div class="note">Ixtiyoriy. To‘ldirilmasa ham o‘qituvchini saqlash mumkin.</div>
+      
     </div>
     <button type="button" class="btn ghost win-close" id="teacherExtraClose" aria-label="Yopish" title="Yopish">×</button>
   </div>
 
   <div class="teacher-extra-grid">
-    <div><label>Tug‘ilgan sana<input id="tBirthDate" type="date"/></label></div>
+    <h4 class="teacher-form-heading">Shaxsiy ma’lumotlar</h4><div><label>Tug‘ilgan sana<input id="tBirthDate" type="date"/></label></div>
     <div><label>Tug‘ilgan joyi<input id="tBirthPlace" placeholder="Viloyat, tuman/shahar"/></label></div>
 
     <div><label>Jinsi
@@ -6913,12 +6919,12 @@ body.hemis-layout header.topbar .topbar-language #languageSelect{width:60px;padd
       </select>
     </label></div>
 
-    <div><label>Ma’lumoti<input id="tEducation" placeholder="Oliy, o‘rta maxsus..."/></label></div>
+    <h4 class="teacher-form-heading">Ta’lim va mutaxassislik</h4><div><label>Ma’lumoti<input id="tEducation" placeholder="Oliy, o‘rta maxsus..."/></label></div>
     <div><label>Tamomlagan OTM<input id="tGraduatedUniversity" placeholder="OTM nomi"/></label></div>
 
     <div class="full"><label>Mutaxassisligi<input id="tSpecialty" placeholder="Mutaxassislik nomi"/></label></div>
 
-    <div><label>Ishga qabul qilingan sana<input id="tHireDate" type="date"/></label></div>
+    <h4 class="teacher-form-heading">Ish tajribasi va malaka</h4><div><label>Ishga qabul qilingan sana<input id="tHireDate" type="date"/></label></div>
     <div><label>Umumiy ish staji<input id="tTotalExperience" placeholder="Masalan: 12 yil"/></label></div>
 
     <div><label>Pedagogik ish staji<input id="tTeachingExperience" placeholder="Masalan: 8 yil"/></label></div>
@@ -6929,7 +6935,7 @@ body.hemis-layout header.topbar .topbar-language #languageSelect{width:60px;padd
     <div class="full"><label>Malaka oshirish ma’lumotlari<textarea id="tTraining" rows="2" placeholder="Kurs, tashkilot, yil..."></textarea></label></div>
     <div class="full"><label>Sertifikatlari<textarea id="tCertificates" rows="2" placeholder="Sertifikat nomi, raqami, yili..."></textarea></label></div>
 
-    <div><label>ORCID<input id="tOrcid" placeholder="0000-0000-0000-0000"/></label></div>
+    <h4 class="teacher-form-heading">Ilmiy profillar</h4><div><label>ORCID<input id="tOrcid" placeholder="0000-0000-0000-0000"/></label></div>
     <div><label>Scopus Author ID<input id="tScopusId" placeholder="Scopus Author ID"/></label></div>
 
     <div><label>Web of Science ResearcherID<input id="tWosId" placeholder="ResearcherID"/></label></div>
@@ -6942,7 +6948,7 @@ body.hemis-layout header.topbar .topbar-language #languageSelect{width:60px;padd
     <div class="teacher-diploma-head">
       <div>
         <strong>Diplomlar</strong>
-        <div class="note">Bakalavr, magistr va boshqa diplomlarni alohida kiriting.</div>
+        
       </div>
       <button class="btn success" id="addTeacherDiploma" type="button">＋ Diplom qo‘shish</button>
     </div>
@@ -6950,56 +6956,255 @@ body.hemis-layout header.topbar .topbar-language #languageSelect{width:60px;padd
   </div>
 </div>
 
-<div class="full"><button class="btn primary" id="saveTeacherBtn">O‘qituvchini saqlash</button></div>
 </div>
-<div class="section-title"><h3>O‘qituvchilar</h3></div><div class="admin-list" id="teacherAdminList"></div>
+<div class="full teacher-custom-fields"><label>Qo‘shimcha ma’lumot nomi<input id="teacherCustomLabel" maxlength="80" placeholder="Masalan, Pasport seriyasi"></label><button type="button" class="btn primary" id="addTeacherCustom">Saqlash</button><button type="button" class="btn danger" id="clearTeacherCustom">O‘chirish</button><div id="teacherCustomList"></div></div>
+<div class="full teacher-form-actions">
+<button class="btn primary" type="button" onclick="document.getElementById('adminExcelFile_teacher').click()">Excel import</button>
+    <button class="btn success" type="button" onclick="window.ultraDoExport('teacher')">Excel export</button>
+    <button class="btn danger admin-clear-all-btn" type="button" onclick="window.clearAdminModule('teacher')">Hammasini o‘chirish</button>
+    <input id="adminExcelFile_teacher" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="if(this.files&amp;&amp;this.files[0]){window.ultraDoImport('teacher',this.files[0]);this.value='';}">
+<button class="btn primary" id="saveTeacherBtn">Ma’lumotni saqlash</button></div>
+</div>
+<div class="admin-work-list"><div class="section-title"><h3>O‘qituvchilar</h3></div><div class="admin-list" id="teacherAdminList"></div></div></div>
 </section>
+<div class="admin-combined-grid admin-combined-grid--room" hidden>
 <section class="tab-section" id="roomTab" style="display:none">
-<div class="admin-excel-tools" data-excel-type="room">
-  <div class="admin-excel-info"><strong>Xonalar — Excel</strong><span>Xonalar ro‘yxatini Excelga chiqarish yoki Excel/CSV orqali qo‘shish va yangilash.</span></div>
-  <div class="actions">
-    <button class="btn primary" type="button" onclick="document.getElementById('adminExcelFile_room').click()">Excel import</button>
-    <button class="btn success" type="button" onclick="window.ultraDoExport('room')">Excel export</button>
-    <button class="btn danger admin-clear-all-btn" type="button" onclick="window.clearAdminModule('room')">Hammasini o‘chirish</button>
-    <input id="adminExcelFile_room" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="if(this.files&amp;&amp;this.files[0]){window.ultraDoImport('room',this.files[0]);this.value='';}">
-  </div>
-</div>
-
+<h3 class="admin-combined-heading">Xonalar</h3>
 <div class="form">
+<details class="teacher-form-help"><summary aria-label="Xona bo‘limi izohi">?</summary>
+  <div tabindex="0" role="region" aria-label="Modul bo‘yicha izohlar">
+    <p><strong>Xona nomi/raqami.</strong> Xonani ajratib turadigan raqam yoki nom.</p>
+    <p><strong>Sig‘imi.</strong> Xonadagi o‘rinlar soni.</p>
+    <p><strong>Xona turi.</strong> Masalan, auditoriya yoki laboratoriya.</p>
+    <p><strong>Bino.</strong> Xona joylashgan bino.</p>
+    <p><strong>Xonani saqlash.</strong> Xonani ro‘yxatga qo‘shadi yoki tahrirni saqlaydi.</p>
+    <p><strong>Excel import.</strong> Excel yoki CSV fayldan xonalar ma’lumotlarini yuklaydi.</p>
+    <p><strong>Excel export.</strong> Saqlangan xonalar ma’lumotlarini Excel faylga chiqaradi.</p>
+    <p><strong>Hammasini o‘chirish.</strong> Shu moduldagi yozuvlarni ro‘yxatdan o‘chiradi.</p>
+  </div>
+</details>
+
 <input id="editRoomId" type="hidden"/>
 <div><label>Xona nomi/raqami<input id="rName" placeholder="305"/></label></div>
 <div><label>Sig‘imi<input id="rCapacity" min="1" placeholder="30" type="number"/></label></div>
 <div><label>Xona turi<select id="rType"><option>Oddiy auditoriya</option><option>Laboratoriya</option><option>Kompyuter xonasi</option><option>Ma’ruza zali</option><option>Seminar xonasi</option></select></label></div>
 <div><label>Bino<select id="rBuilding"><option value="1-bino">1-bino</option><option value="2-bino">2-bino</option><option value="3-bino">3-bino</option><option value="4-bino">4-bino</option><option value="5-bino">5-bino</option><option value="6-bino">6-bino</option><option value="7-bino">7-bino</option><option value="8-bino">8-bino</option><option value="9-bino">9-bino</option><option value="10-bino">10-bino</option><option value="11-bino">11-bino</option><option value="12-bino">12-bino</option><option value="13-bino">13-bino</option><option value="14-bino">14-bino</option><option value="15-bino">15-bino</option><option value="16-bino">16-bino</option><option value="17-bino">17-bino</option><option value="18-bino">18-bino</option><option value="19-bino">19-bino</option><option value="20-bino">20-bino</option><option value="21-bino">21-bino</option><option value="22-bino">22-bino</option><option value="23-bino">23-bino</option><option value="24-bino">24-bino</option><option value="25-bino">25-bino</option><option value="26-bino">26-bino</option><option value="27-bino">27-bino</option><option value="28-bino">28-bino</option><option value="29-bino">29-bino</option><option value="30-bino">30-bino</option><option value="31-bino">31-bino</option><option value="32-bino">32-bino</option><option value="33-bino">33-bino</option><option value="34-bino">34-bino</option><option value="35-bino">35-bino</option><option value="36-bino">36-bino</option><option value="37-bino">37-bino</option><option value="38-bino">38-bino</option><option value="39-bino">39-bino</option><option value="40-bino">40-bino</option><option value="41-bino">41-bino</option><option value="42-bino">42-bino</option><option value="43-bino">43-bino</option><option value="44-bino">44-bino</option><option value="45-bino">45-bino</option><option value="46-bino">46-bino</option><option value="47-bino">47-bino</option><option value="48-bino">48-bino</option><option value="49-bino">49-bino</option><option value="50-bino">50-bino</option></select></label></div>
-<div class="full"><button class="btn primary" id="saveRoomBtn">Xonani saqlash</button></div>
+<div class="full teacher-form-actions">
+<button class="btn primary" type="button" onclick="document.getElementById('adminExcelFile_room').click()">Excel import</button>
+    <button class="btn success" type="button" onclick="window.ultraDoExport('room')">Excel export</button>
+    <button class="btn danger admin-clear-all-btn" type="button" onclick="window.clearAdminModule('room')">Hammasini o‘chirish</button>
+    <input id="adminExcelFile_room" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="if(this.files&amp;&amp;this.files[0]){window.ultraDoImport('room',this.files[0]);this.value='';}">
+<button class="btn primary" id="saveRoomBtn">Xonani saqlash</button></div>
 </div>
-<div class="section-title"><h3>Xonalar</h3></div><div class="admin-list" id="roomAdminList"></div>
+<div class="admin-work-list"><div class="section-title"><h3>Xonalar</h3></div><div class="admin-list" id="roomAdminList"></div></div>
+</section>
+<section class="tab-section" id="buildingDistanceTab" style="display:none">
+<h3 class="admin-combined-heading">Bino masofalari</h3>
+<div class="form">
+<details class="teacher-form-help"><summary aria-label="Bino masofalari bo‘limi izohi">?</summary>
+  <div tabindex="0" role="region" aria-label="Modul bo‘yicha izohlar">
+    <p><strong>Qaysi binodan.</strong> Yo‘l boshlanadigan bino.</p>
+    <p><strong>Qaysi binoga.</strong> Boriladigan bino.</p>
+    <p><strong>Masofa (km).</strong> Binolar orasidagi masofani kilometrda kiriting.</p>
+    <p><strong>Yo‘l vaqti (daqiqa).</strong> Bir binodan ikkinchisiga yetib borish vaqtini kiriting.</p>
+    <p><strong>Saqlash.</strong> Tanlangan binolar orasidagi masofa va vaqtni saqlaydi.</p>
+    <p><strong>Excel import.</strong> Excel yoki CSV fayldan bino masofalari ma’lumotlarini yuklaydi.</p>
+    <p><strong>Excel export.</strong> Saqlangan bino masofalari ma’lumotlarini Excel faylga chiqaradi.</p>
+    <p><strong>Hammasini o‘chirish.</strong> Shu moduldagi yozuvlarni ro‘yxatdan o‘chiradi.</p>
+  </div>
+</details>
+
+<div><label>Qaysi binodan<select id="bdFrom"><option value="1-bino">1-bino</option><option value="2-bino">2-bino</option><option value="3-bino">3-bino</option><option value="4-bino">4-bino</option><option value="5-bino">5-bino</option><option value="6-bino">6-bino</option><option value="7-bino">7-bino</option><option value="8-bino">8-bino</option><option value="9-bino">9-bino</option><option value="10-bino">10-bino</option><option value="11-bino">11-bino</option><option value="12-bino">12-bino</option><option value="13-bino">13-bino</option><option value="14-bino">14-bino</option><option value="15-bino">15-bino</option><option value="16-bino">16-bino</option><option value="17-bino">17-bino</option><option value="18-bino">18-bino</option><option value="19-bino">19-bino</option><option value="20-bino">20-bino</option><option value="21-bino">21-bino</option><option value="22-bino">22-bino</option><option value="23-bino">23-bino</option><option value="24-bino">24-bino</option><option value="25-bino">25-bino</option><option value="26-bino">26-bino</option><option value="27-bino">27-bino</option><option value="28-bino">28-bino</option><option value="29-bino">29-bino</option><option value="30-bino">30-bino</option><option value="31-bino">31-bino</option><option value="32-bino">32-bino</option><option value="33-bino">33-bino</option><option value="34-bino">34-bino</option><option value="35-bino">35-bino</option><option value="36-bino">36-bino</option><option value="37-bino">37-bino</option><option value="38-bino">38-bino</option><option value="39-bino">39-bino</option><option value="40-bino">40-bino</option><option value="41-bino">41-bino</option><option value="42-bino">42-bino</option><option value="43-bino">43-bino</option><option value="44-bino">44-bino</option><option value="45-bino">45-bino</option><option value="46-bino">46-bino</option><option value="47-bino">47-bino</option><option value="48-bino">48-bino</option><option value="49-bino">49-bino</option><option value="50-bino">50-bino</option></select></label></div>
+<div><label>Qaysi binoga<select id="bdTo"><option value="1-bino">1-bino</option><option value="2-bino">2-bino</option><option value="3-bino">3-bino</option><option value="4-bino">4-bino</option><option value="5-bino">5-bino</option><option value="6-bino">6-bino</option><option value="7-bino">7-bino</option><option value="8-bino">8-bino</option><option value="9-bino">9-bino</option><option value="10-bino">10-bino</option><option value="11-bino">11-bino</option><option value="12-bino">12-bino</option><option value="13-bino">13-bino</option><option value="14-bino">14-bino</option><option value="15-bino">15-bino</option><option value="16-bino">16-bino</option><option value="17-bino">17-bino</option><option value="18-bino">18-bino</option><option value="19-bino">19-bino</option><option value="20-bino">20-bino</option><option value="21-bino">21-bino</option><option value="22-bino">22-bino</option><option value="23-bino">23-bino</option><option value="24-bino">24-bino</option><option value="25-bino">25-bino</option><option value="26-bino">26-bino</option><option value="27-bino">27-bino</option><option value="28-bino">28-bino</option><option value="29-bino">29-bino</option><option value="30-bino">30-bino</option><option value="31-bino">31-bino</option><option value="32-bino">32-bino</option><option value="33-bino">33-bino</option><option value="34-bino">34-bino</option><option value="35-bino">35-bino</option><option value="36-bino">36-bino</option><option value="37-bino">37-bino</option><option value="38-bino">38-bino</option><option value="39-bino">39-bino</option><option value="40-bino">40-bino</option><option value="41-bino">41-bino</option><option value="42-bino">42-bino</option><option value="43-bino">43-bino</option><option value="44-bino">44-bino</option><option value="45-bino">45-bino</option><option value="46-bino">46-bino</option><option value="47-bino">47-bino</option><option value="48-bino">48-bino</option><option value="49-bino">49-bino</option><option value="50-bino">50-bino</option></select></label></div>
+<div><label>Masofa (km)<input id="bdDistance" min="0" placeholder="masalan: 1.8" step="0.1" type="number"/></label></div>
+<div><label>Yo‘l vaqti (daqiqa)<input id="bdMinutes" min="0" placeholder="masalan: 18" step="1" type="number"/></label></div>
+<div class="full teacher-form-actions">
+<button class="btn primary" type="button" onclick="document.getElementById('adminExcelFile_distance').click()">Excel import</button>
+    <button class="btn success" type="button" onclick="window.ultraDoExport('distance')">Excel export</button>
+    <button class="btn danger admin-clear-all-btn" type="button" onclick="window.clearAdminModule('distance')">Hammasini o‘chirish</button>
+    <input id="adminExcelFile_distance" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="if(this.files&amp;&amp;this.files[0]){window.ultraDoImport('distance',this.files[0]);this.value='';}">
+<button class="btn primary" id="saveBuildingDistanceBtn">Saqlash</button></div>
+</div>
+<div class="section-title"><h3>Saqlangan bino masofalari</h3></div>
+<div class="admin-list" id="buildingDistanceList"></div>
+</section>
+<section class="tab-section" id="semesterTab" style="display:none">
+<h3 class="admin-combined-heading">Semestr</h3>
+<div class="form">
+<details class="teacher-form-help"><summary aria-label="Semestr bo‘limi izohi">?</summary>
+  <div tabindex="0" role="region" aria-label="Modul bo‘yicha izohlar">
+    <p><strong>Akademik yil.</strong> O‘quv yilini kiriting.</p>
+    <p><strong>Semestr.</strong> Faol semestrni tanlang.</p>
+    <p><strong>Semestr haftalari soni.</strong> Semestr necha hafta davom etishini belgilang.</p>
+    <p><strong>Semestr boshlanish sanasi.</strong> Birinchi hafta boshlanadigan sana.</p>
+    <p><strong>Saqlash.</strong> Faol davr va uning sozlamalarini saqlaydi.</p>
+  </div>
+</details>
+
+<div><label>Akademik yil<input id="academicYear" value="2026/2027"/></label></div>
+<div><label>Semestr<select id="semesterSelect"><option>I-semestr</option><option>II-semestr</option></select></label></div>
+<div><label>Semestr haftalari soni<input id="semesterWeeks" max="30" min="1" type="number" value="16"/></label></div>
+<div><label>Semestr boshlanish sanasi<input id="semesterStartDate" type="date"/></label></div>
+<div class="full teacher-form-actions"><button class="btn primary" id="saveSemesterBtn">Saqlash</button></div>
+</div>
+<div class="section-title"><h3>Faol davr</h3></div>
+<div class="card" id="semesterInfo"></div>
+</section>
+<section class="tab-section" id="holidayTab" style="display:none">
+<h3 class="admin-combined-heading">Bayramlar</h3>
+<div class="form">
+<details class="teacher-form-help"><summary aria-label="Bayramlar bo‘limi izohi">?</summary>
+  <div tabindex="0" role="region" aria-label="Modul bo‘yicha izohlar">
+    <p><strong>Sana.</strong> Bayram yoki dam olish kunini belgilang.</p>
+    <p><strong>Nomi.</strong> Shu kunning nomini yozing.</p>
+    <p><strong>Qo‘shish.</strong> Sanani bayramlar ro‘yxatiga kiritadi.</p>
+    <p><strong>Excel import.</strong> Excel yoki CSV fayldan bayramlar ma’lumotlarini yuklaydi.</p>
+    <p><strong>Excel export.</strong> Saqlangan bayramlar ma’lumotlarini Excel faylga chiqaradi.</p>
+    <p><strong>Hammasini o‘chirish.</strong> Shu moduldagi yozuvlarni ro‘yxatdan o‘chiradi.</p>
+  </div>
+</details>
+
+<div><label>Sana<input id="holidayDate" type="date"/></label></div>
+<div><label>Nomi<input id="holidayName" placeholder="Bayram yoki dam olish kuni"/></label></div>
+<div class="full teacher-form-actions">
+<button class="btn primary" type="button" onclick="document.getElementById('adminExcelFile_holiday').click()">Excel import</button>
+    <button class="btn success" type="button" onclick="window.ultraDoExport('holiday')">Excel export</button>
+    <button class="btn danger admin-clear-all-btn" type="button" onclick="window.clearAdminModule('holiday')">Hammasini o‘chirish</button>
+    <input id="adminExcelFile_holiday" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="if(this.files&amp;&amp;this.files[0]){window.ultraDoImport('holiday',this.files[0]);this.value='';}">
+<button class="btn primary" id="addHolidayBtn">Qo‘shish</button></div>
+</div>
+<div class="admin-list" id="holidayList"></div>
+</section>
+</div>
+<section class="tab-section" id="groupStudyAdminTab" style="display:none">
+<div class="admin-module-heading"><h3 class="admin-combined-heading">Guruh davri</h3><details class="teacher-form-help"><summary aria-label="Guruh davri bo‘limi izohi">?</summary>
+  <div tabindex="0" role="region" aria-label="Modul bo‘yicha izohlar">
+    <p><strong>Yo‘nalish kodi.</strong> Ta’lim yo‘nalishining kodi.</p>
+    <p><strong>Guruhning to‘liq nomi.</strong> Guruhning rasmiy nomi.</p>
+    <p><strong>Guruhning qisqartirilgan nomi.</strong> Jadvalda ishlatiladigan qisqa nom.</p>
+    <p><strong>Ta’lim shakli.</strong> Masalan, kunduzgi yoki sirtqi.</p>
+    <p><strong>Talabalar soni.</strong> Guruhdagi talabalar soni.</p>
+    <p><strong>Boshlanish haftasi.</strong> Guruh o‘qishni boshlaydigan hafta.</p>
+    <p><strong>Tugash haftasi.</strong> Guruh o‘qiydigan oxirgi hafta.</p>
+    <p><strong>Boshlanish juftligi.</strong> Dars qo‘yish mumkin bo‘lgan birinchi juftlik.</p>
+    <p><strong>Tugash juftligi.</strong> Dars qo‘yish mumkin bo‘lgan oxirgi juftlik.</p>
+    <p><strong>O‘qish hafta kunlari.</strong> Guruh darsga keladigan kunlar.</p>
+    <p><strong>Ruxsat etilgan binolar.</strong> Guruh uchun dars qo‘yish mumkin bo‘lgan binolar.</p>
+    <p><strong>Bino qo‘shish.</strong> Kiritilgan binoni tanlovga qo‘shadi.</p>
+    <p><strong>Izoh.</strong> Guruh davriga oid eslatma.</p>
+    <p><strong>Tozalash.</strong> Formadagi maydonlarni bo‘shatadi.</p>
+    <p><strong>Saqlash.</strong> Guruh davri sozlamalarini saqlaydi.</p>
+    <p><strong>Qidiruv.</strong> Guruhni kodi yoki nomi orqali topadi.</p>
+    <p><strong>Filtr.</strong> Ro‘yxatni sozlangan, sozlanmagan yoki qisqa davrli guruhlarga ajratadi.</p>
+    <p><strong>Excel import.</strong> Excel yoki CSV fayldan guruh davrlari ma’lumotlarini yuklaydi.</p>
+    <p><strong>Excel export.</strong> Saqlangan guruh davrlari ma’lumotlarini Excel faylga chiqaradi.</p>
+    <p><strong>Hammasini o‘chirish.</strong> Shu moduldagi yozuvlarni ro‘yxatdan o‘chiradi.</p>
+  </div>
+</details></div>
+<div class="form group-study-form">
+
+
+<input id="groupStudyEditKey" type="hidden"/>
+<div class="schedule-fields">
+<div class="schedule-field-panel"><h4>Guruh ma’lumotlari</h4>
+<div><label>Yo‘nalish kodi
+        <input id="groupStudyDirectionCode" placeholder="Masalan: 60730900" type="text"/>
+</label></div>
+<div class="full"><label>Guruhning to‘liq nomi
+        <input id="groupStudyFullName" placeholder="Masalan: Gidrotexnika qurilishi" type="text"/>
+</label>
+<div class="mini" id="groupStudyDirectionPreview" style="margin-top:5px"></div>
+</div>
+<div class="full"><label>Guruhning qisqartirilgan nomi
+        <input id="groupStudyName" list="groupStudyKnownGroups" placeholder="Masalan: GTQ" type="text"/>
+<datalist id="groupStudyKnownGroups"></datalist>
+</label>
+</div>
+<div><label>Ta’lim shakli
+        <select id="groupStudyEducationType">
+<option value="kunduzgi">Kunduzgi</option>
+<option value="kechki">Kechki</option>
+<option value="sirtqi">Sirtqi</option>
+<option value="magistratura">Magistratura</option>
+<option value="boshqa">Boshqa</option>
+</select>
+</label></div>
+<div><label>Talabalar soni<input id="groupStudySize" min="1" placeholder="Masalan: 25" type="number"/></label></div>
+</div>
+<div class="schedule-field-panel"><h4>O‘qish davri va joyi</h4>
+<div><label>Boshlanish haftasi<input id="groupStudyStartWeek" min="1" type="number" value="1"/></label></div>
+<div><label>Tugash haftasi<input id="groupStudyEndWeek" min="1" type="number" value="15"/></label></div>
+<div><label>Boshlanish juftligi
+<select id="groupStudyStartPair">
+<option value="1">1-juftlik</option><option value="2">2-juftlik</option><option value="3">3-juftlik</option><option value="4">4-juftlik</option>
+<option value="5">5-juftlik</option><option value="6">6-juftlik</option><option value="7">7-juftlik</option><option value="8">8-juftlik</option>
+</select>
+</label></div>
+<div><label>Tugash juftligi
+<select id="groupStudyEndPair">
+<option value="1">1-juftlik</option><option value="2">2-juftlik</option><option value="3">3-juftlik</option><option value="4">4-juftlik</option>
+<option value="5">5-juftlik</option><option value="6">6-juftlik</option><option value="7">7-juftlik</option><option selected="" value="8">8-juftlik</option>
+</select>
+</label></div>
+<div class="full"><label>O‘qish hafta kunlari</label>
+<div class="group-building-choices" id="groupStudyDayChoices"></div>
+<div class="mini" style="margin-top:5px">Guruh darslari faqat tanlangan kunlarga joylashtiriladi.</div>
+</div>
+<div class="full"><label>Ruxsat etilgan binolar</label>
+<div class="group-building-choices" id="groupStudyBuildingChoices"></div>
+<div class="group-building-add"><input id="groupStudyCustomBuilding" placeholder="Masalan: 17-bino"/><button class="btn ghost" id="groupStudyAddBuildingBtn" type="button">Bino qo‘shish</button></div>
+</div>
+<div class="full"><label>Izoh<textarea id="groupStudyNote" placeholder="Masalan: 1–4 hafta intensiv blok, faqat 6–7-binolar" rows="2"></textarea></label></div>
+</div>
+</div>
+<div class="full teacher-form-actions">
+<button class="btn ghost" id="clearGroupStudyBtn" type="button">Tozalash</button>
+<button class="btn primary" type="button" onclick="document.getElementById('adminExcelFile_groupstudy').click()">Excel import</button>
+    <button class="btn success" type="button" onclick="window.ultraDoExport('groupstudy')">Excel export</button>
+    <button class="btn danger admin-clear-all-btn" type="button" onclick="window.clearAdminModule('groupstudy')">Hammasini o‘chirish</button>
+    <input id="adminExcelFile_groupstudy" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="if(this.files&amp;&amp;this.files[0]){window.ultraDoImport('groupstudy',this.files[0]);this.value='';}">
+<button class="btn primary" id="saveGroupStudyBtn">Saqlash</button>
+</div>
+</div>
+<div class="group-study-tools">
+<input class="control" id="groupStudySearch" placeholder="Kod, to‘liq nom yoki qisqartma bo‘yicha qidirish..."/>
+<select class="control" id="groupStudyFilter"><option value="all">Barchasi</option><option value="configured">Sozlangan</option><option value="missing">Sozlanmagan</option><option value="short">Qisqa davrli</option></select>
+</div>
+<div class="section-title"><h3>Guruhlar ro‘yxati</h3></div>
+<div class="admin-list" id="groupStudyList"></div>
 </section>
 <section class="tab-section" id="lessonTab" style="display:none">
-<div class="admin-excel-tools" data-excel-type="lesson">
-  <div class="admin-excel-info"><strong>Darslar — Excel</strong><span>Dars modulidagi barcha maydonlarni Excelga chiqarish yoki Excel/CSV orqali ommaviy kiritish va yangilash.</span></div>
-  <div class="actions">
-    <button class="btn primary" type="button" onclick="document.getElementById('adminExcelFile_lesson').click()">Excel import</button>
-    <button class="btn success" type="button" onclick="window.ultraDoExport('lesson')">Excel export</button>
-    <button class="btn danger admin-clear-all-btn" type="button" onclick="window.clearAdminModule('lesson')">Hammasini o‘chirish</button>
-    <input id="adminExcelFile_lesson" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="if(this.files&amp;&amp;this.files[0]){window.ultraDoImport('lesson',this.files[0]);this.value='';}">
+<div class="admin-module-heading"><h3 class="admin-combined-heading">Dars</h3><details class="teacher-form-help"><summary aria-label="Dars bo‘limi izohi">?</summary>
+  <div tabindex="0" role="region" aria-label="Modul bo‘yicha izohlar">
+    <p><strong>O‘qituvchi.</strong> F.I.Sh. yozing yoki ro‘yxatdan tanlang.</p>
+    <p><strong>Hafta kuni.</strong> Dars o‘tiladigan kun.</p>
+    <p><strong>Hafta turi.</strong> Dars har hafta, muayyan hafta turida yoki bir sanada o‘tilishini belgilang.</p>
+    <p><strong>Sana.</strong> Bir kunlik dars sanasi.</p>
+    <p><strong>Boshlanish haftasi.</strong> Dars o‘tiladigan birinchi hafta.</p>
+    <p><strong>Tugash haftasi.</strong> Dars o‘tiladigan oxirgi hafta.</p>
+    <p><strong>Fan nomi.</strong> Fanni tanlang yoki yozing.</p>
+    <p><strong>Guruh.</strong> Darsda qatnashadigan guruhni tanlang.</p>
+    <p><strong>Xona.</strong> Dars o‘tiladigan xonani tanlang.</p>
+    <p><strong>Avtomatik xona.</strong> Jadvalga mos bo‘sh xona taklif qiladi.</p>
+    <p><strong>Dars turi.</strong> Masalan, ma’ruza yoki amaliy mashg‘ulot.</p>
+    <p><strong>Juftlik.</strong> Darsning tartib raqami.</p>
+    <p><strong>Vaqt.</strong> Tanlangan juftlikning boshlanish va tugash vaqti.</p>
+    <p><strong>Almashtiruvchi o‘qituvchi.</strong> Kerak bo‘lsa, darsni o‘tadigan boshqa o‘qituvchi.</p>
+    <p><strong>Holat.</strong> Darsning joriy holatini belgilang.</p>
+    <p><strong>Izoh.</strong> Darsga oid qo‘shimcha eslatma.</p>
+    <p><strong>Darsni saqlash.</strong> Darsni jadvalga qo‘shadi yoki tahrirni saqlaydi.</p>
+    <p><strong>Excel import.</strong> Excel yoki CSV fayldan darslar ma’lumotlarini yuklaydi.</p>
+    <p><strong>Excel export.</strong> Saqlangan darslar ma’lumotlarini Excel faylga chiqaradi.</p>
+    <p><strong>Hammasini o‘chirish.</strong> Shu moduldagi yozuvlarni ro‘yxatdan o‘chiradi.</p>
   </div>
-</div>
+</details></div>
+<div class="admin-work-grid"><div class="form">
 
-<div class="form">
+
 <input id="editLessonTeacherId" type="hidden"/><input id="editLessonId" type="hidden"/>
-<div class="full"><label>O‘qituvchi<select id="lTeacher"></select></label></div>
-<div><label>Hafta kuni<select id="lDay"><option>Dushanba</option><option>Seshanba</option><option>Chorshanba</option><option>Payshanba</option><option>Juma</option><option>Shanba</option></select></label></div>
-<div><label>Hafta turi<select id="lWeek"><option value="doim">Doimiy</option><option value="surat">Surat</option><option value="maxraj">Maxraj</option><option value="single">Bir kunlik dars</option></select></label></div>
-<div id="singleDateWrap" style="display:none"><label>Sana<input id="lSingleDate" type="date"/></label></div>
-<input id="lEducationType" type="hidden" value="kunduzgi"/>
-<input id="lGroupDirection" type="hidden" value=""/>
-<div class="full" id="lSirtqiWeeks" style="display:none">
-<div class="form" style="padding:0;border:0;box-shadow:none;margin:0">
-<div><label>Boshlanish haftasi<select id="lStartWeek"><option value="1">1-hafta</option><option value="2">2-hafta</option><option value="3">3-hafta</option><option value="4">4-hafta</option><option value="5">5-hafta</option><option value="6">6-hafta</option><option value="7">7-hafta</option><option value="8">8-hafta</option><option value="9">9-hafta</option><option value="10">10-hafta</option><option value="11">11-hafta</option><option value="12">12-hafta</option><option value="13">13-hafta</option><option value="14">14-hafta</option><option value="15">15-hafta</option><option value="16">16-hafta</option><option value="17">17-hafta</option><option value="18">18-hafta</option><option value="19">19-hafta</option><option value="20">20-hafta</option><option value="21">21-hafta</option><option value="22">22-hafta</option><option value="23">23-hafta</option><option value="24">24-hafta</option><option value="25">25-hafta</option><option value="26">26-hafta</option><option value="27">27-hafta</option><option value="28">28-hafta</option><option value="29">29-hafta</option><option value="30">30-hafta</option><option value="31">31-hafta</option><option value="32">32-hafta</option><option value="33">33-hafta</option><option value="34">34-hafta</option><option value="35">35-hafta</option><option value="36">36-hafta</option><option value="37">37-hafta</option><option value="38">38-hafta</option><option value="39">39-hafta</option><option value="40">40-hafta</option><option value="41">41-hafta</option><option value="42">42-hafta</option><option value="43">43-hafta</option><option value="44">44-hafta</option><option value="45">45-hafta</option><option value="46">46-hafta</option><option value="47">47-hafta</option><option value="48">48-hafta</option><option value="49">49-hafta</option><option value="50">50-hafta</option><option value="51">51-hafta</option><option value="52">52-hafta</option><option value="53">53-hafta</option><option value="54">54-hafta</option><option value="55">55-hafta</option><option value="56">56-hafta</option><option value="57">57-hafta</option><option value="58">58-hafta</option><option value="59">59-hafta</option><option value="60">60-hafta</option></select></label></div>
-<div><label>Tugash haftasi<select id="lEndWeek"><option value="1">1-hafta</option><option value="2">2-hafta</option><option value="3">3-hafta</option><option value="4">4-hafta</option><option value="5">5-hafta</option><option value="6">6-hafta</option><option value="7">7-hafta</option><option value="8">8-hafta</option><option value="9">9-hafta</option><option value="10">10-hafta</option><option value="11">11-hafta</option><option value="12">12-hafta</option><option value="13">13-hafta</option><option value="14">14-hafta</option><option value="15">15-hafta</option><option value="16">16-hafta</option><option value="17">17-hafta</option><option value="18">18-hafta</option><option value="19">19-hafta</option><option value="20">20-hafta</option><option value="21">21-hafta</option><option value="22">22-hafta</option><option value="23">23-hafta</option><option value="24">24-hafta</option><option value="25">25-hafta</option><option value="26">26-hafta</option><option value="27">27-hafta</option><option value="28">28-hafta</option><option value="29">29-hafta</option><option value="30">30-hafta</option><option value="31">31-hafta</option><option value="32">32-hafta</option><option value="33">33-hafta</option><option value="34">34-hafta</option><option value="35">35-hafta</option><option value="36">36-hafta</option><option value="37">37-hafta</option><option value="38">38-hafta</option><option value="39">39-hafta</option><option value="40">40-hafta</option><option value="41">41-hafta</option><option value="42">42-hafta</option><option value="43">43-hafta</option><option value="44">44-hafta</option><option value="45">45-hafta</option><option value="46">46-hafta</option><option value="47">47-hafta</option><option value="48">48-hafta</option><option value="49">49-hafta</option><option value="50">50-hafta</option><option value="51">51-hafta</option><option value="52">52-hafta</option><option value="53">53-hafta</option><option value="54">54-hafta</option><option value="55">55-hafta</option><option value="56">56-hafta</option><option value="57">57-hafta</option><option value="58">58-hafta</option><option value="59">59-hafta</option><option value="60">60-hafta</option></select></label></div>
-</div>
-</div>
+<div class="schedule-fields">
+<div class="schedule-field-panel"><h4>Dars ma’lumotlari</h4>
+<div class="full"><label>O‘qituvchi<input id="lTeacherSearch" list="lTeacherNames" autocomplete="off" placeholder="F.I.Sh. yozing yoki tanlang"></label><datalist id="lTeacherNames"></datalist><select id="lTeacher" hidden></select></div>
 <div class="full"><label>Fan nomi</label><div id="lSubjectCombo" class="lesson-subject-combo"><input id="lSubject" placeholder="Fan nomini kiriting"/><select id="lSubjectSelect"><option value="">Fanlardan tanlang</option></select></div></div>
 <div class="full"><label>Guruh</label>
 <div id="lGroupPicker" class="lesson-group-picker">
@@ -7011,16 +7216,36 @@ body.hemis-layout header.topbar .topbar-language #languageSelect{width:60px;padd
 <input id="lGroupSize" type="hidden" value=""/>
 <div class="mini" id="lExtraGroupsHint" style="margin-top:4px;display:none"></div>
 </div>
-<div><label>Xona<select id="lRoom"></select></label><div class="lesson-auto-room-line"><button class="btn ghost" id="autoLessonRoomBtn" type="button">⚡ Avtomatik xona</button><span class="mini" id="autoLessonRoomHint"></span></div></div>
 <div><label>Dars turi<select id="lType"><option>Ma’ruza</option><option>Amaliy</option><option>Laboratoriya</option><option>Seminar</option></select></label></div>
+<div><label>Almashtiruvchi o‘qituvchi<select id="lSubstitute"><option value="">Yo‘q</option></select></label></div>
+</div>
+<div class="schedule-field-panel"><h4>Jadval va xona</h4>
+<div><label>Hafta kuni<select id="lDay"><option>Dushanba</option><option>Seshanba</option><option>Chorshanba</option><option>Payshanba</option><option>Juma</option><option>Shanba</option></select></label></div>
+<div><label>Hafta turi<select id="lWeek"><option value="doim">Doimiy</option><option value="surat">Surat</option><option value="maxraj">Maxraj</option><option value="single">Bir kunlik dars</option></select></label></div>
+<div id="singleDateWrap" style="display:none"><label>Sana<input id="lSingleDate" type="date"/></label></div>
+<input id="lEducationType" type="hidden" value="kunduzgi"/>
+<input id="lGroupDirection" type="hidden" value=""/>
+<div class="full" id="lSirtqiWeeks" style="display:none">
+<div class="form" style="padding:0;border:0;box-shadow:none;margin:0">
+<div><label>Boshlanish haftasi<select id="lStartWeek"><option value="1">1-hafta</option><option value="2">2-hafta</option><option value="3">3-hafta</option><option value="4">4-hafta</option><option value="5">5-hafta</option><option value="6">6-hafta</option><option value="7">7-hafta</option><option value="8">8-hafta</option><option value="9">9-hafta</option><option value="10">10-hafta</option><option value="11">11-hafta</option><option value="12">12-hafta</option><option value="13">13-hafta</option><option value="14">14-hafta</option><option value="15">15-hafta</option><option value="16">16-hafta</option><option value="17">17-hafta</option><option value="18">18-hafta</option><option value="19">19-hafta</option><option value="20">20-hafta</option><option value="21">21-hafta</option><option value="22">22-hafta</option><option value="23">23-hafta</option><option value="24">24-hafta</option><option value="25">25-hafta</option><option value="26">26-hafta</option><option value="27">27-hafta</option><option value="28">28-hafta</option><option value="29">29-hafta</option><option value="30">30-hafta</option><option value="31">31-hafta</option><option value="32">32-hafta</option><option value="33">33-hafta</option><option value="34">34-hafta</option><option value="35">35-hafta</option><option value="36">36-hafta</option><option value="37">37-hafta</option><option value="38">38-hafta</option><option value="39">39-hafta</option><option value="40">40-hafta</option><option value="41">41-hafta</option><option value="42">42-hafta</option><option value="43">43-hafta</option><option value="44">44-hafta</option><option value="45">45-hafta</option><option value="46">46-hafta</option><option value="47">47-hafta</option><option value="48">48-hafta</option><option value="49">49-hafta</option><option value="50">50-hafta</option><option value="51">51-hafta</option><option value="52">52-hafta</option><option value="53">53-hafta</option><option value="54">54-hafta</option><option value="55">55-hafta</option><option value="56">56-hafta</option><option value="57">57-hafta</option><option value="58">58-hafta</option><option value="59">59-hafta</option><option value="60">60-hafta</option></select></label></div>
+<div><label>Tugash haftasi<select id="lEndWeek"><option value="1">1-hafta</option><option value="2">2-hafta</option><option value="3">3-hafta</option><option value="4">4-hafta</option><option value="5">5-hafta</option><option value="6">6-hafta</option><option value="7">7-hafta</option><option value="8">8-hafta</option><option value="9">9-hafta</option><option value="10">10-hafta</option><option value="11">11-hafta</option><option value="12">12-hafta</option><option value="13">13-hafta</option><option value="14">14-hafta</option><option value="15">15-hafta</option><option value="16">16-hafta</option><option value="17">17-hafta</option><option value="18">18-hafta</option><option value="19">19-hafta</option><option value="20">20-hafta</option><option value="21">21-hafta</option><option value="22">22-hafta</option><option value="23">23-hafta</option><option value="24">24-hafta</option><option value="25">25-hafta</option><option value="26">26-hafta</option><option value="27">27-hafta</option><option value="28">28-hafta</option><option value="29">29-hafta</option><option value="30">30-hafta</option><option value="31">31-hafta</option><option value="32">32-hafta</option><option value="33">33-hafta</option><option value="34">34-hafta</option><option value="35">35-hafta</option><option value="36">36-hafta</option><option value="37">37-hafta</option><option value="38">38-hafta</option><option value="39">39-hafta</option><option value="40">40-hafta</option><option value="41">41-hafta</option><option value="42">42-hafta</option><option value="43">43-hafta</option><option value="44">44-hafta</option><option value="45">45-hafta</option><option value="46">46-hafta</option><option value="47">47-hafta</option><option value="48">48-hafta</option><option value="49">49-hafta</option><option value="50">50-hafta</option><option value="51">51-hafta</option><option value="52">52-hafta</option><option value="53">53-hafta</option><option value="54">54-hafta</option><option value="55">55-hafta</option><option value="56">56-hafta</option><option value="57">57-hafta</option><option value="58">58-hafta</option><option value="59">59-hafta</option><option value="60">60-hafta</option></select></label></div>
+</div>
+</div>
 <div><label>Juftlik<select id="lPair"><option value="1">1-juftlik</option><option value="2">2-juftlik</option><option value="3">3-juftlik</option><option value="4">4-juftlik</option><option value="5">5-juftlik</option><option value="6">6-juftlik</option><option value="7">7-juftlik</option><option value="8">8-juftlik</option></select></label></div>
 <div><label>Vaqt<input id="lTime" readonly=""/></label></div>
-<div><label>Almashtiruvchi o‘qituvchi<select id="lSubstitute"><option value="">Yo‘q</option></select></label></div>
+<div><label>Xona<select id="lRoom"></select></label><div class="lesson-auto-room-line"><button class="btn ghost" id="autoLessonRoomBtn" type="button">⚡ Avtomatik xona</button><span class="mini" id="autoLessonRoomHint"></span></div></div>
 <div><label>Holat<select id="lStatus"><option value="pending">Tasdiqlash kutilmoqda</option><option value="approved">Tasdiqlangan</option></select></label></div>
 <div class="full"><label>Izoh<textarea id="lNote" placeholder="Qo‘shimcha izoh" rows="2"></textarea></label></div>
-<div class="full"><button class="btn primary" id="saveLessonBtn">Darsni saqlash</button></div>
 </div>
-<div class="section-title"><h3>Darslar</h3></div><div class="admin-list" id="lessonAdminList"></div>
+</div>
+<div class="full teacher-form-actions">
+<button class="btn primary" type="button" onclick="document.getElementById('adminExcelFile_lesson').click()">Excel import</button>
+    <button class="btn success" type="button" onclick="window.ultraDoExport('lesson')">Excel export</button>
+    <button class="btn danger admin-clear-all-btn" type="button" onclick="window.clearAdminModule('lesson')">Hammasini o‘chirish</button>
+    <input id="adminExcelFile_lesson" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="if(this.files&amp;&amp;this.files[0]){window.ultraDoImport('lesson',this.files[0]);this.value='';}">
+<button class="btn primary" id="saveLessonBtn">Darsni saqlash</button></div>
+</div>
+<div class="admin-work-list"><div class="section-title"><h3>Darslar</h3></div><div class="admin-list" id="lessonAdminList"></div></div></div>
 </section>
 <section class="tab-section" id="approvalTab" style="display:none">
 <div class="section-title"><h3>Tasdiqlash kutilayotgan darslar</h3></div><div class="admin-list" id="approvalList"></div>
@@ -7046,53 +7271,31 @@ body.hemis-layout header.topbar .topbar-language #languageSelect{width:60px;padd
 </div>
 </div>
 </section>
-<section class="tab-section" id="semesterTab" style="display:none">
-<div class="form">
-<div><label>Akademik yil<input id="academicYear" value="2026/2027"/></label></div>
-<div><label>Semestr<select id="semesterSelect"><option>I-semestr</option><option>II-semestr</option></select></label></div>
-<div><label>Semestr haftalari soni<input id="semesterWeeks" max="30" min="1" type="number" value="16"/></label></div>
-<div><label>Semestr boshlanish sanasi<input id="semesterStartDate" type="date"/></label></div>
-<div class="full"><button class="btn primary" id="saveSemesterBtn">Saqlash</button></div>
-</div>
-<div class="section-title"><h3>Faol davr</h3></div>
-<div class="card" id="semesterInfo"></div>
-</section>
-<section class="tab-section" id="holidayTab" style="display:none">
-<div class="admin-excel-tools" data-excel-type="holiday">
-  <div class="admin-excel-info"><strong>Bayramlar — Excel</strong><span>Bayram va dam olish kunlarini Excelga chiqarish yoki Excel/CSV orqali kiritish.</span></div>
-  <div class="actions">
-    <button class="btn primary" type="button" onclick="document.getElementById('adminExcelFile_holiday').click()">Excel import</button>
-    <button class="btn success" type="button" onclick="window.ultraDoExport('holiday')">Excel export</button>
-    <button class="btn danger admin-clear-all-btn" type="button" onclick="window.clearAdminModule('holiday')">Hammasini o‘chirish</button>
-    <input id="adminExcelFile_holiday" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="if(this.files&amp;&amp;this.files[0]){window.ultraDoImport('holiday',this.files[0]);this.value='';}">
-  </div>
-</div>
 
-<div class="form">
-<div><label>Sana<input id="holidayDate" type="date"/></label></div>
-<div><label>Nomi<input id="holidayName" placeholder="Bayram yoki dam olish kuni"/></label></div>
-<div class="full"><button class="btn primary" id="addHolidayBtn">Qo‘shish</button></div>
-</div>
-<div class="section-title"><h3>Bayram va dam olish kunlari</h3></div>
-<div class="admin-list" id="holidayList"></div>
-</section>
+
 <section class="tab-section" id="auditTab" style="display:none">
 <div class="section-title"><h3>Audit log</h3></div>
 <div class="admin-list" id="auditList"></div>
 </section>
 <section class="tab-section" id="exceptionAdminTab" style="display:none">
-<div class="admin-excel-tools" data-excel-type="exception">
-  <div class="admin-excel-info"><strong>Istisno jadvali — Excel</strong><span>Bir kunlik istisnolarni Excelga chiqarish yoki Excel/CSV orqali kiritish.</span></div>
-  <div class="actions">
-    <button class="btn primary" type="button" onclick="document.getElementById('adminExcelFile_exception').click()">Excel import</button>
-    <button class="btn success" type="button" onclick="window.ultraDoExport('exception')">Excel export</button>
-    <button class="btn danger admin-clear-all-btn" type="button" onclick="window.clearAdminModule('exception')">Hammasini o‘chirish</button>
-    <input id="adminExcelFile_exception" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="if(this.files&amp;&amp;this.files[0]){window.ultraDoImport('exception',this.files[0]);this.value='';}">
-  </div>
-</div>
-
 <div class="section-title"><h3>Bir kunlik istisno jadvali</h3></div>
 <div class="form">
+<details class="teacher-form-help"><summary aria-label="Istisno jadvali bo‘limi izohi">?</summary>
+  <div tabindex="0" role="region" aria-label="Modul bo‘yicha izohlar">
+    <p><strong>O‘qituvchi.</strong> Darsi o‘zgaradigan o‘qituvchi.</p>
+    <p><strong>Asosiy dars.</strong> Jadvaldan o‘zgartiriladigan dars.</p>
+    <p><strong>Sana.</strong> Istisno amal qiladigan kun.</p>
+    <p><strong>Amal.</strong> Darsni bekor qilish yoki ko‘chirishni tanlang.</p>
+    <p><strong>Yangi juftlik.</strong> Ko‘chiriladigan juftlik.</p>
+    <p><strong>Yangi xona.</strong> Ko‘chiriladigan xona.</p>
+    <p><strong>Izoh.</strong> O‘zgarish sababi yoki eslatma.</p>
+    <p><strong>Istisnoni saqlash.</strong> O‘zgarishni tanlangan sanaga qo‘llaydi.</p>
+    <p><strong>Excel import.</strong> Excel yoki CSV fayldan istisnolar ma’lumotlarini yuklaydi.</p>
+    <p><strong>Excel export.</strong> Saqlangan istisnolar ma’lumotlarini Excel faylga chiqaradi.</p>
+    <p><strong>Hammasini o‘chirish.</strong> Shu moduldagi yozuvlarni ro‘yxatdan o‘chiradi.</p>
+  </div>
+</details>
+
 <input id="exEditId" type="hidden"/>
 <div class="full"><label>O‘qituvchi<select id="exTeacher"></select></label></div>
 <div class="full"><label>Asosiy dars<select id="exLesson"></select></label></div>
@@ -7101,135 +7304,77 @@ body.hemis-layout header.topbar .topbar-language #languageSelect{width:60px;padd
 <div><label>Yangi juftlik<select id="exPair"><option value="">O‘zgarmaydi</option><option value="1">1-juftlik</option><option value="2">2-juftlik</option><option value="3">3-juftlik</option><option value="4">4-juftlik</option><option value="5">5-juftlik</option><option value="6">6-juftlik</option><option value="7">7-juftlik</option><option value="8">8-juftlik</option></select></label></div>
 <div><label>Yangi xona<select id="exRoom"><option value="">O‘zgarmaydi</option></select></label></div>
 <div class="full"><label>Izoh<textarea id="exNote" placeholder="Istisno sababi yoki izohi" rows="2"></textarea></label></div>
-<div class="full"><button class="btn primary" id="saveExceptionBtn">Istisnoni saqlash</button></div>
+<div class="full teacher-form-actions">
+<button class="btn primary" type="button" onclick="document.getElementById('adminExcelFile_exception').click()">Excel import</button>
+    <button class="btn success" type="button" onclick="window.ultraDoExport('exception')">Excel export</button>
+    <button class="btn danger admin-clear-all-btn" type="button" onclick="window.clearAdminModule('exception')">Hammasini o‘chirish</button>
+    <input id="adminExcelFile_exception" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="if(this.files&amp;&amp;this.files[0]){window.ultraDoImport('exception',this.files[0]);this.value='';}">
+<button class="btn primary" id="saveExceptionBtn">Istisnoni saqlash</button></div>
 </div>
 <div class="section-title"><h3>Saqlangan istisnolar</h3></div>
 <div class="admin-list" id="exceptionAdminList"></div>
 </section>
+<div class="admin-combined-grid admin-combined-grid--structure" hidden>
 <section class="tab-section" id="structureAdminTab" style="display:none">
 <div class="section-title"><h3>Bino — fakultet — kafedra strukturasi</h3></div>
 <div class="form">
+<details class="teacher-form-help"><summary aria-label="Tuzilma bo‘limi izohi">?</summary>
+  <div tabindex="0" role="region" aria-label="Modul bo‘yicha izohlar">
+    <p><strong>Bino.</strong> Fakultet yoki kafedra joylashgan bino.</p>
+    <p><strong>Fakultet.</strong> Kafedra tegishli fakultet.</p>
+    <p><strong>Kafedra.</strong> Tuzilmaga kiritiladigan kafedra.</p>
+    <p><strong>Kafedra xonasi.</strong> Kafedra joylashgan xona.</p>
+    <p><strong>Strukturani saqlash.</strong> Kiritilgan bog‘lanishni ro‘yxatga yozadi.</p>
+  </div>
+</details>
+
 <input id="orgEditId" type="hidden"/>
 <div><label>Bino<input id="orgBuilding" placeholder="1-bino"/></label></div>
 <div><label>Fakultet<input id="orgFaculty" placeholder="Tabiiy resurslarni boshqarish"/></label></div>
 <div class="full"><label>Kafedra<input id="orgDepartment" placeholder="Ekologiya, irrigatsiya va gidrotexnika"/></label></div>
 <div class="full"><label>Kafedra xonasi<input id="orgRoom" placeholder="masalan: 305"/></label></div>
-<div class="full"><button class="btn primary" id="saveOrgBtn">Strukturani saqlash</button></div>
+<div class="full teacher-form-actions"><button class="btn primary" id="saveOrgBtn">Strukturani saqlash</button></div>
 </div>
 <div class="section-title"><h3>Struktura ro‘yxati</h3></div>
 <div class="admin-list" id="orgList"></div>
 </section>
-<section class="tab-section" id="facultyDepartmentAdminTab" style="display:none">
-<div class="section-title"><h3>Universitet bo‘yicha umumiy nazorat</h3></div>
-<div class="note" id="adminActiveDepartmentInfo" style="display:none;margin-bottom:10px"></div>
-<div class="admin-list" id="facultyDepartmentAdminList"></div>
-</section>
-<section class="tab-section" id="groupStudyAdminTab" style="display:none">
-<div class="admin-excel-tools" data-excel-type="groupstudy">
-  <div class="admin-excel-info"><strong>Guruh davri — Excel</strong><span>Guruh va o‘quv davri ma’lumotlarini Excelga chiqarish yoki import qilish.</span></div>
-  <div class="actions">
-    <button class="btn primary" type="button" onclick="document.getElementById('adminExcelFile_groupstudy').click()">Excel import</button>
-    <button class="btn success" type="button" onclick="window.ultraDoExport('groupstudy')">Excel export</button>
-    <button class="btn danger admin-clear-all-btn" type="button" onclick="window.clearAdminModule('groupstudy')">Hammasini o‘chirish</button>
-    <input id="adminExcelFile_groupstudy" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="if(this.files&amp;&amp;this.files[0]){window.ultraDoImport('groupstudy',this.files[0]);this.value='';}">
-  </div>
-</div>
-
-<div class="form group-study-form">
-<input id="groupStudyEditKey" type="hidden"/>
-<div><label>Yo‘nalish kodi
-        <input id="groupStudyDirectionCode" placeholder="Masalan: 60730900" type="text"/>
-</label></div>
-<div class="full"><label>Guruhning to‘liq nomi
-        <input id="groupStudyFullName" placeholder="Masalan: Gidrotexnika qurilishi" type="text"/>
-</label>
-<div class="mini" id="groupStudyDirectionPreview" style="margin-top:5px">Yo‘nalish kodi va nomi kiritilganda: <b>60730900-Gidrotexnika qurilishi</b> ko‘rinishida chiqadi.</div>
-</div>
-<div class="full"><label>Guruhning qisqartirilgan nomi
-        <input id="groupStudyName" list="groupStudyKnownGroups" placeholder="Masalan: GTQ" type="text"/>
-<datalist id="groupStudyKnownGroups"></datalist>
-</label>
-<div class="mini" id="groupStudyShortHint" style="margin-top:5px">To‘liq nom yozilganda qisqartma avtomatik hosil bo‘ladi. Istasangiz qo‘lda o‘zgartirishingiz mumkin.</div>
-</div>
-<div><label>Ta’lim shakli
-        <select id="groupStudyEducationType">
-<option value="kunduzgi">Kunduzgi</option>
-<option value="kechki">Kechki</option>
-<option value="sirtqi">Sirtqi</option>
-<option value="magistratura">Magistratura</option>
-<option value="boshqa">Boshqa</option>
-</select>
-</label></div>
-<div><label>Talabalar soni<input id="groupStudySize" min="1" placeholder="Masalan: 25" type="number"/></label></div>
-<div><label>Boshlanish haftasi<input id="groupStudyStartWeek" min="1" type="number" value="1"/></label></div>
-<div><label>Tugash haftasi<input id="groupStudyEndWeek" min="1" type="number" value="15"/></label></div>
-<div><label>Boshlanish juftligi
-<select id="groupStudyStartPair">
-<option value="1">1-juftlik</option><option value="2">2-juftlik</option><option value="3">3-juftlik</option><option value="4">4-juftlik</option>
-<option value="5">5-juftlik</option><option value="6">6-juftlik</option><option value="7">7-juftlik</option><option value="8">8-juftlik</option>
-</select>
-</label></div>
-<div><label>Tugash juftligi
-<select id="groupStudyEndPair">
-<option value="1">1-juftlik</option><option value="2">2-juftlik</option><option value="3">3-juftlik</option><option value="4">4-juftlik</option>
-<option value="5">5-juftlik</option><option value="6">6-juftlik</option><option value="7">7-juftlik</option><option selected="" value="8">8-juftlik</option>
-</select>
-</label></div>
-<div class="full"><label>O‘qish hafta kunlari</label>
-<div class="group-building-choices" id="groupStudyDayChoices"></div>
-<div class="mini" style="margin-top:5px">Guruh darslari faqat tanlangan kunlarga joylashtiriladi.</div>
-</div>
-<div class="full"><label>Ruxsat etilgan binolar</label>
-<div class="group-building-choices" id="groupStudyBuildingChoices"></div>
-<div class="group-building-add"><input id="groupStudyCustomBuilding" placeholder="Masalan: 17-bino"/><button class="btn ghost" id="groupStudyAddBuildingBtn" type="button">Bino qo‘shish</button></div>
-</div>
-<div class="full"><label>Izoh<textarea id="groupStudyNote" placeholder="Masalan: 1–4 hafta intensiv blok, faqat 6–7-binolar" rows="2"></textarea></label></div>
-<div class="full actions">
-<button class="btn primary" id="saveGroupStudyBtn">Saqlash</button>
-<button class="btn ghost" id="clearGroupStudyBtn" type="button">Tozalash</button>
-</div>
-</div>
-<div class="group-study-tools">
-<input class="control" id="groupStudySearch" placeholder="Kod, to‘liq nom yoki qisqartma bo‘yicha qidirish..."/>
-<select class="control" id="groupStudyFilter"><option value="all">Barchasi</option><option value="configured">Sozlangan</option><option value="missing">Sozlanmagan</option><option value="short">Qisqa davrli</option></select>
-</div>
-<div class="section-title"><h3>Guruhlar ro‘yxati</h3></div>
-<div class="admin-list" id="groupStudyList"></div>
-</section>
-<section class="tab-section" id="buildingDistanceTab" style="display:none">
-<div class="admin-excel-tools" data-excel-type="distance">
-  <div class="admin-excel-info"><strong>Bino masofalari — Excel</strong><span>Binolar orasidagi masofa va yo‘l vaqtini Excelga chiqarish yoki import qilish.</span></div>
-  <div class="actions">
-    <button class="btn primary" type="button" onclick="document.getElementById('adminExcelFile_distance').click()">Excel import</button>
-    <button class="btn success" type="button" onclick="window.ultraDoExport('distance')">Excel export</button>
-    <button class="btn danger admin-clear-all-btn" type="button" onclick="window.clearAdminModule('distance')">Hammasini o‘chirish</button>
-    <input id="adminExcelFile_distance" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="if(this.files&amp;&amp;this.files[0]){window.ultraDoImport('distance',this.files[0]);this.value='';}">
-  </div>
-</div>
-
-<div class="section-title"><h3>Bino oraliq masofasi va yo‘l vaqti</h3></div>
-<div class="form">
-<div><label>Qaysi binodan<select id="bdFrom"><option value="1-bino">1-bino</option><option value="2-bino">2-bino</option><option value="3-bino">3-bino</option><option value="4-bino">4-bino</option><option value="5-bino">5-bino</option><option value="6-bino">6-bino</option><option value="7-bino">7-bino</option><option value="8-bino">8-bino</option><option value="9-bino">9-bino</option><option value="10-bino">10-bino</option><option value="11-bino">11-bino</option><option value="12-bino">12-bino</option><option value="13-bino">13-bino</option><option value="14-bino">14-bino</option><option value="15-bino">15-bino</option><option value="16-bino">16-bino</option><option value="17-bino">17-bino</option><option value="18-bino">18-bino</option><option value="19-bino">19-bino</option><option value="20-bino">20-bino</option><option value="21-bino">21-bino</option><option value="22-bino">22-bino</option><option value="23-bino">23-bino</option><option value="24-bino">24-bino</option><option value="25-bino">25-bino</option><option value="26-bino">26-bino</option><option value="27-bino">27-bino</option><option value="28-bino">28-bino</option><option value="29-bino">29-bino</option><option value="30-bino">30-bino</option><option value="31-bino">31-bino</option><option value="32-bino">32-bino</option><option value="33-bino">33-bino</option><option value="34-bino">34-bino</option><option value="35-bino">35-bino</option><option value="36-bino">36-bino</option><option value="37-bino">37-bino</option><option value="38-bino">38-bino</option><option value="39-bino">39-bino</option><option value="40-bino">40-bino</option><option value="41-bino">41-bino</option><option value="42-bino">42-bino</option><option value="43-bino">43-bino</option><option value="44-bino">44-bino</option><option value="45-bino">45-bino</option><option value="46-bino">46-bino</option><option value="47-bino">47-bino</option><option value="48-bino">48-bino</option><option value="49-bino">49-bino</option><option value="50-bino">50-bino</option></select></label></div>
-<div><label>Qaysi binoga<select id="bdTo"><option value="1-bino">1-bino</option><option value="2-bino">2-bino</option><option value="3-bino">3-bino</option><option value="4-bino">4-bino</option><option value="5-bino">5-bino</option><option value="6-bino">6-bino</option><option value="7-bino">7-bino</option><option value="8-bino">8-bino</option><option value="9-bino">9-bino</option><option value="10-bino">10-bino</option><option value="11-bino">11-bino</option><option value="12-bino">12-bino</option><option value="13-bino">13-bino</option><option value="14-bino">14-bino</option><option value="15-bino">15-bino</option><option value="16-bino">16-bino</option><option value="17-bino">17-bino</option><option value="18-bino">18-bino</option><option value="19-bino">19-bino</option><option value="20-bino">20-bino</option><option value="21-bino">21-bino</option><option value="22-bino">22-bino</option><option value="23-bino">23-bino</option><option value="24-bino">24-bino</option><option value="25-bino">25-bino</option><option value="26-bino">26-bino</option><option value="27-bino">27-bino</option><option value="28-bino">28-bino</option><option value="29-bino">29-bino</option><option value="30-bino">30-bino</option><option value="31-bino">31-bino</option><option value="32-bino">32-bino</option><option value="33-bino">33-bino</option><option value="34-bino">34-bino</option><option value="35-bino">35-bino</option><option value="36-bino">36-bino</option><option value="37-bino">37-bino</option><option value="38-bino">38-bino</option><option value="39-bino">39-bino</option><option value="40-bino">40-bino</option><option value="41-bino">41-bino</option><option value="42-bino">42-bino</option><option value="43-bino">43-bino</option><option value="44-bino">44-bino</option><option value="45-bino">45-bino</option><option value="46-bino">46-bino</option><option value="47-bino">47-bino</option><option value="48-bino">48-bino</option><option value="49-bino">49-bino</option><option value="50-bino">50-bino</option></select></label></div>
-<div><label>Masofa (km)<input id="bdDistance" min="0" placeholder="masalan: 1.8" step="0.1" type="number"/></label></div>
-<div><label>Yo‘l vaqti (daqiqa)<input id="bdMinutes" min="0" placeholder="masalan: 18" step="1" type="number"/></label></div>
-<div class="full"><button class="btn primary" id="saveBuildingDistanceBtn">Saqlash</button></div>
-</div>
-<div class="section-title"><h3>Saqlangan bino masofalari</h3></div>
-<div class="admin-list" id="buildingDistanceList"></div>
-</section>
 <section class="tab-section" id="managerAdminTab" style="display:none">
 <div class="section-title"><h3>Kafedra mudirlari</h3></div>
 <div class="form">
+<details class="teacher-form-help"><summary aria-label="Kafedra mudirlari bo‘limi izohi">?</summary>
+  <div tabindex="0" role="region" aria-label="Modul bo‘yicha izohlar">
+    <p><strong>F.I.Sh..</strong> Kafedra mudirining to‘liq ismi.</p>
+    <p><strong>Login.</strong> Tizimga kirishda ishlatiladigan foydalanuvchi nomi.</p>
+    <p><strong>Parol.</strong> Tizimga kirish paroli.</p>
+    <p><strong>Kafedra.</strong> Mudir boshqaradigan kafedra.</p>
+    <p><strong>Saqlash.</strong> Mudir hisobini yaratadi yoki yangilaydi.</p>
+  </div>
+</details>
+
 <input id="managerEditId" type="hidden"/>
 <div class="full"><label>F.I.Sh.<input id="managerName" placeholder="Kafedra mudiri F.I.Sh."/></label></div>
 <div><label>Login<input id="managerLogin" placeholder="masalan: ekologiya_mudir"/></label></div>
 <div><label>Parol<input id="managerPassword" placeholder="1 ta yoki undan ko‘p belgi" type="password"/></label></div>
 <div class="full"><label>Kafedra<select id="managerDepartment"></select></label></div>
-<div class="full"><button class="btn primary" id="saveManagerBtn">Kafedra mudirini saqlash</button></div>
+<div class="full teacher-form-actions"><button class="btn primary" id="saveManagerBtn">Saqlash</button></div>
 </div>
 <div class="admin-list" id="managerList"></div>
 </section>
+</div>
+<section class="tab-section" id="facultyDepartmentAdminTab" style="display:none">
+<details class="teacher-form-help"><summary aria-label="Universitet nazorati bo‘limi izohi">?</summary>
+  <div tabindex="0" role="region" aria-label="Modul bo‘yicha izohlar">
+    <p><strong>Fakultetlar.</strong> Universitet fakultetlari ro‘yxati.</p>
+    <p><strong>Kafedralar.</strong> Fakultetlarga tegishli kafedralarni ko‘rish mumkin.</p>
+  </div>
+</details>
+<div class="section-title"><h3>Universitet bo‘yicha umumiy nazorat</h3></div>
+<div class="note" id="adminActiveDepartmentInfo" style="display:none;margin-bottom:10px"></div>
+<div class="admin-list" id="facultyDepartmentAdminList"></div>
+</section>
+
+
+
 </aside>
 <script>
 const $=id=>document.getElementById(id);
@@ -8810,7 +8955,6 @@ function refreshTeacherDepartmentSelect(preferred){
    el.innerHTML=dep?`<option value="${esc(dep)}">${esc(dep)}</option>`:'<option value="">Kafedra biriktirilmagan</option>';
    el.value=dep||"";
    el.disabled=true;
-   if($("tDepartmentNote"))$("tDepartmentNote").textContent="Kafedra mudiri faqat o‘z kafedrasiga o‘qituvchi biriktira oladi.";
  }else{
    deps=[...new Set(deps)].sort((a,b)=>a.localeCompare(b,"uz"));
    el.innerHTML=deps.length?deps.map(d=>`<option value="${esc(d)}">${esc(d)}</option>`).join(""):'<option value="">—</option>';
@@ -8820,11 +8964,30 @@ function refreshTeacherDepartmentSelect(preferred){
    else if(db.activeDepartment && deps.includes(db.activeDepartment))el.value=db.activeDepartment;
    else if(deps.length)el.value=deps[0];
    else el.value="";
-   if($("tDepartmentNote"))$("tDepartmentNote").textContent="Mavjud kafedralardan birini tanlang.";
  }
 }
+function lessonTeacherLabel(t){
+ const name=t.name||scheduleTeacherName(t);
+ return db.teachers.some(other=>other!==t&&(other.name||scheduleTeacherName(other))===name)
+  ? `${name} · ${t.department||"Kafedra"} · ${t.id}`
+  : name;
+}
+$("lTeacherSearch").addEventListener("input",()=>{
+ const query=$("lTeacherSearch").value.trim().toLowerCase();
+ const exact=db.teachers.find(t=>lessonTeacherLabel(t).toLowerCase()===query);
+ const matches=query?db.teachers.filter(t=>[t.name,scheduleTeacherName(t)].some(n=>String(n||"").trim().toLowerCase()===query)):[];
+ const teacher=exact||(matches.length===1?matches[0]:null);
+ $("lTeacher").value=teacher?.id??"";
+ $("lTeacher").dispatchEvent(new Event("change",{bubbles:true}));
+});
 function renderAdminSelectors(){
+ const previousTeacher=$("lTeacher").value;
  $("lTeacher").innerHTML=db.teachers.map(t=>`<option value="${t.id}">${esc(scheduleTeacherName(t))}</option>`).join("");
+ $("lTeacherNames").replaceChildren(...db.teachers.map(t=>new Option("",lessonTeacherLabel(t))));
+ if(previousTeacher&&teacherById(previousTeacher))$("lTeacher").value=previousTeacher;
+ else if($("lTeacherSearch").value)$("lTeacher").value="";
+ const selected=teacherById($("lTeacher").value);
+ if(selected)$("lTeacherSearch").value=lessonTeacherLabel(selected);
  $("lSubstitute").innerHTML='<option value="">Yo‘q</option>'+db.teachers.map(t=>`<option value="${t.id}">${esc(scheduleTeacherName(t))}</option>`).join("");
  $("lRoom").innerHTML=db.rooms.map(r=>`<option value="${r.id}">${esc(r.name)}-xona · ${esc(r.building||"")} · ${esc(r.type)} · ${r.capacity} o‘rin${r.capacityEstimated?" (taxminiy)":""}</option>`).join("");
  refreshTeacherDepartmentSelect();
@@ -8846,9 +9009,65 @@ function teacherExtraFieldIds(){
   "tOrcid","tScopusId","tWosId","tGoogleScholar","tExtraNote"
  ];
 }
+document.addEventListener("click",event=>{
+ for(const help of document.querySelectorAll("#adminPanel .teacher-form-help[open]")){
+  if(!help.contains(event.target))help.open=false;
+ }
+});
+let teacherCustomFields=[];
+function renderTeacherCustomFields(){
+ const list=$("teacherCustomList");
+ list.replaceChildren();
+ for(const field of teacherCustomFields){
+  const row=document.createElement("div");
+  const label=document.createElement("label");
+  label.textContent=field.label;
+  const input=document.createElement("input");
+  input.value=field.value;
+  input.oninput=()=>{field.value=input.value;};
+  label.append(input);
+  const remove=document.createElement("button");
+  remove.type="button";
+  remove.className="btn danger";
+  remove.textContent="O‘chirish";
+  remove.onclick=()=>{
+   const fieldKey=label=>String(label??"").trim().toLowerCase().replace(/[ʻ’‘`']/g,"'").replace(/\s+/g," ");
+   const key=fieldKey(field.label);
+   const keep=item=>fieldKey(item?.label)!==key;
+   teacherCustomFields=teacherCustomFields.filter(keep);
+   let changed=false;
+   for(const teacher of db.teachers){
+    const savedFields=teacher.extraInfo?.customFields;
+    if(!Array.isArray(savedFields))continue;
+    const remaining=savedFields.filter(keep);
+    if(remaining.length!==savedFields.length){
+     teacher.extraInfo.customFields=remaining;
+     changed=true;
+    }
+   }
+   if(changed)save();
+   renderTeacherCustomFields();
+  };
+  row.append(label,remove);
+  list.append(row);
+ }
+}
+$("addTeacherCustom").onclick=()=>{
+ const input=$("teacherCustomLabel");
+ const label=input.value.trim();
+ if(!label){input.focus();return;}
+ const existing=teacherCustomFields.findIndex(field=>field.label.toLowerCase()===label.toLowerCase());
+ if(existing>=0){$("teacherCustomList").querySelectorAll("input")[existing]?.focus();return;}
+ teacherCustomFields.push({label,value:""});
+ input.value="";
+ renderTeacherCustomFields();
+ $("teacherCustomList").lastElementChild.querySelector("input").focus();
+};
+$("clearTeacherCustom").onclick=()=>{$("teacherCustomLabel").value="";$("teacherCustomLabel").focus();};
 function teacherExtraDataFromForm(){
  const v=id=>($(id)?.value||"").trim();
  return {
+  customFields:teacherCustomFields.map(field=>({label:field.label,value:field.value.trim()})),
   birthDate:v("tBirthDate"),
   birthPlace:v("tBirthPlace"),
   gender:v("tGender"),
@@ -8877,6 +9096,9 @@ function teacherExtraDataFromForm(){
 }
 function fillTeacherExtraForm(t){
  const x=t?.extraInfo||{};
+ teacherCustomFields=Array.isArray(x.customFields)?x.customFields.filter(field=>typeof field?.label==="string").map(field=>({label:field.label,value:String(field.value??"")})):[];
+ $("teacherCustomLabel").value="";
+ renderTeacherCustomFields();
  const map={
   tBirthDate:"birthDate",tBirthPlace:"birthPlace",tGender:"gender",
   tCitizenship:"citizenship",tPassport:"passport",tPinfl:"pinfl",
@@ -8893,6 +9115,9 @@ function fillTeacherExtraForm(t){
  renderTeacherDiplomas();
 }
 function resetTeacherExtraForm(){
+ teacherCustomFields=[];
+ $("teacherCustomLabel").value="";
+ renderTeacherCustomFields();
  teacherExtraFieldIds().forEach(id=>{if($(id))$(id).value=""});
  teacherDiplomaDraft=[];
  renderTeacherDiplomas();
@@ -8969,14 +9194,13 @@ document.addEventListener("DOMContentLoaded",()=>{
 });
 
 function syncTeacherShortName(force=false){
- const fullEl=$("tName"),shortEl=$("tShortName"),hint=$("tShortNameHint");
+ const fullEl=$("tName"),shortEl=$("tShortName");
  if(!fullEl||!shortEl)return;
  const generated=teacherShortNameFromFull(fullEl.value);
  const manual=shortEl.dataset.manual==="1";
  const lastAuto=shortEl.dataset.lastAuto||"";
  const mayAuto=force||!manual||!shortEl.value.trim()||shortEl.value.trim()===lastAuto;
  if(mayAuto){shortEl.value=generated;shortEl.dataset.lastAuto=generated;shortEl.dataset.manual="0"}
- if(hint)hint.innerHTML=generated?`Avtomatik qisqartma: <b>${esc(generated)}</b>. Qo‘lda tahrirlash ham mumkin.`:"To‘liq F.I.Sh. yozilganda qisqartma avtomatik hosil bo‘ladi. Istasangiz qo‘lda o‘zgartirishingiz mumkin.";
 }
 function markTeacherShortManual(){
  const fullEl=$("tName"),shortEl=$("tShortName");if(!shortEl)return;
@@ -8994,13 +9218,12 @@ function clearTeacherForm(){
  $("editTeacherId").value="";
  ["tName","tShortName","tPhone","tImage","tAvailabilityNote"].forEach(id=>$(id).value="");
  if($("tShortName")){ $("tShortName").dataset.manual="0"; $("tShortName").dataset.lastAuto=""; }
- if($("tShortNameHint"))$("tShortNameHint").textContent="To‘liq F.I.Sh. yozilganda qisqartma avtomatik hosil bo‘ladi. Istasangiz qo‘lda o‘zgartirishingiz mumkin.";
  $("tDegree").value="-";
  $("tPosition").value="-";
  refreshTeacherDepartmentSelect(db.currentUser?.role==="mudiri"?db.currentUser?.department:(db.adminActiveDepartment||db.activeDepartment||""));
  $("tAvailability").value="available";
  resetTeacherExtraForm();
- $("saveTeacherBtn").textContent="O‘qituvchini saqlash";
+ $("saveTeacherBtn").textContent="Ma’lumotni saqlash";
 }
 $("saveTeacherBtn").onclick=()=>{
  const name=$("tName").value.trim();
@@ -9097,7 +9320,7 @@ function editTeacher(id){
  fillTeacherExtraForm(t);
  const extraPanel=$("teacherExtraPanel");if(extraPanel)extraPanel.style.display="none";
  const extraToggle=$("teacherExtraToggle");if(extraToggle)extraToggle.innerHTML="<span>＋ Qo‘shimcha ma’lumotlarni kiritish</span>";
- $("saveTeacherBtn").textContent="O‘zgarishlarni saqlash";
+ $("saveTeacherBtn").textContent="Ma’lumotni saqlash";
  $("adminPanel").scrollTo({top:0,behavior:"smooth"})
 }
 function deleteTeacher(id){
@@ -9191,7 +9414,7 @@ function editLesson(tid,lid){
  const t=teacherById(tid),l=t?.schedule.find(x=>String(x.id)===String(lid));if(!l)return;
  const lr=roomById(l.roomId)||db.rooms.find(r=>normalizePhysicalRoom(r.name)===normalizePhysicalRoom(l.room)&&normalizeBuilding(r.building)===normalizeBuilding(l.roomBuilding))||roomByName(l.room);
  switchTab("lessonTab");
- $("editLessonTeacherId").value=tid;$("editLessonId").value=lid;$("lTeacher").value=tid;$("lDay").value=l.day;$("lWeek").value=l.weekType;$("lSingleDate").value=l.singleDate||"";syncSingleDateUI?.();
+ $("editLessonTeacherId").value=tid;$("editLessonId").value=lid;$("lTeacher").value=tid;$("lTeacherSearch").value=lessonTeacherLabel(t);$("lDay").value=l.day;$("lWeek").value=l.weekType;$("lSingleDate").value=l.singleDate||"";syncSingleDateUI?.();
  $("lEducationType").value=lessonEducationType(l);$("lStartWeek").value=lessonWeekRange(l).start;$("lEndWeek").value=lessonWeekRange(l).end;updateEducationFields();
  $("lSubject").value=l.subject;try{window.refreshLessonGroupOptions&&window.refreshLessonGroupOptions(l.group)}catch(e){}$("lGroup").value=l.group;$("lGroupSize").value=l.groupSize;$("lRoom").value=lr?.id||"";
  $("lType").value=l.type;try{window.refreshLectureExtraGroups&&window.refreshLectureExtraGroups(l.additionalGroups||[])}catch(e){};$("lPair").value=l.pair;$("lSubstitute").value=l.substituteTeacherId||"";$("lStatus").value=l.status;$("lNote").value=l.note||"";
@@ -9232,7 +9455,23 @@ function approveLesson(tid,lid){const t=teacherById(tid),l=t?.schedule.find(x=>S
 function rejectLesson(tid,lid){const t=teacherById(tid),l=t?.schedule.find(x=>String(x.id)===String(lid));if(!l)return;l.cancelled=true;l.status="pending";addHistory("Dars rad etildi",`${scheduleTeacherName(t)} · ${l.subject}`);save();renderAll()}
 window.editLesson=editLesson;window.deleteLesson=deleteLesson;window.toggleCancel=toggleCancel;window.approveLesson=approveLesson;window.rejectLesson=rejectLesson;
 
-function switchTab(id){document.querySelectorAll(".tab-section").forEach(s=>s.style.display=s.id===id?"block":"none");document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("active",b.dataset.tab===id))}
+function switchTab(id){
+ const roomSections=["roomTab","buildingDistanceTab","semesterTab","holidayTab"];
+ const structureSections=["structureAdminTab","managerAdminTab"];
+ if(roomSections.includes(id))id="roomTab";
+ if(structureSections.includes(id))id="structureAdminTab";
+ if(["exceptionAdminTab","facultyDepartmentAdminTab"].includes(id))id="teacherTab";
+ const visible=id==="roomTab"?roomSections:
+  id==="structureAdminTab"&&db.currentUser?.role==="superadmin"?structureSections:[id];
+ document.querySelectorAll(".tab-section").forEach(s=>{
+  s.style.display=visible.includes(s.id)?"block":"none";
+  if(visible.includes(s.id))s.scrollTo({top:0});
+ });
+ document.querySelectorAll("#adminPanel .admin-combined-grid").forEach(grid=>{
+  grid.hidden=!Array.from(grid.children).some(section=>visible.includes(section.id));
+ });
+ document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("active",b.dataset.tab===id));
+}
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
 
 $("roomViewBtn").onclick=()=>{const rows=db.rooms.map(r=>{const lessons=[];const key=physicalRoomKey(r.name,r.building);db.teachers.forEach(t=>(t.schedule||[]).filter(l=>!l.cancelled&&((l.roomId!=null&&String(l.roomId)===String(r.id))||physicalRoomKey(l.room,l.roomBuilding)===key)).forEach(l=>lessons.push({...l,teacher:scheduleTeacherName(t)})));return `<div class="card"><h3>${esc(r.name)}-xona</h3><div class="mini">${esc(r.type)} · ${r.capacity} o‘rin${r.capacityEstimated?" (taxminiy)":""} · ${esc(r.building)}</div><div style="margin-top:10px">${lessons.length?lessons.sort((a,b)=>dayOrder[a.day]-dayOrder[b.day]||a.pair-b.pair).map(l=>`${l.day}, ${l.pair}-juftlik — ${esc(l.teacher)} / ${esc(l.subject)} / ${esc(l.group)}<br>`).join(""):"Dars yo‘q"}</div></div>`}).join("");$("genericTitle").textContent="Xonalar bo‘yicha jadval";$("genericBody").innerHTML=`<div class="grid">${rows}</div>`;$("genericModal").classList.add("open")}
@@ -9396,10 +9635,6 @@ function applyRoleUI(){
   if(startupButton)startupButton.hidden=!['admin','superadmin'].includes(db.currentUser?.role);
   $("adminBtn").style.display=roleCanEdit()?"inline-block":"none";
   $("loginBtn").textContent=`${db.currentUser?.name||"Mehmon"} · ${db.currentUser?.role||"viewer"}`;
-  const mt=document.getElementById("managerAdminTabBtn");
-  if(mt)mt.style.display=db.currentUser?.role==="superadmin"?"inline-block":"none";
-  const fd=document.getElementById("facultyDepartmentAdminTabBtn");
-  if(fd)fd.style.display=["superadmin","admin"].includes(db.currentUser?.role)?"inline-block":"none";
   updateCurrentUserBadge();
 }
 
@@ -9683,7 +9918,7 @@ function loadSemesterFormPeriod(){
   $(id)?.addEventListener("change",loadSemesterFormPeriod);
 });
 
-document.querySelectorAll('.tabs button[data-tab="semesterTab"]').forEach(btn=>{
+document.querySelectorAll('.tabs button[data-tab="roomTab"]').forEach(btn=>{
   btn.addEventListener("click",()=>setTimeout(()=>{
     renderSemester();
     loadSemesterFormPeriod();
@@ -10428,7 +10663,7 @@ renderAdvanced();
     g('managerLogin').value=u.username||'';
     g('managerPassword').value=u.password||'';
     g('managerDepartment').value=u.department||'';
-    g('saveManagerBtn').textContent='O‘zgarishlarni saqlash';
+    g('saveManagerBtn').textContent='Saqlash';
     switchTab('managerAdminTab');
   };
 
@@ -10463,7 +10698,7 @@ renderAdvanced();
       save();
       g('managerEditId').value='';
       g('managerName').value=g('managerLogin').value=g('managerPassword').value='';
-      g('saveManagerBtn').textContent='Kafedra mudirini saqlash';
+      g('saveManagerBtn').textContent='Saqlash';
       renderManagers();
       showAlert('Kafedra mudiri saqlandi.','ok');
     };
@@ -11829,31 +12064,203 @@ renderAdvanced();
     dict.ru[uz]=ru;
     dict.en[uz]=en;
   }
+  for(const [uz,ru,en] of [["Ishchi bo‘lim", "Рабочий раздел", "Workspace"], ["Guruh davri", "Период обучения группы", "Group study period"], ["Dars", "Занятие", "Lesson"], ["Xona va o‘quv taqvimi", "Аудитории и учебный календарь", "Rooms and academic calendar"], ["Tuzilma va mudirlar", "Структура и заведующие", "Structure and heads"], ["Xonalar", "Аудитории", "Rooms"], ["Bino masofalari", "Расстояния между корпусами", "Building distances"], ["Semestr", "Семестр", "Semester"], ["Bayramlar", "Праздники", "Holidays"], ["Ma’lumotni saqlash", "Сохранить данные", "Save details"], ["Excel import", "Импорт Excel", "Import Excel"], ["Excel export", "Экспорт Excel", "Export Excel"], ["Hammasini o‘chirish", "Удалить всё", "Delete all"], ["To‘liq F.I.Sh.", "Полное Ф.И.О.", "Full name"], ["Qisqartirilgan F.I.Sh.", "Сокращённое Ф.И.О.", "Short name"], ["Ilmiy darajasi", "Учёная степень", "Academic degree"], ["Telefon", "Телефон", "Phone"], ["Kafedra", "Кафедра", "Department"], ["Lavozimi", "Должность", "Position"], ["Qo‘shimcha ma’lumot nomi", "Название дополнительного поля", "Additional field name"], ["Qo‘shimcha ma’lumotlar", "Дополнительные сведения", "Additional details"], ["Xona nomi/raqami", "Название/номер аудитории", "Room name/number"], ["Sig‘imi", "Вместимость", "Capacity"], ["Xona turi", "Тип аудитории", "Room type"], ["Bino", "Корпус", "Building"], ["Xonani saqlash", "Сохранить аудиторию", "Save room"], ["Qaysi binodan", "Из какого корпуса", "From building"], ["Qaysi binoga", "В какой корпус", "To building"], ["Masofa (km)", "Расстояние (км)", "Distance (km)"], ["Yo‘l vaqti (daqiqa)", "Время в пути (минуты)", "Travel time (minutes)"], ["Akademik yil", "Учебный год", "Academic year"], ["Semestr haftalari soni", "Количество недель в семестре", "Weeks in semester"], ["Semestr boshlanish sanasi", "Дата начала семестра", "Semester start date"], ["Sana", "Дата", "Date"], ["Nomi", "Название", "Name"], ["Qo‘shish", "Добавить", "Add"], ["Tozalash", "Очистить", "Clear"], ["Guruh ma’lumotlari", "Сведения о группе", "Group details"], ["O‘qish davri va joyi", "Период и место обучения", "Study period and location"], ["Dars ma’lumotlari", "Сведения о занятии", "Lesson details"], ["Jadval va xona", "Расписание и аудитория", "Schedule and room"], ["Yo‘nalish kodi", "Код направления", "Program code"], ["Guruhning to‘liq nomi", "Полное название группы", "Full group name"], ["Guruhning qisqartirilgan nomi", "Сокращённое название группы", "Short group name"], ["Ta’lim shakli", "Форма обучения", "Study mode"], ["Talabalar soni", "Количество студентов", "Number of students"], ["Boshlanish haftasi", "Начальная неделя", "Start week"], ["Tugash haftasi", "Конечная неделя", "End week"], ["Boshlanish juftligi", "Первая пара", "First class period"], ["Tugash juftligi", "Последняя пара", "Last class period"], ["O‘qish hafta kunlari", "Учебные дни недели", "Study days"], ["Ruxsat etilgan binolar", "Разрешённые корпуса", "Allowed buildings"], ["Bino qo‘shish", "Добавить корпус", "Add building"], ["Izoh", "Примечание", "Note"], ["Guruh", "Группа", "Group"], ["Hafta kuni", "День недели", "Day of week"], ["Hafta turi", "Тип недели", "Week type"], ["Xona", "Аудитория", "Room"], ["Dars turi", "Тип занятия", "Lesson type"], ["Juftlik", "Пара", "Class period"], ["Vaqt", "Время", "Time"], ["Almashtiruvchi o‘qituvchi", "Заменяющий преподаватель", "Substitute teacher"], ["Holat", "Статус", "Status"], ["Darsni saqlash", "Сохранить занятие", "Save lesson"], ["Dushanba", "Понедельник", "Monday"], ["Seshanba", "Вторник", "Tuesday"], ["Chorshanba", "Среда", "Wednesday"], ["Payshanba", "Четверг", "Thursday"], ["Juma", "Пятница", "Friday"], ["Shanba", "Суббота", "Saturday"], ["Yakshanba", "Воскресенье", "Sunday"], ["Doimiy", "Постоянно", "Every week"], ["Bir kunlik dars", "Разовое занятие", "One-off lesson"], ["Ma’ruza", "Лекция", "Lecture"], ["Amaliy", "Практическое занятие", "Practical class"], ["Laboratoriya", "Лабораторная", "Laboratory"], ["Seminar", "Семинар", "Seminar"], ["Yo‘q", "Нет", "None"], ["Tasdiqlangan", "Подтверждено", "Approved"], ["Tasdiqlash kutilmoqda", "Ожидает подтверждения", "Pending approval"], ["Kunduzgi", "Очная", "Full-time"], ["Sirtqi", "Заочная", "Part-time"], ["Kechki", "Вечерняя", "Evening"], ["Oddiy auditoriya", "Обычная аудитория", "General classroom"], ["Kompyuter xonasi", "Компьютерный класс", "Computer room"], ["Kafedra mudirlari", "Заведующие кафедрами", "Department heads"], ["Fakultet", "Факультет", "Faculty"], ["Kafedra xonasi", "Кабинет кафедры", "Department office"], ["Strukturani saqlash", "Сохранить структуру", "Save structure"], ["Tahrirlash", "Редактировать", "Edit"], ["O‘zgarishlarni saqlash", "Сохранить изменения", "Save changes"], ["Barchasi", "Все", "All"], ["Sozlangan", "Настроено", "Configured"], ["Sozlanmagan", "Не настроено", "Not configured"], ["Pasport seriyasi", "Серия паспорта", "Passport series"], ["Tug‘ilgan sana", "Дата рождения", "Date of birth"], ["Tizimga kirish", "Вход в систему", "Sign in"], ["Test tahlilchisi", "Анализатор тестов", "Test analyzer"], ["Testlar", "Тесты", "Tests"], ["Yangi so‘rov", "Новый запрос", "New request"], ["Online", "В сети", "Online"]]){dict.ru[uz]=ru;dict.en[uz]=en;}
   const translatedNodes=new WeakMap();
-  const interfaceSelector='button,label,legend,summary,option,h1,h2,h3,h4,th,.menu-text,.stat';
+  const translatedAttributes=new WeakMap();
+  const observedDocuments=new WeakSet();
+  const pendingTranslations=new Map();
+  const translationCache=new Map();
+  const failedTranslations=new Set();
+  const unavailableLanguages=new Set();
+  let activeLanguage='uz';
+  let translationGeneration=0;
+  let translationWarning='';
+  let translationTimer;
+  let translationRequests=0;
+  const translationQueue=[];
+  const normalizeTranslationKey=value=>String(value).replace(/[ʻ’‘`']/g,"'").trim().replace(/\s+/g,' ');
+  const lookup={ru:new Map(),en:new Map()};
+  function rebuildTranslationLookup(){
+    for(const lang of ['ru','en']){
+      lookup[lang].clear();
+      for(const [key,value] of Object.entries(dict[lang]))lookup[lang].set(normalizeTranslationKey(key),value);
+    }
+  }
+  function translationStatus(message){
+    translationWarning=message;
+    let status=document.getElementById('platformTranslationStatus');
+    if(!status){
+      status=document.createElement('div');
+      status.id='platformTranslationStatus';
+      status.setAttribute('role','status');
+      status.style.cssText='position:fixed;bottom:12px;right:12px;z-index:100000;max-width:340px;padding:10px 14px;border:1px solid #ccdce8;border-radius:8px;background:#fff;color:#173b5f;font:13px Arial,sans-serif;box-shadow:0 3px 15px #16365322';
+      document.body.append(status);
+    }
+    status.textContent=message;
+    status.hidden=!message;
+  }
+  function scheduleTranslation(){
+    clearTimeout(translationTimer);
+    translationTimer=setTimeout(()=>{
+      translateInterface(document,activeLanguage);
+      try{
+        const frame=document.getElementById('itFrame');
+        if(frame?.contentDocument)translateInterface(frame.contentDocument,activeLanguage);
+      }catch(e){}
+    },160);
+  }
+  function splitTranslationText(text){
+    const parts=[];
+    let part='';
+    for(const char of text){
+      if(new TextEncoder().encode(part+char).length>450){parts.push(part);part='';}
+      part+=char;
+    }
+    if(part)parts.push(part);
+    return parts;
+  }
+  function pumpTranslationQueue(){
+    while(translationRequests<2&&translationQueue.length){
+      const job=translationQueue.shift();
+      if(job.generation!==translationGeneration){job.resolve(null);continue;}
+      translationRequests++;
+      job.run().then(job.resolve,job.reject).finally(()=>{translationRequests--;pumpTranslationQueue();});
+    }
+  }
+  function requestTranslation(text,lang){
+    const key=lang+'\n'+text;
+    if(translationCache.has(key))return Promise.resolve(translationCache.get(key));
+    if(failedTranslations.has(key)||unavailableLanguages.has(lang))return Promise.resolve(null);
+    if(pendingTranslations.has(key))return pendingTranslations.get(key);
+    const generation=translationGeneration;
+    const result=new Promise((resolve,reject)=>{
+      translationQueue.push({generation,resolve,reject,run:async()=>{
+        let rendered='';
+        for(const part of splitTranslationText(text)){
+          if(generation!==translationGeneration||unavailableLanguages.has(lang))return null;
+          const url=new URL('https://api.mymemory.translated.net/get');
+          url.searchParams.set('q',part);
+          url.searchParams.set('langpair','uz|'+lang);
+          const controller=new AbortController();
+          const timeout=setTimeout(()=>controller.abort(),12000);
+          let response;
+          try{response=await fetch(url,{signal:controller.signal,credentials:'omit',referrerPolicy:'no-referrer'});}
+          finally{clearTimeout(timeout);}
+          if(!response.ok)throw new Error('translation-unavailable');
+          const data=await response.json();
+          if(Number(data.responseStatus)!==200||data.quotaFinished||!data.responseData?.translatedText)throw new Error('translation-unavailable');
+          const decoder=document.createElement('textarea');
+          decoder.innerHTML=data.responseData.translatedText;
+          rendered+=decoder.value;
+        }
+        translationCache.set(key,rendered);
+        return rendered;
+      }});
+      pumpTranslationQueue();
+    }).catch(()=>{
+      failedTranslations.add(key);
+      unavailableLanguages.add(lang);
+      if(generation===translationGeneration&&activeLanguage!=='uz')translationStatus(lang==='ru'
+        ?'Некоторые тексты не переведены. Проверьте интернет или лимит сервиса перевода.'
+        :'Some text could not be translated. Check your connection or the translation service limit.');
+      return null;
+    }).finally(()=>pendingTranslations.delete(key));
+    pendingTranslations.set(key,result);
+    return result;
+  }
+  function knownTranslation(text,lang){
+    if(lang==='uz')return text;
+    return lookup[lang].get(normalizeTranslationKey(text))??null;
+  }
+  function eligibleTranslation(element,text){
+    if(!/[\p{L}]/u.test(text)||text.length>12000)return false;
+    if(element.closest('script,style,noscript,code,pre,textarea,input,[contenteditable="true"],[translate="no"],.notranslate,#platformTranslationStatus'))return false;
+    if(/^(?:https?:\/\/|\S+@\S+\.\S+)/i.test(text.trim()))return false;
+    return true;
+  }
+  function visibleForTranslation(element){
+    const target=element.tagName==='OPTION'?element.closest('select'):element;
+    return Boolean(target?.getClientRects().length);
+  }
+  function renderTranslation(original,lang,apply,canRequest){
+    const known=knownTranslation(original,lang);
+    if(known!==null){apply(known);return;}
+    apply(original);
+    if(!canRequest||lang==='uz')return;
+    const generation=translationGeneration;
+    requestTranslation(original,lang).then(value=>{
+      if(value!==null&&generation===translationGeneration&&activeLanguage===lang)apply(value);
+    });
+  }
   function translateInterface(doc,lang){
+    if(!doc?.body)return;
     doc.documentElement.lang=lang;
-    for(const el of doc.querySelectorAll(interfaceSelector)){
-      for(const node of el.childNodes){
-        if(node.nodeType!==3)continue;
-        const current=node.data;
-        const previous=translatedNodes.get(node);
-        const original=previous?.rendered===current?previous.original:current;
-        const rendered=original.replace(/^(\s*(?:[^\p{L}\p{N}\s]+\s+)?)(.*?)(\s*)$/u,
-          (all,before,key,after)=>before+(dict[lang]?.[key]??key)+after);
-        if(rendered!==current)node.data=rendered;
-        if(rendered!==original)translatedNodes.set(node,{original,rendered});
-        else translatedNodes.delete(node);
+    for(const option of doc.querySelectorAll('option:not([value])')){
+      option.value=option.textContent;
+    }
+    const walker=doc.createTreeWalker(doc.body,4);
+    const nodes=[];
+    while(walker.nextNode())nodes.push(walker.currentNode);
+    for(const node of nodes){
+      const element=node.parentElement;
+      if(!element)continue;
+      const current=node.data;
+      const previous=translatedNodes.get(node);
+      const original=previous?.rendered===current?previous.original:current;
+      if(!eligibleTranslation(element,original))continue;
+      const key=original.trim();
+      const leading=original.slice(0,original.indexOf(key));
+      const trailing=original.slice(original.indexOf(key)+key.length);
+      renderTranslation(key,lang,value=>{
+        if(!node.isConnected)return;
+        const state=translatedNodes.get(node);
+        if(node.data!==current&&node.data!==state?.rendered)return;
+        const rendered=leading+value+trailing;
+        translatedNodes.set(node,{original,rendered});
+        if(node.data!==rendered)node.data=rendered;
+      },visibleForTranslation(element));
+    }
+    for(const el of doc.querySelectorAll('[placeholder],[title],[aria-label]')){
+      if(el.closest('[translate="no"],.notranslate,#platformTranslationStatus'))continue;
+      let states=translatedAttributes.get(el);
+      if(!states){states={};translatedAttributes.set(el,states);}
+      for(const name of ['placeholder','title','aria-label']){
+        if(!el.hasAttribute(name))continue;
+        const current=el.getAttribute(name);
+        const old=states[name];
+        const original=old?.rendered===current?old.original:current;
+        if(!/[\p{L}]/u.test(original))continue;
+        renderTranslation(original,lang,value=>{
+          if(!el.isConnected)return;
+          const state=states[name];
+          if(el.getAttribute(name)!==current&&el.getAttribute(name)!==state?.rendered)return;
+          states[name]={original,rendered:value};
+          if(el.getAttribute(name)!==value)el.setAttribute(name,value);
+        },visibleForTranslation(el));
       }
+    }
+    if(!observedDocuments.has(doc)){
+      observedDocuments.add(doc);
+      new MutationObserver(mutations=>{
+        if(mutations.some(m=>!m.target.parentElement?.closest('#platformTranslationStatus')))scheduleTranslation();
+      }).observe(doc.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['placeholder','title','aria-label','hidden','class','style']});
+      doc.addEventListener('change',scheduleTranslation);
+      doc.addEventListener('toggle',scheduleTranslation,true);
     }
   }
   function applyLanguage(lang){
     if(!['uz','ru','en'].includes(lang))lang='uz';
+    if(activeLanguage!==lang){translationGeneration++;failedTranslations.clear();unavailableLanguages.clear();}
+    activeLanguage=lang;
     localStorage.setItem('uiLanguage',lang);
+    if(translationWarning)translationStatus('');
     translateInterface(document,lang);
-    const editor=document.getElementById('itFrame');
-    if(editor?.contentDocument)translateInterface(editor.contentDocument,lang);
+    try{
+      const editor=document.getElementById('itFrame');
+      if(editor?.contentDocument)translateInterface(editor.contentDocument,lang);
+    }catch(e){}
   }
+  rebuildTranslationLookup();
   document.getElementById('itFrame')?.addEventListener('load',()=>applyLanguage(localStorage.getItem('uiLanguage')||'uz'));
   window.addEventListener('load',()=>applyLanguage(localStorage.getItem('uiLanguage')||'uz'));
   g('languageSelect')?.addEventListener('change',e=>applyLanguage(e.target.value));
@@ -11886,8 +12293,6 @@ renderAdvanced();
     }
 
     refreshManagerDepartments();renderManagers();bindManagerAdmin();bindRealLogin();
-    const managerTab=g('managerAdminTabBtn');
-    if(managerTab)managerTab.style.display=db.currentUser?.role==='superadmin'?'inline-block':'none';
     if(g('exRoom'))g('exRoom').innerHTML='<option value="">O‘zgarmaydi</option>'+(db.rooms||[]).map(r=>`<option value="${sEsc(r.name)}">${sEsc(r.name)}-xona</option>`).join('');
     refreshExTeachers();renderExceptions();renderOrg();renderAdminFacultyDepartments();renderBuildingDistances();
     const lng=localStorage.getItem('uiLanguage')||'uz';if(g('languageSelect'))g('languageSelect').value=lng;applyLanguage(lng);
@@ -13092,8 +13497,41 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
     const m=x.match(/(?:^|\b)([1-8])(?:\s*[-–—]?\s*juftlik)?(?:\b|$)/i)||x.match(/([1-8])/);
     return m?Number(m[1]):0;
   }
+  const teacherExcelColumns={
+    name:["To‘liq F.I.Sh.","To'liq F.I.Sh.","Ism-familiya","O‘qituvchi","Name"],
+    shortName:["Qisqartirilgan F.I.Sh.","Qisqartirilgan F.I.Sh","Qisqa F.I.Sh.","Short name"],
+    degree:["Ilmiy darajasi","Ilmiy daraja","Degree"],
+    phone:["Telefon","Phone"],
+    department:["Kafedra","Department"],
+    position:["Lavozimi","Lavozim","Position"]
+  };
+  const teacherExcelMainKeys=new Set(Object.values(teacherExcelColumns).flat().map(normalizeHeader));
+
+  function teacherExcelRows(){
+    const headers=Object.values(teacherExcelColumns).map(([label])=>label);
+    const customHeaders=new Map();
+    const records=teachers().map(t=>{
+      const fields=new Map();
+      for(const field of Array.isArray(t.extraInfo?.customFields)?t.extraInfo.customFields:[]){
+        const label=String(field?.label??"").trim();
+        const key=normalizeHeader(label);
+        if(!key||teacherExcelMainKeys.has(key))continue;
+        if(!customHeaders.has(key))customHeaders.set(key,label);
+        fields.set(key,field.value??"");
+      }
+      return {t,fields};
+    });
+    return [
+      [...headers,...customHeaders.values()],
+      ...records.map(({t,fields})=>[
+        ...Object.keys(teacherExcelColumns).map(key=>key==="shortName"?teacherShortNameValue(t):t[key]??""),
+        ...Array.from(customHeaders.keys(),key=>fields.get(key)??"")
+      ])
+    ];
+  }
+
   const BULK_META={
-    teacher:{label:"O‘qituvchilar",headers:["To‘liq F.I.Sh.","Qisqartirilgan F.I.Sh.","Kafedra","Lavozim","Telefon","Ilmiy daraja","Rasm URL","Holati","Mavjud emas izohi","Tug‘ilgan sana","Tug‘ilgan joyi","Jinsi","Fuqaroligi","Pasport seriya va raqami","JShShIR","Yashash manzili","E-mail","Oilaviy holati","Ma’lumoti","Tamomlagan OTM","Mutaxassisligi","Ishga qabul qilingan sana","Umumiy ish staji","Pedagogik ish staji","Kafedradagi ish staji","Chet tillari","Malaka oshirish ma’lumotlari","Sertifikatlari","ORCID","Scopus Author ID","Web of Science ResearcherID","Google Scholar profili","Qo‘shimcha izoh","Diplomlar soni"]},
+    teacher:{label:"O‘qituvchilar",headers:Object.values(teacherExcelColumns).map(([label])=>label)},
     room:{label:"Xonalar",headers:["Xona","Bino","Sig‘im","Tur"]},
     lesson:{label:"Darslar",headers:["O‘qituvchi","Fan nomi","Guruh / yo‘nalish","Qo‘shimcha guruhlar","Talabalar soni","Hafta kuni","Hafta turi","Bir kunlik sana","Ta’lim shakli","Juftlik","Vaqt","Xona","Bino","Dars turi","Almashtiruvchi o‘qituvchi","Holat","Izoh"]},
     groupstudy:{label:"Guruhlar / Guruh davri",headers:["O‘quv yili","Semestr","Yo‘nalish kodi","Guruhning to‘liq nomi","Guruhning qisqartirilgan nomi","Ta’lim shakli","Talabalar soni","Boshlanish haftasi","Tugash haftasi","Boshlanish juftligi","Tugash juftligi","O‘qish kunlari","Ruxsat etilgan binolar","Izoh"]},
@@ -13126,20 +13564,6 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
 
   function bulkExportRows(type){
     ensureBulkCollections();
-    if(type==="teacher")return teachers().map(t=>{
-      const x=t.extraInfo||{};
-      return {
-        "To‘liq F.I.Sh.":t.name||"","Qisqartirilgan F.I.Sh.":teacherShortNameValue(t),"Kafedra":t.department||"","Lavozim":t.position||"",
-        "Telefon":t.phone||"","Ilmiy daraja":t.degree||"","Rasm URL":t.image||"","Holati":t.availability||"available","Mavjud emas izohi":t.availabilityNote||"",
-        "Tug‘ilgan sana":x.birthDate||"","Tug‘ilgan joyi":x.birthPlace||"","Jinsi":x.gender||"","Fuqaroligi":x.citizenship||"",
-        "Pasport seriya va raqami":x.passport||"","JShShIR":x.pinfl||"","Yashash manzili":x.address||"","E-mail":x.email||"","Oilaviy holati":x.maritalStatus||"",
-        "Ma’lumoti":x.education||"","Tamomlagan OTM":x.graduatedUniversity||"","Mutaxassisligi":x.specialty||"","Ishga qabul qilingan sana":x.hireDate||"",
-        "Umumiy ish staji":x.totalExperience||"","Pedagogik ish staji":x.teachingExperience||"","Kafedradagi ish staji":x.departmentExperience||"",
-        "Chet tillari":x.languages||"","Malaka oshirish ma’lumotlari":x.training||"","Sertifikatlari":x.certificates||"","ORCID":x.orcid||"",
-        "Scopus Author ID":x.scopusId||"","Web of Science ResearcherID":x.wosId||"","Google Scholar profili":x.googleScholar||"","Qo‘shimcha izoh":x.extraNote||"",
-        "Diplomlar soni":Array.isArray(t.diplomas)?t.diplomas.length:0
-      };
-    });
     if(type==="room")return rooms().map(r=>({
       "Xona":r.name||"","Bino":r.building||"","Sig‘im":Number(r.capacity||0),"Tur":r.type||""
     }));
@@ -13236,12 +13660,17 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
     if(typeof XLSX==="undefined")return alert("Excel kutubxonasi yuklanmadi. Internet aloqasini tekshiring.");
     try{
       const meta=BULK_META[type]||BULK_META.teacher;
-      let rows=bulkExportRows(type);
-      if(!rows.length){
-        const empty={};meta.headers.forEach(h=>empty[h]="");rows=[empty];
+      let headers=[...meta.headers];
+      let ws;
+      if(type==="teacher"){
+        const rows=teacherExcelRows();
+        headers=rows[0];
+        ws=XLSX.utils.aoa_to_sheet(rows);
+      }else{
+        const rows=bulkExportRows(type);
+        ws=XLSX.utils.json_to_sheet(rows.length?rows:[Object.fromEntries(headers.map(h=>[h,""]))],{header:headers});
       }
-      const ws=XLSX.utils.json_to_sheet(rows,{header:meta.headers});
-      ws["!cols"]=meta.headers.map(h=>({wch:Math.max(14,Math.min(32,String(h).length+6))}));
+      ws["!cols"]=headers.map(h=>({wch:Math.max(14,Math.min(32,String(h).length+6))}));
       const wb=XLSX.utils.book_new();
       const sheetName=String(meta.label||"Ma’lumot")
         .replace(/[\\/:*?\[\]]+/g,"_")
@@ -13249,17 +13678,6 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
         .trim()
         .slice(0,31)||"Ma’lumot";
       XLSX.utils.book_append_sheet(wb,ws,sheetName);
-      if(type==="teacher"){
-        const diplomaRows=[];
-        teachers().forEach(t=>(Array.isArray(t.diplomas)?t.diplomas:[]).forEach((d,i)=>diplomaRows.push({
-          "O‘qituvchi":t.name||"","Kafedra":t.department||"","Diplom tartibi":i+1,"Daraja turi":d?.level||"","Diplom seriya/raqami":d?.number||"","OTM":d?.university||"","Mutaxassislik":d?.specialty||"","Berilgan sana":d?.date||"","Diplom fayli/URL":d?.fileUrl||""
-        })));
-        const dh=["O‘qituvchi","Kafedra","Diplom tartibi","Daraja turi","Diplom seriya/raqami","OTM","Mutaxassislik","Berilgan sana","Diplom fayli/URL"];
-        const drows=diplomaRows.length?diplomaRows:[Object.fromEntries(dh.map(h=>[h,""]))];
-        const dws=XLSX.utils.json_to_sheet(drows,{header:dh});
-        dws["!cols"]=dh.map(h=>({wch:Math.max(14,Math.min(34,String(h).length+8))}));
-        XLSX.utils.book_append_sheet(wb,dws,"O‘qituvchi diplomlari");
-      }
       const file=`${String(meta.label).replace(/[\/:*?"<>|]+/g,"_").replace(/\s+/g,"_")}.xlsx`;
       XLSX.writeFile(wb,file);
       showAlert?.(`${meta.label} Excelga chiqarildi.`,"ok");
@@ -13281,7 +13699,7 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
     try{
       const wb=XLSX.read(await f.arrayBuffer(),{type:"array"});
       const ws=wb.Sheets[wb.SheetNames[0]];
-      const rows=XLSX.utils.sheet_to_json(ws,{defval:""});
+      const rows=XLSX.utils.sheet_to_json(ws,type==="teacher"?{defval:"",raw:false}:{defval:""});
       const diplomaSheetName=type==="teacher"?wb.SheetNames.find(n=>bulkNorm(n)===bulkNorm("O‘qituvchi diplomlari")||bulkNorm(n)===bulkNorm("O'qituvchi diplomlari")):null;
       const diplomaRows=diplomaSheetName?XLSX.utils.sheet_to_json(wb.Sheets[diplomaSheetName],{defval:""}):[];
       let ok=0,skip=0,added=0,updated=0;
@@ -13303,27 +13721,39 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
         const present=keys=>hasValue(raw(keys));
 
         if(type==="teacher"){
-          const name=txt(["To‘liq F.I.Sh.","To'liq F.I.Sh.","Ism-familiya","O'qituvchi","O‘qituvchi","Name"]);
+          const name=txt(teacherExcelColumns.name);
           if(!name){skip++;return}
-          const shortName=txt(["Qisqartirilgan F.I.Sh.","Qisqartirilgan F.I.Sh","Qisqa F.I.Sh.","Short name"])||teacherShortNameFromFull(name);
-          const departmentRaw=raw(["Kafedra","Department"]), department=asText(departmentRaw);
+          const shortName=txt(teacherExcelColumns.shortName)||teacherShortNameFromFull(name);
+          const departmentRaw=raw(teacherExcelColumns.department), department=asText(departmentRaw);
           const sameName=teachers().filter(t=>bulkNorm(t.name)===bulkNorm(name)||bulkNorm(scheduleTeacherName(t))===bulkNorm(name));
           let existing=null;
           if(sameName.length===1)existing=sameName[0];
           else if(sameName.length>1&&department)existing=sameName.find(t=>bulkNorm(t.department)===bulkNorm(department))||null;
           else if(sameName.length>1){skip++;return}
 
+          const currentFields=existing?.extraInfo?.customFields;
+          const customFields=new Map((Array.isArray(currentFields)?currentFields:[])
+            .filter(field=>typeof field?.label==="string")
+            .map(field=>[normalizeHeader(field.label),field]));
+          for(const [header,value] of Object.entries(r)){
+            const label=header.trim();
+            const key=normalizeHeader(label);
+            if(!key||/^__EMPTY(?:_\d+)?$/.test(label)||teacherExcelMainKeys.has(key))continue;
+            if(hasValue(value)||!customFields.has(key))customFields.set(key,{label,value:asText(value)});
+          }
+
           if(existing){
             existing.name=name;
             existing.shortName=shortName;
-            assignText(existing,"degree",raw(["Ilmiy daraja","Degree"]));
-            assignText(existing,"position",raw(["Lavozim","Position"]));
+            assignText(existing,"degree",raw(teacherExcelColumns.degree));
+            assignText(existing,"position",raw(teacherExcelColumns.position));
             assignText(existing,"department",departmentRaw);
-            assignText(existing,"phone",raw(["Telefon","Phone"]));
+            assignText(existing,"phone",raw(teacherExcelColumns.phone));
             assignText(existing,"image",raw(["Rasm URL","Image URL","Image"]));
             assignText(existing,"availability",raw(["Holati","Mavjudlik holati","Availability"]));
             assignText(existing,"availabilityNote",raw(["Mavjud emas izohi","Mavjudlik izohi","Availability note"]));
             const ex=existing.extraInfo&&typeof existing.extraInfo==="object"?existing.extraInfo:(existing.extraInfo={});
+            ex.customFields=[...customFields.values()];
             const extraMap={
               birthDate:["Tug‘ilgan sana","Tug'ilgan sana","Birth date"],birthPlace:["Tug‘ilgan joyi","Tug'ilgan joyi","Birth place"],gender:["Jinsi","Gender"],citizenship:["Fuqaroligi","Citizenship"],
               passport:["Pasport seriya va raqami","Pasport","Passport"],pinfl:["JShShIR","PINFL"],address:["Yashash manzili","Manzil","Address"],email:["E-mail","Email"],maritalStatus:["Oilaviy holati","Oilaviy holat","Marital status"],
@@ -13339,6 +13769,7 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
             ok++;updated++;return;
           }
           const extraInfo={
+            customFields:[...customFields.values()],
             birthDate:txt(["Tug‘ilgan sana","Tug'ilgan sana","Birth date"]),birthPlace:txt(["Tug‘ilgan joyi","Tug'ilgan joyi","Birth place"]),gender:txt(["Jinsi","Gender"]),citizenship:txt(["Fuqaroligi","Citizenship"]),
             passport:txt(["Pasport seriya va raqami","Pasport","Passport"]),pinfl:txt(["JShShIR","PINFL"]),address:txt(["Yashash manzili","Manzil","Address"]),email:txt(["E-mail","Email"]),maritalStatus:txt(["Oilaviy holati","Oilaviy holat","Marital status"]),
             education:txt(["Ma’lumoti","Ma'lumoti","Education"]),graduatedUniversity:txt(["Tamomlagan OTM","OTM","Graduated university"]),specialty:txt(["Mutaxassisligi","Mutaxassislik","Specialty"]),hireDate:txt(["Ishga qabul qilingan sana","Hire date"]),
@@ -13349,10 +13780,10 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
           if(hasValue(dipRaw)){try{const a=JSON.parse(String(dipRaw));if(Array.isArray(a))diplomas=a.map(d=>({level:String(d?.level||""),number:String(d?.number||""),university:String(d?.university||""),specialty:String(d?.specialty||""),date:String(d?.date||""),fileUrl:String(d?.fileUrl||"")}))}catch(e){}}
           db.teachers.push({
             id:Date.now()+Math.random(),name,shortName,
-            degree:txt(["Ilmiy daraja","Degree"]),
-            position:txt(["Lavozim","Position"])||"O‘qituvchi",
+            degree:txt(teacherExcelColumns.degree),
+            position:txt(teacherExcelColumns.position)||"O‘qituvchi",
             department:department||db.currentUser?.department||"",
-            phone:txt(["Telefon","Phone"]),image:txt(["Rasm URL","Image URL","Image"]),availability:txt(["Holati","Mavjudlik holati","Availability"])||"available",availabilityNote:txt(["Mavjud emas izohi","Mavjudlik izohi","Availability note"]),extraInfo,diplomas,schedule:[]
+            phone:txt(teacherExcelColumns.phone),image:txt(["Rasm URL","Image URL","Image"]),availability:txt(["Holati","Mavjudlik holati","Availability"])||"available",availabilityNote:txt(["Mavjud emas izohi","Mavjudlik izohi","Availability note"]),extraInfo,diplomas,schedule:[]
           });
           ok++;added++;return;
         }
@@ -15840,7 +16271,7 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
     if(q('groupStudyEditKey'))q('groupStudyEditKey').value='';
     if(q('groupStudyDirectionCode'))q('groupStudyDirectionCode').value='';
     if(q('groupStudyFullName'))q('groupStudyFullName').value='';
-    if(q('groupStudyDirectionPreview'))q('groupStudyDirectionPreview').innerHTML='Yo‘nalish kodi va nomi kiritilganda ular oddiy <b>-</b> bilan birlashtiriladi.';
+    if(q('groupStudyDirectionPreview'))q('groupStudyDirectionPreview').innerHTML='';
     if(q('groupStudyName')){q('groupStudyName').value='';q('groupStudyName').dataset.manual='0';q('groupStudyName').dataset.lastAuto=''}
     if(q('groupStudyEducationType'))q('groupStudyEducationType').value='kunduzgi';
     if(q('groupStudySize'))q('groupStudySize').value='';
@@ -15868,19 +16299,18 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
     if(codeEl.value!==clean)codeEl.value=clean;
     if(preview){
       const combined=directionCodeName(clean,nameEl.value);
-      preview.innerHTML=combined?`Yo‘nalish: <b>${escG(combined)}</b>`:'Yo‘nalish kodi va nomi kiritilganda ular oddiy <b>-</b> bilan birlashtiriladi.';
+      preview.innerHTML=combined?`Yo‘nalish: <b>${escG(combined)}</b>`:'';
     }
   }
   window.formatGroupStudyDirection=function(code,name){return directionCodeName(code,name)};
 
   function syncGroupShortName(force=false){
-    const fullEl=q('groupStudyFullName'),shortEl=q('groupStudyName'),hint=q('groupStudyShortHint');if(!fullEl||!shortEl)return;
+    const fullEl=q('groupStudyFullName'),shortEl=q('groupStudyName');if(!fullEl||!shortEl)return;
     const generated=smartGroupAbbreviation(fullEl.value);
     const manual=shortEl.dataset.manual==='1';
     const lastAuto=shortEl.dataset.lastAuto||'';
     const mayAuto=force||!manual||!shortEl.value.trim()||shortEl.value.trim()===lastAuto;
     if(mayAuto){shortEl.value=generated;shortEl.dataset.lastAuto=generated;shortEl.dataset.manual='0'}
-    if(hint)hint.innerHTML=generated?`Avtomatik qisqartma: <b>${escG(generated)}</b>. Qo‘lda tahrirlash ham mumkin.`:'To‘liq nom yozilganda qisqartma avtomatik hosil bo‘ladi. Istasangiz qo‘lda o‘zgartirishingiz mumkin.';
   }
   function markGroupShortManual(){
     const shortEl=q('groupStudyName'),fullEl=q('groupStudyFullName');if(!shortEl)return;
@@ -16674,6 +17104,7 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
     {tab:'roomTab', save:'saveRoomBtn', label:'Xonalar ro‘yxati', list:'roomAdminList', placeholder:'Xonani qidirish...'},
     {tab:'lessonTab', save:'saveLessonBtn', label:'Darslar ro‘yxati', list:'lessonAdminList', placeholder:'Darsni qidirish...'},
     {tab:'semesterTab', save:'saveSemesterBtn', label:'Faol davr ma’lumoti'},
+    {tab:'holidayTab', save:'addHolidayBtn', label:'Bayram va dam olish kunlari ro‘yxati'},
     {tab:'exceptionAdminTab', save:'saveExceptionBtn', label:'Saqlangan istisnolar', list:'exceptionAdminList', placeholder:'Istisnoni qidirish...'},
     {tab:'structureAdminTab', save:'saveOrgBtn', label:'Struktura ro‘yxati', list:'orgList', placeholder:'Strukturadan qidirish...'},
     {tab:'groupStudyAdminTab', save:'saveGroupStudyBtn', label:'Guruhlar ro‘yxati', existingSearch:'groupStudySearch'},
@@ -18641,7 +19072,7 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
   const STORAGE_KEY='university_admin_tab_order_v1';
 
   function initAdminTabOrder(){
-    const tabs=document.querySelector('#adminPanel > .tabs');
+    const tabs=document.querySelector('#adminPanel>.modal-top>.tabs');
     const toggle=document.getElementById('tabOrderToggle');
     if(!tabs || !toggle || toggle.dataset.ready==='1') return;
     toggle.dataset.ready='1';
@@ -22354,9 +22785,15 @@ document.addEventListener(&#x27;click&#x27;, event =&gt; {
  <div class="it-report-card">
  <div class="it-report-header"><h2>Test hisoboti</h2><button type="button" id="itReportClose" class="win-close" aria-label="Yopish" title="Yopish">×</button></div>
  <div class="it-report-body">
-  <div class="it-report-filters"><label>Fan<input id="itReportSubject" list="itReportSubjectOptions" placeholder="Barcha fanlar — tanlang yoki yozing" autocomplete="off"><datalist id="itReportSubjectOptions"></datalist></label><label>Guruh<input id="itReportGroup" list="itReportGroupOptions" placeholder="Barcha guruhlar — tanlang yoki yozing" autocomplete="off"><datalist id="itReportGroupOptions"></datalist></label><button type="button" id="itReportReset">Filtrlarni tozalash</button><button type="button" id="itReportCsv">CSV yuklab olish</button></div>
+  <div class="it-report-filters"><label>Fan<input id="itReportSubject" list="itReportSubjectOptions" placeholder="Barcha fanlar — tanlang yoki yozing" autocomplete="off"><datalist id="itReportSubjectOptions"></datalist></label><label>Guruh<input id="itReportGroup" list="itReportGroupOptions" placeholder="Barcha guruhlar — tanlang yoki yozing" autocomplete="off"><datalist id="itReportGroupOptions"></datalist></label><button type="button" id="itReportReset">Filtrlarni tozalash</button><span class="it-csv-actions"><button type="button" id="itReportCsv">CSV yuklab olish</button><button type="button" id="itCsvHelpBtn" aria-label="CSV yuklab olish haqida" aria-haspopup="dialog" aria-controls="itCsvHelp">?</button></span></div><dialog id="itCsvHelp" aria-labelledby="itCsvHelpTitle">
+<form method="dialog"><button type="submit" aria-label="Yopish">×</button></form>
+<h3 id="itCsvHelpTitle">CSV yuklab olish</h3>
+<p><b>Qaysi natijalar yuklanadi?</b> Faylga hisobotdagi joriy natijalar tushadi. Fan yoki guruh filtri qo‘yilgan bo‘lsa, faqat filtrga mos natijalar yuklanadi.</p>
+<p><b>Fayl tarkibi.</b> Ism-familiya, guruh, fan, to‘g‘ri javoblar soni, jami savollar, natija foizi va test yakunlangan vaqt.</p>
+<p><b>Qanday ochiladi?</b> <code>test_hisoboti.csv</code> faylini Excel yoki boshqa elektron jadval dasturida oching.</p>
+</dialog>
   <div class="it-report-metrics"><div><small>Test topshirishlar</small><b id="itReportCount">0</b></div><div><small>O‘rtacha natija</small><b id="itReportAvg">0%</b></div><div><small>O‘tgan savollardan to‘g‘ri</small><b id="itReportCorrect">0 / 0</b></div></div>
-  <div class="it-report-tablewrap"><table><thead><tr><th>№</th><th>Ism-familiya</th><th>Guruh</th><th>Fan</th><th>To‘g‘ri / jami</th><th>Natija</th><th>Himoya / chiqishlar</th><th>Topshirgan vaqt</th></tr></thead><tbody id="itReportRows"></tbody></table></div>
+  <div class="it-report-tablewrap"><table><thead><tr><th>№</th><th>Ism-familiya</th><th>Guruh</th><th>Fan</th><th>To‘g‘ri / jami</th><th>Natija</th><th>Himoya / chiqishlar</th><th>Topshirgan vaqt</th><th>Amal</th></tr></thead><tbody id="itReportRows"></tbody></table></div>
  </div></div></section>
 <style id="smartTestStyle">
 #itAnswerSummary{display:none;background:#f2f8fc;border:1px solid #d3e4ef;border-radius:9px;padding:10px 14px;margin:12px 0;color:#214b69;font-weight:700}
@@ -23518,7 +23955,8 @@ function formatMathText(value){
   const data=records();
   for(const [id,field,listId] of [['itReportSubject','subject','itReportSubjectOptions'],['itReportGroup','group','itReportGroupOptions']]){
    const el=$(id),keep=el.value;
-   const values=[...new Set(data.map(x=>String(x[field]||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+   const scheduled=field==='group'?(window.getIntegratedScheduleGroups?.()||[]):[];
+   const values=[...new Set([...scheduled,...data.map(x=>String(x[field]||'').trim())].filter(Boolean))].sort((a,b)=>a.localeCompare(b,'uz'));
    $(listId).replaceChildren(...values.map(x=>new Option(x,x)));
    el.value=keep;
   }
@@ -23532,7 +23970,7 @@ function formatMathText(value){
   reportStatus.textContent='Serverdagi natijalar yuklanmoqda…';
   stopAttempts=firestoreDB.collection('integratedTestAttempts').onSnapshot({includeMetadataChanges:true},snapshot=>{
    cloudRows=snapshot.docs.map(doc=>({...doc.data(),attemptId:doc.id}));
-   reportStatus.textContent=snapshot.metadata.fromCache?'Mahalliy nusxa ko‘rsatilmoqda. Server javobi kutilmoqda.':'Serverdagi urinishlar: '+cloudRows.length;
+   reportStatus.textContent=snapshot.metadata.fromCache?'Mahalliy nusxa ko‘rsatilmoqda. Server javobi kutilmoqda.':'';
    clearTimeout(refreshTimer);
    refreshTimer=setTimeout(()=>{refreshOptions();render();},100);
   },()=>{reportStatus.textContent='Serverdagi natijalarni o‘qib bo‘lmadi. Firebase ulanishi va kirish huquqini tekshiring.';});
@@ -23541,7 +23979,7 @@ function formatMathText(value){
 
  function render(){current=filtered();const count=current.length,correct=current.reduce((n,x)=>n+(Number(x.correct)||0),0),total=current.reduce((n,x)=>n+(Number(x.total)||0),0);
   $('itReportCount').textContent=String(count);$('itReportAvg').textContent=(count?Math.round(current.reduce((n,x)=>n+(Number(x.percent)||0),0)/count):0)+'%';$('itReportCorrect').textContent=correct+' / '+total;
-  $('itReportRows').innerHTML=count?current.slice().reverse().map((x,i)=>{const d=x.finishedAt?new Date(x.finishedAt):null;const date=d&&!isNaN(d)?d.toLocaleString('uz-UZ'):'';return '<tr data-attempt="'+i+'"><td>'+(i+1)+'</td><td><button type="button" class="it-attempt-link">'+esc(x.name)+'</button></td><td>'+esc(x.group)+'</td><td>'+esc(x.subject)+'</td><td>'+esc(x.correct)+' / '+esc(x.total)+'</td><td><b>'+esc(x.percent)+'%</b>'+(x.smartTest?'<br><small>Aqlli mashq: '+esc(x.masteryPercent)+'% o‘zlashtirilgan</small>':'')+'</td><td>'+(x.protectionLimit===null||x.protectionLimit===undefined?'—':esc(x.protectionViolations||0)+' marta'+(x.protectionEnded?' · avtomatik yakunlangan':''))+'</td><td>'+esc(date)+'</td></tr>'}).join(''):'<tr><td colspan="8" style="text-align:center;padding:22px;color:#788899">Tanlangan fan va guruh bo‘yicha natijalar mavjud emas.</td></tr>';
+  $('itReportRows').innerHTML=count?current.slice().reverse().map((x,i)=>{const d=x.finishedAt?new Date(x.finishedAt):null;const date=d&&!isNaN(d)?d.toLocaleString('uz-UZ'):'';return '<tr data-attempt="'+i+'"><td>'+(i+1)+'</td><td><button type="button" class="it-attempt-link">'+esc(x.name)+'</button></td><td>'+esc(x.group)+'</td><td>'+esc(x.subject)+'</td><td>'+esc(x.correct)+' / '+esc(x.total)+'</td><td><b>'+esc(x.percent)+'%</b>'+(x.smartTest?'<br><small>Aqlli mashq: '+esc(x.masteryPercent)+'% o‘zlashtirilgan</small>':'')+'</td><td>'+(x.protectionLimit===null||x.protectionLimit===undefined?'—':esc(x.protectionViolations||0)+' marta'+(x.protectionEnded?' · avtomatik yakunlangan':''))+'</td><td>'+esc(date)+'</td><td><button type="button" class="it-attempt-delete">O‘chirish</button></td></tr>'}).join(''):'<tr><td colspan="9" style="text-align:center;padding:22px;color:#788899">Tanlangan fan va guruh bo‘yicha natijalar mavjud emas.</td></tr>';
  }
  function csv(){if(!current.length)return alert('Hisobotda natijalar yo‘q.');const rows=[['Ism-familiya','Guruh','Fan','To‘g‘ri','Jami','Natija (%)','Vaqt'],...current.map(x=>[x.name,x.group,x.subject,x.correct,x.total,x.percent,x.finishedAt])];const safe=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const out='\uFEFF'+rows.map(row=>row.map(safe).join(';')).join('\r\n');const url=URL.createObjectURL(new Blob([out],{type:'text/csv;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download='test_hisoboti.csv';link.click();setTimeout(()=>URL.revokeObjectURL(url),2000)}
  function appendReviewMarkup(target,markup,skipQuestions=false){
@@ -23701,10 +24139,38 @@ function formatMathText(value){
    finally{submit.disabled=false;}
   });
   $('itPhotoLoginCancel').onclick=()=>{$('itPhotoLoginForm').reset();$('itPhotoLogin').close();};
+  async function deleteReportAttempt(record,button){
+   if(!record||!confirm((record.name||'Talaba')+'ning shu test natijasi o‘chirilsinmi?'))return;
+   button.disabled=true;
+   try{
+    if(record.attemptId){
+     const ref=firestoreDB.collection('integratedTestAttempts').doc(record.attemptId);
+     const batch=firestoreDB.batch();
+     const partCount=Number(record.partCount)||0;
+     for(let i=0;i<partCount;i++)batch.delete(ref.collection('details').doc(String(i)));
+     batch.delete(ref);
+     await batch.commit();
+     cloudRows=cloudRows.filter(item=>item.attemptId!==record.attemptId);
+    }else{
+     const rows=JSON.parse(localStorage.getItem(KEY)||'[]');
+     const index=rows.findIndex(item=>JSON.stringify(item)===JSON.stringify(record));
+     if(index<0)throw new Error('Natija topilmadi');
+     rows.splice(index,1);
+     localStorage.setItem(KEY,JSON.stringify(rows));
+    }
+    refreshOptions();render();
+    reportStatus.textContent='Test natijasi o‘chirildi.';
+   }catch{
+    reportStatus.textContent='Natijani o‘chirib bo‘lmadi. Ulanish va o‘chirish huquqini tekshiring.';
+    button.disabled=false;
+   }
+  }
   $('itReportRows').addEventListener('click',e=>{
    const row=e.target.closest('tr[data-attempt]');
    if(!row)return;
    const record=current[current.length-1-Number(row.dataset.attempt)];
+   const deleteButton=e.target.closest('.it-attempt-delete');
+   if(deleteButton){void deleteReportAttempt(record,deleteButton);return;}
    if(!record?.attemptId){showAttempt(record);return;}
    reportStatus.textContent='Talabaning javoblari yuklanmoqda…';
    const attempts=firestoreDB.collection('integratedTestAttempts');
@@ -23712,7 +24178,7 @@ function formatMathText(value){
     .then(parts=>{
      const detail=JSON.parse(parts.map(part=>part.data()?.text||'').join(''));
      if(!$('itReport').hidden)showAttempt({...record,...detail});
-     reportStatus.textContent='Serverdagi urinishlar: '+cloudRows.length;
+     reportStatus.textContent='';
     }).catch(()=>{reportStatus.textContent='Talabaning javoblarini yuklab bo‘lmadi.';});
 
   });
@@ -23721,6 +24187,13 @@ function formatMathText(value){
   $('itReportSubject').addEventListener('input',render);$('itReportGroup').addEventListener('input',render);
   $('itReportReset').addEventListener('click',()=>{$('itReportSubject').value='';$('itReportGroup').value='';render()});
   $('itReportCsv').addEventListener('click',csv);
+  const csvHelp=$('itCsvHelp');
+  $('itCsvHelpBtn').onclick=()=>csvHelp.showModal();
+  csvHelp.addEventListener('click',event=>{
+    if(event.target!==csvHelp)return;
+    const rect=csvHelp.getBoundingClientRect();
+    if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)csvHelp.close();
+  });
   $('itReport').addEventListener('click',e=>{if(e.target===$('itReport'))closeReport()});
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
@@ -23849,6 +24322,26 @@ window.addEventListener('message',e=>{
 (function(){
  'use strict';
  function strings(items){return [...new Set(items.map(x=>String(x||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'uz'))}
+ window.getIntegratedScheduleGroups=function(){
+  const groups=[];
+  const profiles=Object.values(db.groupStudyProfiles?.[getGroupStudyPeriodKey()]||{});
+  const aliases=new Map();
+  const key=value=>String(value||'').trim().toLocaleLowerCase('uz');
+  for(const profile of profiles){
+   const short=String(profile?.groupShortName||profile?.group||'').trim();
+   if(!short)continue;
+   for(const value of [short,profile.group,profile.groupFullName,profile.fullName]){
+    if(key(value))aliases.set(key(value),short);
+   }
+  }
+  for(const teacher of scopedTeachers()){
+   for(const lesson of teacher.schedule||[]){
+    if(lesson.cancelled)continue;
+    for(const name of lessonGroupList(lesson))groups.push(aliases.get(key(name))||name);
+   }
+  }
+  return strings(groups);
+ };
  function dataset(){
   let store={};try{store=JSON.parse(localStorage.getItem('dispatchDB')||'{}')||{}}catch{}
   const subs=[],groups=[];
@@ -23865,7 +24358,7 @@ window.addEventListener('message',e=>{
  }
  function fill(node,items){if(node)node.replaceChildren(...items.map(x=>new Option(x,x)))}
  function update(){
-  const d=dataset();fill(document.getElementById('itGroupOptions'),d.groups);
+  const d=dataset();fill(document.getElementById('itGroupOptions'),window.getIntegratedScheduleGroups());
   const frame=document.getElementById('itFrame');
   try{if(!window.getTestTeacherSubjects?.())fill(frame?.contentDocument?.getElementById('subjectNameOptions'),d.subjects)}catch{}
  }
@@ -23894,7 +24387,7 @@ window.addEventListener('message',e=>{
 #simpleInfoModal.open .sir-col{min-height:0}
 </style>
 <style>
-:is(#itEditor,#itAnalyzer)>.it-head,#simpleInfoModal>.sir-card>.sir-top,#dataCollectionModal>.modal-card>.modal-top{
+:is(#itEditor,#itAnalyzer)>.it-head,#simpleInfoModal>.sir-card>.sir-top,#dataCollectionModal>.modal-card>.modal-top,#itReport .it-report-header{
  box-sizing:border-box!important;height:62px!important;min-height:62px!important;max-height:62px!important;flex:0 0 62px!important;
  display:flex!important;align-items:center!important;gap:8px!important;padding:0 12px!important;
 }
@@ -23902,7 +24395,7 @@ window.addEventListener('message',e=>{
  position:relative;isolation:isolate;overflow:hidden;background:linear-gradient(110deg,#0b2544,#14476c 60%,#126576)!important;
  border-top:0!important;border-bottom:2px solid #70d6e2!important;box-shadow:none!important;color:#fff;
 }
-:is(#itEditor,#itAnalyzer)>.it-head h2,#simpleInfoModal .sir-top h3,#dataCollectionModal .modal-top h2{
+:is(#itEditor,#itAnalyzer)>.it-head h2,#simpleInfoModal .sir-top h3,#dataCollectionModal .modal-top h2,#itReport .it-report-header h2{
  display:flex;align-items:center;gap:8px;margin:0!important;color:#fff!important;font-size:clamp(15px,2vw,22px)!important;
 }
 #simpleInfoModal .sir-top h3{margin-right:auto!important}
@@ -23911,7 +24404,7 @@ window.addEventListener('message',e=>{
  display:grid;place-items:center;width:38px;height:38px;flex:none;border:1px solid #a5edf06b;border-radius:10px;background:#b6f2ff1f;color:#bff6ff
 }
 :is(#simpleInfoModal,#dataCollectionModal) .it-editor-mark svg{width:21px;height:21px}
-:is(#itEditorClose,#itAnalyzer .it-head .win-close,#sirClose,#dcCloseMain){
+:is(#itEditorClose,#itAnalyzer .it-head .win-close,#sirClose,#dcCloseMain,#itReportClose){
  box-sizing:border-box!important;width:38px!important;height:38px!important;min-width:38px!important;min-height:38px!important;
  padding:0!important;flex:none;border-radius:9px!important;border:1px solid #b6f2ff6b!important;background:#ffffff20!important;color:#fff!important;
 }
@@ -23988,5 +24481,330 @@ window.addEventListener('message',e=>{
 #itPracticeHelp form{float:right;margin:0}
 #itPracticeHelp button{cursor:pointer}
 </style>
+<style>
+.it-csv-actions{position:relative;display:inline-flex}
+
+.it-report-filters #itCsvHelpBtn{position:absolute;right:0;top:-18px;width:15px;height:15px;min-height:0;padding:0;border:1px solid #cfe0ef;border-radius:50%;background:#fff;color:#215779;font:700 10px/1 Arial,sans-serif;cursor:pointer}
+#itCsvHelp{width:min(500px,calc(100% - 24px));max-height:85dvh;padding:16px;border:1px solid #c4deee;border-radius:12px;color:#173b5f;background:#fff;font:14px/1.45 Arial,sans-serif}
+#itCsvHelp::backdrop{background:#173b5f60}
+#itCsvHelp h3{margin:0 32px 10px 0}
+#itCsvHelp p{margin:7px 0}
+#itCsvHelp form{float:right;margin:0}
+#itCsvHelp button{cursor:pointer}
+</style>
+<style>
+#itReport .it-report-card{border-top-left-radius:0;border-top-right-radius:0;border:0}
+#itReport .it-report-header{position:relative;isolation:isolate;overflow:hidden;background:#126576!important;border-radius:0!important;box-shadow:none!important;color:#fff;border-bottom:2px solid #70d6e2!important}
+#itReport .it-report-header::after{content:"";position:absolute;inset:5px 20px;z-index:-1;pointer-events:none;background:repeating-linear-gradient(120deg,transparent 0 28px,#9feef427 29px 31px,transparent 32px 55px);mask-image:linear-gradient(90deg,transparent 20%,#000 75%,transparent);animation:report-sweep 9s linear infinite alternate}
+@keyframes report-sweep{from{background-position:0 0}to{background-position:110px 0}}
+@media(prefers-reduced-motion:reduce){#itReport .it-report-header::after{animation:none}}
+#itReportRows .it-attempt-delete{padding:5px 8px;border:1px solid #e8b7b7;border-radius:6px;background:#fff2f2;color:#99272b;cursor:pointer}
+#itReportRows .it-attempt-delete:hover{background:#ffe2e2}
+</style>
+<style>
+body #adminPanel.side-panel.open,body.hemis-layout #adminPanel.side-panel.open{
+ position:fixed!important;top:0!important;right:0!important;bottom:0!important;left:0!important;
+ width:100%!important;max-width:none!important;z-index:1401!important;transform:none!important;
+ height:100%!important;max-height:none!important;margin:0!important;padding:0!important;
+ border:0!important;border-radius:0!important;overflow:auto!important;box-shadow:none!important;
+}
+body #adminPanel>.modal-top{
+ position:sticky;top:0;z-index:5;box-sizing:border-box;min-height:62px;
+ display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0!important;padding:0 12px!important;
+ background:linear-gradient(110deg,#162d49,#28556a 58%,#28665d)!important;color:#fff;
+ border-bottom:2px solid #8cdbcb!important;
+}
+body #adminPanel>.modal-top :is(h2,.note){color:#fff!important}
+body #adminPanel>.modal-top .note{margin:2px 0 0;font-size:11px}
+body #adminPanel>.modal-top #closeAdmin{width:38px!important;min-width:38px!important;height:38px!important;min-height:38px!important}
+body #adminPanel.open{background:#f4f8fb!important}
+html:has(#adminPanel.open),body:has(#adminPanel.open){overflow:hidden!important}
+body #adminPanel>.modal-top{height:62px;min-height:62px}
+body #adminPanel>.modal-top>.tabs{
+ position:sticky;top:62px;z-index:4;display:flex;flex-wrap:wrap;justify-content:center;gap:6px;
+ width:min(100%,1160px);margin:0 auto!important;padding:10px 14px!important;
+ background:#f4f8fb;border-bottom:1px solid #dce7ef;box-sizing:border-box;
+}
+body #adminPanel>.modal-top>.tabs button[data-tab]{flex:0 0 auto;padding:7px 11px!important;min-height:32px;border-radius:8px}
+body #adminPanel>:is(.tab-section,#adminAlert){width:min(calc(100% - 28px),1160px);margin:12px auto!important;box-sizing:border-box}
+body #adminPanel>.tab-section>.form{
+ width:min(100%,840px);margin:12px auto!important;padding:14px;
+ border:1px solid #dce7ef;border-radius:12px;background:#fff;box-sizing:border-box;
+}
+body #adminPanel>.tab-section>.admin-excel-tools{
+ width:min(100%,840px);margin:0 auto 10px!important;box-sizing:border-box;flex-wrap:wrap;
+}
+body #adminPanel>.tab-section>.form :is(input,select,textarea){min-width:0;max-width:100%;box-sizing:border-box}
+@media(max-width:760px){
+ body #adminPanel>.modal-top .note{display:none}
+ body #adminPanel>.modal-top>.tabs{position:static;justify-content:center}
+ body #adminPanel>.tab-section>.form{padding:10px}
+}
+
+</style>
+<style>
+body #adminPanel>:is(.tab-section,#adminAlert){width:min(calc(100% - 32px),1100px)}
+body #adminPanel>#adminAlert:not(.show):empty{display:none}
+body #adminPanel>.modal-top{border-bottom:0!important}
+body #adminPanel>.modal-top>.tabs{
+ width:100%;justify-content:center;align-items:center;padding:8px 12px!important;
+ background:linear-gradient(110deg,#162d49,#28556a 58%,#28665d)!important;
+ border-bottom:2px solid #8cdbcb;
+}
+body #adminPanel>.modal-top>.tabs #tabOrderToggle{color:#fff;background:#ffffff20;border-color:#ffffff50}
+body #adminPanel>.modal-top>.tabs button[data-tab]{border:1px solid #ffffff45;background:#ffffff14;color:#fff;font-weight:600}
+body #adminPanel>.modal-top>.tabs button[data-tab].active{border-color:#cceee8;background:#e5f5f3;color:#173b5f}
+body #adminPanel>.tab-section>.admin-excel-tools{width:100%;border:1px solid #dce5ec;border-radius:8px;background:#eef4f8}
+#adminPanel .admin-work-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+body #adminPanel .tab-section>.form,#adminPanel .admin-work-grid>.form,#adminPanel .admin-work-list{
+ width:100%;min-width:0;margin:0 0 10px!important;padding:12px;
+ border:1px solid #dce5ec;border-radius:8px;background:#fff;box-sizing:border-box;
+}
+#adminPanel .admin-work-list>.section-title{margin:0 0 8px!important;padding-bottom:7px;border-bottom:1px solid #e0e8ef}
+#adminPanel .tab-section :is(input,select,textarea){min-width:0;max-width:100%;box-sizing:border-box}
+@media(max-width:760px){
+ body #adminPanel>:is(.tab-section,#adminAlert){width:calc(100% - 20px)}
+}
+</style>
+<style>
+body #adminPanel>.modal-top{height:auto!important;min-height:62px!important;border-bottom:2px solid #8cdbcb!important}
+body.hemis-layout #adminPanel>.modal-top{align-items:center!important}
+body.hemis-layout #adminPanel>.modal-top>div:first-child{flex:none!important}
+body.hemis-layout #adminPanel>.modal-top #closeAdmin{position:static!important;margin:0!important;justify-self:end}
+@media(min-width:761px){
+ body #adminPanel>.modal-top{display:grid!important;grid-template-columns:clamp(116px,11vw,156px) minmax(0,1fr) clamp(116px,11vw,156px)}
+ body #adminPanel>.modal-top>.tabs{justify-content:center;width:100%;min-width:0}
+}
+body #adminPanel>.modal-top>.tabs{
+ position:static;display:flex;flex:1 1 0;flex-wrap:wrap;justify-content:center;align-items:center;
+ min-width:0;width:auto;margin:0!important;padding:5px 2px!important;overflow:visible;
+ background:transparent!important;border:0;box-shadow:none;
+}
+body #adminPanel>.modal-top>.tabs :is(button,#tabOrderToggle){flex:none;white-space:nowrap}
+@media(min-width:761px){
+ body #adminPanel>.modal-top>.tabs{flex-wrap:nowrap;gap:4px}
+ body #adminPanel>.modal-top>.tabs button[data-tab]{
+  flex:0 1 auto;min-width:0;padding:4px 6px!important;font-size:clamp(10px,1vw,13px);
+  line-height:1.15;white-space:normal;overflow-wrap:anywhere;text-align:center;
+ }
+ body #adminPanel>.modal-top>.tabs #tabOrderToggle{flex:none}
+}
+
+@media(max-width:760px){
+ body #adminPanel>.modal-top{position:static;flex-wrap:wrap}
+ body #adminPanel>.modal-top h2{font-size:15px}
+ body #adminPanel>.modal-top>.tabs{order:1;flex:0 0 100%;padding-bottom:8px!important}
+}
+body #adminPanel>.modal-top>.tabs button[data-tab]{
+ min-height:34px;box-sizing:border-box;border-radius:7px;
+ border:1px solid #ffffff4d;background:#ffffff0e;color:#f5fbff;
+ box-shadow:inset 0 1px 0 #ffffff12;font-weight:600;
+ transition:background-color .16s,border-color .16s;
+}
+body #adminPanel>.modal-top>.tabs button[data-tab]:hover{background:#ffffff24;border-color:#ffffff80}
+body #adminPanel>.modal-top>.tabs button[data-tab].active{
+ background:#e9f7f5;color:#123e54;border-color:#b4e4dc;box-shadow:inset 0 -3px 0 #5ec0b2;
+}
+body #adminPanel>.modal-top>.tabs :is(button,#tabOrderToggle):focus-visible{outline:2px solid #d5fbf5;outline-offset:1px}
+body #adminPanel .tab-section .form{
+ grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;
+}
+body #adminPanel .tab-section .form > .full:has(> label > :is(input:not([type="file"]),select)):not(:has(textarea,.form,.it-grid)){
+ grid-column:auto;min-width:0;
+}
+body #adminPanel .tab-section .form :is(input:not([type="checkbox"],[type="radio"],[type="file"],[type="hidden"]),select){
+ min-height:34px;height:34px;padding-block:4px;
+}
+@media(min-width:1100px){
+ body #adminPanel .tab-section .form{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:560px){
+ body #adminPanel .tab-section .form{grid-template-columns:minmax(0,1fr)}
+}
+body #adminPanel>:is(.tab-section,#adminAlert){width:calc(100% - 28px);max-width:none}
+body #adminPanel>.tab-section>.admin-excel-tools{max-width:none}
+body #adminPanel .tab-section{font-size:12px}
+body #adminPanel .tab-section :is(label,input,select,textarea,th,td){font-size:12px!important}
+body #adminPanel .tab-section :is(input,select,textarea){font-weight:400;line-height:1.3}
+body #adminPanel .tab-section button:not(.win-close){
+ font-size:10px!important;line-height:1.2;
+}
+body #adminPanel .tab-section .btn:not(.win-close){
+ min-height:34px;padding:8px 12px!important;
+}
+body #adminPanel .tab-section :is(.admin-excel-tools .btn,button.btn[id^="save"]):not(.win-close){
+ flex:0 0 76px;width:76px;min-width:0;min-height:34px;box-sizing:border-box;
+ padding:2px 3px!important;white-space:normal;
+}
+body #adminPanel .tab-section :is(label,button,th){font-weight:700}
+body #adminPanel .tab-section .form label > :is(input:not([type="checkbox"],[type="radio"],[type="file"],[type="hidden"]),select,textarea){width:100%;min-width:0;max-width:100%}
+body #adminPanel .tab-section .form > div{min-width:0}
+body #adminPanel .tab-section .section-title h3{font-size:19px}
+body #adminPanel>.modal-top>.tabs button[data-tab]{font-size:clamp(12px,1.02vw,15px)!important;font-weight:700}
+@media(min-width:1500px){
+ body #adminPanel .tab-section .form{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+body #adminPanel,body #adminPanel :is(button,input,select,textarea,label,th,td,h2,h3){font-family:Arial,sans-serif!important}
+#adminPanel #teacherTab .teacher-form-heading{
+ grid-column:1/-1;margin:4px 0 0;padding:6px 0;border-bottom:1px solid #dce5ec;
+ color:#173b5f;font:700 15px Arial,sans-serif;
+}
+#adminPanel .form:has(>.teacher-form-help){position:relative}
+#adminPanel .tab-section .teacher-form-help{position:absolute;top:4px;right:5px;z-index:5}
+#adminPanel .tab-section .teacher-form-help summary{
+ display:grid;place-items:center;width:15px;height:15px;box-sizing:border-box;list-style:none;
+ border:1px solid #cfe0ef;border-radius:50%;background:#fff;color:#215779;font:700 10px/1 Arial,sans-serif;cursor:pointer;
+}
+#adminPanel .tab-section .teacher-form-help summary::-webkit-details-marker{display:none}
+#adminPanel .tab-section .teacher-form-help>div{
+ position:absolute;right:0;top:100%;width:min(310px,80vw);box-sizing:border-box;margin-top:5px;
+ padding:10px;border:1px solid #cfe0ef;border-radius:8px;background:#fff;color:#173b5f;
+ box-shadow:0 4px 14px #16365326;font-size:13px;line-height:1.45;
+ max-height:min(360px,55vh);overflow-y:auto;overscroll-behavior:contain;
+}
+#adminPanel .tab-section .teacher-form-help p{margin:0 0 7px}
+#adminPanel .tab-section .teacher-form-help p:last-child{margin-bottom:0}
+#adminPanel .tab-section .teacher-form-actions{
+ grid-column:1/-1;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;
+ width:fit-content;max-width:100%;justify-self:end;padding-top:8px;border-top:1px solid #dce5ec;
+}
+body #adminPanel .tab-section .teacher-form-actions .btn,
+body #adminPanel #teacherTab #addTeacherCustom{
+ width:76px;min-width:0;height:34px;min-height:34px;box-sizing:border-box;padding:2px 3px!important;
+ font-size:10px!important;white-space:normal;
+}
+body #adminPanel #teacherTab .btn:not(.win-close){
+ min-height:34px;
+ padding:8px 12px!important;
+ font-size:10px!important;
+ line-height:1.2;
+}
+#adminPanel #teacherTab .form label{display:block}
+@media(min-width:761px){
+ #adminPanel #teacherTab .form > div:has(> label > #tName){grid-column:span 2}
+ #adminPanel #teacherTab .form > div:has(> label > #tDepartment){grid-column:span 2}
+}
+#adminPanel #teacherTab .form > div:has(> label > #tName){grid-column:auto}
+#adminPanel #teacherTab .teacher-custom-fields,#teacherCustomList>div{display:flex;flex-wrap:wrap;gap:8px;align-items:end}
+#adminPanel #teacherTab .teacher-custom-fields{grid-column:1/-1;padding-top:10px;border-top:1px solid #dce5ec}
+.teacher-custom-fields label{flex:1 1 200px;max-width:440px}
+#teacherCustomList{width:100%;display:grid;gap:8px}
+body #adminPanel #teacherTab .form label{font:700 12px/1.3 Arial,sans-serif!important}
+body #adminPanel #teacherTab .form label > :is(input,select,textarea){font:400 12px/1.3 Arial,sans-serif!important}
+@media(min-width:1100px){
+ body #adminPanel #teacherTab .admin-work-grid>.form{grid-template-columns:minmax(0,1.45fr) repeat(3,minmax(0,1fr)) minmax(0,1.45fr) minmax(0,1fr)}
+ #adminPanel #teacherTab .form > div:has(> label > #tDepartment){grid-column:auto}
+}
+#adminPanel .tab-section:has(.teacher-form-help){
+ box-sizing:border-box;padding:8px;background:#f1f6fa;
+ border:1px solid #dce7ef;border-radius:10px;
+}
+#adminPanel .admin-combined-heading{
+ margin:0 0 8px;padding:7px 10px;text-align:center;
+ color:#173b5f;background:#e2eef6;border-radius:6px;
+ font-size:15px;line-height:1.2;
+}
+#adminPanel .admin-combined-grid{
+ display:grid;align-items:start;gap:12px;width:calc(100% - 28px);margin:12px auto;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+}
+#adminPanel .admin-combined-grid[hidden]{display:none}
+#adminPanel .admin-combined-grid>.tab-section{min-width:0;margin:0}
+body #adminPanel .admin-combined-grid .tab-section .form{grid-template-columns:repeat(2,minmax(0,1fr))}
+#adminPanel .admin-combined-grid--structure:has(>#managerAdminTab:is([style*="display:none"],[style*="display: none"]))>#structureAdminTab{grid-column:1/-1}
+#adminPanel .admin-combined-grid--room{
+ width:calc(100% - 12px);margin:6px auto;gap:6px 8px;
+}
+#adminPanel .admin-combined-grid--room>.tab-section{padding:5px}
+#adminPanel .admin-combined-grid--room .admin-combined-heading{
+ margin:0;padding:4px 8px;
+}
+body #adminPanel .admin-combined-grid--room>.tab-section>.form{
+ padding:8px;gap:5px 8px;
+}
+#adminPanel .admin-combined-grid--room .teacher-form-actions{padding-top:4px}
+@media(min-width:761px){
+ #adminPanel .admin-combined-grid--room>.tab-section{
+  display:grid!important;grid-row:span 4;grid-template-rows:subgrid;align-self:stretch;
+ }
+ body #adminPanel .admin-combined-grid--room>.tab-section>.form{
+  margin:0!important;align-content:start;
+ }
+ #adminPanel .admin-combined-grid--room .teacher-form-actions{align-self:end}
+ #adminPanel .admin-combined-grid--room>.tab-section>.form{grid-template-rows:repeat(2,minmax(0,1fr)) auto}
+ #adminPanel .admin-combined-grid--room #holidayTab .teacher-form-actions{grid-row:3}
+ #adminPanel .admin-combined-grid--room .post-save-toggle{margin:0!important}
+}
+@media(max-width:760px){
+ #adminPanel .admin-combined-grid{grid-template-columns:minmax(0,1fr)}
+}
+body #adminPanel>:is(#lessonTab,#groupStudyAdminTab){
+ width:calc(100% - 12px);margin:6px auto!important;padding:5px;
+}
+#adminPanel .schedule-fields{
+ grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;
+}
+#adminPanel .schedule-field-panel{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:6px 10px;
+ min-width:0;padding:8px;border:1px solid #dce5ec;border-radius:8px;background:#f8fbfd;
+}
+#adminPanel .schedule-field-panel>.full,
+#adminPanel .schedule-field-panel>h4{grid-column:1/-1}
+#adminPanel .schedule-field-panel>h4{
+ margin:0;padding:4px 8px;border-radius:5px;background:#e2eef6;color:#173b5f;text-align:center;
+}
+@media(max-width:760px){
+ #adminPanel .schedule-fields{grid-template-columns:minmax(0,1fr)}
+}
+body #adminPanel #lessonTab .admin-work-grid>.form,
+body #adminPanel #groupStudyAdminTab .group-study-form{
+ padding:8px;gap:6px 10px;
+}
+#adminPanel :is(#lessonTab,#groupStudyAdminTab) .teacher-form-actions{padding-top:4px}
+/* Independent scrolling inside workspace modules. */
+body #adminPanel{--admin-header-height:78px}
+body #adminPanel .tab-section{
+ max-height:calc(100dvh - var(--admin-header-height) - 24px);
+ min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-gutter:stable;
+ scrollbar-width:auto;scrollbar-color:#9aafbd #edf3f7;
+}
+#adminPanel .admin-combined-grid{min-height:0}
+#adminPanel .schedule-field-panel{
+ max-height:calc(100dvh - var(--admin-header-height) - 140px);
+ overflow-y:auto;scrollbar-gutter:stable;scrollbar-width:auto;
+}
+#adminPanel .tab-section::-webkit-scrollbar,
+#adminPanel .schedule-field-panel::-webkit-scrollbar{width:12px;height:12px}
+#adminPanel .tab-section::-webkit-scrollbar-thumb,
+#adminPanel .schedule-field-panel::-webkit-scrollbar-thumb{background:#9aafbd;border-radius:8px}
+@media(min-width:761px){
+ #adminPanel .admin-combined-grid--room>.tab-section{
+  height:calc((100dvh - var(--admin-header-height) - 30px)/2);
+  max-height:calc((100dvh - var(--admin-header-height) - 30px)/2);
+  display:block!important;grid-row:auto;
+ }
+ #adminPanel .admin-combined-grid--room .admin-combined-heading{margin-bottom:6px}
+ #adminPanel .admin-combined-grid--room>.tab-section>.form{margin-bottom:6px!important}
+}
+#adminPanel,#adminPanel *{scrollbar-width:auto;scrollbar-color:#9aafbd #edf3f7}
+#adminPanel::-webkit-scrollbar,#adminPanel *::-webkit-scrollbar{width:12px;height:12px}
+#adminPanel::-webkit-scrollbar-thumb,#adminPanel *::-webkit-scrollbar-thumb{background:#9aafbd;border-radius:8px}
+#adminPanel .admin-module-heading{position:relative;margin-bottom:6px}
+#adminPanel .admin-module-heading>.admin-combined-heading{margin:0;padding-right:26px;padding-left:26px}
+#adminPanel .admin-module-heading>.teacher-form-help{top:50%;right:6px;transform:translateY(-50%)}
+</style>
+<script>
+(function(){
+ const panel=document.getElementById('adminPanel');
+ const header=panel?.querySelector(':scope > .modal-top');
+ if(!header)return;
+ const sync=()=>{
+  const height=header.getBoundingClientRect().height;
+  if(height>0)panel.style.setProperty('--admin-header-height',height+'px');
+ };
+ new ResizeObserver(sync).observe(header);
+ sync();
+})();
+</script>
 </body>
 </html>
