@@ -10935,7 +10935,7 @@ renderAdvanced();
       openAdvanced('Aqlli boshlash','Sozlamalar shu brauzerda saqlanadi.',
         `<form id="startupSettingsForm"><p><label><input name="enabled" type="checkbox" ${config.enabled?'checked':''}> Aqlli boshlashni yoqish</label></p>
         <p><label>Bir xil modulni tanlash soni <input name="threshold" type="number" min="1" max="10" required value="${config.threshold}"></label></p>
-        <p>Platforma oxirgi 5 ta tanlovni hisobga oladi. Chegara 5 dan katta bo‘lsa, shuncha oxirgi tanlov tekshiriladi.</p>
+        <p>Platforma oxirgi 5 ta tanlovni hisobga oladi. Chegara 5 dan katta bo‘lsa, shuncha oxirgi tanlov tekshiriladi.</p><p>Avtomatik ochilgan oynani ishlatmasdan × bilan yopsangiz, keyingi kirishda oddiy boshqaruv ochiladi. Keyingi qo‘lda tanlovlaringizdan odat yangidan shakllanadi.</p>
         <button type="submit" class="primary">Saqlash</button><p role="status"></p></form>`);
       const form=g('startupSettingsForm');
       form.onsubmit=event=>{
@@ -10951,6 +10951,30 @@ renderAdvanced();
         }catch{status.textContent='Sozlamalarni saqlab bo‘lmadi.';}
       };
     });
+    let startupAutoSession=null;
+    function dismissUnusedStartup(){
+      const session=startupAutoSession;startupAutoSession=null;
+      if(!session||session.used||String(db.currentUser?.id)!==session.userId)return;
+      // Forget the dismissed habit; future manual choices build a fresh history.
+      try{localStorage.removeItem(session.key);}catch{}
+      if(startupObservation?.key===session.key)startupObservation.history=[];
+    }
+    function isStartupClose(target){
+      const button=target.closest('button,[role="button"],a');
+      if(!button)return false;
+      const text=(button.textContent||'').trim();
+      return /^[×✕✖Xx]$/.test(text)||/yopish|close|закрыть/i.test(button.getAttribute('aria-label')||button.title||'')||/(?:close|cancel)/i.test(button.id)||button.classList.contains('win-close');
+    }
+    document.addEventListener('click',event=>{
+      if(!startupAutoSession||!event.isTrusted)return;
+      if(isStartupClose(event.target)||event.target.matches('.modal,.modal-backdrop,[role="dialog"]')){dismissUnusedStartup();return;}
+      if(event.target.closest('button,input,select,textarea,a,[contenteditable="true"]'))startupAutoSession.used=true;
+    },true);
+    document.addEventListener('input',event=>{if(event.isTrusted&&startupAutoSession)startupAutoSession.used=true;},true);
+    document.addEventListener('keydown',event=>{if(event.isTrusted&&event.key==='Escape')dismissUnusedStartup();},true);
+    window.addEventListener('blur',()=>{
+      if(startupAutoSession&&document.activeElement?.tagName==='IFRAME')startupAutoSession.used=true;
+    });
     let startupObservation=null;
     document.addEventListener('click',event=>{
       if(!startupObservation||!event.isTrusted||document.body.classList.contains('login-required'))return;
@@ -10963,7 +10987,7 @@ renderAdvanced();
     },true);
     function openHabitualModule(user){
       const userId=String(user.id??'');
-      startupObservation=null;
+      startupObservation=null;startupAutoSession=null;
       const config=startupSettings();
       if(!userId||!config.enabled)return false;
       const key='dispatchStartup:'+JSON.stringify([userId,user.role,user.department]);
@@ -10978,6 +11002,7 @@ renderAdvanced();
       const button=preferred?g(preferred):null;
       if(!button||button.disabled||button.hidden||getComputedStyle(button).display==='none')return false;
       button.click();
+      startupAutoSession={key,userId,used:false};
       return true;
     }
 
@@ -14830,6 +14855,7 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
       <button class="ultra-btn" data-ultra="teacherload"><span class="ico">◉</span><span class="menu-text">O‘qituvchi yuklamasi</span><span class="menu-arrow">‹</span></button>
       <button class="ultra-btn" data-ultra="groupload"><span class="ico">◎</span><span class="menu-text">Guruh yuklamasi</span><span class="menu-arrow">‹</span></button>
       <button class="ultra-btn" data-ultra="qr"><span class="ico">▣</span><span class="menu-text">QR jadval</span><span class="menu-arrow">‹</span></button>
+      <button type="button" class="ultra-btn" data-ultra="pdfbooklet"><span class="ico">▤</span><span class="menu-text">PDF kitobcha</span><span class="menu-arrow">‹</span></button>
       <button class="ultra-btn" data-ultra="screen"><span class="ico">▰</span><span class="menu-text">Read-only ekran</span><span class="menu-arrow">‹</span></button>
       <button type="button" class="ultra-btn" id="startupSettingsBtn" ${['admin','superadmin'].includes(db.currentUser?.role)?'':'hidden'}><span class="ico">⚙</span><span class="menu-text">Aqlli boshlash</span><span class="menu-arrow">‹</span></button>
       <button class="ultra-btn" data-ultra="global"><span class="ico">◆</span><span class="menu-text">Global dashboard</span><span class="menu-arrow">‹</span></button>`;
@@ -14848,6 +14874,7 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
       if(a==="notice")openU("Bildirishnomalar","Konflikt, bekor qilish va o‘zgarishlar",noticesHTML());
       if(a==="search")openU("Qidiruv tarixi","Oxirgi qidiruvlar",searchHTML());
       if(a==="qr"){openU("QR orqali jadval","QR kod yaratish",qrHTML());bindQR()}
+      if(a==="pdfbooklet")window.openPdfBooklet();
       if(a==="screen")readOnlyOpen();
       if(a==="print")window.ultraPrint();
       if(a==="global")openU("Universitet global dashboard","Kafedralar kesimida",globalDashboardHTML());
@@ -20484,6 +20511,147 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
       margin-top:5px;padding:5px 8px;font-size:12px;line-height:1.35;
     }
   }
+
+#wordHeaderEditor,#studentWordPreview{box-sizing:border-box;background:#f5f8fb;color:#173b5f;margin:auto}
+#wordHeaderEditor::backdrop,#studentWordPreview::backdrop{background:#17324c88}
+#wordHeaderEditor button,#studentWordPreview button{width:auto;margin:0;padding:8px 12px}
+#wordHeaderEditor button[aria-label=&quot;Yopish&quot;],#studentWordPreview button[aria-label=&quot;Yopish&quot;]{width:32px;height:32px;padding:0;flex:none}
+#wordHeaderEditor input{margin:4px 0 0}
+#wordHeaderPaper{border:1px solid #dce5ec;padding:16px 12px!important}
+#wordApprovalText{display:block;overflow:auto}
+#wordDocumentTitle{box-sizing:border-box;margin-bottom:0}
+
+#wordHeaderEditor{background:#e8eaed!important}
+#wordHeaderEditor #wordHeaderPaper{
+ width:210mm;max-width:none;min-height:297mm;padding:20mm 18mm!important;
+ margin:14px auto;background:#fff;border:1px solid #c8c8c8;box-shadow:0 2px 9px #0002;
+}
+#wordHeaderEditor #wordApprovalBox{background:#fff}
+#wordHeaderEditor #wordApprovalText{background:transparent;outline:none;color:#000;font:bold 14pt/1.2 &#x27;Times New Roman&#x27;,serif}
+#wordHeaderEditor #wordDocumentTitle{
+ display:block;width:100%;min-height:40px;height:52px;margin:12px 0 0;padding:2px;
+ border:1px dashed transparent;border-radius:0;background:transparent;resize:vertical;
+ color:#000;font:14pt/1.2 &#x27;Times New Roman&#x27;,serif;
+}
+#wordHeaderEditor #wordDocumentTitle:focus{border-color:#a6b5c3;outline:none}
+#wordHeaderEditor #wordEditorQuestions{color:#000}
+
+.variant-build-actions{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap}
+.variant-build-actions&gt;button{width:auto!important;flex:1 1 150px;margin:8px 0 0!important}
+.variant-build-actions&gt;.word-header-edit-button{background:#eaf4fa;color:#17567b;border:1px solid #a8cddd}
+.variant-build-actions&gt;.word-header-edit-button:hover{background:#dceef8}
+#wordHeaderEditor{padding:0!important;border:1px solid #c9d8e3!important;border-radius:12px!important;background:#e9eef3!important}
+#wordHeaderEditor .word-editor-top{
+ position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:12px;
+ padding:12px 18px;background:linear-gradient(100deg,#173b5f,#277e9c);color:white;
+}
+#wordHeaderEditor .word-editor-top h2{margin:0;color:#fff;font-size:17px}
+#wordHeaderEditor .word-editor-top button{background:#ffffff24;border:1px solid #ffffff50;color:#fff}
+#wordHeaderEditor .word-editor-toolbar{
+ display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 18px;margin:0;
+ border-bottom:1px solid #d1dde7;background:#fff;
+}
+#wordHeaderEditor .word-editor-toolbar&gt;label{margin:0;font-size:12px}
+#wordHeaderEditor .word-editor-toolbar input[type=&quot;number&quot;]{height:32px;padding:4px 8px;font-size:12px}
+#wordHeaderEditor .word-editor-toolbar input[type=&quot;checkbox&quot;]{margin:0;width:15px;height:15px;accent-color:#2383a9}
+#wordHeaderEditor #wordHeaderPaper{margin:18px auto!important;box-shadow:0 3px 16px #173b5f20}
+#wordHeaderEditor .word-editor-footer{
+ position:sticky;bottom:0;z-index:3;display:flex;justify-content:flex-end;align-items:center;gap:12px;
+ padding:10px 18px;border-top:1px solid #d1dde7;background:#fff;
+}
+#wordHeaderEditor .word-editor-footer button{min-width:110px;background:#173b5f;color:white}
+#wordHeaderEditor .word-editor-footer p{margin:0;font-size:12px;color:#176a46}
+
+#wordHeaderEditor .word-editor-toolbar{gap:12px;padding:12px 18px;background:#f6f9fc}
+#wordHeaderEditor .word-editor-toolbar&gt;.word-header-switch{
+ position:relative;display:flex;align-items:center;justify-content:space-between;gap:18px;
+ min-height:60px;min-width:230px;box-sizing:border-box;padding:9px 12px;
+ border:1px solid #d4e3ed;border-radius:9px;background:#fff;cursor:pointer;
+}
+#wordHeaderEditor .word-header-switch strong{display:block;font-size:13px;color:#173b5f}
+#wordHeaderEditor .word-header-switch small{display:block;margin-top:2px;font-size:11px;font-weight:400;color:#60798d}
+#wordHeaderEditor .word-header-switch input{position:absolute;opacity:0;right:12px;width:34px;height:20px}
+#wordHeaderEditor .word-header-switch-track{position:relative;width:34px;height:20px;border-radius:20px;background:#a7b6c1;flex:none}
+#wordHeaderEditor .word-header-switch-track:after{content:&#x27;&#x27;;position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .15s}
+#wordHeaderEditor .word-header-switch input:checked+.word-header-switch-track{background:#2488ae}
+#wordHeaderEditor .word-header-switch input:checked+.word-header-switch-track:after{transform:translateX(14px)}
+#wordHeaderEditor .word-header-switch:has(input:focus-visible){outline:2px solid #2488ae;outline-offset:2px}
+#wordHeaderEditor .word-size-controls{display:flex;align-items:end;gap:8px}
+#wordHeaderEditor .word-size-controls label{margin:0;font-size:11px;color:#526b80}
+#wordHeaderEditor .word-size-input{display:flex;align-items:center;gap:4px;margin-top:4px;padding:0 8px;border:1px solid #c8dce9;border-radius:7px;background:#fff}
+#wordHeaderEditor .word-size-input input{width:68px;height:32px;margin:0;border:0;padding:4px 0;background:transparent;font-size:13px;font-weight:600}
+#wordHeaderEditor .word-size-input&gt;span{font-size:11px;color:#6e8596;font-weight:400}
+#wordHeaderEditor .word-size-divider{align-self:center;margin-top:16px;color:#8296a5}
+#wordHeaderEditor .word-resize-hint{flex:1 1 200px;max-width:290px;margin:0;color:#60798d;font-size:12px;line-height:1.4}
+
+#wordHeaderEditor[open]{display:flex;flex-direction:column;overflow:hidden!important}
+#wordHeaderEditor .word-editor-top,#wordHeaderEditor .word-editor-toolbar,#wordHeaderEditor .word-editor-footer{flex:none}
+#wordHeaderEditor #wordPaperViewport{
+ flex:1;min-height:0;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:10px;box-sizing:border-box;
+}
+#wordHeaderEditor #wordHeaderPaper{
+ flex:none;width:210mm!important;height:297mm!important;min-height:297mm!important;
+ max-height:297mm!important;overflow:auto;margin:0!important;box-sizing:border-box;
+}
+
+#wordHeaderEditor #wordPaperViewport{
+ display:block!important;overflow:auto!important;scrollbar-gutter:stable;padding:22px 24px!important;background:#e8edf2;
+}
+#wordHeaderEditor #wordHeaderPaper{
+ margin:0 auto!important;zoom:1!important;min-width:210mm;
+ overflow:hidden!important;box-shadow:0 1px 5px #0002;
+}
+
+.analyzer-help-section{position:relative}
+.section&gt;.analyzer-help-button{
+ position:absolute;top:4px;right:5px;width:15px;height:15px;min-width:0;min-height:0;
+ margin:0;padding:0;border:1px solid #cfe0ef;border-radius:50%;background:#fff;color:#215779;
+ font:700 10px/1 Arial,sans-serif;display:grid;place-items:center;
+}
+#analyzerHelpDialog{width:min(640px,94vw);max-height:80vh;padding:0;border:1px solid #c7dce9;border-radius:12px;background:#fff;color:#203750;overflow:hidden;box-shadow:0 15px 60px #173b5f40}
+#analyzerHelpDialog::backdrop{background:#17324c66}
+.analyzer-help-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;background:#edf5fb;border-bottom:1px solid #d7e5ef}
+.analyzer-help-heading h2{margin:0;font-size:16px}
+#analyzerHelpDialog .analyzer-help-heading button{width:30px;height:30px;min-height:0;margin:0;padding:0;background:#fff;color:#173b5f;border:1px solid #cbdde9}
+#analyzerHelpBody{max-height:calc(80vh - 65px);overflow:auto;padding:6px 16px 14px;font:13px/1.55 Arial,sans-serif}
+#analyzerHelpBody p{margin:10px 0;padding-bottom:9px;border-bottom:1px solid #edf2f6}
+#analyzerHelpBody p:last-child{border-bottom:0;padding-bottom:0}
+
+#wordHeaderEditor #wordHeaderPaper,#wordHeaderEditor .word-continuation-page{
+ position:relative;box-sizing:border-box;width:210mm!important;height:297mm!important;min-height:297mm!important;
+ margin:0 auto 18px!important;padding:20mm 18mm!important;border:1px solid #c8c8c8;background:white;overflow:hidden;
+}
+#wordHeaderEditor .word-page-number{position:absolute;bottom:7mm;left:0;right:0;text-align:center;color:#7b8b98;font:11px Arial,sans-serif}
+#wordHeaderEditor .word-typography-controls{display:flex;align-items:end;gap:8px}
+#wordHeaderEditor .word-typography-controls label{font-size:11px;margin:0}
+#wordHeaderEditor .word-typography-controls input,#wordHeaderEditor .word-typography-controls select{display:block;width:85px;height:32px;margin:4px 0 0;padding:4px 7px;font-size:12px}
+#wordHeaderEditor .word-typography-controls select#wordFontFamily{width:150px}
+#wordHeaderEditor #wordPreviewPageCount{margin-right:auto;font-size:13px;font-weight:700;color:#173b5f}
+
+#wordHeaderEditor #wordDocumentTitle{min-height:0!important;margin:0!important;padding:0!important;border:0!important;resize:none!important}
+#wordHeaderEditor .word-alignment-controls{display:flex;align-items:end;gap:8px}
+#wordHeaderEditor .word-alignment-controls label{font-size:11px;margin:0}
+#wordHeaderEditor #wordAlignmentTarget{width:150px;height:32px;margin:4px 0 0;padding:4px 7px;font-size:12px}
+#wordHeaderEditor .word-alignment-buttons{display:flex;gap:3px;padding-bottom:1px}
+#wordHeaderEditor .word-align-button{display:grid;place-items:center;width:32px;height:32px;min-height:0;margin:0;padding:4px;background:#fff;color:#426078;border:1px solid #cfdeea;border-radius:5px}
+#wordHeaderEditor .word-align-button[aria-pressed=&quot;true&quot;]{background:#dceef8;border-color:#6eaccd;color:#145477}
+
+#wordHeaderEditor .word-ribbon{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 12px;background:#fff}
+#wordHeaderEditor .word-ribbon-main{display:flex;align-items:center;gap:4px;flex-wrap:wrap;flex:1}
+#wordHeaderEditor .word-ribbon-main&gt;select,#wordHeaderEditor .word-ribbon-main&gt;input{width:135px;height:30px;margin:0;padding:4px 6px;font-size:12px}
+#wordHeaderEditor .word-ribbon-main&gt;#wordFontSize{width:60px}
+#wordHeaderEditor .word-ribbon-main&gt;button{width:30px;height:30px;min-height:0;padding:3px;margin:0;background:#fff;color:#354b5e;border:1px solid transparent;border-radius:4px;font:14px Arial,sans-serif}
+#wordHeaderEditor .word-ribbon-main&gt;button:hover{background:#e6f1f9;border-color:#bcd4e4}
+#wordHeaderEditor .word-ribbon-switches{display:flex;gap:6px}
+#wordHeaderEditor .word-ribbon-switches .word-header-switch{min-width:135px;min-height:36px;padding:6px 8px;gap:8px}
+#wordHeaderEditor .word-ribbon-switches small{display:none}
+#wordHeaderEditor .word-color-control{display:flex;align-items:center;gap:2px;margin:0;padding:2px;font-size:14px}
+#wordHeaderEditor .word-color-control input{width:20px;height:24px;padding:0;margin:0;border:0}
+#wordHeaderEditor .word-ribbon-spacing{display:flex;align-items:center;gap:3px;margin:0}
+#wordHeaderEditor .word-ribbon-spacing select{width:65px;height:30px;margin:0;padding:3px}
+#wordHeaderEditor [contenteditable=&quot;true&quot;]:focus{outline:1px dashed #8bb5d0}
+#wordHeaderEditor #wordApprovalText{overflow:auto;white-space:pre-wrap}
+#wordHeaderEditor #wordDocumentTitle{white-space:pre-wrap}
 &lt;/style&gt;
 &lt;/head&gt;
 &lt;body&gt;
@@ -20500,7 +20668,7 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
   &lt;/div&gt;
 
   &lt;div class=&quot;analyzer-stack analyzer-variants&quot;&gt;
-  &lt;div class=&quot;section&quot;&gt;
+  &lt;div class=&quot;section analyzer-help-section&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;analyzer-help-button&quot; aria-label=&quot;Bo‘lim izohi&quot; onclick=&quot;openAnalyzerHelp(&#x27;format&#x27;)&quot;&gt;?&lt;/button&gt;
     &lt;h2&gt;Sozlamalar&lt;/h2&gt;
 
     &lt;div class=&quot;analyzer-settings analyzer-format-settings&quot;&gt;&lt;div class=&quot;analyzer-setting-column&quot;&gt;    &lt;div&gt;&lt;label for=&quot;numbering&quot;&gt;Raqamlash (1, 2, 3...)&lt;/label&gt;
@@ -20544,7 +20712,7 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
 
     &lt;/div&gt;&lt;/div&gt;
   &lt;/div&gt;
-   &lt;section class=&quot;section analyzer-transfer&quot;&gt;
+   &lt;section class=&quot;section analyzer-transfer analyzer-help-section&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;analyzer-help-button&quot; aria-label=&quot;Bo‘lim izohi&quot; onclick=&quot;openAnalyzerHelp(&#x27;files&#x27;)&quot;&gt;?&lt;/button&gt;
     &lt;div class=&quot;analysis-actions&quot;&gt;
      &lt;button type=&quot;button&quot; id=&quot;analysisImportButton&quot;&gt;Import&lt;/button&gt;
      &lt;input id=&quot;analysisImportFile&quot; type=&quot;file&quot; accept=&quot;.txt,.doc,.xlsx&quot; hidden&gt;
@@ -20554,17 +20722,31 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
     &lt;/div&gt;
     &lt;p id=&quot;analysisTransferStatus&quot; role=&quot;status&quot; hidden&gt;&lt;/p&gt;
    &lt;/section&gt;
-   &lt;section class=&quot;section&quot;&gt;
+   &lt;section class=&quot;section analyzer-help-section&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;analyzer-help-button&quot; aria-label=&quot;Bo‘lim izohi&quot; onclick=&quot;openAnalyzerHelp(&#x27;variants&#x27;)&quot;&gt;?&lt;/button&gt;
     &lt;h2&gt;Variant yasash (takrorsiz)&lt;/h2&gt;
     &lt;div class=&quot;analyzer-settings&quot;&gt;
      &lt;div&gt;&lt;label for=&quot;variantCount&quot;&gt;Variantlar soni&lt;/label&gt;&lt;input id=&quot;variantCount&quot; type=&quot;number&quot; value=&quot;0&quot; min=&quot;0&quot;&gt;&lt;/div&gt;
      &lt;div&gt;&lt;label for=&quot;perVariant&quot;&gt;Har variantdagi savollar&lt;/label&gt;&lt;input id=&quot;perVariant&quot; type=&quot;number&quot; value=&quot;0&quot; min=&quot;0&quot;&gt;&lt;/div&gt;
     &lt;/div&gt;
     &lt;small class=&quot;variant-count-note&quot;&gt;0 kiritilsa, barcha savollar olinadi.&lt;/small&gt;
-    &lt;button onclick=&quot;generateVariants()&quot;&gt;Variantlarni yasash&lt;/button&gt;
+    &lt;div class=&quot;variant-build-actions&quot;&gt;&lt;button type=&quot;button&quot; onclick=&quot;generateVariants()&quot;&gt;Variantlarni yasash&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;word-header-edit-button&quot; onclick=&quot;openWordHeaderEditor()&quot;&gt;Sarlavhani tahrirlash&lt;/button&gt;&lt;/div&gt;
     &lt;p id=&quot;variantStatus&quot; role=&quot;status&quot; hidden&gt;&lt;/p&gt;
    &lt;/section&gt;
-   &lt;section class=&quot;section&quot;&gt;
+&lt;dialog id=&quot;wordHeaderEditor&quot; style=&quot;width:98vw;height:96vh;max-width:none;max-height:96vh;overflow:auto;border:1px solid #cadbe8;border-radius:6px;padding:12px&quot;&gt;
+&lt;div class=&quot;word-editor-top&quot;&gt;&lt;h2&gt;Sarlavhani tahrirlash&lt;/h2&gt;&lt;button type=&quot;button&quot; onclick=&quot;document.getElementById(&#x27;wordHeaderEditor&#x27;).close()&quot; aria-label=&quot;Yopish&quot;&gt;×&lt;/button&gt;&lt;/div&gt;
+&lt;div class=&quot;word-editor-toolbar word-ribbon&quot;&gt;&lt;div class=&quot;word-ribbon-main&quot;&gt;&lt;select id=&quot;wordFontFamily&quot;&gt;&lt;option value=&quot;Times New Roman&quot;&gt;Times New Roman&lt;/option&gt;&lt;option value=&quot;Arial&quot;&gt;Arial&lt;/option&gt;&lt;option value=&quot;Calibri&quot;&gt;Calibri&lt;/option&gt;&lt;/select&gt;&lt;input id=&quot;wordFontSize&quot; type=&quot;number&quot; min=&quot;8&quot; max=&quot;24&quot; step=&quot;0.5&quot; value=&quot;12&quot;&gt;&lt;button type=&quot;button&quot; data-word-command=&quot;bold&quot; title=&quot;Qalin&quot; aria-label=&quot;Qalin&quot;&gt;&lt;b&gt;B&lt;/b&gt;&lt;/button&gt;&lt;button type=&quot;button&quot; data-word-command=&quot;italic&quot; title=&quot;Kursiv&quot; aria-label=&quot;Kursiv&quot;&gt;&lt;i&gt;I&lt;/i&gt;&lt;/button&gt;&lt;button type=&quot;button&quot; data-word-command=&quot;underline&quot; title=&quot;Tagiga chizish&quot; aria-label=&quot;Tagiga chizish&quot;&gt;&lt;u&gt;U&lt;/u&gt;&lt;/button&gt;&lt;button type=&quot;button&quot; data-word-command=&quot;strikeThrough&quot; title=&quot;Ustidan chizish&quot; aria-label=&quot;Ustidan chizish&quot;&gt;&lt;s&gt;abc&lt;/s&gt;&lt;/button&gt;&lt;button type=&quot;button&quot; data-word-command=&quot;subscript&quot; title=&quot;Pastki indeks&quot; aria-label=&quot;Pastki indeks&quot;&gt;x₂&lt;/button&gt;&lt;button type=&quot;button&quot; data-word-command=&quot;superscript&quot; title=&quot;Yuqori indeks&quot; aria-label=&quot;Yuqori indeks&quot;&gt;x²&lt;/button&gt;&lt;button type=&quot;button&quot; data-word-command=&quot;insertUnorderedList&quot; title=&quot;Belgili ro‘yxat&quot; aria-label=&quot;Belgili ro‘yxat&quot;&gt;• ≡&lt;/button&gt;&lt;button type=&quot;button&quot; data-word-command=&quot;insertOrderedList&quot; title=&quot;Raqamli ro‘yxat&quot; aria-label=&quot;Raqamli ro‘yxat&quot;&gt;1. ≡&lt;/button&gt;&lt;button type=&quot;button&quot; data-word-command=&quot;outdent&quot; title=&quot;Chapga surish&quot; aria-label=&quot;Chapga surish&quot;&gt;⇤&lt;/button&gt;&lt;button type=&quot;button&quot; data-word-command=&quot;indent&quot; title=&quot;O‘ngga surish&quot; aria-label=&quot;O‘ngga surish&quot;&gt;⇥&lt;/button&gt;&lt;button type=&quot;button&quot; data-word-command=&quot;justifyLeft&quot; title=&quot;Chapga tekislash&quot; aria-label=&quot;Chapga tekislash&quot;&gt;☰&lt;/button&gt;&lt;button type=&quot;button&quot; data-word-command=&quot;justifyCenter&quot; title=&quot;Markazga tekislash&quot; aria-label=&quot;Markazga tekislash&quot;&gt;≡&lt;/button&gt;&lt;button type=&quot;button&quot; data-word-command=&quot;justifyRight&quot; title=&quot;O‘ngga tekislash&quot; aria-label=&quot;O‘ngga tekislash&quot;&gt;☰&lt;/button&gt;&lt;button type=&quot;button&quot; data-word-command=&quot;justifyFull&quot; title=&quot;Ikki chetga tekislash&quot; aria-label=&quot;Ikki chetga tekislash&quot;&gt;▤&lt;/button&gt;&lt;label class=&quot;word-color-control&quot; title=&quot;Matn rangi&quot;&gt;A&lt;input type=&quot;color&quot; id=&quot;wordTextColor&quot; value=&quot;#000000&quot; aria-label=&quot;Matn rangi&quot;&gt;&lt;/label&gt;&lt;label class=&quot;word-color-control&quot; title=&quot;Ajratish rangi&quot;&gt;▰&lt;input type=&quot;color&quot; id=&quot;wordHighlightColor&quot; value=&quot;#ffff00&quot; aria-label=&quot;Ajratish rangi&quot;&gt;&lt;/label&gt;&lt;label class=&quot;word-ribbon-spacing&quot; title=&quot;Qator oralig‘i&quot;&gt;↕&lt;select id=&quot;wordLineSpacing&quot;&gt;&lt;option value=&quot;1&quot;&gt;1&lt;/option&gt;&lt;option value=&quot;1.15&quot;&gt;1,15&lt;/option&gt;&lt;option value=&quot;1.25&quot; selected&gt;1,25&lt;/option&gt;&lt;option value=&quot;1.5&quot;&gt;1,5&lt;/option&gt;&lt;option value=&quot;2&quot;&gt;2&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;&lt;/div&gt;&lt;div class=&quot;word-ribbon-switches&quot;&gt;&lt;label class=&quot;word-header-switch&quot;&gt;&lt;span&gt;&lt;strong&gt;Sarlavha&lt;/strong&gt;&lt;small&gt;Har bir variant boshida&lt;/small&gt;&lt;/span&gt;&lt;input id=&quot;wordHeaderEnabled&quot; type=&quot;checkbox&quot; checked&gt;&lt;span class=&quot;word-header-switch-track&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;/label&gt;&lt;label class=&quot;word-header-switch&quot;&gt;&lt;span&gt;&lt;strong&gt;Ikki ustun&lt;/strong&gt;&lt;small&gt;Savollarni ikki ustunda chiqarish&lt;/small&gt;&lt;/span&gt;&lt;input id=&quot;wordTwoColumns&quot; type=&quot;checkbox&quot;&gt;&lt;span class=&quot;word-header-switch-track&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;/label&gt;&lt;/div&gt;&lt;div hidden&gt;&lt;input id=&quot;wordApprovalWidth&quot; value=&quot;85&quot;&gt;&lt;input id=&quot;wordApprovalHeight&quot; value=&quot;48&quot;&gt;&lt;select id=&quot;wordAlignmentTarget&quot;&gt;&lt;option value=&quot;approval&quot;&gt;approval&lt;/option&gt;&lt;option value=&quot;title&quot;&gt;title&lt;/option&gt;&lt;option value=&quot;questions&quot; selected&gt;questions&lt;/option&gt;&lt;/select&gt;&lt;input id=&quot;wordApprovalAlign&quot; value=&quot;center&quot;&gt;&lt;input id=&quot;wordTitleAlign&quot; value=&quot;center&quot;&gt;&lt;input id=&quot;wordQuestionAlign&quot; value=&quot;left&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;div id=&quot;wordPaperViewport&quot;&gt;&lt;div id=&quot;wordHeaderPaper&quot; style=&quot;width:100%;max-width:658px;margin:0 auto;padding:16px 0;background:white;box-sizing:border-box&quot;&gt;
+&lt;div id=&quot;wordApprovalBox&quot; style=&quot;width:321px;height:181px;min-width:151px;min-height:76px;max-width:100%;resize:both;overflow:hidden;margin-left:auto;border:1px dashed #9aafbd;box-sizing:border-box&quot;&gt;
+&lt;div id=&quot;wordApprovalText&quot; translate=&quot;no&quot; aria-label=&quot;Tasdiqlash matni&quot; style=&quot;width:100%;height:100%;min-height:0;box-sizing:border-box;margin:0;padding:4px;resize:none;border:0;border-radius:0;text-align:center;font:bold 15px/1.3 &#x27;Times New Roman&#x27;,serif&quot; role=&quot;textbox&quot; aria-multiline=&quot;true&quot; contenteditable=&quot;true&quot;&gt;“TASDIQLAYMAN”&lt;br&gt;Tabiiy resurslarni boshqarish&lt;br&gt;fakultetining “Ekologiya, irrigatsiya&lt;br&gt;va gidrotexnika” kafedrasi mudiri&lt;br&gt;________ Z.Z. Qodirov&lt;br&gt;“____” __________ 2026-yil&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;wordDocumentTitle&quot; translate=&quot;no&quot; aria-label=&quot;Fan va nazorat nomi&quot; style=&quot;min-height:55px;text-align:center;font:15px &#x27;Times New Roman&#x27;,serif&quot; role=&quot;textbox&quot; aria-multiline=&quot;true&quot; contenteditable=&quot;true&quot;&gt;“Gidrotexnika inshootlari” fanidan oraliq nazorat test savollari&lt;/div&gt;
+&lt;p id=&quot;wordPreviewVariantHeading&quot; style=&quot;text-align:center;margin:0;font:12pt &#x27;Times New Roman&#x27;,serif&quot;&gt;VARIANT 1&lt;/p&gt;
+&lt;div id=&quot;wordEditorQuestions&quot; translate=&quot;no&quot; style=&quot;white-space:pre-wrap;font:12pt/1.25 &#x27;Times New Roman&#x27;,serif&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;word-editor-footer&quot;&gt;&lt;span id=&quot;wordPreviewPageCount&quot; role=&quot;status&quot;&gt;&lt;/span&gt;&lt;p id=&quot;wordHeaderStatus&quot; role=&quot;status&quot; hidden&gt;&lt;/p&gt;&lt;button type=&quot;button&quot; onclick=&quot;saveStudentWordHeader();document.getElementById(&#x27;wordHeaderEditor&#x27;).close()&quot;&gt;Saqlash&lt;/button&gt;&lt;/div&gt;
+&lt;/dialog&gt;
+&lt;section class=&quot;section analyzer-help-section&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;analyzer-help-button&quot; aria-label=&quot;Bo‘lim izohi&quot; onclick=&quot;openAnalyzerHelp(&#x27;download&#x27;)&quot;&gt;?&lt;/button&gt;
     &lt;button onclick=&quot;downloadAnswerKeyWord()&quot;&gt;Javoblar varaqasini yuklab olish&lt;/button&gt;
 
     &lt;button onclick=&quot;downloadStudentWord()&quot;&gt;👨‍🎓 Talaba uchun (savol-javob) Word yuklab olish&lt;/button&gt;
@@ -21657,42 +21839,409 @@ function buildStudentTextFromVariantOutput(){
   return cleaned.join(&quot;\n&quot;).trim() + &quot;\n&quot;;
 }
 
-function getStudentWordHTML(plainText){
-  const safe = (plainText || &quot;&quot;)
-    .replace(/&amp;/g,&quot;&amp;amp;&quot;)
-    .replace(/&lt;/g,&quot;&amp;lt;&quot;)
-    .replace(/&gt;/g,&quot;&amp;gt;&quot;)
-    .replace(/\n/g,&quot;&lt;br&gt;&quot;);
-
-  const msoStyle = `
-&lt;!--[if gte mso 9]&gt;&lt;xml&gt;
- &lt;w:WordDocument&gt;
-  &lt;w:View&gt;Print&lt;/w:View&gt;
-  &lt;w:Zoom&gt;100&lt;/w:Zoom&gt;
- &lt;/w:WordDocument&gt;
-&lt;/xml&gt;&lt;![endif]--&gt;
-&lt;style&gt;
-@page Section1{
-  size: 595.28pt 841.89pt;
-  margin: 20mm 18mm 20mm 18mm;
+const studentHeaderFields=[&#x27;wordHeaderEnabled&#x27;,&#x27;wordTwoColumns&#x27;,&#x27;wordFontFamily&#x27;,&#x27;wordFontSize&#x27;,&#x27;wordLineSpacing&#x27;,&#x27;wordApprovalAlign&#x27;,&#x27;wordTitleAlign&#x27;,&#x27;wordQuestionAlign&#x27;,&#x27;wordApprovalText&#x27;,&#x27;wordDocumentTitle&#x27;,&#x27;wordApprovalWidth&#x27;,&#x27;wordApprovalHeight&#x27;];
+let studentHeaderDirty=false;
+let wordActiveEditor=null,wordSavedRange=null;
+const wordQuestionRich=new Map();
+function cleanWordRichHtml(value){
+ const template=document.createElement(&#x27;template&#x27;);template.innerHTML=String(value||&#x27;&#x27;);
+ const allowed=new Set([&#x27;B&#x27;,&#x27;STRONG&#x27;,&#x27;I&#x27;,&#x27;EM&#x27;,&#x27;U&#x27;,&#x27;S&#x27;,&#x27;STRIKE&#x27;,&#x27;SUB&#x27;,&#x27;SUP&#x27;,&#x27;SPAN&#x27;,&#x27;FONT&#x27;,&#x27;BR&#x27;,&#x27;DIV&#x27;,&#x27;P&#x27;,&#x27;UL&#x27;,&#x27;OL&#x27;,&#x27;LI&#x27;]);
+ function clean(parent){
+  for(const node of Array.from(parent.childNodes)){
+   if(node.nodeType===3)continue;
+   if(node.nodeType!==1){node.remove();continue;}
+   if([&#x27;SCRIPT&#x27;,&#x27;STYLE&#x27;,&#x27;IFRAME&#x27;,&#x27;OBJECT&#x27;,&#x27;IMG&#x27;].includes(node.tagName)){node.remove();continue;}
+   clean(node);
+   if(!allowed.has(node.tagName)){node.replaceWith(...node.childNodes);continue;}
+   const style=node.getAttribute(&#x27;style&#x27;)||&#x27;&#x27;;
+   const font={face:node.getAttribute(&#x27;face&#x27;),color:node.getAttribute(&#x27;color&#x27;),size:node.getAttribute(&#x27;size&#x27;)};
+   for(const attr of Array.from(node.attributes))node.removeAttribute(attr.name);
+   const safeStyle=style.split(&#x27;;&#x27;).filter(rule=&gt;/^(font-family|font-size|font-weight|font-style|text-decoration|text-align|vertical-align|color|background-color|line-height|margin-left)\s*:/i.test(rule.trim())&amp;&amp;!/url\(|expression|var\(/i.test(rule)).join(&#x27;;&#x27;);
+   if(safeStyle)node.setAttribute(&#x27;style&#x27;,safeStyle);
+   if(node.tagName===&#x27;FONT&#x27;)for(const [key,value] of Object.entries(font))if(value&amp;&amp;/^[\w\s#.,-]+$/.test(value))node.setAttribute(key,value);
+  }
+ }
+ clean(template.content);return template.innerHTML;
 }
-div.Section1{ page: Section1; }
-body{font-family:Segoe UI, Arial, sans-serif;font-size:12pt;line-height:1.4;}
-&lt;/style&gt;`;
-  return `&lt;!doctype html&gt;&lt;html&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;${msoStyle}&lt;/head&gt;&lt;body&gt;&lt;div class=&quot;Section1&quot;&gt;${safe}&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;`;
+function wordReadRich(editor){const style=editor.style.textAlign?&#x27;text-align:&#x27;+editor.style.textAlign:&#x27;&#x27;;return cleanWordRichHtml(style?&#x27;&lt;div style=&quot;&#x27;+style+&#x27;&quot;&gt;&#x27;+editor.innerHTML+&#x27;&lt;/div&gt;&#x27;:editor.innerHTML);}
+function bindWordEditor(editor){
+ editor.setAttribute(&#x27;contenteditable&#x27;,&#x27;true&#x27;);editor.setAttribute(&#x27;spellcheck&#x27;,&#x27;true&#x27;);
+ editor.addEventListener(&#x27;focus&#x27;,()=&gt;{wordActiveEditor=editor;});
+ editor.addEventListener(&#x27;input&#x27;,()=&gt;{
+  studentHeaderDirty=true;
+  if(editor.dataset.wordSource!==undefined)wordQuestionRich.set(editor.dataset.wordSource,wordReadRich(editor));
+ });
+ editor.addEventListener(&#x27;blur&#x27;,event=&gt;{if(!event.relatedTarget?.closest(&#x27;.word-ribbon&#x27;))scheduleWordPreview();});
+ editor.addEventListener(&#x27;paste&#x27;,event=&gt;{
+  event.preventDefault();document.execCommand(&#x27;insertText&#x27;,false,event.clipboardData.getData(&#x27;text/plain&#x27;));
+ });
+}
+for(const id of [&#x27;wordApprovalText&#x27;,&#x27;wordDocumentTitle&#x27;]){
+ const editor=document.getElementById(id);
+ Object.defineProperty(editor,&#x27;value&#x27;,{get(){return this.innerText||&#x27;&#x27;;},set(value){this.textContent=value;}});
+ bindWordEditor(editor);
+}
+document.addEventListener(&#x27;selectionchange&#x27;,()=&gt;{
+ const selection=window.getSelection();if(!selection.rangeCount)return;
+ const range=selection.getRangeAt(0),node=range.commonAncestorContainer;
+ const el=node.nodeType===1?node:node.parentElement;
+ const editor=el?.closest(&#x27;[contenteditable=&quot;true&quot;]&#x27;);
+ if(editor?.closest(&#x27;#wordHeaderEditor&#x27;)){wordActiveEditor=editor;wordSavedRange=range.cloneRange();}
+});
+function wordRestoreSelection(){
+ if(!wordActiveEditor?.isConnected)return false;
+ wordActiveEditor.focus();
+ if(wordSavedRange){try{const selection=window.getSelection();selection.removeAllRanges();selection.addRange(wordSavedRange);}catch(e){}}
+ return true;
+}
+function runWordCommand(command,value){
+ if(!wordRestoreSelection())return;
+ document.execCommand(&#x27;styleWithCSS&#x27;,false,true);
+ document.execCommand(command,false,value);
+ const align={justifyLeft:&#x27;left&#x27;,justifyCenter:&#x27;center&#x27;,justifyRight:&#x27;right&#x27;,justifyFull:&#x27;both&#x27;}[command];
+ if(align&amp;&amp;wordActiveEditor.id===&#x27;wordApprovalText&#x27;)document.getElementById(&#x27;wordApprovalAlign&#x27;).value=align;
+ if(align&amp;&amp;wordActiveEditor.id===&#x27;wordDocumentTitle&#x27;)document.getElementById(&#x27;wordTitleAlign&#x27;).value=align;
+
+ studentHeaderDirty=true;
+ if(wordActiveEditor.dataset.wordSource!==undefined)wordQuestionRich.set(wordActiveEditor.dataset.wordSource,wordReadRich(wordActiveEditor));
+ const selection=window.getSelection();if(selection.rangeCount)wordSavedRange=selection.getRangeAt(0).cloneRange();
+}
+for(const button of document.querySelectorAll(&#x27;[data-word-command]&#x27;)){
+ button.addEventListener(&#x27;mousedown&#x27;,e=&gt;e.preventDefault());
+ button.addEventListener(&#x27;click&#x27;,()=&gt;runWordCommand(button.dataset.wordCommand));
+}
+document.getElementById(&#x27;wordTextColor&#x27;).addEventListener(&#x27;input&#x27;,e=&gt;runWordCommand(&#x27;foreColor&#x27;,e.target.value));
+document.getElementById(&#x27;wordHighlightColor&#x27;).addEventListener(&#x27;input&#x27;,e=&gt;runWordCommand(&#x27;hiliteColor&#x27;,e.target.value));
+for(const id of [&#x27;wordFontFamily&#x27;,&#x27;wordFontSize&#x27;]){
+ const field=document.getElementById(id);
+ field.addEventListener(&#x27;focus&#x27;,()=&gt;{field.dataset.beforeEdit=field.value;});
+ field.addEventListener(&#x27;change&#x27;,()=&gt;{
+  if(!wordSavedRange||wordSavedRange.collapsed||!wordActiveEditor?.isConnected)return;
+  const value=field.value;
+  if(id===&#x27;wordFontFamily&#x27;)runWordCommand(&#x27;fontName&#x27;,value);
+  else{
+   runWordCommand(&#x27;fontSize&#x27;,&#x27;7&#x27;);
+   wordActiveEditor.querySelectorAll(&#x27;font[size=&quot;7&quot;]&#x27;).forEach(font=&gt;{font.removeAttribute(&#x27;size&#x27;);font.style.fontSize=wordApprovalSize(value,8,24,12)+&#x27;pt&#x27;;});
+   if(wordActiveEditor.dataset.wordSource!==undefined)wordQuestionRich.set(wordActiveEditor.dataset.wordSource,wordReadRich(wordActiveEditor));
+  }
+  if(field.dataset.beforeEdit)field.value=field.dataset.beforeEdit;
+ });
+}
+function wordRichRuns(value,paragraph,run){
+ const holder=document.createElement(&#x27;div&#x27;);holder.innerHTML=cleanWordRichHtml(value);
+ const rows=[];let pieces=[];let alignment=&#x27;&#x27;;
+ const flush=()=&gt;{rows.push({runs:pieces.join(&#x27;&#x27;),alignment});pieces=[];};
+ function visit(node,props={}){
+  if(node.nodeType===3){pieces.push(run(node.data,props));return;}
+  if(node.nodeType!==1)return;
+  if(node.tagName===&#x27;BR&#x27;){flush();return;}
+  const block=[&#x27;DIV&#x27;,&#x27;P&#x27;,&#x27;LI&#x27;].includes(node.tagName);
+  if(block&amp;&amp;pieces.length)flush();
+  const style=node.style,next={...props};
+  if([&#x27;B&#x27;,&#x27;STRONG&#x27;].includes(node.tagName)||Number(style.fontWeight)&gt;=600||style.fontWeight===&#x27;bold&#x27;)next.bold=true;
+  if(style.fontWeight===&#x27;normal&#x27;||style.fontWeight===&#x27;400&#x27;)next.bold=false;
+  if([&#x27;I&#x27;,&#x27;EM&#x27;].includes(node.tagName)||style.fontStyle===&#x27;italic&#x27;)next.italic=true;
+  if(node.tagName===&#x27;U&#x27;||style.textDecoration.includes(&#x27;underline&#x27;))next.underline=true;
+  if([&#x27;S&#x27;,&#x27;STRIKE&#x27;].includes(node.tagName)||style.textDecoration.includes(&#x27;line-through&#x27;))next.strike=true;
+  if(node.tagName===&#x27;SUB&#x27;)next.vert=&#x27;subscript&#x27;;if(node.tagName===&#x27;SUP&#x27;)next.vert=&#x27;superscript&#x27;;
+  if(style.fontFamily||node.getAttribute(&#x27;face&#x27;))next.font=style.fontFamily||node.getAttribute(&#x27;face&#x27;);
+  if(style.fontSize){let size=parseFloat(style.fontSize);if(style.fontSize.endsWith(&#x27;px&#x27;))size*=.75;if(Number.isFinite(size))next.size=size;}
+  if(style.color||node.getAttribute(&#x27;color&#x27;))next.color=style.color||node.getAttribute(&#x27;color&#x27;);
+  if(style.backgroundColor)next.background=style.backgroundColor;
+  if(style.textAlign)alignment=style.textAlign===&#x27;justify&#x27;?&#x27;both&#x27;:style.textAlign;
+  if(node.tagName===&#x27;LI&#x27;)pieces.push(run(node.parentElement.tagName===&#x27;OL&#x27;?(Array.from(node.parentElement.children).indexOf(node)+1)+&#x27;. &#x27;:&#x27;• &#x27;,next));
+  for(const child of node.childNodes)visit(child,next);
+  if(block)flush();
+ }
+ for(const child of holder.childNodes)visit(child);
+ if(pieces.length||!rows.length)flush();
+ return rows.map(row=&gt;paragraph(row.runs,row.alignment)).join(&#x27;&#x27;);
+}
+
+function studentHeaderSettings(){
+ const settings=Object.fromEntries(studentHeaderFields.map(id=&gt;[id,[&#x27;wordHeaderEnabled&#x27;,&#x27;wordTwoColumns&#x27;].includes(id)?document.getElementById(id).checked:(id===&#x27;wordDocumentTitle&#x27;?document.getElementById(id).value:document.getElementById(id).value.trim())]));
+ settings.wordRichApproval=wordReadRich(document.getElementById(&#x27;wordApprovalText&#x27;));
+ settings.wordRichTitle=wordReadRich(document.getElementById(&#x27;wordDocumentTitle&#x27;));
+ settings.wordRichQuestions=Array.from(wordQuestionRich);
+ return settings;
+}
+function saveStudentWordHeader(notify=true){
+ studentHeaderDirty=true;
+ window.parent.postMessage({type:&#x27;student-word-header-save&#x27;,settings:studentHeaderSettings()},&#x27;*&#x27;);
+ const status=document.getElementById(&#x27;wordHeaderStatus&#x27;);
+ status.hidden=!notify;
+ status.textContent=&#x27;Sarlavha saqlanmoqda…&#x27;;
+}
+window.addEventListener(&#x27;message&#x27;,event=&gt;{
+ if(event.source!==window.parent)return;
+ if(event.data?.type===&#x27;student-word-header-settings&#x27;&amp;&amp;!studentHeaderDirty){
+  const settings=event.data.settings;
+  if(!settings||typeof settings!==&#x27;object&#x27;)return;
+  if(typeof settings.wordApprovalText!==&#x27;string&#x27;&amp;&amp;typeof settings.wordFaculty===&#x27;string&#x27;){
+   settings.wordApprovalText=[&#x27;“TASDIQLAYMAN”&#x27;,settings.wordFaculty+&#x27; fakultetining&#x27;,&#x27;“&#x27;+(settings.wordDepartment||&#x27;&#x27;)+&#x27;” &#x27;+(settings.wordApproverRole||&#x27;&#x27;),&#x27;________ &#x27;+(settings.wordApprover||&#x27;&#x27;),settings.wordDate||&#x27;&#x27;].join(&#x27;\n&#x27;);
+   settings.wordDocumentTitle=(settings.wordSubject?&#x27;“&#x27;+settings.wordSubject+&#x27;” fanidan &#x27;:&#x27;&#x27;)+(settings.wordAssessment||&#x27;&#x27;);
+  }
+  for(const id of studentHeaderFields){
+   const field=document.getElementById(id);
+   if([&#x27;wordHeaderEnabled&#x27;,&#x27;wordTwoColumns&#x27;].includes(id)){if(typeof settings[id]===&#x27;boolean&#x27;)field.checked=settings[id];}
+   else if(typeof settings[id]===&#x27;string&#x27;)field.value=settings[id];
+  }
+  if(typeof settings.wordRichApproval===&#x27;string&#x27;)document.getElementById(&#x27;wordApprovalText&#x27;).innerHTML=cleanWordRichHtml(settings.wordRichApproval);
+  if(typeof settings.wordRichTitle===&#x27;string&#x27;)document.getElementById(&#x27;wordDocumentTitle&#x27;).innerHTML=cleanWordRichHtml(settings.wordRichTitle);
+  if(Array.isArray(settings.wordRichQuestions))for(const pair of settings.wordRichQuestions)if(Array.isArray(pair)&amp;&amp;pair.length===2&amp;&amp;pair.every(x=&gt;typeof x===&#x27;string&#x27;))wordQuestionRich.set(pair[0],cleanWordRichHtml(pair[1]));
+  syncWordApprovalBox();
+ }
+ if(event.data?.type===&#x27;student-word-header-saved&#x27;){
+  document.getElementById(&#x27;wordHeaderStatus&#x27;).textContent=event.data.saved?&#x27;Sarlavha saqlandi.&#x27;:&#x27;Sarlavhani doimiy saqlab bo‘lmadi. Joriy yuklab olishda kiritilgan matn ishlatiladi.&#x27;;
+ }
+});
+for(const id of studentHeaderFields)document.getElementById(id).addEventListener(&#x27;input&#x27;,()=&gt;{studentHeaderDirty=true;});
+window.parent.postMessage({type:&#x27;student-word-header-load&#x27;},&#x27;*&#x27;);
+function escapeStudentWord(value){return String(value??&#x27;&#x27;).replace(/[&amp;&lt;&gt;&quot;&#x27;]/g,char=&gt;({&#x27;&amp;&#x27;:&#x27;&amp;amp;&#x27;,&#x27;&lt;&#x27;:&#x27;&amp;lt;&#x27;,&#x27;&gt;&#x27;:&#x27;&amp;gt;&#x27;,&#x27;&quot;&#x27;:&#x27;&amp;quot;&#x27;,&quot;&#x27;&quot;:&#x27;&amp;#39;&#x27;}[char]));}
+function wordApprovalSize(value,min,max,fallback){const n=Number(value);return Number.isFinite(n)?Math.min(max,Math.max(min,n)):fallback;}
+function syncWordApprovalBox(){
+ const box=document.getElementById(&#x27;wordApprovalBox&#x27;);
+ box.style.width=wordApprovalSize(document.getElementById(&#x27;wordApprovalWidth&#x27;).value,40,174,85)+&#x27;mm&#x27;;
+ box.style.height=wordApprovalSize(document.getElementById(&#x27;wordApprovalHeight&#x27;).value,20,200,48)+&#x27;mm&#x27;;
+}
+let wordPreviewTimer;
+function scheduleWordPreview(){
+ clearTimeout(wordPreviewTimer);
+ wordPreviewTimer=setTimeout(renderFirstVariantPages,120);
+}
+function syncStudentWordColumns(){scheduleWordPreview();}
+function makeWordPreviewColumns(page,height,two,font,size,spacing){
+ const area=document.createElement(&#x27;div&#x27;);
+ area.className=&#x27;word-preview-columns&#x27;;
+ area.style.cssText=&#x27;display:grid;grid-template-columns:&#x27;+(two?&#x27;repeat(2,minmax(0,1fr))&#x27;:&#x27;minmax(0,1fr)&#x27;)+&#x27;;gap:8mm;height:&#x27;+Math.max(20,height)+&#x27;px;font-family:&#x27;+font+&#x27;;font-size:&#x27;+size+&#x27;pt;line-height:&#x27;+spacing+&#x27;;white-space:pre-wrap&#x27;;
+ area.style.textAlign=wordCssAlignment(document.getElementById(&#x27;wordQuestionAlign&#x27;).value);
+ page.append(area);
+ return Array.from({length:two?2:1},()=&gt;{
+  const column=document.createElement(&#x27;div&#x27;);
+  column.style.cssText=&#x27;min-width:0;height:100%;overflow:hidden;overflow-wrap:break-word&#x27;;area.append(column);return column;
+ });
+}
+const wordAlignmentFields={approval:&#x27;wordApprovalAlign&#x27;,title:&#x27;wordTitleAlign&#x27;,questions:&#x27;wordQuestionAlign&#x27;};
+function wordCssAlignment(value){return value===&#x27;both&#x27;?&#x27;justify&#x27;:([&#x27;left&#x27;,&#x27;center&#x27;,&#x27;right&#x27;].includes(value)?value:&#x27;left&#x27;);}
+function syncWordAlignmentButtons(){
+ const field=wordAlignmentFields[document.getElementById(&#x27;wordAlignmentTarget&#x27;).value];
+ const value=document.getElementById(field).value;
+ document.querySelectorAll(&#x27;.word-align-button&#x27;).forEach(button=&gt;button.setAttribute(&#x27;aria-pressed&#x27;,String(button.dataset.align===value)));
+}
+for(const button of document.querySelectorAll(&#x27;.word-align-button&#x27;))button.addEventListener(&#x27;click&#x27;,()=&gt;{
+ const field=document.getElementById(wordAlignmentFields[document.getElementById(&#x27;wordAlignmentTarget&#x27;).value]);
+ field.value=button.dataset.align;studentHeaderDirty=true;syncWordAlignmentButtons();scheduleWordPreview();
+});
+document.getElementById(&#x27;wordAlignmentTarget&#x27;).addEventListener(&#x27;change&#x27;,syncWordAlignmentButtons);
+for(const [id,target] of [[&#x27;wordApprovalText&#x27;,&#x27;approval&#x27;],[&#x27;wordDocumentTitle&#x27;,&#x27;title&#x27;]])document.getElementById(id).addEventListener(&#x27;focus&#x27;,()=&gt;{
+ document.getElementById(&#x27;wordAlignmentTarget&#x27;).value=target;syncWordAlignmentButtons();
+});
+
+function renderFirstVariantPages(){
+ const dialog=document.getElementById(&#x27;wordHeaderEditor&#x27;);
+ if(!dialog.open)return;
+ const paper=document.getElementById(&#x27;wordHeaderPaper&#x27;),viewport=document.getElementById(&#x27;wordPaperViewport&#x27;);
+ const settings=studentHeaderSettings();
+ const font=[&#x27;Times New Roman&#x27;,&#x27;Arial&#x27;,&#x27;Calibri&#x27;].includes(settings.wordFontFamily)?settings.wordFontFamily:&#x27;Times New Roman&#x27;;
+ const size=wordApprovalSize(settings.wordFontSize,8,24,12);
+ const spacing=wordApprovalSize(settings.wordLineSpacing,1,2.5,1.25);
+ const enabled=settings.wordHeaderEnabled;
+ syncWordAlignmentButtons();
+ const box=document.getElementById(&#x27;wordApprovalBox&#x27;),approval=document.getElementById(&#x27;wordApprovalText&#x27;),title=document.getElementById(&#x27;wordDocumentTitle&#x27;);
+ box.hidden=!enabled;title.hidden=!enabled;
+ approval.style.setProperty(&#x27;font-family&#x27;,font,&#x27;important&#x27;);
+ approval.style.setProperty(&#x27;font-size&#x27;,size+&#x27;pt&#x27;,&#x27;important&#x27;);
+ approval.style.setProperty(&#x27;line-height&#x27;,spacing,&#x27;important&#x27;);
+ title.style.setProperty(&#x27;font-family&#x27;,font,&#x27;important&#x27;);
+ title.style.setProperty(&#x27;font-size&#x27;,size+&#x27;pt&#x27;,&#x27;important&#x27;);
+ title.style.setProperty(&#x27;line-height&#x27;,spacing,&#x27;important&#x27;);
+ title.style.textAlign=wordCssAlignment(settings.wordTitleAlign);
+ approval.style.textAlign=wordCssAlignment(settings.wordApprovalAlign);
+ title.style.height=&#x27;0px&#x27;;title.style.height=title.scrollHeight+&#x27;px&#x27;;
+ box.style.height=Math.max(wordApprovalSize(settings.wordApprovalHeight,20,200,48)*96/25.4,approval.scrollHeight+2)+&#x27;px&#x27;;
+ for(const page of viewport.querySelectorAll(&#x27;.word-continuation-page&#x27;))page.remove();
+ paper.querySelectorAll(&#x27;.word-preview-columns,.word-page-number&#x27;).forEach(el=&gt;el.remove());
+ const original=document.getElementById(&#x27;wordEditorQuestions&#x27;);original.hidden=true;
+ const heading=document.getElementById(&#x27;wordPreviewVariantHeading&#x27;);
+ heading.style.fontFamily=font;heading.style.fontSize=size+&#x27;pt&#x27;;heading.style.lineHeight=spacing;
+ const text=buildStudentTextFromVariantOutput();
+ const match=/^VARIANT\s+\d+[^\n]*$/m.exec(text);
+ let first=&#x27;&#x27;;
+ if(match){
+  const rest=text.slice(match.index+match[0].length);
+  const next=/^VARIANT\s+\d+[^\n]*$/m.exec(rest);
+  first=(next?rest.slice(0,next.index):rest).trim();
+  heading.textContent=match[0];
+ }else heading.textContent=&#x27;VARIANT 1&#x27;;
+ const counter=document.getElementById(&#x27;wordPreviewPageCount&#x27;);
+ if(!first){counter.textContent=&#x27;Avval variantlarni yasang.&#x27;;return;}
+ const pageHeight=297*96/25.4,paddingBottom=20*96/25.4;
+ const available=paper.getBoundingClientRect().top+pageHeight-paddingBottom-heading.getBoundingClientRect().bottom-8;
+ let pageCount=1;
+ let columns=makeWordPreviewColumns(paper,available,settings.wordTwoColumns,font,size,spacing),columnIndex=0;
+ function numberPage(page,n){const label=document.createElement(&#x27;span&#x27;);label.className=&#x27;word-page-number&#x27;;label.textContent=n+&#x27;-bet&#x27;;page.append(label);}
+ numberPage(paper,1);
+ function nextColumn(){
+  columnIndex++;
+  if(columnIndex&lt;columns.length)return;
+  const page=document.createElement(&#x27;div&#x27;);page.className=&#x27;word-continuation-page&#x27;;viewport.append(page);
+  columns=makeWordPreviewColumns(page,pageHeight-40*96/25.4,settings.wordTwoColumns,font,size,spacing);
+  columnIndex=0;numberPage(page,++pageCount);
+ }
+ function fits(element,column){column.append(element);return column.scrollHeight&lt;=column.clientHeight+1;}
+ for(const line of first.split(&#x27;\n&#x27;)){
+  let remaining=line;
+  let paragraph=document.createElement(&#x27;p&#x27;);paragraph.style.cssText=&#x27;margin:0;padding:0;white-space:pre-wrap;overflow-wrap:break-word&#x27;;
+  paragraph.dataset.wordSource=line;
+  if(wordQuestionRich.has(line))paragraph.innerHTML=wordQuestionRich.get(line);
+  else paragraph.textContent=remaining||&#x27;\u00a0&#x27;;
+  bindWordEditor(paragraph);
+  if(wordQuestionRich.has(line))remaining=paragraph.innerText;
+  if(fits(paragraph,columns[columnIndex]))continue;
+  paragraph.remove();
+  if(columns[columnIndex].childNodes.length){nextColumn();if(fits(paragraph,columns[columnIndex]))continue;paragraph.remove();}
+  while(remaining){
+   const column=columns[columnIndex];let low=1,high=remaining.length,accepted=0;
+   column.append(paragraph);
+   while(low&lt;=high){const mid=Math.floor((low+high)/2);paragraph.textContent=remaining.slice(0,mid);if(column.scrollHeight&lt;=column.clientHeight+1){accepted=mid;low=mid+1;}else high=mid-1;}
+   if(accepted===0){paragraph.remove();nextColumn();continue;}
+   if(accepted&lt;remaining.length){const boundary=remaining.lastIndexOf(&#x27; &#x27;,accepted);if(boundary&gt;0)accepted=boundary+1;}
+   paragraph.textContent=remaining.slice(0,accepted);remaining=remaining.slice(accepted);
+   if(remaining){nextColumn();paragraph=document.createElement(&#x27;p&#x27;);paragraph.style.cssText=&#x27;margin:0;padding:0;white-space:pre-wrap;overflow-wrap:break-word&#x27;;}
+  }
+ }
+ counter.textContent=&#x27;1-variant — &#x27;+pageCount+&#x27; bet (taxminiy)&#x27;;
+}
+for(const id of [&#x27;wordFontFamily&#x27;,&#x27;wordFontSize&#x27;,&#x27;wordLineSpacing&#x27;,&#x27;wordTwoColumns&#x27;,&#x27;wordHeaderEnabled&#x27;,&#x27;wordApprovalText&#x27;,&#x27;wordDocumentTitle&#x27;,&#x27;wordApprovalWidth&#x27;,&#x27;wordApprovalHeight&#x27;]){
+ document.getElementById(id).addEventListener(&#x27;input&#x27;,scheduleWordPreview);
+ document.getElementById(id).addEventListener(&#x27;change&#x27;,scheduleWordPreview);
+}
+
+function openWordHeaderEditor(){
+ const text=buildStudentTextFromVariantOutput();
+ const first=text.split(/^VARIANT\s+\d+[^\n]*$/m).filter(part=&gt;part.trim())[0]||&#x27;1. Savol matni\na) Javob varianti\nb) Javob varianti\nc) Javob varianti\nd) Javob varianti&#x27;;
+ document.getElementById(&#x27;wordEditorQuestions&#x27;).textContent=first.trim();
+ document.getElementById(&#x27;wordHeaderEditor&#x27;).showModal();
+ syncWordApprovalBox();
+ requestAnimationFrame(renderFirstVariantPages);
+ document.getElementById(&#x27;wordHeaderPaper&#x27;).style.zoom=&#x27;1&#x27;;
+ document.getElementById(&#x27;wordPaperViewport&#x27;).scrollTop=0;
+}
+for(const id of [&#x27;wordApprovalWidth&#x27;,&#x27;wordApprovalHeight&#x27;])document.getElementById(id).addEventListener(&#x27;input&#x27;,syncWordApprovalBox);
+const approvalBox=document.getElementById(&#x27;wordApprovalBox&#x27;);
+new ResizeObserver(()=&gt;{
+ if(!document.getElementById(&#x27;wordHeaderEditor&#x27;).open)return;
+ document.getElementById(&#x27;wordApprovalWidth&#x27;).value=Math.round(approvalBox.offsetWidth*25.4/96);
+ document.getElementById(&#x27;wordApprovalHeight&#x27;).value=Math.round(approvalBox.offsetHeight*25.4/96);
+ scheduleWordPreview();
+}).observe(approvalBox);
+function studentWordApproval(settings){
+ const width=wordApprovalSize(settings.wordApprovalWidth,40,174,85);
+ const height=wordApprovalSize(settings.wordApprovalHeight,20,200,48);
+ const percent=Math.round(width/174*100);
+ return &#x27;&lt;table class=&quot;approval-table&quot; width=&quot;100%&quot; style=&quot;width:100%;table-layout:fixed;border-collapse:collapse;border:0&quot;&gt;&lt;tr&gt;&lt;td width=&quot;&#x27;+(100-percent)+&#x27;%&quot; style=&quot;border:0;padding:0&quot;&gt;&lt;/td&gt;&lt;td width=&quot;&#x27;+percent+&#x27;%&quot; style=&quot;width:&#x27;+width+&#x27;mm;height:&#x27;+height+&#x27;mm;border:0;padding:0;text-align:center;vertical-align:top;font-weight:bold&quot;&gt;&#x27;+escapeStudentWord(settings.wordApprovalText).replace(/\n/g,&#x27;&lt;br&gt;&#x27;)+&#x27;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&#x27;+ 
+  &#x27;&lt;p class=&quot;exam-title&quot; style=&quot;text-align:center;margin:10pt 0 12pt&quot;&gt;&#x27;+escapeStudentWord(settings.wordDocumentTitle).replace(/\n/g,&#x27;&lt;br&gt;&#x27;)+&#x27;&lt;/p&gt;&#x27;;
+}
+function studentDocxPackage(files){
+ const encoder=new TextEncoder(),chunks=[],central=[];
+ let offset=0;
+ const header=size=&gt;new Uint8Array(size);
+ const crc=bytes=&gt;{
+  let value=0xffffffff;
+  for(const byte of bytes){value^=byte;for(let bit=0;bit&lt;8;bit++)value=(value&gt;&gt;&gt;1)^((value&amp;1)?0xedb88320:0);}
+  return (value^0xffffffff)&gt;&gt;&gt;0;
+ };
+ for(const [name,text] of Object.entries(files)){
+  const path=encoder.encode(name),data=encoder.encode(text),sum=crc(data);
+  const local=header(30),lv=new DataView(local.buffer);
+  lv.setUint32(0,0x04034b50,true);lv.setUint16(4,20,true);lv.setUint32(14,sum,true);
+  lv.setUint32(18,data.length,true);lv.setUint32(22,data.length,true);lv.setUint16(26,path.length,true);
+  chunks.push(local,path,data);
+  const entry=header(46),ev=new DataView(entry.buffer);
+  ev.setUint32(0,0x02014b50,true);ev.setUint16(4,20,true);ev.setUint16(6,20,true);
+  ev.setUint32(16,sum,true);ev.setUint32(20,data.length,true);ev.setUint32(24,data.length,true);
+  ev.setUint16(28,path.length,true);ev.setUint32(42,offset,true);
+  central.push(entry,path);offset+=local.length+path.length+data.length;
+ }
+ const centralSize=central.reduce((n,part)=&gt;n+part.length,0),end=header(22),view=new DataView(end.buffer);
+ view.setUint32(0,0x06054b50,true);view.setUint16(8,Object.keys(files).length,true);view.setUint16(10,Object.keys(files).length,true);
+ view.setUint32(12,centralSize,true);view.setUint32(16,offset,true);
+ return new Blob([...chunks,...central,end],{type:&#x27;application/vnd.openxmlformats-officedocument.wordprocessingml.document&#x27;});
+}
+function buildStudentDocx(plain){
+ const settings=studentHeaderSettings(),e=escapeStudentWord;
+ const font=[&#x27;Times New Roman&#x27;,&#x27;Arial&#x27;,&#x27;Calibri&#x27;].includes(settings.wordFontFamily)?settings.wordFontFamily:&#x27;Times New Roman&#x27;;
+ const fontSize=wordApprovalSize(settings.wordFontSize,8,24,12);
+ const lineSpacing=wordApprovalSize(settings.wordLineSpacing,1,2.5,1.25);
+
+ const run=(text,bold=false)=&gt;&#x27;&lt;w:r&gt;&lt;w:rPr&gt;&lt;w:rFonts w:ascii=&quot;&#x27;+e(font)+&#x27;&quot; w:hAnsi=&quot;&#x27;+e(font)+&#x27;&quot;/&gt;&#x27;+(bold?&#x27;&lt;w:b/&gt;&#x27;:&#x27;&#x27;)+&#x27;&lt;w:sz w:val=&quot;&#x27;+Math.round(fontSize*2)+&#x27;&quot;/&gt;&lt;/w:rPr&gt;&lt;w:t xml:space=&quot;preserve&quot;&gt;&#x27;+e(text)+&#x27;&lt;/w:t&gt;&lt;/w:r&gt;&#x27;;
+ const paragraph=(text,center=false,bold=false,keep=false)=&gt;&#x27;&lt;w:p&gt;&lt;w:pPr&gt;&lt;w:spacing w:before=&quot;0&quot; w:after=&quot;0&quot; w:line=&quot;&#x27;+Math.round(lineSpacing*240)+&#x27;&quot; w:lineRule=&quot;auto&quot;/&gt;&#x27;+&#x27;&lt;w:jc w:val=&quot;&#x27;+(center===true?&#x27;center&#x27;:([&#x27;left&#x27;,&#x27;center&#x27;,&#x27;right&#x27;,&#x27;both&#x27;].includes(center)?center:&#x27;left&#x27;))+&#x27;&quot;/&gt;&#x27;+(keep?&#x27;&lt;w:keepNext/&gt;&#x27;:&#x27;&#x27;)+&#x27;&lt;/w:pPr&gt;&#x27;+run(text,bold)+&#x27;&lt;/w:p&gt;&#x27;;
+ const colorHex=value=&gt;{
+  if(/^#[0-9a-f]{6}$/i.test(value||&#x27;&#x27;))return value.slice(1);
+  const rgb=String(value||&#x27;&#x27;).match(/^rgb\(\s*(\d+)[, ]+\s*(\d+)[, ]+\s*(\d+)\s*\)$/);
+  return rgb?rgb.slice(1).map(n=&gt;Math.min(255,Number(n)).toString(16).padStart(2,&#x27;0&#x27;)).join(&#x27;&#x27;):null;
+ };
+ const richRun=(text,props={})=&gt;{
+  let properties=&#x27;&lt;w:rFonts w:ascii=&quot;&#x27;+e(props.font||font)+&#x27;&quot; w:hAnsi=&quot;&#x27;+e(props.font||font)+&#x27;&quot;/&gt;&lt;w:sz w:val=&quot;&#x27;+Math.round((props.size||fontSize)*2)+&#x27;&quot;/&gt;&#x27;;
+  if(props.bold)properties+=&#x27;&lt;w:b/&gt;&#x27;;if(props.italic)properties+=&#x27;&lt;w:i/&gt;&#x27;;if(props.underline)properties+=&#x27;&lt;w:u w:val=&quot;single&quot;/&gt;&#x27;;if(props.strike)properties+=&#x27;&lt;w:strike/&gt;&#x27;;
+  if(props.vert)properties+=&#x27;&lt;w:vertAlign w:val=&quot;&#x27;+props.vert+&#x27;&quot;/&gt;&#x27;;
+  const color=colorHex(props.color),background=colorHex(props.background);
+  if(color)properties+=&#x27;&lt;w:color w:val=&quot;&#x27;+color+&#x27;&quot;/&gt;&#x27;;
+  if(background)properties+=&#x27;&lt;w:shd w:fill=&quot;&#x27;+background+&#x27;&quot;/&gt;&#x27;;
+  return &#x27;&lt;w:r&gt;&lt;w:rPr&gt;&#x27;+properties+&#x27;&lt;/w:rPr&gt;&lt;w:t xml:space=&quot;preserve&quot;&gt;&#x27;+e(text)+&#x27;&lt;/w:t&gt;&lt;/w:r&gt;&#x27;;
+ };
+ const richParagraphs=(markup,align,keep=false,bold=false)=&gt;wordRichRuns(markup,(runs,alignment)=&gt;&#x27;&lt;w:p&gt;&lt;w:pPr&gt;&lt;w:spacing w:before=&quot;0&quot; w:after=&quot;0&quot; w:line=&quot;&#x27;+Math.round(lineSpacing*240)+&#x27;&quot; w:lineRule=&quot;auto&quot;/&gt;&lt;w:jc w:val=&quot;&#x27;+([&#x27;left&#x27;,&#x27;center&#x27;,&#x27;right&#x27;,&#x27;both&#x27;].includes(alignment)?alignment:align)+&#x27;&quot;/&gt;&#x27;+(keep?&#x27;&lt;w:keepNext/&gt;&#x27;:&#x27;&#x27;)+&#x27;&lt;/w:pPr&gt;&#x27;+runs+&#x27;&lt;/w:p&gt;&#x27;,(text,props)=&gt;richRun(text,{bold,...props}));
+ const text=String(plain).replace(/\r\n/g,&#x27;\n&#x27;);
+ const starts=Array.from(text.matchAll(/^VARIANT\s+\d+[^\n]*$/gm),m=&gt;m.index);
+ const variants=starts.length?starts.map((start,i)=&gt;text.slice(start,starts[i+1]??text.length).trim()):[text.trim()];
+ const sectionProperties=(columns,start)=&gt;&#x27;&lt;w:sectPr&gt;&lt;w:type w:val=&quot;&#x27;+start+&#x27;&quot;/&gt;&lt;w:pgSz w:w=&quot;11906&quot; w:h=&quot;16838&quot;/&gt;&lt;w:pgMar w:top=&quot;1134&quot; w:right=&quot;1021&quot; w:bottom=&quot;1134&quot; w:left=&quot;1021&quot;/&gt;&lt;w:cols w:num=&quot;&#x27;+columns+&#x27;&quot; w:space=&quot;454&quot;/&gt;&lt;/w:sectPr&gt;&#x27;;
+ const sections=[];
+ let body=&#x27;&#x27;;
+ variants.forEach((variant,i)=&gt;{
+  if(i&amp;&amp;!settings.wordTwoColumns)body+=&#x27;&lt;w:p&gt;&lt;w:pPr&gt;&lt;w:spacing w:before=&quot;0&quot; w:after=&quot;0&quot;/&gt;&lt;/w:pPr&gt;&lt;w:r&gt;&lt;w:br w:type=&quot;page&quot;/&gt;&lt;/w:r&gt;&lt;/w:p&gt;&#x27;;
+  if(settings.wordHeaderEnabled){
+   const right=Math.round(wordApprovalSize(settings.wordApprovalWidth,40,174,85)*1440/25.4),left=9864-right;
+   const height=Math.round(wordApprovalSize(settings.wordApprovalHeight,20,200,48)*1440/25.4);
+   const cell=(width,content)=&gt;&#x27;&lt;w:tc&gt;&lt;w:tcPr&gt;&lt;w:tcW w:w=&quot;&#x27;+width+&#x27;&quot; w:type=&quot;dxa&quot;/&gt;&lt;w:vAlign w:val=&quot;top&quot;/&gt;&lt;/w:tcPr&gt;&#x27;+content+&#x27;&lt;/w:tc&gt;&#x27;;
+   body+=&#x27;&lt;w:tbl&gt;&lt;w:tblPr&gt;&lt;w:tblW w:w=&quot;9864&quot; w:type=&quot;dxa&quot;/&gt;&lt;w:tblLayout w:type=&quot;fixed&quot;/&gt;&lt;/w:tblPr&gt;&lt;w:tblGrid&gt;&lt;w:gridCol w:w=&quot;&#x27;+left+&#x27;&quot;/&gt;&lt;w:gridCol w:w=&quot;&#x27;+right+&#x27;&quot;/&gt;&lt;/w:tblGrid&gt;&lt;w:tr&gt;&lt;w:trPr&gt;&lt;w:cantSplit/&gt;&lt;w:trHeight w:val=&quot;&#x27;+height+&#x27;&quot; w:hRule=&quot;atLeast&quot;/&gt;&lt;/w:trPr&gt;&#x27;+cell(left,paragraph(&#x27;&#x27;,false,false,true))+cell(right,(settings.wordRichApproval?richParagraphs(settings.wordRichApproval,settings.wordApprovalAlign||&#x27;center&#x27;,true,true):String(settings.wordApprovalText).split(&#x27;\n&#x27;).map(line=&gt;paragraph(line,settings.wordApprovalAlign||&#x27;center&#x27;,true,true)).join(&#x27;&#x27;)))+&#x27;&lt;/w:tr&gt;&lt;/w:tbl&gt;&#x27;;
+   body+=(settings.wordRichTitle?richParagraphs(settings.wordRichTitle,settings.wordTitleAlign||&#x27;center&#x27;,true):String(settings.wordDocumentTitle).replace(/\r\n/g,&#x27;\n&#x27;).split(&#x27;\n&#x27;).map(line=&gt;paragraph(line,settings.wordTitleAlign||&#x27;center&#x27;,false,true)).join(&#x27;&#x27;));
+  }
+  const lines=variant.split(&#x27;\n&#x27;),heading=/^VARIANT\s+\d+/i.test(lines[0])?lines.shift():&#x27;VARIANT &#x27;+(i+1);
+  body+=paragraph(heading,true,false,true);
+  const questions=lines.join(&#x27;\n&#x27;).trim().split(&#x27;\n&#x27;).map(line=&gt;wordQuestionRich.has(line)?richParagraphs(wordQuestionRich.get(line),settings.wordQuestionAlign||&#x27;left&#x27;):paragraph(line,settings.wordQuestionAlign||&#x27;left&#x27;)).join(&#x27;&#x27;);
+  if(settings.wordTwoColumns){
+   sections.push({content:body,columns:1,start:&#x27;nextPage&#x27;});
+   sections.push({content:questions,columns:2,start:&#x27;continuous&#x27;});
+   body=&#x27;&#x27;;
+  }else body+=questions;
+ });
+ let finalSection=&#x27;&lt;w:sectPr&gt;&lt;w:pgSz w:w=&quot;11906&quot; w:h=&quot;16838&quot;/&gt;&lt;w:pgMar w:top=&quot;1134&quot; w:right=&quot;1021&quot; w:bottom=&quot;1134&quot; w:left=&quot;1021&quot;/&gt;&lt;/w:sectPr&gt;&#x27;;
+ if(settings.wordTwoColumns){
+  body=sections.map((section,index)=&gt;{
+   const props=sectionProperties(section.columns,section.start);
+   if(index===sections.length-1){finalSection=props;return section.content;}
+   return section.content+&#x27;&lt;w:p&gt;&lt;w:pPr&gt;&lt;w:spacing w:before=&quot;0&quot; w:after=&quot;0&quot; w:line=&quot;20&quot;/&gt;&#x27;+props+&#x27;&lt;/w:pPr&gt;&lt;/w:p&gt;&#x27;;
+  }).join(&#x27;&#x27;);
+ }
+ const documentXml=&#x27;&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;&lt;w:document xmlns:w=&quot;http://schemas.openxmlformats.org/wordprocessingml/2006/main&quot;&gt;&lt;w:body&gt;&#x27;+body+finalSection+&#x27;&lt;/w:body&gt;&lt;/w:document&gt;&#x27;;
+ return studentDocxPackage({
+  &#x27;[Content_Types].xml&#x27;:&#x27;&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;Types xmlns=&quot;http://schemas.openxmlformats.org/package/2006/content-types&quot;&gt;&lt;Default Extension=&quot;rels&quot; ContentType=&quot;application/vnd.openxmlformats-package.relationships+xml&quot;/&gt;&lt;Default Extension=&quot;xml&quot; ContentType=&quot;application/xml&quot;/&gt;&lt;Override PartName=&quot;/word/document.xml&quot; ContentType=&quot;application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml&quot;/&gt;&lt;/Types&gt;&#x27;,
+  &#x27;_rels/.rels&#x27;:&#x27;&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;Relationships xmlns=&quot;http://schemas.openxmlformats.org/package/2006/relationships&quot;&gt;&lt;Relationship Id=&quot;rId1&quot; Type=&quot;http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument&quot; Target=&quot;word/document.xml&quot;/&gt;&lt;/Relationships&gt;&#x27;,
+  &#x27;word/document.xml&#x27;:documentXml
+ });
 }
 
 function downloadStudentWord(){
   const plain = buildStudentTextFromVariantOutput();
   if(!plain.trim()){ alert(&quot;Avval variantlarni yasang.&quot;); return; }
 
-  const htmlDoc = getStudentWordHTML(plain);
-  const blob = new Blob([htmlDoc], {type:&quot;application/msword&quot;});
+  saveStudentWordHeader(false);
+  const blob = buildStudentDocx(plain);
   const url = URL.createObjectURL(blob);
 
   const a = document.createElement(&quot;a&quot;);
   a.href = url;
-  a.download = &quot;talaba_savol_javob.doc&quot;;
+  a.download = &quot;talaba_savol_javob.docx&quot;;
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -21706,6 +22255,25 @@ document.addEventListener(&quot;DOMContentLoaded&quot;, ()=&gt;{ buildAnswerKeyF
 
 
 
+&lt;dialog id=&quot;analyzerHelpDialog&quot;&gt;&lt;div class=&quot;analyzer-help-heading&quot;&gt;&lt;h2 id=&quot;analyzerHelpTitle&quot;&gt;&lt;/h2&gt;&lt;button type=&quot;button&quot; onclick=&quot;document.getElementById(&#x27;analyzerHelpDialog&#x27;).close()&quot; aria-label=&quot;Yopish&quot;&gt;×&lt;/button&gt;&lt;/div&gt;&lt;div id=&quot;analyzerHelpBody&quot;&gt;&lt;/div&gt;&lt;/dialog&gt;
+&lt;script&gt;
+const analyzerHelpContent={&quot;format&quot;: [&quot;Sozlamalar&quot;, [[&quot;Raqamlash (1, 2, 3…)&quot;, &quot;«Ha» tanlansa, savollar 1, 2, 3 tarzida raqamlanadi. Har bir variantda raqamlash boshidan boshlanadi. «Yo‘q» tanlansa, avtomatik raqam qo‘yilmaydi.&quot;], [&quot;Variantlar (a, b, c…)&quot;, &quot;Javoblarni a), b), c), d) bilan belgilaydi. «Yo‘q» holatida javoblar harfsiz chiqadi.&quot;], [&quot;Randomizator (savollar)&quot;, &quot;«Ha» savollar tartibini tasodifiy aralashtiradi. «Yo‘q» kiritilgan tartibni saqlaydi. Bir nechta turlicha variant uchun aralashtirishni yoqing.&quot;], [&quot;Randomizator (javoblar)&quot;, &quot;Javoblar tartibini aralashtiradi. To‘g‘ri javob belgisi tegishli javob bilan birga ko‘chadi va javoblar kalitida hisobga olinadi.&quot;], [&quot;Savol oldidagi belgi&quot;, &quot;Yangi savolni aniqlash uchun ishlatiladi. Odatda ++++. Masalan, «++++ Suv sarfi nima?».&quot;], [&quot;To‘g‘ri javob oldidagi belgi&quot;, &quot;To‘g‘ri javobni ajratadi. Odatda ====#. Masalan, «====# m³/s». Bu belgi savol va noto‘g‘ri javob belgilaridan farq qilishi kerak.&quot;], [&quot;Noto‘g‘ri javob oldidagi belgi&quot;, &quot;Boshqa javoblarni ajratadi. Odatda ====. Masalan, «==== Pa». Matndagi belgilar sozlamadagi belgilar bilan mos bo‘lsin.&quot;], [&quot;Savollar orasida bo‘sh qator&quot;, &quot;«Ha» tanlansa, savollar orasiga bo‘sh qator qo‘shiladi. «Yo‘q» hujjatni ixcham chiqaradi.&quot;]]], &quot;files&quot;: [&quot;Import va eksport&quot;, [[&quot;Import&quot;, &quot;TXT, shu modul yaratgan Word (.doc) yoki Excel (.xlsx) faylini tanlang. Yuklangan savollar matn maydoniga kiritiladi. DOCX yoki skanerlangan rasm bu import turiga kirmaydi.&quot;], [&quot;TXT&quot;, &quot;Joriy test matnini oddiy matn fayli sifatida yuklaydi.&quot;], [&quot;Word&quot;, &quot;Joriy test matnini Wordda ochiladigan hujjat sifatida yuklaydi. Talabaga tarqatiladigan variantlar uchun pastdagi «Talaba uchun» tugmasini ishlating.&quot;], [&quot;Excel&quot;, &quot;Test matnini Excel faylga chiqaradi.&quot;], [&quot;Ishlash tartibi&quot;, &quot;Savollarni kiriting yoki import qiling. Belgilarni moslang. «Testni tekshirish va tahrirlash» bilan xatolarni ko‘ring, keyin variantlarni yasang.&quot;]]], &quot;variants&quot;: [&quot;Variant yasash va sarlavha&quot;, [[&quot;Variantlar soni&quot;, &quot;Nechta variant kerakligini kiriting. 0 kiritilsa, bitta variant yaratiladi.&quot;], [&quot;Har variantdagi savollar&quot;, &quot;Bitta variantga nechta savol tushishini belgilang. 0 bo‘lsa, barcha savollar olinadi. Kiritilgan son mavjud savollardan ko‘p bo‘lsa, mavjudlari olinadi.&quot;], [&quot;Takrorsiz&quot;, &quot;Bir variant ichida bir savol qayta tanlanmaydi. Bir savol boshqa variantda ham uchrashi mumkin.&quot;], [&quot;Variantlarni yasash&quot;, &quot;Joriy savollar va tanlangan sozlamalardan variantlar hamda javoblar kalitini hosil qiladi. Savollar yoki sozlamalar o‘zgarsa, tugmani qayta bosing.&quot;], [&quot;Sarlavhani tahrirlash&quot;, &quot;A4 ko‘rinishidagi oynani ochadi. Matn ustini bosing va yozing. Kerakli matnni belgilab, yuqoridagi tugmalar bilan qalin, kursiv, tagiga chizilgan yoki rangli qiling. Shrift, o‘lcham, ro‘yxat va tekislashni ham boshqarish mumkin. Sarlavha va Ikki ustun kalitlari eksport ko‘rinishini belgilaydi.&quot;], [&quot;Sarlavhani chiqarish&quot;, &quot;Yoqilganida «TASDIQLAYMAN» bloki va fan sarlavhasi har bir variant boshida takrorlanadi. O‘chirilsa, bu bloklar Wordga kiritilmaydi.&quot;], [&quot;Eni va Bo‘yi&quot;, &quot;Shrift turi, o‘lchami va interval savollar hamda sarlavhaga qo‘llanadi va DOCXga saqlanadi. 1-variant to‘liq A4 betlarda ko‘rsatiladi, betlar soni taxminiy hisoblanadi. Worddagi shrift va sahifalash sabab ozgina farq bo‘lishi mumkin. Tasdiqlash ramkasining o‘lchami millimetrda belgilanadi. Pastki o‘ng burchagini tortib ham o‘zgartirish mumkin. Bu sozlama A4 varaq o‘lchamini o‘zgartirmaydi.&quot;], [&quot;Saqlash&quot;, &quot;Sarlavha matni va ramka o‘lchamlarini saqlaydi, tahrirlash oynasini yopadi. Wordni «Talaba uchun» tugmasidan yuklab oling.&quot;], [&quot;Yangi bet&quot;, &quot;«Ikki ustun» yoqilsa, savollar chap ustundan o‘ng ustunga davom etadi. Sarlavha to‘liq kenglikda qoladi. O‘chirilsa, savollar bitta ustunda chiqadi. Har bir variant to‘liq sarlavhasi bilan yangi betdan boshlanadi. Savollar ko‘p bo‘lsa, bitta variant bir necha bet davom etishi mumkin.&quot;]]], &quot;download&quot;: [&quot;Word fayllarni yuklab olish&quot;, [[&quot;Javoblar varaqasini yuklab olish&quot;, &quot;Yasalgan variantlarning javoblar kalitini Wordga chiqaradi. Tekshirish uchun foydalaning.&quot;], [&quot;Talaba uchun (savol-javob) Word yuklab olish&quot;, &quot;Savollar va javob variantlarini DOCX faylga chiqaradi. To‘g‘ri javobni ko‘rsatuvchi xizmat belgilarini olib tashlaydi. Sarlavha yoqilgan bo‘lsa, uni har bir variant tepasiga qo‘yadi.&quot;], [&quot;Variantlarning joylashuvi&quot;, &quot;Har bir variant yangi betdan boshlanadi. Tartib «TASDIQLAYMAN», fan va nazorat nomi, variant raqami, so‘ng savollardan iborat.&quot;], [&quot;Yuklab olishdan oldin&quot;, &quot;Avval «Variantlarni yasash»ni bosing. Keyin kerakli Word tugmasini tanlang. O‘zgartirish kiritsangiz, variantlarni qaytadan yasang.&quot;]]]};
+function openAnalyzerHelp(key){
+ const entry=analyzerHelpContent[key];if(!entry)return;
+ document.getElementById(&#x27;analyzerHelpTitle&#x27;).textContent=entry[0];
+ const body=document.getElementById(&#x27;analyzerHelpBody&#x27;);body.replaceChildren();
+ for(const [label,description] of entry[1]){
+  const paragraph=document.createElement(&#x27;p&#x27;),strong=document.createElement(&#x27;strong&#x27;);
+  strong.textContent=label+&#x27;. &#x27;;paragraph.append(strong,document.createTextNode(description));body.append(paragraph);
+ }
+ const dialog=document.getElementById(&#x27;analyzerHelpDialog&#x27;);dialog.showModal();body.scrollTop=0;
+}
+document.getElementById(&#x27;analyzerHelpDialog&#x27;).addEventListener(&#x27;click&#x27;,event=&gt;{
+ const dialog=event.currentTarget;if(event.target!==dialog)return;
+ const rect=dialog.getBoundingClientRect();
+ if(event.clientX&lt;rect.left||event.clientX&gt;rect.right||event.clientY&lt;rect.top||event.clientY&gt;rect.bottom)dialog.close();
+});
+&lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;
 "></iframe></template>
@@ -22083,6 +22651,8 @@ document.addEventListener(&quot;DOMContentLoaded&quot;, ()=&gt;{ buildAnswerKeyF
 .quiz-mode-motion&gt;svg:nth-of-type(4)&gt;.quiz-motion-symbol{animation-delay:9s}
 @keyframes quiz-symbol-pulse{0%,26%,100%{opacity:.08;transform:translateY(4px) scale(.93)}12%{opacity:.42;transform:translateY(-4px) scale(1.07)}}
 @media(prefers-reduced-motion:reduce){.quiz-motion-symbol{animation:none}}
+
+.it-comment-heart-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;min-width:0}.it-comment-heart-row .shuffle-toggle{min-width:0!important;font-size:11px!important;padding:5px!important;gap:4px!important}
 &lt;/style&gt;&lt;/head&gt;
 &lt;body&gt;&lt;main class=&quot;wrap&quot;&gt;&lt;span class=&quot;hide&quot; id=&quot;count&quot; aria-hidden=&quot;true&quot;&gt;0 ta savol&lt;/span&gt;
 &lt;section class=&quot;panel&quot; id=&quot;edit&quot;&gt;
@@ -22096,13 +22666,13 @@ document.addEventListener(&quot;DOMContentLoaded&quot;, ()=&gt;{ buildAnswerKeyF
 &lt;small id=&quot;subjectAvailableCount&quot; class=&quot;subject-available-count&quot;&gt;Mavjud fanlar ro‘yxati&lt;/small&gt;
 &lt;datalist id=&quot;subjectNameOptions&quot;&gt;&lt;/datalist&gt;
 &lt;/label&gt;&lt;div class=&quot;test-credentials test-credentials-student&quot; role=&quot;group&quot; aria-label=&quot;Talaba&quot;&gt;&lt;div class=&quot;credential-heading&quot;&gt;&lt;span&gt;Talaba&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;credential-fields&quot;&gt;&lt;label&gt;Login&lt;input id=&quot;accessLogin&quot; type=&quot;text&quot; placeholder=&quot;Login belgilang&quot; autocomplete=&quot;off&quot;&gt;&lt;/label&gt;&lt;label&gt;Parol&lt;input id=&quot;accessPassword&quot; type=&quot;text&quot; placeholder=&quot;Parol belgilang&quot; autocomplete=&quot;new-password&quot;&gt;&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;test-credentials test-credentials-teacher&quot; role=&quot;group&quot; aria-label=&quot;O‘qituvchi&quot;&gt;&lt;div class=&quot;credential-heading&quot;&gt;&lt;span&gt;O‘qituvchi&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;credential-fields&quot;&gt;&lt;label&gt;Login&lt;input id=&quot;teacherTestLogin&quot; type=&quot;text&quot; autocomplete=&quot;off&quot;&gt;&lt;/label&gt;&lt;label&gt;Parol&lt;input id=&quot;teacherTestPassword&quot; type=&quot;text&quot; autocomplete=&quot;new-password&quot;&gt;&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;test-editor-actions&quot;&gt;&lt;button class=&quot;primary&quot; id=&quot;add&quot;&gt;Saqlash&lt;/button&gt;
-  &lt;button class=&quot;primary&quot; id=&quot;take&quot;&gt;Testni yechish&lt;/button&gt;&lt;button type=&quot;button&quot; id=&quot;itReportOpen&quot; onclick=&quot;parent.postMessage({type:&#x27;open-integrated-test-report&#x27;},&#x27;*&#x27;)&quot;&gt;Test hisoboti&lt;/button&gt;&lt;button type=&quot;button&quot; id=&quot;deleteSubject&quot; class=&quot;subject-delete-btn&quot;&gt;O‘chirish&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;div id=&quot;msg&quot; class=&quot;msg&quot; role=&quot;status&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
+  &lt;button class=&quot;primary&quot; id=&quot;take&quot;&gt;Testni yechish&lt;/button&gt;&lt;button type=&quot;button&quot; id=&quot;itReportOpen&quot; onclick=&quot;parent.postMessage({type:&#x27;open-integrated-test-report&#x27;,subject:document.getElementById(&#x27;subjectName&#x27;).value.trim()},&#x27;*&#x27;)&quot;&gt;Test hisoboti&lt;/button&gt;&lt;button type=&quot;button&quot; id=&quot;deleteSubject&quot; class=&quot;subject-delete-btn&quot;&gt;O‘chirish&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;div id=&quot;msg&quot; class=&quot;msg&quot; role=&quot;status&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;div class=&quot;toolbar-row quiz-settings&quot; aria-label=&quot;Test sozlamalari&quot;&gt;
  &lt;div class=&quot;quiz-settings-grid&quot;&gt;
   &lt;section class=&quot;quiz-settings-group&quot; aria-labelledby=&quot;quizGeneralTitle&quot;&gt;
    &lt;h3 id=&quot;quizGeneralTitle&quot;&gt;Test parametrlari&lt;/h3&gt;
    &lt;div class=&quot;quiz-settings-fields&quot;&gt;
- &lt;div class=&quot;toolbar-field&quot;&gt;&lt;label&gt;Savollar soni&lt;input type=&quot;number&quot; id=&quot;questionLimit&quot; min=&quot;1&quot; step=&quot;1&quot; value=&quot;30&quot;&gt;&lt;/label&gt;&lt;/div&gt;
+ &lt;div class=&quot;toolbar-field&quot;&gt;&lt;label&gt;Savollar soni&lt;input type=&quot;text&quot; id=&quot;questionLimit&quot; placeholder=&quot;30 / 30-60 / 3, 5, 7&quot; value=&quot;30&quot;&gt;&lt;/label&gt;&lt;/div&gt;
  &lt;div class=&quot;toolbar-field&quot;&gt;&lt;label&gt;Vaqt (daqiqa)&lt;input type=&quot;number&quot; id=&quot;timeLimit&quot; min=&quot;1&quot; step=&quot;1&quot; value=&quot;30&quot;&gt;&lt;/label&gt;&lt;/div&gt;
    &lt;/div&gt;
   &lt;label class=&quot;shuffle-toggle&quot;&gt;&lt;span&gt;Savollarni aralashtirish&lt;/span&gt;&lt;input type=&quot;checkbox&quot; id=&quot;shuffleQuestions&quot; checked&gt;&lt;span class=&quot;switch-track&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;/label&gt;
@@ -22110,10 +22680,10 @@ document.addEventListener(&quot;DOMContentLoaded&quot;, ()=&gt;{ buildAnswerKeyF
   &lt;/section&gt;
   &lt;section class=&quot;quiz-settings-group&quot; aria-labelledby=&quot;quizResultsTitle&quot;&gt;
    &lt;h3 id=&quot;quizResultsTitle&quot;&gt;Test natijalari&lt;/h3&gt;
-  &lt;label class=&quot;shuffle-toggle&quot;&gt;&lt;span&gt;Test javoblari&lt;/span&gt;&lt;input type=&quot;checkbox&quot; id=&quot;showTestAnswers&quot;&gt;&lt;span class=&quot;switch-track&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;/label&gt;
-  &lt;label class=&quot;shuffle-toggle&quot;&gt;&lt;span&gt;To‘g‘ri javoblarni ko‘rsatish&lt;/span&gt;&lt;input type=&quot;checkbox&quot; id=&quot;revealCorrectAnswers&quot;&gt;&lt;span class=&quot;switch-track&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;/label&gt;
-  &lt;label class=&quot;shuffle-toggle&quot;&gt;&lt;span&gt;Talaba test sozlamalarini tanlasin&lt;/span&gt;&lt;input type=&quot;checkbox&quot; id=&quot;allowStudentSettings&quot;&gt;&lt;span class=&quot;switch-track&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;/label&gt;
-  &lt;label class=&quot;shuffle-toggle&quot;&gt;&lt;span&gt;Izoh yozish&lt;/span&gt;&lt;input type=&quot;checkbox&quot; id=&quot;allowTestComment&quot;&gt;&lt;span class=&quot;switch-track&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;/label&gt;
+  &lt;div class=&quot;it-comment-heart-row&quot;&gt;&lt;label class=&quot;shuffle-toggle&quot;&gt;&lt;span&gt;Tez javob&lt;/span&gt;&lt;input type=&quot;checkbox&quot; id=&quot;quickAnswer&quot;&gt;&lt;span class=&quot;switch-track&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;/label&gt;&lt;label class=&quot;shuffle-toggle&quot;&gt;&lt;span&gt;Test javoblari&lt;/span&gt;&lt;input type=&quot;checkbox&quot; id=&quot;showTestAnswers&quot;&gt;&lt;span class=&quot;switch-track&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;/label&gt;&lt;/div&gt;
+  &lt;label class=&quot;shuffle-toggle&quot;&gt;&lt;span&gt;To‘g‘ri javoblar&lt;/span&gt;&lt;input type=&quot;checkbox&quot; id=&quot;revealCorrectAnswers&quot;&gt;&lt;span class=&quot;switch-track&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;/label&gt;
+  &lt;label class=&quot;shuffle-toggle&quot;&gt;&lt;span&gt;Talaba sozlamalari&lt;/span&gt;&lt;input type=&quot;checkbox&quot; id=&quot;allowStudentSettings&quot;&gt;&lt;span class=&quot;switch-track&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;/label&gt;
+  &lt;div class=&quot;it-comment-heart-row&quot;&gt;&lt;label class=&quot;shuffle-toggle&quot;&gt;&lt;span&gt;Izoh&lt;/span&gt;&lt;input type=&quot;checkbox&quot; id=&quot;allowTestComment&quot;&gt;&lt;span class=&quot;switch-track&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;/label&gt;&lt;label class=&quot;shuffle-toggle&quot;&gt;&lt;span&gt;Yurakchalar&lt;/span&gt;&lt;input type=&quot;checkbox&quot; id=&quot;allowQuestionHearts&quot;&gt;&lt;span class=&quot;switch-track&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;/label&gt;&lt;/div&gt;
   &lt;/section&gt;
   &lt;section class=&quot;quiz-settings-group&quot; aria-labelledby=&quot;quizModesTitle&quot;&gt;
    &lt;h3 id=&quot;quizModesTitle&quot;&gt;Himoya va test rejimi&lt;/h3&gt;
@@ -22266,7 +22836,7 @@ function saveCurrent(){
  });
  if(clash){notify(&#x27;Login band. Bir o‘qituvchiga bir nechta fan berilsa, uning logini va paroli bir xil bo‘lsin.&#x27;);return false}
  const subjects=getSubjects(),banks=getBanks(),prev=subjects[currentSubject]||{};
- subjects[currentSubject]={...prev,subjectName:prev.subjectName||currentSubject,accessLogin:$(&#x27;accessLogin&#x27;).value.trim(),accessPassword:$(&#x27;accessPassword&#x27;).value,teacherTestLogin:$(&#x27;teacherTestLogin&#x27;).value.trim(),teacherTestPassword:$(&#x27;teacherTestPassword&#x27;).value,timeLimit:$(&#x27;timeLimit&#x27;).value||&#x27;30&#x27;,questionLimit:$(&#x27;questionLimit&#x27;).value||&#x27;30&#x27;,shuffleQuestions:$(&#x27;shuffleQuestions&#x27;).checked,shuffleAnswers:$(&#x27;shuffleAnswers&#x27;).checked,smartTest:$(&#x27;smartTest&#x27;).checked,showTestAnswers:$(&#x27;showTestAnswers&#x27;).checked,revealCorrectAnswers:$(&#x27;revealCorrectAnswers&#x27;).checked,allowStudentSettings:$(&#x27;allowStudentSettings&#x27;).checked,allowTestComment:$(&#x27;allowTestComment&#x27;).checked,testProtection:$(&#x27;testProtection&#x27;).checked,protectionWarnings:Math.max(0,Math.min(100,Math.trunc(Number($(&#x27;protectionWarnings&#x27;).value)||0))),gazeMonitoring:$(&#x27;gazeMonitoring&#x27;).checked,gazePhoto:$(&#x27;gazePhoto&#x27;).checked,gazeSensitivity:Number($(&#x27;gazeSensitivity&#x27;).value)||5,gazeDuration:Number($(&#x27;gazeDuration&#x27;).value)||3,gazeLimit:Math.max(0,Math.min(100,Math.trunc(Number($(&#x27;gazeLimit&#x27;).value||2)||0))),noiseMonitoring:$(&#x27;noiseMonitoring&#x27;).checked,noiseWarnings:Math.max(0,Math.min(100,Math.trunc(Number($(&#x27;noiseWarnings&#x27;).value)||0))),noiseSensitivity:Math.max(1,Math.min(10,Math.trunc(Number($(&#x27;noiseSensitivity&#x27;).value)||5))),noiseDuration:Math.max(0.1,Math.min(60,Number($(&#x27;noiseDuration&#x27;).value)||1)),smartRepeatGap:Math.max(0,Math.min(300,Math.trunc(Number($(&#x27;smartRepeatGap&#x27;).value)||0))),smartCorrectRequired:Math.max(1,Math.min(20,Math.trunc(Number($(&#x27;smartCorrectRequired&#x27;).value)||1)))};
+ subjects[currentSubject]={...prev,subjectName:prev.subjectName||currentSubject,accessLogin:$(&#x27;accessLogin&#x27;).value.trim(),accessPassword:$(&#x27;accessPassword&#x27;).value,teacherTestLogin:$(&#x27;teacherTestLogin&#x27;).value.trim(),teacherTestPassword:$(&#x27;teacherTestPassword&#x27;).value,timeLimit:$(&#x27;timeLimit&#x27;).value||&#x27;30&#x27;,questionLimit:$(&#x27;questionLimit&#x27;).value||&#x27;30&#x27;,shuffleQuestions:$(&#x27;shuffleQuestions&#x27;).checked,shuffleAnswers:$(&#x27;shuffleAnswers&#x27;).checked,smartTest:$(&#x27;smartTest&#x27;).checked,quickAnswer:$(&#x27;quickAnswer&#x27;).checked,showTestAnswers:$(&#x27;showTestAnswers&#x27;).checked,revealCorrectAnswers:$(&#x27;revealCorrectAnswers&#x27;).checked,allowStudentSettings:$(&#x27;allowStudentSettings&#x27;).checked,allowTestComment:$(&#x27;allowTestComment&#x27;).checked,allowQuestionHearts:$(&#x27;allowQuestionHearts&#x27;).checked,testProtection:$(&#x27;testProtection&#x27;).checked,protectionWarnings:Math.max(0,Math.min(100,Math.trunc(Number($(&#x27;protectionWarnings&#x27;).value)||0))),gazeMonitoring:$(&#x27;gazeMonitoring&#x27;).checked,gazePhoto:$(&#x27;gazePhoto&#x27;).checked,gazeSensitivity:Number($(&#x27;gazeSensitivity&#x27;).value)||5,gazeDuration:Number($(&#x27;gazeDuration&#x27;).value)||3,gazeLimit:Math.max(0,Math.min(100,Math.trunc(Number($(&#x27;gazeLimit&#x27;).value||2)||0))),noiseMonitoring:$(&#x27;noiseMonitoring&#x27;).checked,noiseWarnings:Math.max(0,Math.min(100,Math.trunc(Number($(&#x27;noiseWarnings&#x27;).value)||0))),noiseSensitivity:Math.max(1,Math.min(10,Math.trunc(Number($(&#x27;noiseSensitivity&#x27;).value)||5))),noiseDuration:Math.max(0.1,Math.min(60,Number($(&#x27;noiseDuration&#x27;).value)||1)),smartRepeatGap:Math.max(0,Math.min(300,Math.trunc(Number($(&#x27;smartRepeatGap&#x27;).value)||0))),smartCorrectRequired:Math.max(1,Math.min(20,Math.trunc(Number($(&#x27;smartCorrectRequired&#x27;).value)||1)))};
  banks[currentSubject]=questions;
  localStorage.setItem(SUBJECTS_KEY,JSON.stringify(subjects));localStorage.setItem(BANKS_KEY,JSON.stringify(banks));parent.postMessage({type:&#x27;it-cloud-update&#x27;},&#x27;*&#x27;);return true;
 }
@@ -22276,7 +22846,7 @@ function switchSubject(){
  currentSubject=key;const meta=getSubjects()[key]||{},bank=getBanks()[key];if(!meta.subjectName&amp;&amp;key){const all=getSubjects();all[key]={...meta,subjectName:$(&#x27;subjectName&#x27;).value.trim()};localStorage.setItem(SUBJECTS_KEY,JSON.stringify(all))}questions=Array.isArray(bank)?bank:[];
  $(&#x27;accessLogin&#x27;).value=meta.accessLogin||&#x27;&#x27;;$(&#x27;accessPassword&#x27;).value=meta.accessPassword||&#x27;&#x27;;$(&#x27;teacherTestLogin&#x27;).value=meta.teacherTestLogin||&#x27;&#x27;;$(&#x27;teacherTestPassword&#x27;).value=meta.teacherTestPassword||&#x27;&#x27;;
  $(&#x27;timeLimit&#x27;).value=meta.timeLimit||&#x27;30&#x27;;$(&#x27;questionLimit&#x27;).value=meta.questionLimit||&#x27;30&#x27;;
- $(&#x27;shuffleQuestions&#x27;).checked=meta.shuffleQuestions!==false;$(&#x27;shuffleAnswers&#x27;).checked=meta.shuffleAnswers!==false;$(&#x27;smartTest&#x27;).checked=false;$(&#x27;showTestAnswers&#x27;).checked=meta.showTestAnswers===true;$(&#x27;revealCorrectAnswers&#x27;).checked=meta.revealCorrectAnswers===true;$(&#x27;allowStudentSettings&#x27;).checked=meta.allowStudentSettings===true;$(&#x27;allowTestComment&#x27;).checked=meta.allowTestComment===true;$(&#x27;testProtection&#x27;).checked=false;$(&#x27;protectionWarnings&#x27;).value=Number.isInteger(Number(meta.protectionWarnings))&amp;&amp;Number(meta.protectionWarnings)&gt;=0?Math.min(100,Number(meta.protectionWarnings)):2;toggleProtectionOptions();$(&#x27;gazeMonitoring&#x27;).checked=meta.gazeMonitoring===true;$(&#x27;gazePhoto&#x27;).checked=meta.gazePhoto===true;$(&#x27;gazeSensitivity&#x27;).value=meta.gazeSensitivity??5;$(&#x27;gazeDuration&#x27;).value=meta.gazeDuration??3;$(&#x27;gazeLimit&#x27;).value=meta.gazeLimit??2;$(&#x27;gazeOptions&#x27;).hidden=!$(&#x27;gazeMonitoring&#x27;).checked;$(&#x27;noiseMonitoring&#x27;).checked=meta.noiseMonitoring===true;$(&#x27;noiseWarnings&#x27;).value=Number.isInteger(Number(meta.noiseWarnings))?Math.max(0,Math.min(100,Number(meta.noiseWarnings))):2;$(&#x27;noiseSensitivity&#x27;).value=Number.isInteger(Number(meta.noiseSensitivity))?Math.max(1,Math.min(10,Number(meta.noiseSensitivity))):5;$(&#x27;noiseDuration&#x27;).value=Math.max(0.1,Math.min(60,Number(meta.noiseDuration)||1));toggleNoiseOptions();$(&#x27;smartRepeatGap&#x27;).value=Number.isInteger(Number(meta.smartRepeatGap))&amp;&amp;Number(meta.smartRepeatGap)&gt;=0?Math.min(300,Number(meta.smartRepeatGap)):5;$(&#x27;smartCorrectRequired&#x27;).value=Number.isInteger(Number(meta.smartCorrectRequired))&amp;&amp;Number(meta.smartCorrectRequired)&gt;=1?Math.min(20,Number(meta.smartCorrectRequired)):2;toggleSmartOptions();
+ $(&#x27;shuffleQuestions&#x27;).checked=meta.shuffleQuestions!==false;$(&#x27;shuffleAnswers&#x27;).checked=meta.shuffleAnswers!==false;$(&#x27;smartTest&#x27;).checked=false;$(&#x27;quickAnswer&#x27;).checked=meta.quickAnswer===true;$(&#x27;showTestAnswers&#x27;).checked=meta.showTestAnswers===true;$(&#x27;revealCorrectAnswers&#x27;).checked=meta.revealCorrectAnswers===true;$(&#x27;allowStudentSettings&#x27;).checked=meta.allowStudentSettings===true;$(&#x27;allowTestComment&#x27;).checked=meta.allowTestComment===true;$(&#x27;allowQuestionHearts&#x27;).checked=meta.allowQuestionHearts===true;$(&#x27;testProtection&#x27;).checked=false;$(&#x27;protectionWarnings&#x27;).value=Number.isInteger(Number(meta.protectionWarnings))&amp;&amp;Number(meta.protectionWarnings)&gt;=0?Math.min(100,Number(meta.protectionWarnings)):2;toggleProtectionOptions();$(&#x27;gazeMonitoring&#x27;).checked=meta.gazeMonitoring===true;$(&#x27;gazePhoto&#x27;).checked=meta.gazePhoto===true;$(&#x27;gazeSensitivity&#x27;).value=meta.gazeSensitivity??5;$(&#x27;gazeDuration&#x27;).value=meta.gazeDuration??3;$(&#x27;gazeLimit&#x27;).value=meta.gazeLimit??2;$(&#x27;gazeOptions&#x27;).hidden=!$(&#x27;gazeMonitoring&#x27;).checked;$(&#x27;noiseMonitoring&#x27;).checked=meta.noiseMonitoring===true;$(&#x27;noiseWarnings&#x27;).value=Number.isInteger(Number(meta.noiseWarnings))?Math.max(0,Math.min(100,Number(meta.noiseWarnings))):2;$(&#x27;noiseSensitivity&#x27;).value=Number.isInteger(Number(meta.noiseSensitivity))?Math.max(1,Math.min(10,Number(meta.noiseSensitivity))):5;$(&#x27;noiseDuration&#x27;).value=Math.max(0.1,Math.min(60,Number(meta.noiseDuration)||1));toggleNoiseOptions();$(&#x27;smartRepeatGap&#x27;).value=Number.isInteger(Number(meta.smartRepeatGap))&amp;&amp;Number(meta.smartRepeatGap)&gt;=0?Math.min(300,Number(meta.smartRepeatGap)):5;$(&#x27;smartCorrectRequired&#x27;).value=Number.isInteger(Number(meta.smartCorrectRequired))&amp;&amp;Number(meta.smartCorrectRequired)&gt;=1?Math.min(20,Number(meta.smartCorrectRequired)):2;toggleSmartOptions();
  $(&#x27;subjectNotice&#x27;).textContent=key?(meta.accessLogin?&#x27;Tanlangan fan: &#x27;+(meta.subjectName||$(&#x27;subjectName&#x27;).value)+&#x27; · &#x27;+questions.length+&#x27; ta savol&#x27;:&#x27;Yangi fan: login-parolni belgilang va savollarni saqlang.&#x27;):&#x27;Fan nomini kiriting yoki tanlang.&#x27;;
  mixed=null;render();$(&#x27;deleteSubject&#x27;).disabled=!Object.prototype.hasOwnProperty.call(getSubjects(),key);
 }
@@ -22337,16 +22907,18 @@ document.addEventListener(&#x27;keydown&#x27;,e=&gt;{
 });
 const quizSectionNotes={
  quizGeneralTitle:[
-  [&#x27;Savollar soni&#x27;,&#x27;Talabaga nechta savol berilishini belgilaydi. Bazada kamroq savol bo‘lsa, mavjud savollar beriladi.&#x27;],
+  [&#x27;Savollar soni&#x27;,&#x27;30 — bazadan 30 ta savol; 30-60 — 30-savoldan boshlab 30 ta savol (30–59; 60-savol kirmaydi); 3, 5, 7 — aynan shu raqamli savollar. 3, 5-8, 12 tarzida birlashtirish ham mumkin. Raqamlar bazadagi asl tartib bo‘yicha olinadi. Takroriy raqam bir marta olinadi. Aralashtirish yoqilsa, tanlangan savollarning tartibi aralashadi. Oddiy son bazadagidan katta bo‘lsa, mavjud savollar olinadi; noto‘g‘ri oraliq yoki raqam kiritilsa, xato ko‘rsatiladi.&#x27;],
   [&#x27;Vaqt (daqiqa)&#x27;,&#x27;Oddiy test uchun ajratilgan vaqt. Vaqt tugaganda test avtomatik yakunlanadi.&#x27;],
   [&#x27;Savollarni aralashtirish&#x27;,&#x27;Yoqilsa, savollar aralashtirilgan tartibda beriladi.&#x27;],
   [&#x27;Javoblarni aralashtirish&#x27;,&#x27;Yoqilsa, har bir savoldagi javob variantlarining tartibi aralashtiriladi.&#x27;]
  ],
  quizResultsTitle:[
+  [&#x27;Tez javob&#x27;,&#x27;Yoqilsa, tanlangan javob darhol tekshiriladi: yashil ✓ — to‘g‘ri, qizil × — xato. Xato tanlansa, to‘g‘ri variant ham yashil ✓ bilan ko‘rsatiladi. Aqlli testda javob tanlangandayoq qabul qilinadi; keyingi savolga tugma orqali o‘tasiz. O‘chirilsa, test davomida bu belgilar chiqmaydi.&#x27;],
   [&#x27;Test javoblari&#x27;,&#x27;Yoqilsa, test tugagach talaba qaysi javoblari to‘g‘ri yoki xato ekanini ko‘radi.&#x27;],
-  [&#x27;To‘g‘ri javoblarni ko‘rsatish&#x27;,&#x27;Yoqilsa, test tugagach savollarning to‘g‘ri javoblari ko‘rsatiladi.&#x27;],
-  [&#x27;Talaba test sozlamalarini tanlasin&#x27;,&#x27;Yoqilsa, talaba boshlashdan oldin unga ruxsat etilgan test sozlamalarini tanlay oladi.&#x27;],
-  [&#x27;Izoh yozish&#x27;,&#x27;Yoqilsa, talaba test oxirida muammo yoki kamchilik haqida ixtiyoriy izoh yozadi. Izoh natija bilan birga o‘qituvchi hisobotiga tushadi.&#x27;]
+  [&#x27;To‘g‘ri javoblar&#x27;,&#x27;Yoqilsa, test tugagach savollarning to‘g‘ri javoblari ko‘rsatiladi.&#x27;],
+  [&#x27;Talaba sozlamalari&#x27;,&#x27;Yoqilsa, talaba boshlashdan oldin unga ruxsat etilgan test sozlamalarini tanlay oladi.&#x27;],
+  [&#x27;Yurakchalar&#x27;,&#x27;Yoqilsa, talaba savolning yuqori o‘ngidagi yurakchani bosib, bilmagan yoki ikkilangan savolini shaxsiy bazasiga qo‘shadi. Qayta bosish bazadan chiqaradi. Pastdagi Yurakchalar bazasi tugmasi faqat belgilangan savollarni mashq qilish uchun ochadi. Baza fan, login va ism-familiya bo‘yicha shu brauzerda saqlanadi.&#x27;],
+  [&#x27;Izoh&#x27;,&#x27;Yoqilsa, talaba test oxirida muammo yoki kamchilik haqida ixtiyoriy izoh yozadi. Izoh natija bilan birga o‘qituvchi hisobotiga tushadi.&#x27;]
  ],
  quizModesTitle:[
   [&#x27;Test himoyasi&#x27;,&#x27;Test oynasidan chiqish holatlari qayd etiladi. Ogohlantirish chegarasi 2 bo‘lsa, uchinchi chiqishda test yakunlanadi. 0 bo‘lsa, birinchi chiqishdayoq yakunlanadi.&#x27;],
@@ -22399,7 +22971,7 @@ for(const [id,notes] of Object.entries(quizSectionNotes)){
  heading.parentElement.append(button);
  button.onclick=()=&gt;openQuizHelp(heading.textContent,notes);
 }
-for(const id of [&#x27;gazeMonitoring&#x27;,&#x27;gazePhoto&#x27;,&#x27;gazeSensitivity&#x27;,&#x27;gazeDuration&#x27;,&#x27;gazeLimit&#x27;,&#x27;accessLogin&#x27;,&#x27;accessPassword&#x27;,&#x27;teacherTestLogin&#x27;,&#x27;teacherTestPassword&#x27;,&#x27;timeLimit&#x27;,&#x27;questionLimit&#x27;,&#x27;shuffleQuestions&#x27;,&#x27;shuffleAnswers&#x27;,&#x27;smartTest&#x27;,&#x27;showTestAnswers&#x27;,&#x27;revealCorrectAnswers&#x27;,&#x27;allowStudentSettings&#x27;,&#x27;allowTestComment&#x27;,&#x27;smartRepeatGap&#x27;,&#x27;smartCorrectRequired&#x27;,&#x27;testProtection&#x27;,&#x27;protectionWarnings&#x27;,&#x27;noiseMonitoring&#x27;,&#x27;noiseWarnings&#x27;,&#x27;noiseSensitivity&#x27;,&#x27;noiseDuration&#x27;])$(id).addEventListener(&#x27;change&#x27;,()=&gt;{if(!currentSubject)switchSubject();saveCurrent()});
+for(const id of [&#x27;gazeMonitoring&#x27;,&#x27;gazePhoto&#x27;,&#x27;gazeSensitivity&#x27;,&#x27;gazeDuration&#x27;,&#x27;gazeLimit&#x27;,&#x27;accessLogin&#x27;,&#x27;accessPassword&#x27;,&#x27;teacherTestLogin&#x27;,&#x27;teacherTestPassword&#x27;,&#x27;timeLimit&#x27;,&#x27;questionLimit&#x27;,&#x27;shuffleQuestions&#x27;,&#x27;shuffleAnswers&#x27;,&#x27;smartTest&#x27;,&#x27;quickAnswer&#x27;,&#x27;showTestAnswers&#x27;,&#x27;revealCorrectAnswers&#x27;,&#x27;allowStudentSettings&#x27;,&#x27;allowTestComment&#x27;,&#x27;allowQuestionHearts&#x27;,&#x27;smartRepeatGap&#x27;,&#x27;smartCorrectRequired&#x27;,&#x27;testProtection&#x27;,&#x27;protectionWarnings&#x27;,&#x27;noiseMonitoring&#x27;,&#x27;noiseWarnings&#x27;,&#x27;noiseSensitivity&#x27;,&#x27;noiseDuration&#x27;])$(id).addEventListener(&#x27;change&#x27;,()=&gt;{if(!currentSubject)switchSubject();saveCurrent()});
 switchSubject();
 // A subject can be fully removed only after explicit confirmation.
 function deleteSelectedSubject(){
@@ -22735,15 +23307,30 @@ function storeShuffle(){if(!currentSubject)switchSubject();saveCurrent()}
 $(&#x27;shuffleQuestions&#x27;).addEventListener(&#x27;change&#x27;,storeShuffle);
 $(&#x27;shuffleAnswers&#x27;).addEventListener(&#x27;change&#x27;,storeShuffle);
 $(&#x27;take&#x27;).onclick=()=&gt;{switchSubject();showAccess()};
+function selectQuestionPool(bank,selection,randomize,shuffle){
+ const raw=String(selection??&#x27;30&#x27;).trim();
+ const error=()=&gt;{throw Error(&#x27;Savollarni 30, 30-60 yoki 3, 5, 7 shaklida kiriting. Raqamlar 1–&#x27;+bank.length+&#x27; oralig‘ida bo‘lsin.&#x27;);};
+ if(/^\d+$/.test(raw)){
+  const count=Number(raw);if(!Number.isSafeInteger(count)||count&lt;1)error();
+  return (randomize?shuffle(bank):bank.slice()).slice(0,Math.min(count,bank.length));
+ }
+ const indexes=[],seen=new Set();
+ for(const part of raw.split(&#x27;,&#x27;)){
+  const match=part.trim().match(/^(\d+)(?:\s*[-–—]\s*(\d+))?$/);if(!match)error();
+  const first=Number(match[1]),last=match[2]===undefined?first:Number(match[2])-1;
+  if(!Number.isSafeInteger(first)||!Number.isSafeInteger(last)||first&lt;1||last&lt;first||last&gt;bank.length)error();
+  for(let n=first;n&lt;=last;n++)if(!seen.has(n)){seen.add(n);indexes.push(n-1);}
+ }
+ const pool=indexes.map(i=&gt;bank[i]);return randomize?shuffle(pool):pool;
+}
+
 function startTest(){try{
  const limitInput=$(&#x27;questionLimit&#x27;).value.trim(),durationInput=$(&#x27;timeLimit&#x27;).value.trim();
- const requested=limitInput===&#x27;&#x27;?30:Number(limitInput),duration=Number(durationInput);
- if(!Number.isInteger(requested)||requested&lt;1)throw Error(&#x27;Savollar soni musbat butun son bo‘lishi kerak.&#x27;);
- const limit=Math.min(requested,questions.length);
+ const duration=Number(durationInput);
  if(!Number.isInteger(duration)||duration&lt;1||duration&gt;1440)throw Error(&#x27;Test vaqtini 1 dan 1440 daqiqagacha kiriting.&#x27;);
  // Har safar test boshlanganda yoqilgan kalitlarga muvofiq aralashtiriladi.
- const full=$(&#x27;shuffleQuestions&#x27;).checked?shuffleArr(buildMix()):buildMix();
- examQuestions=full.slice(0,limit).map(q=&gt;({...q,options:$(&#x27;shuffleAnswers&#x27;).checked?shuffleArr(q.options):q.options.map(o=&gt;({...o}))}));
+ const full=selectQuestionPool(questions,limitInput||&#x27;30&#x27;,$(&#x27;shuffleQuestions&#x27;).checked,shuffleArr);
+ examQuestions=full.map(q=&gt;({...q,options:$(&#x27;shuffleAnswers&#x27;).checked?shuffleArr(q.options):q.options.map(o=&gt;({...o}))}));
  completed=false;stopTimer();$(&#x27;finish&#x27;).disabled=false;
  $(&#x27;examCount&#x27;).textContent=`${examQuestions.length} ta savol`;
  $(&#x27;examList&#x27;).innerHTML=examQuestions.map((q,i)=&gt;`&lt;div class=&quot;testq&quot;&gt;&lt;b&gt;${i+1}. ${formatMathText(q.q)}&lt;/b&gt;${q.options.map((o,j)=&gt;`&lt;label class=&quot;option&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;ans${i}&quot; value=&quot;${j}&quot;&gt;${formatMathText(o.text)}&lt;/label&gt;`).join(&#x27;&#x27;)}&lt;/div&gt;`).join(&#x27;&#x27;);
@@ -22944,16 +23531,18 @@ body.it-protected-mode #itQuestionList{background-image:none!important;backgroun
 @media(max-width:600px){#itStudent .it-rules{padding:12px;margin:13px 0 10px}#itStudent .it-rule-row{font-size:11.5px}}
 </style>
 <section id="itStudent" hidden><div class="it-head"><h2 id="itStudentSubject">Test sinovi</h2><button id="itExit" type="button">Chiqish ×</button></div>
-<div class="it-content"><div class="it-card" id="itIdentity"><h3>Talaba ma’lumotlari</h3><form id="itIdentityForm"><div class="it-grid"><label>Ism va familiya<input id="itName" required minlength="3" autocomplete="name" placeholder="Ism Familiya"></label><label>Guruh<input id="itGroup" list="itGroupOptions" required placeholder="Guruhni tanlang yoki yozing" autocomplete="off"><datalist id="itGroupOptions"></datalist></label></div><fieldset id="itPracticeSettings" aria-label="Mashq sozlamalari" disabled hidden><button type="button" id="itPracticeHelpBtn" aria-label="Mashq sozlamalari haqida" aria-haspopup="dialog">?</button><div class="it-grid"><label>Savollar soni<input id="itPractice_questionLimit" type="number" min="1" step="1" required></label><label>Vaqt (daqiqa)<input id="itPractice_timeLimit" type="number" min="1" step="1" required></label><label><input id="itPractice_shuffleQuestions" type="checkbox"> <span>Savollarni aralashtirish</span></label><label><input id="itPractice_shuffleAnswers" type="checkbox"> <span>Javoblarni aralashtirish</span></label><label><input id="itPractice_showTestAnswers" type="checkbox"> <span>Test javoblari</span></label><label><input id="itPractice_revealCorrectAnswers" type="checkbox"> <span>To‘g‘ri javoblarni ko‘rsatish</span></label><label><input id="itPractice_smartTest" type="checkbox"> <span>Aqlli test</span></label></div><div id="itPracticeSmartFields" class="it-grid" hidden><label>Takrorlash oralig‘i<input id="itPractice_smartRepeatGap" type="number" min="0" step="1" required max="300"></label><label>Ketma-ket to‘g‘ri javoblar soni<input id="itPractice_smartCorrectRequired" type="number" min="1" step="1" required max="20"></label></div><p id="itPracticeUnlimited" class="it-note" hidden>Aqlli testda vaqt cheklanmaydi.</p></fieldset><div class="it-rules" id="itRules" aria-labelledby="itRulesTitle"><div class="it-rules-title" id="itRulesTitle">🛡️ TEST QOIDALARI</div><p class="it-rules-description">Testni boshlashdan oldin qoidalar bilan tanishing.</p><div class="it-rule-row" id="itGazeRule" hidden><span class="it-rule-icon" aria-hidden="true">◎</span><div><strong>Test davomida ekranga qarang.</strong><small id="itGazeRuleDescription">Nigoh ekrandan belgilangan muddat chetda qolsa, ogohlantirish chiqadi.</small></div></div><div class="it-rule-row" id="itNoiseRule" hidden><span class="it-rule-icon">🎙</span><div><strong>Gaplashish taqiqlanadi.</strong><small>Shovqin aniqlansa, ogohlantirish beriladi.</small></div></div><div class="it-rule-row" id="itProtectionRule" hidden><span class="it-rule-icon">↗</span><div><strong>Test oynasidan chiqish taqiqlanadi.</strong><small>Boshqa sahifa yoki ilovaga o‘tish ogohlantiriladi.</small></div></div><div class="it-rule-row" id="itLimitRule" hidden><span class="it-rule-icon">⚠</span><div><strong>Ogohlantirishlar chegarasi oshsa, test yakunlanadi.</strong></div></div></div><label class="it-rule-agree" id="itRulesAgreement"><input id="itRulesConsent" type="checkbox" required><span>Qoidalar bilan tanishdim va roziman.</span></label><p class="it-error" id="itIdentityError"></p><button class="it-action" id="itConsentStart" type="submit" disabled>Roziman, testni boshlash</button></form></div>
-<div class="it-card" id="itExam" hidden><div class="it-testbar"><div><h3 id="itExamTitle">Test</h3><span id="itExamMeta" class="it-note"></span></div><span id="itTimer">30:00</span></div><button id="itGazeResume" type="button" class="it-action" hidden>Kamerani qayta yoqish</button><div id="itNoiseStatus" class="it-noise-status" hidden role="status"></div><div id="itSmartProgress" hidden></div><div id="itAnswerSummary" hidden aria-live="polite"></div><div id="itProtectionNotice" hidden role="status" style="background:#fff7ed;border:1px solid #fed7aa;color:#92400e;border-radius:8px;padding:10px 13px;margin:10px 0;font-weight:700;font-size:12px"></div><div id="itQuestionList"></div><div id="itSmartFeedback" class="it-smart-only" hidden aria-live="polite"></div><button type="button" id="itSmartNext" class="it-action it-smart-only" hidden>Javobni tekshirish</button><div id="itQuestionNavigator" hidden aria-label="Savollar bo‘yicha javoblar holati"><div id="itNavSummary" class="it-nav-summary" aria-live="polite"></div><div id="itNavGrid" class="it-nav-grid"></div></div><div id="itTestCommentBox" hidden style="margin:12px 0"><label for="itTestComment"><b>Izoh yozish</b></label><p class="it-note" id="itTestCommentHint">Testdagi muammo yoki kamchilikni yozib qoldirishingiz mumkin. Izoh ixtiyoriy.</p><textarea id="itTestComment" maxlength="1000" rows="3" aria-describedby="itTestCommentHint" placeholder="Masalan, 5-savoldagi rasm ochilmadi." style="display:block;width:100%;box-sizing:border-box;font:inherit;padding:9px;border:1px solid #cbd9e5;border-radius:7px;resize:vertical"></textarea></div><button class="it-action" id="itFinish" type="button">Testni yakunlash</button><div id="itResult" aria-live="polite"></div></div></div></section><dialog id="itPracticeHelp" aria-labelledby="itPracticeHelpTitle">
+<div class="it-content"><div class="it-card" id="itIdentity"><h3>Talaba ma’lumotlari</h3><form id="itIdentityForm"><div class="it-grid"><label>Ism va familiya<input id="itName" required minlength="3" autocomplete="name" placeholder="Ism Familiya"></label><label>Guruh<input id="itGroup" list="itGroupOptions" required placeholder="Guruhni tanlang yoki yozing" autocomplete="off"><datalist id="itGroupOptions"></datalist></label></div><fieldset id="itPracticeSettings" aria-label="Mashq sozlamalari" disabled hidden><button type="button" id="itPracticeHelpBtn" aria-label="Mashq sozlamalari haqida" aria-haspopup="dialog">?</button><div class="it-grid"><label>Savollar soni<input id="itPractice_questionLimit" type="text" placeholder="30 / 30-60 / 3, 5, 7" required></label><label>Vaqt (daqiqa)<input id="itPractice_timeLimit" type="number" min="1" step="1" required></label><label><input id="itPractice_shuffleQuestions" type="checkbox"> <span>Savollarni aralashtirish</span></label><label><input id="itPractice_shuffleAnswers" type="checkbox"> <span>Javoblarni aralashtirish</span></label><label><input id="itPractice_quickAnswer" type="checkbox"> <span>Tez javob</span></label><label><input id="itPractice_showTestAnswers" type="checkbox"> <span>Test javoblari</span></label><label><input id="itPractice_revealCorrectAnswers" type="checkbox"> <span>To‘g‘ri javoblar</span></label><label><input id="itPractice_smartTest" type="checkbox"> <span>Aqlli test</span></label><label><input id="itPractice_allowQuestionHearts" type="checkbox"> <span>Yurakchalar</span></label></div><div id="itPracticeSmartFields" class="it-grid" hidden><label>Takrorlash oralig‘i<input id="itPractice_smartRepeatGap" type="number" min="0" step="1" required max="300"></label><label>Ketma-ket to‘g‘ri javoblar soni<input id="itPractice_smartCorrectRequired" type="number" min="1" step="1" required max="20"></label></div><p id="itPracticeUnlimited" class="it-note" hidden>Aqlli testda vaqt cheklanmaydi.</p></fieldset><div class="it-rules" id="itRules" aria-labelledby="itRulesTitle"><div class="it-rules-title" id="itRulesTitle">🛡️ TEST QOIDALARI</div><p class="it-rules-description">Testni boshlashdan oldin qoidalar bilan tanishing.</p><div class="it-rule-row" id="itGazeRule" hidden><span class="it-rule-icon" aria-hidden="true">◎</span><div><strong>Test davomida ekranga qarang.</strong><small id="itGazeRuleDescription">Nigoh ekrandan belgilangan muddat chetda qolsa, ogohlantirish chiqadi.</small></div></div><div class="it-rule-row" id="itNoiseRule" hidden><span class="it-rule-icon">🎙</span><div><strong>Gaplashish taqiqlanadi.</strong><small>Shovqin aniqlansa, ogohlantirish beriladi.</small></div></div><div class="it-rule-row" id="itProtectionRule" hidden><span class="it-rule-icon">↗</span><div><strong>Test oynasidan chiqish taqiqlanadi.</strong><small>Boshqa sahifa yoki ilovaga o‘tish ogohlantiriladi.</small></div></div><div class="it-rule-row" id="itLimitRule" hidden><span class="it-rule-icon">⚠</span><div><strong>Ogohlantirishlar chegarasi oshsa, test yakunlanadi.</strong></div></div></div><label class="it-rule-agree" id="itRulesAgreement"><input id="itRulesConsent" type="checkbox" required><span>Qoidalar bilan tanishdim va roziman.</span></label><p class="it-error" id="itIdentityError"></p><button class="it-action" id="itConsentStart" type="submit" disabled>Roziman, testni boshlash</button></form></div>
+<div class="it-card" id="itExam" hidden><div class="it-testbar"><div><h3 id="itExamTitle">Test</h3><span id="itExamMeta" class="it-note"></span></div><span id="itTimer">30:00</span></div><button id="itGazeResume" type="button" class="it-action" hidden>Kamerani qayta yoqish</button><div id="itNoiseStatus" class="it-noise-status" hidden role="status"></div><div id="itSmartProgress" hidden></div><div id="itAnswerSummary" hidden aria-live="polite"></div><div id="itProtectionNotice" hidden role="status" style="background:#fff7ed;border:1px solid #fed7aa;color:#92400e;border-radius:8px;padding:10px 13px;margin:10px 0;font-weight:700;font-size:12px"></div><div id="itQuestionList"></div><div id="itSmartFeedback" class="it-smart-only" hidden aria-live="polite"></div><button type="button" id="itSmartNext" class="it-action it-smart-only" hidden>Javobni tekshirish</button><div id="itQuestionNavigator" hidden aria-label="Savollar bo‘yicha javoblar holati"><div id="itNavSummary" class="it-nav-summary" aria-live="polite"></div><div id="itNavGrid" class="it-nav-grid"></div></div><div id="itTestCommentBox" hidden style="margin:12px 0"><label for="itTestComment"><b>Izoh yozish</b></label><p class="it-note" id="itTestCommentHint">Testdagi muammo yoki kamchilikni yozib qoldirishingiz mumkin. Izoh ixtiyoriy.</p><textarea id="itTestComment" maxlength="1000" rows="3" aria-describedby="itTestCommentHint" placeholder="Masalan, 5-savoldagi rasm ochilmadi." style="display:block;width:100%;box-sizing:border-box;font:inherit;padding:9px;border:1px solid #cbd9e5;border-radius:7px;resize:vertical"></textarea></div><button class="it-action" id="itFinish" type="button">Testni yakunlash</button><div id="itResult" aria-live="polite"></div></div><div id="itHeartsBar" hidden><button type="button" class="it-action" id="itHeartsStart">♥ Yurakchalar bazasi (0)</button><span>Bilmagan va ikkilangan savollarim</span></div></div></section><dialog id="itPracticeHelp" aria-labelledby="itPracticeHelpTitle">
 <form method="dialog"><button aria-label="Yopish">×</button></form>
 <h3 id="itPracticeHelpTitle">Mashq sozlamalari</h3>
-<p><b>Savollar soni.</b> Mashqda nechta savol chiqishini tanlaysiz. Bazada savol kamroq bo‘lsa, mavjud savollar beriladi.</p>
+<p><b>Savollar soni.</b> 30 — bazadan 30 ta savol; 30-60 — 30-savoldan boshlab 30 ta savol (30–59; 60-savol kirmaydi); 3, 5, 7 — aynan shu raqamli savollar. 3, 5-8, 12 tarzida birlashtirish ham mumkin. Raqamlar bazadagi asl tartib bo‘yicha olinadi. Takroriy raqam bir marta olinadi. Aralashtirish yoqilsa, tanlangan savollarning tartibi aralashadi. Oddiy son bazadagidan katta bo‘lsa, mavjud savollar olinadi; noto‘g‘ri oraliq yoki raqam kiritilsa, xato ko‘rsatiladi.</p>
+<p><b>Yurakchalar.</b> Yoqilsa, savollarning yuqori o‘ngida yurakcha va pastda Yurakchalar bazasi tugmasi chiqadi. Bilmagan savolingizni yurakcha bilan belgilang va keyin faqat shu savollarni mashq qiling. O‘chirilsa, yurakchalar yashiriladi, saqlangan savollar o‘chmaydi. Bu tanlov faqat o‘zingiz uchun saqlanadi.</p>
 <p><b>Vaqt (daqiqa).</b> Oddiy mashq uchun ajratilgan vaqt. Vaqt tugasa, mashq avtomatik yakunlanadi.</p>
 <p><b>Savollarni aralashtirish.</b> Savollar aralash tartibda chiqadi.</p>
 <p><b>Javoblarni aralashtirish.</b> Har bir savolning javob variantlari aralash tartibda chiqadi.</p>
+<p><b>Tez javob.</b> Tanlagan javobingiz darhol yashil ✓ (to‘g‘ri) yoki qizil × (xato) bilan belgilanadi. Xato javob tanlansa, to‘g‘ri variant ham yashil ✓ bilan ochiladi. Aqlli testda javob tanlangandayoq qabul qilinadi. Bu sozlama yakuniy javoblarni ko‘rsatishdan alohida ishlaydi.</p>
 <p><b>Test javoblari.</b> Yakunda qaysi javoblaringiz to‘g‘ri yoki xato ekanini ko‘rasiz.</p>
-<p><b>To‘g‘ri javoblarni ko‘rsatish.</b> Yakunda har bir savolning to‘g‘ri javobi ko‘rinadi.</p>
+<p><b>To‘g‘ri javoblar.</b> Yakunda har bir savolning to‘g‘ri javobi ko‘rinadi.</p>
 <p><b>Aqlli test.</b> Vaqt cheklanmaydi. Xato ishlangan savol qayta beriladi.</p>
 <p><b>Takrorlash oralig‘i.</b> Masalan, 5 tanlasangiz, xato savol imkon qadar 5 ta boshqa savoldan keyin qaytadi.</p>
 <p><b>Ketma-ket to‘g‘ri javoblar soni.</b> Masalan, 2 tanlasangiz, savolni o‘zlashtirish uchun unga ketma-ket ikki marta to‘g‘ri javob berasiz.</p>
@@ -23118,8 +23707,103 @@ body.it-protected-mode #itQuestionList{background-image:none!important;backgroun
  const safe=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  function registry(){try{return JSON.parse(localStorage.getItem(SUBJECTS_KEY)||'{}')}catch{return {}}}
  function settings(){return registry()[activeSubject]||{}}
- const practiceDefaults={"questionLimit": 30, "timeLimit": 30, "shuffleQuestions": true, "shuffleAnswers": true, "showTestAnswers": false, "revealCorrectAnswers": false, "smartTest": false, "smartRepeatGap": 5, "smartCorrectRequired": 2};
+ const practiceDefaults={"questionLimit": 30, "timeLimit": 30, "shuffleQuestions": true, "shuffleAnswers": true, "showTestAnswers": false, "revealCorrectAnswers": false, "smartTest": false, "smartRepeatGap": 5, "smartCorrectRequired": 2, "allowQuestionHearts": false, "quickAnswer": false};
+function selectQuestionPool(bank,selection,randomize,shuffle){
+ const raw=String(selection??'30').trim();
+ const error=()=>{throw Error('Savollarni 30, 30-60 yoki 3, 5, 7 shaklida kiriting. Raqamlar 1–'+bank.length+' oralig‘ida bo‘lsin.');};
+ if(/^\d+$/.test(raw)){
+  const count=Number(raw);if(!Number.isSafeInteger(count)||count<1)error();
+  return (randomize?shuffle(bank):bank.slice()).slice(0,Math.min(count,bank.length));
+ }
+ const indexes=[],seen=new Set();
+ for(const part of raw.split(',')){
+  const match=part.trim().match(/^(\d+)(?:\s*[-–—]\s*(\d+))?$/);if(!match)error();
+  const first=Number(match[1]),last=match[2]===undefined?first:Number(match[2])-1;
+  if(!Number.isSafeInteger(first)||!Number.isSafeInteger(last)||first<1||last<first||last>bank.length)error();
+  for(let n=first;n<=last;n++)if(!seen.has(n)){seen.add(n);indexes.push(n-1);}
+ }
+ const pool=indexes.map(i=>bank[i]);return randomize?shuffle(pool):pool;
+}
+
  function practiceField(key){return q('itPractice_'+key)}
+ // Personal preferences never write to the subject registry or teacher settings.
+
+ let heartPracticePending=false;
+ function logAttemptAction(action,detail){
+  if(!attemptConfig||finished||q('itExam').hidden)return;
+  const events=attemptConfig.events||(attemptConfig.events=[]);
+  if(events.length<3000)events.push({at:new Date().toISOString(),action,detail:String(detail||'')});
+ }
+ function questionHeartId(item){return JSON.stringify([String(item.q),item.options.map(o=>String(o.text)).sort()]);}
+ function heartStoreKey(){const key=personalPracticeKey();return key?key.replace('itPersonalPractice_v1:','itQuestionHearts_v1:'):null;}
+ function readHearts(){try{const values=JSON.parse(localStorage.getItem(heartStoreKey())||'[]');return new Set(Array.isArray(values)?values:[]);}catch{return new Set();}}
+ function refreshHearts(){
+  const enabled=(settings().allowStudentSettings===true?practiceField('allowQuestionHearts').checked:settings().allowQuestionHearts===true), saved=readHearts();
+  const bar=q('itHeartsBar');bar.hidden=!enabled;
+  const count=questionBank().filter(item=>saved.has(questionHeartId(item))).length;
+  q('itHeartsStart').textContent='♥ Yurakchalar bazasi ('+count+')';
+  for(const [index,card] of [...q('itQuestionList').children].entries()){
+   let button=card.querySelector('.it-heart-button');
+   const item=activeQs[smartState?smartState.current:index];
+   if(!enabled||!item){button?.remove();continue;}
+   if(!button){button=document.createElement('button');button.type='button';button.className='it-heart-button';card.append(button);}
+   const marked=saved.has(questionHeartId(item));button.textContent=marked?'♥':'♡';button.setAttribute('aria-pressed',String(marked));
+   button.title=marked?'Yurakchalar bazasidan chiqarish':'Bilmagan savolim — yurakchalar bazasiga qo‘shish';button.setAttribute('aria-label',button.title);
+   button.onclick=()=>{
+    const key=heartStoreKey();if(!key)return;
+    const values=readHearts(),id=questionHeartId(item);if(values.has(id))values.delete(id);else values.add(id);
+    try{localStorage.setItem(key,JSON.stringify([...values]));}catch{alert('Yurakchalar bazasini saqlab bo‘lmadi.');return;}
+    logAttemptAction('Yurakcha', (values.has(id)?'♥ Qo‘shildi: ':'♡ Olib tashlandi: ')+item.q);
+    persistExam();refreshHearts();
+   };
+  }
+ }
+ function studentGroupKey(){
+  const key=personalPracticeKey();return key?key.replace('itPersonalPractice_v1:','itStudentGroup_v1:'):null;
+ }
+ function restoreStudentGroup(){
+  const field=q('itGroup'),key=studentGroupKey();let group='';
+  try{group=key?localStorage.getItem(key)||'':'';}catch{}
+  if(!group&&key){
+   const normalize=v=>String(v||'').normalize('NFKC').trim().replace(/\s+/g,' ').toLocaleLowerCase('uz');
+   try{
+    const results=JSON.parse(localStorage.getItem('integratedStudentTestResults_v1')||'[]');
+    const previous=Array.isArray(results)?results.slice().reverse().find(row=>normalize(row.name)===normalize(q('itName').value)&&[normalize(activeSubject),normalize(settings().subjectName)].includes(normalize(row.subject))&&row.group):null;
+    if(previous){group=String(previous.group);localStorage.setItem(key,group);}
+   }catch{}
+  }
+
+  // Remove the previous person's automatically filled group when the name changes.
+  if(group){field.value=group;field.dataset.autoGroup=group;}
+  else if(field.dataset.autoGroup&&field.value===field.dataset.autoGroup){field.value='';delete field.dataset.autoGroup;}
+ }
+ function saveStudentGroup(){
+  const key=studentGroupKey(),group=q('itGroup').value.trim();
+  if(key&&group)try{localStorage.setItem(key,group);}catch{}
+ }
+ function personalPracticeKey(){
+  const normalize=v=>String(v||'').normalize('NFKC').trim().replace(/\s+/g,' ').toLocaleLowerCase('uz');
+  const name=normalize(q('itName').value);
+  return name.length>=3 ? 'itPersonalPractice_v1:'+JSON.stringify([activeSubject,normalize(settings().accessLogin),name]) : null;
+ }
+ function savePersonalPractice(){
+  const key=personalPracticeKey();
+  if(!key||q('itPracticeSettings').disabled)return;
+  const values={};
+  for(const [field,fallback] of Object.entries(practiceDefaults))values[field]=typeof fallback==='boolean'?practiceField(field).checked:field==='questionLimit'?practiceField(field).value.trim():Number(practiceField(field).value);
+  try{localStorage.setItem(key,JSON.stringify(values));}catch{}
+ }
+ function restorePersonalPractice(){
+  const key=personalPracticeKey();let saved={};
+  try{saved=key?JSON.parse(localStorage.getItem(key)||'{}'):{};}catch{}
+  const preferences={};
+  for(const [field,fallback] of Object.entries(practiceDefaults)){
+   const value=saved?.[field];
+   if(typeof fallback==='boolean'?typeof value==='boolean':field==='questionLimit'?(typeof value==='string'||Number.isSafeInteger(value)):Number.isSafeInteger(value))preferences[field]=value;
+  }
+  loadPracticeSettings({...settings(),...preferences},questionBank().length);
+ }
+
  function updatePracticeMode(){
   const enabled=!q('itPracticeSettings').disabled;
   const smart=enabled&&practiceField('smartTest').checked;
@@ -23134,6 +23818,7 @@ body.it-protected-mode #itQuestionList{background-image:none!important;backgroun
   panel.hidden=panel.disabled=meta.allowStudentSettings!==true;
   for(const [key,fallback] of Object.entries(practiceDefaults)){
    const field=practiceField(key);
+   if(key==='questionLimit'){field.value=String(meta[key]??fallback);continue;}
    if(typeof fallback==='boolean'){
     field.checked=fallback ? meta[key]!==false : meta[key]===true;
    }else{
@@ -23150,7 +23835,7 @@ body.it-protected-mode #itQuestionList{background-image:none!important;backgroun
   const attempt={...meta};
   for(const [key,fallback] of Object.entries(practiceDefaults)){
    const field=practiceField(key);
-   attempt[key]=typeof fallback==='boolean' ? field.checked : Number(field.value);
+   attempt[key]=typeof fallback==='boolean' ? field.checked : key==='questionLimit'?field.value.trim():Number(field.value);
   }
   return attempt;
  }
@@ -23343,7 +24028,25 @@ function formatMathText(value){
   const correct=result==='correct';
   return '<span class="it-option-mark" aria-label="'+(correct?'To‘g‘ri':'Noto‘g‘ri')+'">'+(correct?'✓':'✕')+'</span>';
  }
+ function updateQuickAnswer(){
+  const area=q('itQuestionList');
+  area.querySelectorAll('[data-quick-result]').forEach(label=>{delete label.dataset.quickResult;label.removeAttribute('data-result');label.querySelector('.it-option-mark')?.remove();});
+  if(finished||attemptConfig?.quickAnswer!==true)return;
+  area.querySelectorAll('input[type="radio"]:checked').forEach(input=>{
+   const index=smartState?smartState.current:Number(input.name.replace('itAnswer',''));
+   const option=activeQs[index]?.options[Number(input.value)];if(!option)return;
+   const label=input.closest('.it-choice'),result=option.correct?'correct':'incorrect';
+   label.dataset.quickResult='true';label.dataset.result=result;label.insertAdjacentHTML('beforeend',optionMark(result));
+   if(!option.correct){
+    input.closest('.it-question').querySelectorAll('input[type="radio"]').forEach(other=>{
+     if(!activeQs[index]?.options[Number(other.value)]?.correct)return;
+     const correctLabel=other.closest('.it-choice');correctLabel.dataset.quickResult='true';correctLabel.dataset.result='correct';correctLabel.insertAdjacentHTML('beforeend',optionMark('correct'));
+    });
+   }
+  });
+ }
  function updateRegularAnswerFeedback(){
+  updateQuickAnswer();
   if(!smartState&&finished&&(showAnswerFeedback||revealCorrectAnswers)){
    activeQs.forEach((item,i)=>{
     q('itQuestionList').querySelectorAll('input[name="itAnswer'+i+'"]').forEach(input=>{
@@ -23363,6 +24066,7 @@ function formatMathText(value){
   q('itQuestionList').innerHTML=activeQs.map((x,i)=>'<div class="it-question"><b>'+(i+1)+'. '+formatMathText(x.q)+'</b>'+x.options.map((opt,j)=>'<label class="it-choice"><input type="radio" name="itAnswer'+i+'" value="'+j+'"> '+formatMathText(opt.text)+'</label>').join('')+'</div>').join('');
   buildQuestionNavigator();
   updateRegularAnswerFeedback();
+  refreshHearts();
  }
  function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
  function stop(){if(ticker!==null){clearInterval(ticker);ticker=null}}
@@ -23413,7 +24117,7 @@ function formatMathText(value){
   start.disabled=needsConsent;
   start.textContent=needsConsent?'Roziman, testni boshlash':'Testni boshlash';
  }
- function openStudent(){stopNoiseMonitor();pendingNoiseDialog=null;q('itNoiseDialog').hidden=true;noise.enabled=false;pendingProtectionDialog=null;q('itProtectionDialog').hidden=true;stop();protection={enabled:false,warnings:2,violations:0};updateProtectionUI();finished=false;smartState=null;activeQs=[];q('itEditor').hidden=true;q('itStudent').hidden=false;q('itIdentity').hidden=false;q('itExam').hidden=true;q('itName').value='';q('itGroup').value='';q('itIdentityError').textContent='';loadPracticeSettings(settings(),questionBank().length);loadStudentRules(settings());q('itStudentSubject').textContent=settings().subjectName||'Test';q('loginModal')?.classList.remove('open');document.body.classList.remove('login-required');document.body.style.overflow='hidden';q('itName').focus()}
+ function openStudent(){stopNoiseMonitor();pendingNoiseDialog=null;q('itNoiseDialog').hidden=true;noise.enabled=false;pendingProtectionDialog=null;q('itProtectionDialog').hidden=true;stop();protection={enabled:false,warnings:2,violations:0};updateProtectionUI();finished=false;smartState=null;activeQs=[];q('itEditor').hidden=true;q('itStudent').hidden=false;q('itIdentity').hidden=false;q('itExam').hidden=true;q('itName').value='';q('itGroup').value='';q('itIdentityError').textContent='';loadPracticeSettings(settings(),questionBank().length);loadStudentRules(settings());q('itStudentSubject').textContent=settings().subjectName||'Test';q('loginModal')?.classList.remove('open');document.body.classList.remove('login-required');document.body.style.overflow='hidden';q('itName').focus();activeStudent=null;heartPracticePending=false;refreshHearts()}
  function exitStudent(){q('itNoiseDialog').hidden=true;pendingNoiseDialog=null;if(!finished&&activeQs.length&&!confirm('Testni yakunlamasdan chiqmoqchimisiz?'))return;clearExamSession();stop();stopNoiseMonitor();stopGaze();if(q("itGazeCalibration").open)q("itGazeCancel").click();noise.enabled=false;smartState=null;activeQs=[];protection.enabled=false;updateProtectionUI();q('itStudent').hidden=true;document.body.style.overflow='';document.body.classList.add('login-required');q('loginModal')?.classList.add('open');q('loginPassword').value=''}
  function updateClock(){if(finished)return;const sec=Math.max(0,Math.ceil((endAt-Date.now())/1000));q('itTimer').textContent=String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');if(sec<=0)finish(true)}
  function saveFinishedAttempt(record){
@@ -23450,10 +24154,13 @@ function formatMathText(value){
    }).join('');
    const note=selected===undefined
     ? '<p class="it-note">'+(first?'Tanlangan javob matni saqlanmagan.':'Javob berilmagan.')+'</p>':'';
-   return '<div class="it-question"><b>'+(i+1)+'. '+formatMathText(item.q)+'</b>'+note+options+'</div>';
+   return '<div class="it-question"><b>'+(readHearts().has(questionHeartId(item))?'♥ ':'')+(i+1)+'. '+formatMathText(item.q)+'</b>'+note+options+'</div>';
   }).join('');
   return {
    settings:attemptConfig,
+   hearts:activeQs.map((item,i)=>readHearts().has(questionHeartId(item))?i+1:null).filter(Boolean),
+   events:attemptConfig?.events||[],
+   finishedAt:new Date().toISOString(),
    teacherAnswers:true,
    unanswered,
    activity:smartState?.history.map(entry=>[entry.id+1,entry.answerText??null,entry.correct])??null,
@@ -23496,11 +24203,13 @@ function formatMathText(value){
   const item=activeQs[s.current];
   q('itExamMeta').textContent=activeStudent.name+' · '+activeStudent.group+' · Aqlli test';
   q('itQuestionList').innerHTML='<div class="it-question"><b>'+(s.current+1)+'. '+formatMathText(item.q)+'</b>'+item.options.map((opt,j)=>'<label class="it-choice"><input type="radio" name="itSmartAnswer" value="'+j+'" '+(s.checked?'disabled':'')+'> '+formatMathText(opt.text)+'</label>').join('')+'</div>';
+  refreshHearts();
   q('itSmartFeedback').hidden=!s.checked;
   q('itSmartFeedback').textContent=s.checked?'Javob qabul qilindi. Keyingi savolga o‘ting.':'';
   q('itSmartFeedback').className='it-smart-only';
   updateAnswerSummary();
   q('itSmartNext').hidden=false;
+  updateQuickAnswer();
   q('itSmartNext').textContent=s.checked?'Keyingi savol':'Javobni tekshirish';
  }
  function smartAdvance(){
@@ -23753,6 +24462,17 @@ function formatMathText(value){
   if(testBeginPending)return;
   const bank=questionBank();if(!bank.length){q('itIdentityError').textContent='Hozircha test savollari mavjud emas.';return}
   const meta=attemptSettings(settings());
+  const usedHeartBank=heartPracticePending;
+  let selectedPool;
+  try{
+   if(heartPracticePending){
+    const saved=readHearts();selectedPool=bank.filter(item=>saved.has(questionHeartId(item)));
+    if(!selectedPool.length)throw Error('Yurakchalar bazasi bo‘sh. Avval savollardagi yurakchalarni belgilang.');
+    if(meta.shuffleQuestions!==false)selectedPool=shuffle(selectedPool);
+   }else selectedPool=selectQuestionPool(bank,meta.questionLimit,meta.shuffleQuestions!==false,shuffle);
+  }
+  catch(error){heartPracticePending=false;q('itIdentityError').textContent=error.message;return;}
+  heartPracticePending=false;
   // Shovqin nazorati yoqilganida test faqat mikrofon ruxsatidan keyin boshlanadi.
   // Brauzer ruxsatni avval saqlagan bo‘lsa, qo‘shimcha dialog chiqmasligi mumkin.
   let approvedStream=null;
@@ -23798,14 +24518,17 @@ function formatMathText(value){
    setupProtection(meta);setupNoise(meta);
   attemptConfig={};
   for(const key of Object.keys(practiceDefaults))attemptConfig[key]=meta[key]??practiceDefaults[key];
+  attemptConfig.startedAt=new Date().toISOString();
+  attemptConfig.questionSelection=String(meta.questionLimit??'30');
+  attemptConfig.heartPractice=usedHeartBank;
+  attemptConfig.events=[];
   attemptConfig.studentChoice=meta.allowStudentSettings===true;
   attemptConfig.allowTestComment=meta.allowTestComment===true;
   showTestComment();
   let config={questions:meta.shuffleQuestions!==false,answers:meta.shuffleAnswers!==false};
   
-  let desired=Number(meta.questionLimit||30);if(!Number.isInteger(desired)||desired<1)desired=30;
   let duration=Number(meta.timeLimit||localStorage.getItem('integratedTestTime_v1')||30);if(!Number.isInteger(duration)||duration<1)duration=30;
-  let ordered=config.questions?shuffle(bank):bank.slice();activeQs=ordered.slice(0,Math.min(desired,bank.length)).map(x=>({q:x.q,options:config.answers?shuffle(x.options):x.options.slice()}));
+  let ordered=selectedPool;activeQs=ordered.map(x=>({q:x.q,options:config.answers?shuffle(x.options):x.options.slice()}));
   smartState=meta.smartTest===true?{queue:activeQs.map((_,i)=>({id:i,due:0})),current:null,checked:false,shown:0,initial:{},mastered:{},correctStreak:{},wrong:{},history:[],repeatGap:(Number.isInteger(Number(meta.smartRepeatGap))&&Number(meta.smartRepeatGap)>=0?Math.min(300,Number(meta.smartRepeatGap)):5),correctRequired:(Number.isInteger(Number(meta.smartCorrectRequired))&&Number(meta.smartCorrectRequired)>=1?Math.min(20,Number(meta.smartCorrectRequired)):2),done:false}:null;
   attemptConfig.questionLimit=activeQs.length;
   attemptConfig.timeLimit=smartState?null:duration;
@@ -23874,12 +24597,34 @@ function formatMathText(value){
     }
   });
   practiceField('smartTest').addEventListener('change',updatePracticeMode);
+  q('itName').addEventListener('input',()=>{restorePersonalPractice();restoreStudentGroup();refreshHearts();});
+  q('itGroup').addEventListener('change',saveStudentGroup);
+  q('itHeartsStart').onclick=()=>{
+   if(!personalPracticeKey()){q('itIdentityError').textContent='Avval ism-familiyangizni kiriting.';q('itName').focus();return;}
+   const saved=readHearts();if(!questionBank().some(item=>saved.has(questionHeartId(item)))){alert('Yurakchalar bazasi bo‘sh. Avval savollardagi yurakchalarni belgilang.');return;}
+   if(!q('itExam').hidden){
+    if(!finished&&!confirm('Joriy mashqni to‘xtatib, yurakchalar bilan mashq boshlaysizmi?'))return;
+    stop();stopNoiseMonitor();stopGaze();heartPracticePending=true;begin();
+   }else{
+    if(!q('itIdentityForm').reportValidity())return;
+    heartPracticePending=true;q('itIdentityForm').requestSubmit();
+   }
+  };
+  for(const key of Object.keys(practiceDefaults)){
+   practiceField(key).addEventListener('input',savePersonalPractice);
+   practiceField(key).addEventListener('change',()=>{savePersonalPractice();if(key==='allowQuestionHearts')refreshHearts();});
+  }
   q('itRulesConsent').addEventListener('change',()=>{q('itConsentStart').disabled=!q('itRulesConsent').checked});
-  q('itIdentityForm').addEventListener('submit',e=>{e.preventDefault();if(!q('itRulesConsent').disabled&&!q('itRulesConsent').checked){q('itIdentityError').textContent='Testni boshlash uchun qoidalarga rozilik bildiring.';return}const name=q('itName').value.trim(),group=q('itGroup').value.trim();if(name.length<3||!group){q('itIdentityError').textContent='Ism-familiya va guruhni to‘liq kiriting.';return}activeStudent={name,group};begin()});
+  q('itIdentityForm').addEventListener('submit',e=>{e.preventDefault();if(!q('itRulesConsent').disabled&&!q('itRulesConsent').checked){q('itIdentityError').textContent='Testni boshlash uchun qoidalarga rozilik bildiring.';return}const name=q('itName').value.trim(),group=q('itGroup').value.trim();if(name.length<3||!group){q('itIdentityError').textContent='Ism-familiya va guruhni to‘liq kiriting.';return}activeStudent={name,group};saveStudentGroup();savePersonalPractice();begin()});
   q('itTestComment').addEventListener('input',persistExam);
+  q('itTestComment').addEventListener('change',()=>{logAttemptAction('Izoh',q('itTestComment').value.trim());persistExam();});
   q('itFinish').onclick=()=>finish(false);
   q('itSmartNext').onclick=smartAdvance;
-  q('itQuestionList').addEventListener('change',e=>{if(e.target.matches('input[type=radio]')){if(!smartState){updateRegularAnswerFeedback();updateQuestionNavigator();}persistExam()}});
+  q('itQuestionList').addEventListener('change',e=>{if(e.target.matches('input[type=radio]')){
+   const index=smartState?smartState.current:Number(e.target.name.replace('itAnswer',''));
+   const option=activeQs[index]?.options[Number(e.target.value)];
+   logAttemptAction('Javob tanlandi',(index+1)+'-savol: '+(option?.text||'')+' · '+(option?.correct?'✓ To‘g‘ri':'× Xato'));
+   if(!smartState){updateRegularAnswerFeedback();updateQuestionNavigator();}else if(attemptConfig?.quickAnswer===true&&!smartState.checked){smartAdvance();}updateQuickAnswer();persistExam()}});
   window.addEventListener('pagehide',()=>{persistExam();stopGaze();});
   function installMenu(){
    const menu=q('hemisGroupManage')||document.querySelector('.hemis-sidebar .hemis-menu-group');
@@ -23961,8 +24706,11 @@ function formatMathText(value){
    el.value=keep;
   }
  }
- function filtered(){const subject=$('itReportSubject').value.trim().toLocaleLowerCase(),group=$('itReportGroup').value.trim().toLocaleLowerCase();return records().filter(x=>(!subject||String(x.subject||'').toLocaleLowerCase().includes(subject))&&(!group||String(x.group||'').toLocaleLowerCase().includes(group)))}
- function showReport(){
+ function filtered(){const subject=$('itReportSubject').value.trim().toLocaleLowerCase(),group=$('itReportGroup').value.trim().toLocaleLowerCase();return records().filter(x=>(!subject||($('itReportSubject').dataset.exactSubject?String(x.subject||'').trim().toLocaleLowerCase()===subject:String(x.subject||'').toLocaleLowerCase().includes(subject)))&&(!group||String(x.group||'').toLocaleLowerCase().includes(group)))}
+ function showReport(subject){
+  $('itReportSubject').value=String(subject||'').trim();
+  $('itReportSubject').dataset.exactSubject=String(subject||'').trim().toLocaleLowerCase();
+  $('itReportGroup').value='';
   $('itReport').hidden=false;
   $('itReportRows').closest('table').before(reportStatus);
   refreshOptions();render();
@@ -24026,6 +24774,11 @@ function formatMathText(value){
    panel.querySelector('#itPracticeUnlimited').hidden=!config.smartTest;
    panel.querySelectorAll('[id]').forEach(node=>node.removeAttribute('id'));
    settings.append(panel);
+   const info=document.createElement('p');info.className='it-note';
+   const started=config.startedAt?new Date(config.startedAt):null,ended=record.finishedAt?new Date(record.finishedAt):null;
+   info.textContent='Mashq: '+(config.heartPractice?'♥ Yurakchalar bazasidan':'Oddiy bazadan')+' · Savol tanlovi: '+(config.questionSelection??config.questionLimit)+' · Sozlamalarni tanlagan: '+(config.studentChoice?'Talaba':'O‘qituvchi')+(started?' · Boshlanish: '+started.toLocaleString('uz-UZ'):'')+(started&&ended?' · Sarflangan vaqt: '+Math.max(0,Math.round((ended-started)/1000))+' soniya':'')+' · ♥ Belgilangan savollar: '+(Array.isArray(review.hearts)?review.hearts.join(', ')||'Yo‘q':'Bu eski urinishda saqlanmagan');
+   settings.append(info);
+
   }else settings.textContent='Bu urinish uchun batafsil sozlamalar saqlanmagan.';
   const notes=[];
   for(const [label,limit,count] of [['Test himoyasi',record.protectionLimit,record.protectionViolations],['Shovqin nazorati',record.noiseLimit,record.noiseViolations]]){
@@ -24097,6 +24850,13 @@ function formatMathText(value){
     }
    }
    appendReviewMarkup(target,review.result,review.teacherAnswers===true);
+   if(review.events?.length){
+    const panel=document.createElement('details');panel.open=true;
+    const heading=document.createElement('summary');heading.textContent='Talabaning testdagi harakatlari · '+review.events.length;
+    const list=document.createElement('ol');
+    for(const event of review.events){const row=document.createElement('li');row.textContent=new Date(event.at).toLocaleTimeString('uz-UZ')+' · '+event.action+' · '+event.detail;list.append(row);}
+    panel.append(heading,list);target.append(panel);
+   }
    if(review.activity?.length){
     const details=document.createElement('details');
     const title=document.createElement('summary');
@@ -24182,9 +24942,9 @@ function formatMathText(value){
     }).catch(()=>{reportStatus.textContent='Talabaning javoblarini yuklab bo‘lmadi.';});
 
   });
-  window.addEventListener('message',e=>{if(e.source!==$('itFrame')?.contentWindow||e.data?.type!=='open-integrated-test-report')return;showReport()});
+  window.addEventListener('message',e=>{if(e.source!==$('itFrame')?.contentWindow||e.data?.type!=='open-integrated-test-report')return;showReport(e.data.subject)});
   $('itReportClose').addEventListener('click',closeReport);
-  $('itReportSubject').addEventListener('input',render);$('itReportGroup').addEventListener('input',render);
+  $('itReportSubject').addEventListener('input',()=>{delete $('itReportSubject').dataset.exactSubject;render()});$('itReportGroup').addEventListener('input',render);
   $('itReportReset').addEventListener('click',()=>{$('itReportSubject').value='';$('itReportGroup').value='';render()});
   $('itReportCsv').addEventListener('click',csv);
   const csvHelp=$('itCsvHelp');
@@ -24806,5 +25566,212 @@ body #adminPanel .tab-section{
  sync();
 })();
 </script>
+<script>
+(function(){
+ const key='studentWordHeaderSettings.v1';
+ window.addEventListener('message',event=>{
+  const frame=document.querySelector('#itAnalyzer iframe');
+  if(!frame||event.source!==frame.contentWindow)return;
+  const data=event.data;
+  if(data?.type==='student-word-header-load'){
+   let settings=null;
+   try{settings=JSON.parse(localStorage.getItem(key)||'null')}catch(e){}
+   frame.contentWindow.postMessage({type:'student-word-header-settings',settings},'*');
+  }
+  if(data?.type==='student-word-header-save'&&data.settings&&typeof data.settings==='object'){
+   let saved=true;
+   try{localStorage.setItem(key,JSON.stringify(data.settings))}catch(e){saved=false}
+   frame.contentWindow.postMessage({type:'student-word-header-saved',saved},'*');
+  }
+ });
+})();
+</script>
+<style>
+#pdfBookletDialog{width:min(1100px,96vw);height:90vh;max-width:96vw;max-height:94vh;margin:auto;padding:0;border:1px solid #c9dce9;border-radius:12px;background:#f2f6fa;color:#173b5f;box-sizing:border-box}
+#pdfBookletDialog::backdrop{background:#102d4977}
+#pdfBookletDialog[open]{display:flex;flex-direction:column}
+.pdf-booklet-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:linear-gradient(110deg,#173b5f,#267f98);color:#fff}
+.pdf-booklet-head h2{margin:0;font:700 20px Arial,sans-serif}
+#pdfBookletClose{width:34px;height:34px;border:1px solid #ffffff55;background:#ffffff22;color:#fff;border-radius:7px;font-size:22px;cursor:pointer}
+.pdf-booklet-tools{display:flex;gap:10px;align-items:end;flex-wrap:wrap;padding:14px 18px;border-bottom:1px solid #d8e4ed;background:#fff}
+.pdf-booklet-tools label{display:grid;gap:5px;font:700 12px Arial,sans-serif}
+.pdf-booklet-tools select{height:36px;padding:5px 9px;border:1px solid #c5d9e7;border-radius:7px;background:#fff;color:#173b5f}
+.pdf-booklet-tools button{padding:9px 14px;border:1px solid #c5d9e7;border-radius:7px;background:#fff;color:#173b5f;font:700 12px Arial,sans-serif;cursor:pointer}
+.pdf-booklet-tools #pdfBookletPrint{background:#173b5f;color:#fff}
+#pdfBookletDialog button:disabled{opacity:.5;cursor:default}
+.pdf-booklet-content{padding:14px 18px;overflow:auto;flex:1;min-height:0}
+#pdfBookletInfo{font:700 13px/1.5 Arial,sans-serif;overflow-wrap:anywhere}
+#pdfBookletStatus{min-height:20px;font:13px/1.5 Arial,sans-serif;margin:8px 0;color:#24607f}
+.pdf-booklet-guide{padding:10px 12px;border:1px solid #cfe0ed;border-radius:8px;background:#fff;font:13px/1.55 Arial,sans-serif;margin-bottom:12px}
+#pdfBookletPreview{display:block;max-width:100%;height:auto;margin:0 auto;background:white;box-shadow:0 2px 8px #173b5f20}
+#pdfBookletPreview[hidden]{display:none}
+#pdfBookletPreviewCaption{margin:7px 0;text-align:center;font:12px Arial,sans-serif}
+.pdf-booklet-preview-nav{display:flex;gap:10px;align-items:center;justify-content:center;margin:10px 0}
+.pdf-booklet-preview-nav button{border:1px solid #bfd4e3;border-radius:6px;padding:5px 10px;background:#fff;color:#173b5f;cursor:pointer}
+</style>
+<dialog id="pdfBookletDialog" aria-labelledby="pdfBookletTitle" translate="no">
+ <div class="pdf-booklet-head"><h2 id="pdfBookletTitle">PDF kitobcha</h2><button type="button" id="pdfBookletClose" aria-label="Yopish">×</button></div>
+ <div class="pdf-booklet-tools">
+  <button type="button" id="pdfBookletOpen">PDF ochish</button><input id="pdfBookletFile" type="file" accept="application/pdf,.pdf" hidden>
+  <label>Chop etish<select id="pdfBookletMode"><option value="duplex">Ikki tomonlama — barcha varaqlar</option><option value="front">Faqat old tomonlar</option><option value="back">Faqat orqa tomonlar</option></select></label>
+  <button type="button" id="pdfBookletPrint" disabled>Kitobcha chop etish</button><button type="button" id="pdfBookletClear" disabled>Tozalash</button>
+ </div>
+ <div class="pdf-booklet-content">
+  <div class="pdf-booklet-guide"><b>A4 qog‘oz, albom holati.</b> Har tomonga ikkita sahifa kitobcha tartibida joylanadi. Printerda <b>har varaqda 1 bet</b>, <b>100% masshtab</b> va ikki tomonlama chop etish uchun <b>qisqa chetidan aylantirish</b>ni tanlang. Ikki tomonlama printer bo‘lmasa, old tomonlarni chiqaring, varaqlarni qayta joylab orqa tomonlarni chiqaring.<br>PDF sayt serveriga yuklanmaydi va sayt xotirasiga doimiy saqlanmaydi. Oyna yopilganda fayl ma’lumotlari tozalanadi.</div>
+  <div id="pdfBookletInfo">Kitobcha qilish uchun PDF faylni tanlang.</div><p id="pdfBookletStatus" role="status"></p>
+  <div class="pdf-booklet-preview-nav"><button type="button" id="pdfBookletPrev" disabled>‹</button><span id="pdfBookletPreviewPosition"></span><button type="button" id="pdfBookletNext" disabled>›</button></div>
+  <canvas id="pdfBookletPreview" hidden></canvas><p id="pdfBookletPreviewCaption"></p>
+ </div>
+</dialog>
+
+<script>
+(function(){
+ const el=id=>document.getElementById(id),dialog=el('pdfBookletDialog');
+ let pdf=null,loadingTask=null,generation=0,sides=[],sideIndex=0,printing=false,printWindow=null,pdfLibraryPromise=null;
+ const renderTasks=new Set(),printUrls=new Set();
+ function bookletSheetPlan(count){
+  if(!Number.isInteger(count)||count<1)throw new Error('PDFda sahifa topilmadi.');
+  const total=Math.ceil(count/4)*4,out=[];
+  const page=n=>n<=count?n:null;
+  for(let sheet=0;sheet<total/4;sheet++){
+   out.push({sheet:sheet+1,side:'front',pages:[page(total-2*sheet),page(1+2*sheet)]});
+   out.push({sheet:sheet+1,side:'back',pages:[page(2+2*sheet),page(total-1-2*sheet)]});
+  }
+  return out;
+ }
+ function status(message,error=false){el('pdfBookletStatus').textContent=message;el('pdfBookletStatus').style.color=error?'#b42318':'#24607f';}
+ function updateButtons(){
+  el('pdfBookletPrint').disabled=!pdf||printing;
+  el('pdfBookletOpen').disabled=printing;el('pdfBookletMode').disabled=printing;
+  el('pdfBookletClear').disabled=printing||(!pdf&&!loadingTask);
+  el('pdfBookletPrev').disabled=!pdf||printing||sideIndex===0;
+  el('pdfBookletNext').disabled=!pdf||printing||sideIndex>=sides.length-1;
+ }
+ function releasePrint(){for(const url of printUrls)URL.revokeObjectURL(url);printUrls.clear();}
+ async function clearBooklet(){
+  generation++;
+  for(const task of renderTasks){try{task.cancel()}catch(e){}}renderTasks.clear();
+  const oldPdf=pdf,oldLoading=loadingTask;pdf=null;loadingTask=null;sides=[];sideIndex=0;
+  if(printWindow&&!printWindow.closed)printWindow.close();printWindow=null;releasePrint();printing=false;
+  el('pdfBookletFile').value='';
+  const canvas=el('pdfBookletPreview');canvas.hidden=true;canvas.width=canvas.height=1;
+  el('pdfBookletInfo').textContent='Kitobcha qilish uchun PDF faylni tanlang.';
+  el('pdfBookletPreviewCaption').textContent='';el('pdfBookletPreviewPosition').textContent='';status('');updateButtons();
+  try{if(oldLoading)await oldLoading.destroy();else if(oldPdf)await oldPdf.destroy()}catch(e){}
+ }
+ async function loadPdfLibrary(){
+  if(!pdfLibraryPromise){
+   pdfLibraryPromise=import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.mjs').then(lib=>{
+    lib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.mjs';return lib;
+   }).catch(error=>{pdfLibraryPromise=null;throw error;});
+  }
+  return pdfLibraryPromise;
+ }
+ async function renderBookletSide(target,side,dpi,token){
+  const documentPdf=pdf;
+  target.width=Math.round(297/25.4*dpi);target.height=Math.round(210/25.4*dpi);
+  const context=target.getContext('2d',{alpha:false});context.fillStyle='#fff';context.fillRect(0,0,target.width,target.height);
+  const margin=6/25.4*dpi,cellWidth=(target.width-2*margin)/2,cellHeight=target.height-2*margin;
+  for(let i=0;i<2;i++){
+   if(token!==generation)throw new Error('cancelled');
+   const number=side.pages[i];if(number===null)continue;
+   const page=await documentPdf.getPage(number);
+   const original=page.getViewport({scale:1});
+   const scale=Math.min(cellWidth/original.width,cellHeight/original.height),viewport=page.getViewport({scale});
+   const canvas=document.createElement('canvas');canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);
+   const task=page.render({canvasContext:canvas.getContext('2d',{alpha:false}),viewport,background:'white'});renderTasks.add(task);
+   try{await task.promise;
+    if(token!==generation)throw new Error('cancelled');
+    context.drawImage(canvas,margin+i*cellWidth+(cellWidth-canvas.width)/2,margin+(cellHeight-canvas.height)/2);
+   }finally{renderTasks.delete(task);canvas.width=canvas.height=1;page.cleanup();}
+  }
+ }
+ async function showSide(){
+  if(!pdf)return;const token=generation,current=sideIndex;
+  updateButtons();status('Varaq ko‘rinishi tayyorlanmoqda…');
+  const side=sides[current],scratch=document.createElement('canvas');
+  try{
+   await renderBookletSide(scratch,side,80,token);
+   if(token!==generation||current!==sideIndex)return;
+   const visible=el('pdfBookletPreview');visible.width=scratch.width;visible.height=scratch.height;visible.getContext('2d').drawImage(scratch,0,0);visible.hidden=false;
+   el('pdfBookletPreviewPosition').textContent=(current+1)+' / '+sides.length;
+   el('pdfBookletPreviewCaption').textContent=side.sheet+'-varaq · '+(side.side==='front'?'old tomon':'orqa tomon')+' · '+side.pages.map(n=>n===null?'bo‘sh':n+'-bet').join(' | ');
+   status('Kitobcha chop etishga tayyor.');
+  }catch(error){if(token===generation&&current===sideIndex)status('PDF ko‘rinishini ochib bo‘lmadi. Boshqa PDF tanlang.',true);}
+  finally{scratch.width=scratch.height=1;}
+ }
+ el('pdfBookletFile').addEventListener('change',async event=>{
+  const file=event.target.files[0];if(!file)return;
+  const clearing=clearBooklet();const token=generation;await clearing;
+  if(token!==generation)return;
+  status('PDF ochilmoqda…');
+  try{
+   const lib=await loadPdfLibrary();if(token!==generation)return;
+   const data=new Uint8Array(await file.arrayBuffer());if(token!==generation)return;
+   loadingTask=lib.getDocument({data,isEvalSupported:false,enableXfa:false});
+   const task=loadingTask;
+   task.onPassword=()=>{task.destroy();if(token===generation)status('Parol bilan himoyalangan PDF. Himoyasiz nusxasini tanlang.',true);};
+   const loaded=await task.promise;
+   if(token!==generation){await loaded.destroy();return;}
+   pdf=loaded;sides=bookletSheetPlan(pdf.numPages);
+   const padded=Math.ceil(pdf.numPages/4)*4;
+   el('pdfBookletInfo').textContent=file.name+' · '+pdf.numPages+' sahifa · '+(padded/4)+' varaq · '+(padded-pdf.numPages)+' bo‘sh sahifa qo‘shiladi.';
+   updateButtons();await showSide();
+  }catch(error){if(token===generation){status('PDF ochilmadi. Faylni va internet aloqasini tekshiring. PDF kutubxonasi internetdan yuklanadi.',true);updateButtons();}}
+ });
+ el('pdfBookletOpen').onclick=()=>el('pdfBookletFile').click();
+ el('pdfBookletClear').onclick=clearBooklet;
+ el('pdfBookletClose').onclick=()=>dialog.close();dialog.addEventListener('close',clearBooklet);
+ el('pdfBookletPrev').onclick=()=>{if(sideIndex>0){sideIndex--;showSide()}};
+ el('pdfBookletNext').onclick=()=>{if(sideIndex<sides.length-1){sideIndex++;showSide()}};
+ el('pdfBookletPrint').onclick=async()=>{
+  if(!pdf||printing)return;
+  if(printWindow&&!printWindow.closed){printWindow.focus();return;}
+  releasePrint();
+  const popup=window.open('','_blank');
+  if(!popup){status('Chop etish oynasi bloklandi. Brauzerda shu sayt uchun yangi oynaga ruxsat bering.',true);return;}
+  printWindow=popup;printing=true;updateButtons();const token=generation;
+  popup.document.open();popup.document.write('<!doctype html><html><head><meta charset="utf-8"><title>PDF kitobcha — chop etish</title><style>@page{size:A4 landscape;margin:0}*{box-sizing:border-box}body{margin:0;background:#edf2f6;font:14px Arial,sans-serif}.sheet{display:block;width:297mm;height:210mm;margin:10px auto;break-after:page;page-break-after:always;background:white}.sheet:last-child{break-after:auto;page-break-after:auto}.sheet img{display:block;width:100%;height:100%}.print-tools{padding:12px;position:sticky;top:0;background:white;border-bottom:1px solid #ccc}button{padding:8px 14px}@media print{body{background:white}.sheet{margin:0}.print-tools{display:none}}</style></head><body><div class="print-tools"><p id="progress">Kitobcha tayyorlanmoqda…</p><button id="print" disabled>Chop etish</button><button id="close">Yopish</button></div><main id="sheets"></main></body></html>');popup.document.close();
+  popup.document.getElementById('close').onclick=()=>popup.close();
+  popup.document.getElementById('print').onclick=()=>popup.print();
+  popup.addEventListener('afterprint',()=>{popup.document.getElementById('sheets')?.replaceChildren();releasePrint();popup.close();},{once:true});
+  const mode=el('pdfBookletMode').value,chosen=sides.filter(side=>mode==='duplex'||side.side===mode);
+  try{
+   for(let i=0;i<chosen.length;i++){
+    if(token!==generation||popup.closed)throw new Error('cancelled');
+    status('Chop etish uchun tayyorlanmoqda: '+(i+1)+' / '+chosen.length);
+    const canvas=document.createElement('canvas');
+    try{
+     await renderBookletSide(canvas,chosen[i],200,token);
+     const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.98));if(!blob)throw new Error('render-failed');
+     if(token!==generation||popup.closed)throw new Error('cancelled');
+     const url=URL.createObjectURL(blob);printUrls.add(url);
+     const sheet=popup.document.createElement('div');sheet.className='sheet';
+     const img=popup.document.createElement('img');img.alt='Kitobcha varag‘i';img.src=url;sheet.append(img);popup.document.getElementById('sheets').append(sheet);await img.decode();
+    }finally{canvas.width=canvas.height=1;}
+   }
+   if(token!==generation||popup.closed)throw new Error('cancelled');
+   popup.document.getElementById('progress').textContent='A4 · Albom · Har varaqda 1 bet · 100% · Qisqa chetidan aylantirish';
+   popup.document.getElementById('print').disabled=false;
+   status('Chop etish oynasi ochildi. Printer va ikki tomonlama rejimni tanlang.');
+   popup.focus();popup.print();
+  }catch(error){
+   if(!popup.closed)popup.close();releasePrint();
+   if(token===generation)status(error.message==='cancelled'?'Chop etish bekor qilindi.':'Kitobchani tayyorlab bo‘lmadi. PDF hajmi yoki sahifalarini tekshiring.',error.message!=='cancelled');
+  }finally{printing=false;updateButtons();}
+ };
+ window.openPdfBooklet=()=>{if(!dialog.open)dialog.showModal();};
+ window.addEventListener('pagehide',()=>{generation++;releasePrint();if(printWindow&&!printWindow.closed)printWindow.close();loadingTask?.destroy();});
+})();
+
+</script>
 </body>
 </html>
+<style>
+#itQuestionList .it-question{position:relative}
+#itQuestionList .it-question>b{display:block;padding-right:38px}
+#itQuestionList .it-heart-button{position:absolute;right:4px;top:7px;width:30px;height:30px;padding:0;border:1px solid #dbe6ef;border-radius:9px;background:#fff;color:#8b9eaf;font:24px/1 Arial;cursor:pointer}
+#itQuestionList .it-heart-button[aria-pressed="true"]{color:#e64d77;background:#fff0f5;border-color:#f3c2d1}
+#itHeartsBar{position:sticky;bottom:0;z-index:4;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;padding:10px;margin-top:12px;background:#f3f8fc;border:1px solid #d4e3ee;border-radius:10px}
+#itHeartsBar[hidden]{display:none}#itHeartsBar span{font:12px Arial;color:#61778b}#itHeartsStart{background:#fff1f6;color:#a52f54;border:1px solid #ecc1cf}
+</style>
