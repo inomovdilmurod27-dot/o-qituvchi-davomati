@@ -3,8 +3,18 @@
 <html lang="uz">
 <head>
 <meta charset="utf-8"/>
+
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Universitet dars jadvali dispetcherlik tizimi</title>
+<style id="initial-login-paint">
+html:has(body.login-required){background:#eef2f6!important;overflow:hidden!important}
+body.login-required #loginModal{background:#eef2f6!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;z-index:2147483000!important}
+
+body.login-required{background:#eef2f6!important;overflow:hidden!important}
+body.login-required > :not(#loginModal):not(script):not(style){visibility:hidden!important;pointer-events:none!important}
+body.login-required #loginModal{visibility:visible!important;opacity:1!important;display:flex!important;transition:none!important;animation:none!important}
+body.login-required #loginModal .modal-card{transition:none!important;animation:none!important}
+</style>
 <style id="app-styles-clean">
 :root{
   --navy:#0b2f5b;
@@ -6723,8 +6733,32 @@ body.hemis-layout header.topbar .topbar-language #languageSelect{width:60px;padd
 @keyframes brand-department{0%,49.99%{visibility:hidden;transform:translateX(0)}50%{visibility:visible;transform:translateX(0)}100%{visibility:visible;transform:translateX(100cqw)}}
 @media(prefers-reduced-motion:reduce){.brand .brand-rotation{display:block}.brand .brand-rotation :is(h1,p){animation:none;width:auto;white-space:normal}}
 </style>
+<style>
+#loginModal .login-seal{position:relative;display:inline-grid;place-items:center;width:42px;height:42px;margin:0 auto 7px;border-radius:14px;background:#eaf5fc;color:#24597e;border:1px solid #c6e0ef}
+#loginModal .login-seal svg{width:24px;height:24px}
+#loginModal .login-seal i{position:absolute;width:5px;height:5px;border-radius:50%;background:#269cb9;opacity:.3;animation:login-seal-pulse 3s ease-in-out infinite}
+#loginModal .login-seal i:nth-of-type(1){top:0;right:2px}
+#loginModal .login-seal i:nth-of-type(2){top:12px;right:-5px;animation-delay:.4s}
+#loginModal .login-seal i:nth-of-type(3){bottom:5px;right:-3px;animation-delay:.8s}
+@keyframes login-seal-pulse{0%,50%,100%{opacity:.3;transform:scale(.8)}25%{opacity:1;transform:scale(1.35);box-shadow:0 0 8px #58c3db}}
+@media(prefers-reduced-motion:reduce){#loginModal .login-seal i{animation:none}}
+</style>
 </head>
-<body>
+<body class="login-required">
+<div class="modal open" id="loginModal">
+<div class="modal-card" style="max-width:480px">
+<div class="modal-top" style="display:block;position:relative;text-align:center;padding:14px 36px 17px;border-bottom:1px solid var(--border);margin-bottom:18px">
+<span class="login-seal" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="6" y="10" width="12" height="10" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 4v2"/></svg><i></i><i></i><i></i></span><h2 style="margin:0;color:var(--navy);font-size:23px;font-weight:800;letter-spacing:.15px;line-height:1.35">Tizimga kirish</h2>
+<button class="close win-close" id="closeLogin" style="position:absolute;right:0;top:4px" aria-label="Yopish" title="Yopish">×</button>
+</div>
+<div class="form" style="margin-top:12px">
+<div class="full"><label>Login<input id="loginUser" placeholder="Login"/></label></div>
+<div class="full"><label>Parol<input id="loginPassword" placeholder="Parol" type="password"/></label></div>
+<div class="full"><button class="btn primary" id="doLoginBtn">Kirish</button></div>
+<div class="full"><div class="alert" id="loginError"></div></div>
+</div>
+</div>
+</div>
 <header class="topbar">
 <div class="brand"><span class="bd-water-wave" aria-hidden="true"><svg viewBox="0 0 240 30" fill="none"><defs><linearGradient id="bdWaveColor" x1="0" x2="240" gradientUnits="userSpaceOnUse"><stop stop-color="#7de9ff" stop-opacity="0"/><stop offset=".62" stop-color="#7de9ff"/><stop offset="1" stop-color="#d8fbff" stop-opacity="0"/></linearGradient></defs><path d="M0 16 C30 16 40 6 70 6 S110 23 143 23 S188 10 218 10 L240 10" stroke="url(#bdWaveColor)" stroke-width="1.6"/><path d="M0 22 C30 22 42 13 70 13 S111 29 143 29 S188 17 218 17 L240 17" stroke="url(#bdWaveColor)" stroke-width="1" opacity=".55"/></svg></span><div class="logo">BD<svg class="bd-orbit" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="3" r="2.5" fill="#fff"/><circle cx="44" cy="5.6" r="2" fill="#8af4ff"/><circle cx="54" cy="12.7" r="1.5" fill="#53d5f0"/><circle cx="60" cy="23" r="1" fill="#a6e8ef"/></svg></div><div class="brand-rotation"><h1>Buxoro davlat texnika universiteti</h1><p>Ekologiya, irrigatsiya va gidrotexnika kafedrasi</p></div></div>
 <button class="nav-btn active" id="homeBtn">Bosh sahifa</button>
@@ -10503,20 +10537,7 @@ renderAdvanced();
 <div id="advancedBody"></div>
 </div>
 </div>
-<div class="modal" id="loginModal">
-<div class="modal-card" style="max-width:480px">
-<div class="modal-top" style="display:block;position:relative;text-align:center;padding:14px 36px 17px;border-bottom:1px solid var(--border);margin-bottom:18px">
-<span class="login-seal" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="6" y="10" width="12" height="10" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 4v2"/></svg><i></i><i></i><i></i></span><h2 style="margin:0;color:var(--navy);font-size:23px;font-weight:800;letter-spacing:.15px;line-height:1.35">Tizimga kirish</h2>
-<button class="close win-close" id="closeLogin" style="position:absolute;right:0;top:4px" aria-label="Yopish" title="Yopish">×</button>
-</div>
-<div class="form" style="margin-top:12px">
-<div class="full"><label>Login<input id="loginUser" placeholder="Login"/></label></div>
-<div class="full"><label>Parol<input id="loginPassword" placeholder="Parol" type="password"/></label></div>
-<div class="full"><button class="btn primary" id="doLoginBtn">Kirish</button></div>
-<div class="full"><div class="alert" id="loginError"></div></div>
-</div>
-</div>
-</div>
+
 <div class="modal" id="smartModal">
 <div class="modal-card">
 <div class="modal-top">
@@ -20719,6 +20740,7 @@ window.dcSelectReq=id=>{window.dcActiveRequestId=id;render()};window.dcEditReq=i
         &lt;button type=&quot;button&quot; onclick=&quot;exportAnalysis(&#x27;txt&#x27;)&quot;&gt;TXT&lt;/button&gt;
         &lt;button type=&quot;button&quot; onclick=&quot;exportAnalysis(&#x27;doc&#x27;)&quot;&gt;Word&lt;/button&gt;
         &lt;button type=&quot;button&quot; onclick=&quot;exportAnalysis(&#x27;xlsx&#x27;)&quot;&gt;Excel&lt;/button&gt;
+        &lt;button type=&quot;button&quot; id=&quot;saveManagedTest&quot; onclick=&quot;saveAnalyzerToManagement()&quot;&gt;Saqlash&lt;/button&gt;
     &lt;/div&gt;
     &lt;p id=&quot;analysisTransferStatus&quot; role=&quot;status&quot; hidden&gt;&lt;/p&gt;
    &lt;/section&gt;
@@ -22257,7 +22279,7 @@ document.addEventListener(&quot;DOMContentLoaded&quot;, ()=&gt;{ buildAnswerKeyF
 
 &lt;dialog id=&quot;analyzerHelpDialog&quot;&gt;&lt;div class=&quot;analyzer-help-heading&quot;&gt;&lt;h2 id=&quot;analyzerHelpTitle&quot;&gt;&lt;/h2&gt;&lt;button type=&quot;button&quot; onclick=&quot;document.getElementById(&#x27;analyzerHelpDialog&#x27;).close()&quot; aria-label=&quot;Yopish&quot;&gt;×&lt;/button&gt;&lt;/div&gt;&lt;div id=&quot;analyzerHelpBody&quot;&gt;&lt;/div&gt;&lt;/dialog&gt;
 &lt;script&gt;
-const analyzerHelpContent={&quot;format&quot;: [&quot;Sozlamalar&quot;, [[&quot;Raqamlash (1, 2, 3…)&quot;, &quot;«Ha» tanlansa, savollar 1, 2, 3 tarzida raqamlanadi. Har bir variantda raqamlash boshidan boshlanadi. «Yo‘q» tanlansa, avtomatik raqam qo‘yilmaydi.&quot;], [&quot;Variantlar (a, b, c…)&quot;, &quot;Javoblarni a), b), c), d) bilan belgilaydi. «Yo‘q» holatida javoblar harfsiz chiqadi.&quot;], [&quot;Randomizator (savollar)&quot;, &quot;«Ha» savollar tartibini tasodifiy aralashtiradi. «Yo‘q» kiritilgan tartibni saqlaydi. Bir nechta turlicha variant uchun aralashtirishni yoqing.&quot;], [&quot;Randomizator (javoblar)&quot;, &quot;Javoblar tartibini aralashtiradi. To‘g‘ri javob belgisi tegishli javob bilan birga ko‘chadi va javoblar kalitida hisobga olinadi.&quot;], [&quot;Savol oldidagi belgi&quot;, &quot;Yangi savolni aniqlash uchun ishlatiladi. Odatda ++++. Masalan, «++++ Suv sarfi nima?».&quot;], [&quot;To‘g‘ri javob oldidagi belgi&quot;, &quot;To‘g‘ri javobni ajratadi. Odatda ====#. Masalan, «====# m³/s». Bu belgi savol va noto‘g‘ri javob belgilaridan farq qilishi kerak.&quot;], [&quot;Noto‘g‘ri javob oldidagi belgi&quot;, &quot;Boshqa javoblarni ajratadi. Odatda ====. Masalan, «==== Pa». Matndagi belgilar sozlamadagi belgilar bilan mos bo‘lsin.&quot;], [&quot;Savollar orasida bo‘sh qator&quot;, &quot;«Ha» tanlansa, savollar orasiga bo‘sh qator qo‘shiladi. «Yo‘q» hujjatni ixcham chiqaradi.&quot;]]], &quot;files&quot;: [&quot;Import va eksport&quot;, [[&quot;Import&quot;, &quot;TXT, shu modul yaratgan Word (.doc) yoki Excel (.xlsx) faylini tanlang. Yuklangan savollar matn maydoniga kiritiladi. DOCX yoki skanerlangan rasm bu import turiga kirmaydi.&quot;], [&quot;TXT&quot;, &quot;Joriy test matnini oddiy matn fayli sifatida yuklaydi.&quot;], [&quot;Word&quot;, &quot;Joriy test matnini Wordda ochiladigan hujjat sifatida yuklaydi. Talabaga tarqatiladigan variantlar uchun pastdagi «Talaba uchun» tugmasini ishlating.&quot;], [&quot;Excel&quot;, &quot;Test matnini Excel faylga chiqaradi.&quot;], [&quot;Ishlash tartibi&quot;, &quot;Savollarni kiriting yoki import qiling. Belgilarni moslang. «Testni tekshirish va tahrirlash» bilan xatolarni ko‘ring, keyin variantlarni yasang.&quot;]]], &quot;variants&quot;: [&quot;Variant yasash va sarlavha&quot;, [[&quot;Variantlar soni&quot;, &quot;Nechta variant kerakligini kiriting. 0 kiritilsa, bitta variant yaratiladi.&quot;], [&quot;Har variantdagi savollar&quot;, &quot;Bitta variantga nechta savol tushishini belgilang. 0 bo‘lsa, barcha savollar olinadi. Kiritilgan son mavjud savollardan ko‘p bo‘lsa, mavjudlari olinadi.&quot;], [&quot;Takrorsiz&quot;, &quot;Bir variant ichida bir savol qayta tanlanmaydi. Bir savol boshqa variantda ham uchrashi mumkin.&quot;], [&quot;Variantlarni yasash&quot;, &quot;Joriy savollar va tanlangan sozlamalardan variantlar hamda javoblar kalitini hosil qiladi. Savollar yoki sozlamalar o‘zgarsa, tugmani qayta bosing.&quot;], [&quot;Sarlavhani tahrirlash&quot;, &quot;A4 ko‘rinishidagi oynani ochadi. Matn ustini bosing va yozing. Kerakli matnni belgilab, yuqoridagi tugmalar bilan qalin, kursiv, tagiga chizilgan yoki rangli qiling. Shrift, o‘lcham, ro‘yxat va tekislashni ham boshqarish mumkin. Sarlavha va Ikki ustun kalitlari eksport ko‘rinishini belgilaydi.&quot;], [&quot;Sarlavhani chiqarish&quot;, &quot;Yoqilganida «TASDIQLAYMAN» bloki va fan sarlavhasi har bir variant boshida takrorlanadi. O‘chirilsa, bu bloklar Wordga kiritilmaydi.&quot;], [&quot;Eni va Bo‘yi&quot;, &quot;Shrift turi, o‘lchami va interval savollar hamda sarlavhaga qo‘llanadi va DOCXga saqlanadi. 1-variant to‘liq A4 betlarda ko‘rsatiladi, betlar soni taxminiy hisoblanadi. Worddagi shrift va sahifalash sabab ozgina farq bo‘lishi mumkin. Tasdiqlash ramkasining o‘lchami millimetrda belgilanadi. Pastki o‘ng burchagini tortib ham o‘zgartirish mumkin. Bu sozlama A4 varaq o‘lchamini o‘zgartirmaydi.&quot;], [&quot;Saqlash&quot;, &quot;Sarlavha matni va ramka o‘lchamlarini saqlaydi, tahrirlash oynasini yopadi. Wordni «Talaba uchun» tugmasidan yuklab oling.&quot;], [&quot;Yangi bet&quot;, &quot;«Ikki ustun» yoqilsa, savollar chap ustundan o‘ng ustunga davom etadi. Sarlavha to‘liq kenglikda qoladi. O‘chirilsa, savollar bitta ustunda chiqadi. Har bir variant to‘liq sarlavhasi bilan yangi betdan boshlanadi. Savollar ko‘p bo‘lsa, bitta variant bir necha bet davom etishi mumkin.&quot;]]], &quot;download&quot;: [&quot;Word fayllarni yuklab olish&quot;, [[&quot;Javoblar varaqasini yuklab olish&quot;, &quot;Yasalgan variantlarning javoblar kalitini Wordga chiqaradi. Tekshirish uchun foydalaning.&quot;], [&quot;Talaba uchun (savol-javob) Word yuklab olish&quot;, &quot;Savollar va javob variantlarini DOCX faylga chiqaradi. To‘g‘ri javobni ko‘rsatuvchi xizmat belgilarini olib tashlaydi. Sarlavha yoqilgan bo‘lsa, uni har bir variant tepasiga qo‘yadi.&quot;], [&quot;Variantlarning joylashuvi&quot;, &quot;Har bir variant yangi betdan boshlanadi. Tartib «TASDIQLAYMAN», fan va nazorat nomi, variant raqami, so‘ng savollardan iborat.&quot;], [&quot;Yuklab olishdan oldin&quot;, &quot;Avval «Variantlarni yasash»ni bosing. Keyin kerakli Word tugmasini tanlang. O‘zgartirish kiritsangiz, variantlarni qaytadan yasang.&quot;]]]};
+const analyzerHelpContent={&quot;format&quot;: [&quot;Sozlamalar&quot;, [[&quot;Raqamlash (1, 2, 3…)&quot;, &quot;«Ha» tanlansa, savollar 1, 2, 3 tarzida raqamlanadi. Har bir variantda raqamlash boshidan boshlanadi. «Yo‘q» tanlansa, avtomatik raqam qo‘yilmaydi.&quot;], [&quot;Variantlar (a, b, c…)&quot;, &quot;Javoblarni a), b), c), d) bilan belgilaydi. «Yo‘q» holatida javoblar harfsiz chiqadi.&quot;], [&quot;Randomizator (savollar)&quot;, &quot;«Ha» savollar tartibini tasodifiy aralashtiradi. «Yo‘q» kiritilgan tartibni saqlaydi. Bir nechta turlicha variant uchun aralashtirishni yoqing.&quot;], [&quot;Randomizator (javoblar)&quot;, &quot;Javoblar tartibini aralashtiradi. To‘g‘ri javob belgisi tegishli javob bilan birga ko‘chadi va javoblar kalitida hisobga olinadi.&quot;], [&quot;Savol oldidagi belgi&quot;, &quot;Yangi savolni aniqlash uchun ishlatiladi. Odatda ++++. Masalan, «++++ Suv sarfi nima?».&quot;], [&quot;To‘g‘ri javob oldidagi belgi&quot;, &quot;To‘g‘ri javobni ajratadi. Odatda ====#. Masalan, «====# m³/s». Bu belgi savol va noto‘g‘ri javob belgilaridan farq qilishi kerak.&quot;], [&quot;Noto‘g‘ri javob oldidagi belgi&quot;, &quot;Boshqa javoblarni ajratadi. Odatda ====. Masalan, «==== Pa». Matndagi belgilar sozlamadagi belgilar bilan mos bo‘lsin.&quot;], [&quot;Savollar orasida bo‘sh qator&quot;, &quot;«Ha» tanlansa, savollar orasiga bo‘sh qator qo‘shiladi. «Yo‘q» hujjatni ixcham chiqaradi.&quot;]]], &quot;files&quot;: [&quot;Import va eksport&quot;, [[&quot;Import&quot;, &quot;TXT, shu modul yaratgan Word (.doc) yoki Excel (.xlsx) faylini tanlang. Yuklangan savollar matn maydoniga kiritiladi. DOCX yoki skanerlangan rasm bu import turiga kirmaydi.&quot;], [&quot;TXT&quot;, &quot;Joriy test matnini oddiy matn fayli sifatida yuklaydi.&quot;], [&quot;Word&quot;, &quot;Joriy test matnini Wordda ochiladigan hujjat sifatida yuklaydi. Talabaga tarqatiladigan variantlar uchun pastdagi «Talaba uchun» tugmasini ishlating.&quot;], [&quot;Excel&quot;, &quot;Test matnini Excel faylga chiqaradi.&quot;], [&quot;Saqlash&quot;, &quot;Fan nomini kiriting. Savollar Testlar boshqaruviga qo‘shiladi. Talaba va o‘qituvchi uchun band bo‘lmagan login-parollar avtomatik yaratiladi. Belgisiz testda birinchi javob to‘g‘ri deb olinadi; belgilangan testda to‘g‘ri javob belgisi ishlatiladi.&quot;], [&quot;Ishlash tartibi&quot;, &quot;Savollarni kiriting yoki import qiling. Belgilarni moslang. «Testni tekshirish va tahrirlash» bilan xatolarni ko‘ring, keyin variantlarni yasang.&quot;]]], &quot;variants&quot;: [&quot;Variant yasash va sarlavha&quot;, [[&quot;Variantlar soni&quot;, &quot;Nechta variant kerakligini kiriting. 0 kiritilsa, bitta variant yaratiladi.&quot;], [&quot;Har variantdagi savollar&quot;, &quot;Bitta variantga nechta savol tushishini belgilang. 0 bo‘lsa, barcha savollar olinadi. Kiritilgan son mavjud savollardan ko‘p bo‘lsa, mavjudlari olinadi.&quot;], [&quot;Takrorsiz&quot;, &quot;Bir variant ichida bir savol qayta tanlanmaydi. Bir savol boshqa variantda ham uchrashi mumkin.&quot;], [&quot;Variantlarni yasash&quot;, &quot;Joriy savollar va tanlangan sozlamalardan variantlar hamda javoblar kalitini hosil qiladi. Savollar yoki sozlamalar o‘zgarsa, tugmani qayta bosing.&quot;], [&quot;Sarlavhani tahrirlash&quot;, &quot;A4 ko‘rinishidagi oynani ochadi. Matn ustini bosing va yozing. Kerakli matnni belgilab, yuqoridagi tugmalar bilan qalin, kursiv, tagiga chizilgan yoki rangli qiling. Shrift, o‘lcham, ro‘yxat va tekislashni ham boshqarish mumkin. Sarlavha va Ikki ustun kalitlari eksport ko‘rinishini belgilaydi.&quot;], [&quot;Sarlavhani chiqarish&quot;, &quot;Yoqilganida «TASDIQLAYMAN» bloki va fan sarlavhasi har bir variant boshida takrorlanadi. O‘chirilsa, bu bloklar Wordga kiritilmaydi.&quot;], [&quot;Eni va Bo‘yi&quot;, &quot;Shrift turi, o‘lchami va interval savollar hamda sarlavhaga qo‘llanadi va DOCXga saqlanadi. 1-variant to‘liq A4 betlarda ko‘rsatiladi, betlar soni taxminiy hisoblanadi. Worddagi shrift va sahifalash sabab ozgina farq bo‘lishi mumkin. Tasdiqlash ramkasining o‘lchami millimetrda belgilanadi. Pastki o‘ng burchagini tortib ham o‘zgartirish mumkin. Bu sozlama A4 varaq o‘lchamini o‘zgartirmaydi.&quot;], [&quot;Saqlash&quot;, &quot;Sarlavha matni va ramka o‘lchamlarini saqlaydi, tahrirlash oynasini yopadi. Wordni «Talaba uchun» tugmasidan yuklab oling.&quot;], [&quot;Yangi bet&quot;, &quot;«Ikki ustun» yoqilsa, savollar chap ustundan o‘ng ustunga davom etadi. Sarlavha to‘liq kenglikda qoladi. O‘chirilsa, savollar bitta ustunda chiqadi. Har bir variant to‘liq sarlavhasi bilan yangi betdan boshlanadi. Savollar ko‘p bo‘lsa, bitta variant bir necha bet davom etishi mumkin.&quot;]]], &quot;download&quot;: [&quot;Word fayllarni yuklab olish&quot;, [[&quot;Javoblar varaqasini yuklab olish&quot;, &quot;Yasalgan variantlarning javoblar kalitini Wordga chiqaradi. Tekshirish uchun foydalaning.&quot;], [&quot;Talaba uchun (savol-javob) Word yuklab olish&quot;, &quot;Savollar va javob variantlarini DOCX faylga chiqaradi. To‘g‘ri javobni ko‘rsatuvchi xizmat belgilarini olib tashlaydi. Sarlavha yoqilgan bo‘lsa, uni har bir variant tepasiga qo‘yadi.&quot;], [&quot;Variantlarning joylashuvi&quot;, &quot;Har bir variant yangi betdan boshlanadi. Tartib «TASDIQLAYMAN», fan va nazorat nomi, variant raqami, so‘ng savollardan iborat.&quot;], [&quot;Yuklab olishdan oldin&quot;, &quot;Avval «Variantlarni yasash»ni bosing. Keyin kerakli Word tugmasini tanlang. O‘zgartirish kiritsangiz, variantlarni qaytadan yasang.&quot;]]]};
 function openAnalyzerHelp(key){
  const entry=analyzerHelpContent[key];if(!entry)return;
  document.getElementById(&#x27;analyzerHelpTitle&#x27;).textContent=entry[0];
@@ -22272,6 +22294,30 @@ document.getElementById(&#x27;analyzerHelpDialog&#x27;).addEventListener(&#x27;c
  const dialog=event.currentTarget;if(event.target!==dialog)return;
  const rect=dialog.getBoundingClientRect();
  if(event.clientX&lt;rect.left||event.clientX&gt;rect.right||event.clientY&lt;rect.top||event.clientY&gt;rect.bottom)dialog.close();
+});
+&lt;/script&gt;
+&lt;script&gt;
+function saveAnalyzerToManagement(){
+ try{
+  const input=document.getElementById(&#x27;inputText&#x27;).value.trim();
+  const parsed=readAnalysisBlocks(input.split(&#x27;\n&#x27;),document.getElementById(&#x27;blockPrefix&#x27;).value,document.getElementById(&#x27;firstPrefix&#x27;).value,document.getElementById(&#x27;otherPrefix&#x27;).value);
+  const bank=parsed.blocks.filter(b=&gt;!/^VARIANT\s+\d+$/i.test(b[0])).map((block,i)=&gt;{
+   if(block.length&lt;3)throw Error((i+1)+&#x27;-savolda kamida 2 ta javob bo‘lishi kerak.&#x27;);
+   const correct=parsed.sources.get(block).correct??block[1];
+   let assigned=false;
+   return {q:block[0],options:block.slice(1).map(text=&gt;{const isCorrect=!assigned&amp;&amp;text===correct;if(isCorrect)assigned=true;return {text,correct:isCorrect};})};
+  });
+  if(!bank.length)throw Error(&#x27;Avval savollarni kiriting yoki import qiling.&#x27;);
+  const subject=prompt(&#x27;Fan nomini kiriting:&#x27;);if(subject===null)return;
+  if(!subject.trim())throw Error(&#x27;Fan nomini kiriting.&#x27;);
+  document.getElementById(&#x27;saveManagedTest&#x27;).disabled=true;
+  parent.postMessage({type:&#x27;analyzer-save-managed-test&#x27;,subject:subject.trim(),bank},&#x27;*&#x27;);
+ }catch(error){transferStatus(error.message);}
+}
+window.addEventListener(&#x27;message&#x27;,event=&gt;{
+ if(event.source!==parent||event.data?.type!==&#x27;analyzer-managed-test-saved&#x27;)return;
+ document.getElementById(&#x27;saveManagedTest&#x27;).disabled=false;
+ transferStatus(event.data.message,event.data.ok===true);
 });
 &lt;/script&gt;
 &lt;/body&gt;
@@ -24063,7 +24109,7 @@ function formatMathText(value){
  }
  function renderStudentQuestions(){
   q('itSmartNext').hidden=true;q('itSmartFeedback').hidden=true;q('itSmartProgress').hidden=true;q('itSmartProgress').style.display='none';
-  q('itQuestionList').innerHTML=activeQs.map((x,i)=>'<div class="it-question"><b>'+(i+1)+'. '+formatMathText(x.q)+'</b>'+x.options.map((opt,j)=>'<label class="it-choice"><input type="radio" name="itAnswer'+i+'" value="'+j+'"> '+formatMathText(opt.text)+'</label>').join('')+'</div>').join('');
+  q('itQuestionList').innerHTML=activeQs.map((x,i)=>'<div class="it-question"><b>'+(i+1)+'. '+formatMathText(x.q)+'</b>'+x.options.map((opt,j)=>'<label class="it-choice"><input type="radio" name="itAnswer'+i+'" value="'+j+'"> '+String.fromCharCode(97+j)+') '+formatMathText(opt.text)+'</label>').join('')+'</div>').join('');
   buildQuestionNavigator();
   updateRegularAnswerFeedback();
   refreshHearts();
@@ -24202,7 +24248,7 @@ function formatMathText(value){
   }
   const item=activeQs[s.current];
   q('itExamMeta').textContent=activeStudent.name+' · '+activeStudent.group+' · Aqlli test';
-  q('itQuestionList').innerHTML='<div class="it-question"><b>'+(s.current+1)+'. '+formatMathText(item.q)+'</b>'+item.options.map((opt,j)=>'<label class="it-choice"><input type="radio" name="itSmartAnswer" value="'+j+'" '+(s.checked?'disabled':'')+'> '+formatMathText(opt.text)+'</label>').join('')+'</div>';
+  q('itQuestionList').innerHTML='<div class="it-question"><b>'+(s.current+1)+'. '+formatMathText(item.q)+'</b>'+item.options.map((opt,j)=>'<label class="it-choice"><input type="radio" name="itSmartAnswer" value="'+j+'" '+(s.checked?'disabled':'')+'> '+String.fromCharCode(97+j)+') '+formatMathText(opt.text)+'</label>').join('')+'</div>';
   refreshHearts();
   q('itSmartFeedback').hidden=!s.checked;
   q('itSmartFeedback').textContent=s.checked?'Javob qabul qilindi. Keyingi savolga o‘ting.':'';
@@ -25075,6 +25121,27 @@ window.addEventListener('message',e=>{
  if(e.source!==document.getElementById('itFrame')?.contentWindow||e.data?.type!=='it-cloud-update')return;
  bridgeSave();
 });
+window.addEventListener('message',event=>{
+ const frame=document.querySelector('#itAnalyzer iframe'),data=event.data;
+ if(event.source!==frame?.contentWindow||data?.type!=='analyzer-save-managed-test')return;
+ const reply=(ok,message)=>frame.contentWindow.postMessage({type:'analyzer-managed-test-saved',ok,message},'*');
+ try{
+  const name=String(data.subject||'').trim(),key=name.toLocaleLowerCase('uz');
+  const bank=data.bank;
+  if(!name||name.length>200||!Array.isArray(bank)||!bank.length)throw Error('Fan yoki savollar noto‘g‘ri.');
+  for(const item of bank)if(typeof item.q!=='string'||!Array.isArray(item.options)||item.options.length<2||item.options.filter(o=>o.correct===true).length!==1||item.options.some(o=>typeof o.text!=='string'||!o.text.trim()))throw Error('Savollar va to‘g‘ri javoblarni tekshiring.');
+  const subjects=JSON.parse(localStorage.getItem(SUBJECTS)||'{}'),banks=JSON.parse(localStorage.getItem(BANKS)||'{}');
+  if(Object.values(subjects).some(meta=>String(meta.subjectName||'').trim().toLocaleLowerCase('uz')===key)||Object.hasOwn(subjects,key))throw Error('Bu fan nomi mavjud. Boshqa nom kiriting.');
+  const used=new Set();for(const meta of Object.values(subjects))for(const field of ['accessLogin','accessPassword','teacherTestLogin','teacherTestPassword'])used.add(String(meta[field]||'').toLowerCase());
+  function unique(prefix){let value;do{const bytes=new Uint32Array(2);crypto.getRandomValues(bytes);value=prefix+Array.from(bytes,n=>n.toString(36)).join('');}while(used.has(value.toLowerCase()));used.add(value.toLowerCase());return value;}
+  const meta={subjectName:name,accessLogin:unique('s'),accessPassword:unique('p'),teacherTestLogin:unique('t'),teacherTestPassword:unique('p'),questionLimit:'30',timeLimit:'30',shuffleQuestions:true,shuffleAnswers:true,allowStudentSettings:true};
+  subjects[key]=meta;banks[key]=bank;
+  localStorage.setItem(SUBJECTS,JSON.stringify(subjects));localStorage.setItem(BANKS,JSON.stringify(banks));
+  bridgeSave();
+  const editor=document.getElementById('itFrame');if(editor)try{editor.contentWindow.location.reload();}catch{}
+  reply(true,'✓ «'+name+'» — '+bank.length+' ta savol Testlar boshqaruviga saqlandi. Talaba login: '+meta.accessLogin+' · Parol: '+meta.accessPassword+' | O‘qituvchi login: '+meta.teacherTestLogin+' · Parol: '+meta.teacherTestPassword);
+ }catch(error){reply(false,error.message||'Saqlab bo‘lmadi.');}
+});
 // Saved test data is included in the platform's existing Firestore db snapshot.
 })();
 </script>
@@ -25210,16 +25277,7 @@ window.addEventListener('message',e=>{
 }
 @media(prefers-reduced-motion:reduce){#itStudent>.it-head::after{animation:none;opacity:.2}}
 </style>
-<style>
-#loginModal .login-seal{position:relative;display:inline-grid;place-items:center;width:42px;height:42px;margin:0 auto 7px;border-radius:14px;background:#eaf5fc;color:#24597e;border:1px solid #c6e0ef}
-#loginModal .login-seal svg{width:24px;height:24px}
-#loginModal .login-seal i{position:absolute;width:5px;height:5px;border-radius:50%;background:#269cb9;opacity:.3;animation:login-seal-pulse 3s ease-in-out infinite}
-#loginModal .login-seal i:nth-of-type(1){top:0;right:2px}
-#loginModal .login-seal i:nth-of-type(2){top:12px;right:-5px;animation-delay:.4s}
-#loginModal .login-seal i:nth-of-type(3){bottom:5px;right:-3px;animation-delay:.8s}
-@keyframes login-seal-pulse{0%,50%,100%{opacity:.3;transform:scale(.8)}25%{opacity:1;transform:scale(1.35);box-shadow:0 0 8px #58c3db}}
-@media(prefers-reduced-motion:reduce){#loginModal .login-seal i{animation:none}}
-</style>
+
 <style>
 #itStudent #itPracticeSettings{padding:14px;border:1px solid #c4deee;border-radius:14px;background:linear-gradient(135deg,#f6fbff,#edf6fc)}
 #itStudent #itPracticeSettings legend{padding:4px 10px;border:1px solid #c4deee;border-radius:8px;background:#fff;color:#154466;font-size:14px}
@@ -25774,4 +25832,100 @@ body #adminPanel .tab-section{
 #itQuestionList .it-heart-button[aria-pressed="true"]{color:#e64d77;background:#fff0f5;border-color:#f3c2d1}
 #itHeartsBar{position:sticky;bottom:0;z-index:4;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;padding:10px;margin-top:12px;background:#f3f8fc;border:1px solid #d4e3ee;border-radius:10px}
 #itHeartsBar[hidden]{display:none}#itHeartsBar span{font:12px Arial;color:#61778b}#itHeartsStart{background:#fff1f6;color:#a52f54;border:1px solid #ecc1cf}
+</style>
+
+<style id="student-single-scroll-fix">
+html:has(#itStudent:not([hidden])),body:has(#itStudent:not([hidden])){overflow:hidden!important}
+#itStudent:not([hidden]){display:flex!important;flex-direction:column;overflow:hidden!important;height:100dvh;max-height:100dvh;box-sizing:border-box}
+#itStudent:not([hidden])>.it-head{flex:0 0 auto}
+#itStudent:not([hidden])>.it-content{flex:1 1 0;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
+</style>
+<style id="login-pointer-shimmer">
+#loginModal #doLoginBtn{position:relative;isolation:isolate}
+#loginModal #doLoginBtn::after{content:"";position:absolute;inset:-6px;z-index:-1;border-radius:inherit;pointer-events:none;opacity:0;background:radial-gradient(ellipse 100px 55px at var(--login-pointer-x,50%) var(--login-pointer-y,50%),#4285f4b3,transparent 80%),radial-gradient(ellipse 90px 50px at calc(var(--login-pointer-x,50%) - 55px) var(--login-pointer-y,50%),#34a85399,transparent 80%),radial-gradient(ellipse 85px 50px at calc(var(--login-pointer-x,50%) - 110px) var(--login-pointer-y,50%),#fbbc0599,transparent 80%),radial-gradient(ellipse 80px 50px at calc(var(--login-pointer-x,50%) - 155px) var(--login-pointer-y,50%),#ea433599,transparent 80%);filter:blur(7px);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask-composite:exclude;padding:6px;transition:opacity .25s ease}
+#loginModal #doLoginBtn{overflow:visible!important}
+@media(hover:hover) and (pointer:fine){#loginModal #doLoginBtn:hover:not(:disabled)::after{opacity:1}}
+@media(prefers-reduced-motion:reduce){#loginModal #doLoginBtn::after{transition:none}}
+</style>
+<script id="login-pointer-shimmer-code">
+(function(){
+ const button=document.getElementById('doLoginBtn');if(!button)return;
+ button.addEventListener('pointermove',event=>{
+  if(event.pointerType==='touch'||button.disabled)return;
+  const rect=button.getBoundingClientRect();
+  const x=Math.max(0,Math.min(rect.width,event.clientX-rect.left));
+  const y=Math.max(0,Math.min(rect.height,event.clientY-rect.top));
+  button.style.setProperty('--login-pointer-x',(x/rect.width*100)+'%');
+  button.style.setProperty('--login-pointer-y',(y/rect.height*100)+'%');
+ },{passive:true});
+})();
+</script>
+
+<style id="login-opaque-backdrop">
+body.login-required #loginModal{background:#eef2f6!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+</style>
+<style id="all-modules-background-scroll-lock">
+html:has(.modal.open,dialog[open],.side-panel.open,.monitor-mode,#itEditor:not([hidden]),#itAnalyzer[open],#itStudent:not([hidden]),#itReport:not([hidden])),
+body:has(.modal.open,dialog[open],.side-panel.open,.monitor-mode,#itEditor:not([hidden]),#itAnalyzer[open],#itStudent:not([hidden]),#itReport:not([hidden])){
+ overscroll-behavior:none!important;
+}
+:is(.modal.open,dialog[open],.side-panel.open,.monitor-mode,#itEditor,#itAnalyzer,#itStudent,#itReport){overscroll-behavior:contain}
+:is(.modal.open,dialog[open],.side-panel.open,.monitor-mode) :is(.modal-card,.modal-body,.modal-content,.table-wrap,.table-scroll){overscroll-behavior:contain}
+</style>
+
+<style id="visible-main-scrollbar">
+html:not(:has(body.login-required)){overflow-y:scroll!important}
+html.main-overlay-scroll-locked{overflow-y:scroll!important;overflow-x:hidden!important}
+html.main-overlay-scroll-locked body:not(.login-required){overflow:visible!important}
+html.main-overlay-scroll-locked::-webkit-scrollbar{display:block!important}
+</style>
+<script id="freeze-background-scroll">
+(function(){
+ const selector='.modal.open,dialog[open],.side-panel.open,.monitor-mode,#itEditor:not([hidden]),#itAnalyzer[open],#itStudent:not([hidden]),#itReport:not([hidden])';
+ let locked=false,position=0;
+ function overlays(){return [...document.querySelectorAll(selector)].filter(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden');}
+ function sync(){
+  const active=overlays().length>0;
+  if(active&&!locked){
+   position=window.scrollY;
+   document.documentElement.style.setProperty('--locked-page-height',Math.max(document.documentElement.scrollHeight,document.body.scrollHeight)+'px');
+   document.documentElement.style.setProperty('--locked-page-offset',(-position)+'px');
+  }
+  const wasLocked=locked;locked=active;
+  if(document.documentElement.classList.contains('main-overlay-scroll-locked')!==active)document.documentElement.classList.toggle('main-overlay-scroll-locked',active);
+  if(wasLocked&&!active){
+   document.documentElement.style.removeProperty('--locked-page-height');
+   document.documentElement.style.removeProperty('--locked-page-offset');
+   window.scrollTo({top:position,behavior:'instant'});
+  }
+ }
+ function inside(event){return event.composedPath().some(node=>node instanceof Element&&node.matches(selector));}
+ document.addEventListener('wheel',event=>{
+  const open=overlays();if(!open.length)return;
+  // Stop native wheel chaining altogether; move only a scrollable area in the open module.
+  event.preventDefault();
+  const root=open.find(el=>el.contains(event.target));if(!root)return;
+  const unit=event.deltaMode===1?16:event.deltaMode===2?root.clientHeight:1;
+  let remainingY=event.deltaY*unit,remainingX=event.deltaX*unit;
+  for(let node=event.target instanceof Element?event.target:event.target.parentElement;node&&root.contains(node);node=node.parentElement){
+   const style=getComputedStyle(node);
+   if(remainingY&&/(auto|scroll)/.test(style.overflowY)&&node.scrollHeight>node.clientHeight){
+    const before=node.scrollTop;node.scrollTop+=remainingY;remainingY-=node.scrollTop-before;
+   }
+   if(remainingX&&/(auto|scroll)/.test(style.overflowX)&&node.scrollWidth>node.clientWidth){
+    const before=node.scrollLeft;node.scrollLeft+=remainingX;remainingX-=node.scrollLeft-before;
+   }
+   if(node===root||(!remainingY&&!remainingX))break;
+  }
+ },{capture:true,passive:false});
+ document.addEventListener('touchmove',event=>{if(locked&&!inside(event))event.preventDefault();},{capture:true,passive:false});
+ document.addEventListener('keydown',event=>{if(locked&&!inside(event)&&['ArrowDown','ArrowUp','PageDown','PageUp','Home','End',' '].includes(event.key))event.preventDefault();},true);
+ window.addEventListener('scroll',()=>{if(locked&&window.scrollY!==position)window.scrollTo({top:position,behavior:'instant'});},{passive:true});
+ const observer=new MutationObserver(sync);observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','hidden','open','style']});sync();
+})();
+</script>
+
+<style id="freeze-page-under-native-scrollbar">
+html.main-overlay-scroll-locked:not(:has(body.login-required)){min-height:var(--locked-page-height)!important}
+html.main-overlay-scroll-locked body:not(.login-required){position:fixed!important;top:var(--locked-page-offset,0px)!important;left:0!important;right:0!important;width:100%!important;overflow:visible!important}
 </style>
