@@ -6743,6 +6743,11 @@ body.hemis-layout header.topbar .topbar-language #languageSelect{width:60px;padd
 @keyframes login-seal-pulse{0%,50%,100%{opacity:.3;transform:scale(.8)}25%{opacity:1;transform:scale(1.35);box-shadow:0 0 8px #58c3db}}
 @media(prefers-reduced-motion:reduce){#loginModal .login-seal i{animation:none}}
 </style>
+<script id="download-click-isolation">
+window.addEventListener('click',function(event){
+ if(!event.isTrusted&&event.target instanceof Element&&event.target.closest('a[download]'))event.stopImmediatePropagation();
+},true);
+</script>
 </head>
 <body class="login-required">
 <div class="modal open" id="loginModal">
@@ -7273,6 +7278,7 @@ body.hemis-layout header.topbar .topbar-language #languageSelect{width:60px;padd
 </div>
 </div>
 <div class="full teacher-form-actions">
+<button class="btn success" id="lessonScheduleExcelBtn" type="button" onclick="window.exportLessonScheduleExcel()">Dars jadvali — Excel</button>
 <button class="btn primary" type="button" onclick="document.getElementById('adminExcelFile_lesson').click()">Excel import</button>
     <button class="btn success" type="button" onclick="window.ultraDoExport('lesson')">Excel export</button>
     <button class="btn danger admin-clear-all-btn" type="button" onclick="window.clearAdminModule('lesson')">Hammasini o‘chirish</button>
@@ -12608,8 +12614,10 @@ renderAdvanced();
     }
   }, true);
 
-  // Modalning tashqi qoramtir qismi bosilsa yopiladi.
+  // Only an actual user backdrop click may dismiss the workspace.
+  // Export anchors and delegated import/export button clicks are synthetic.
   document.addEventListener('click', function(e){
+    if(!e.isTrusted)return;
     const modal=e.target.closest('.modal');
     if(modal && e.target===modal){
       closeOverlay(modal);
@@ -12671,6 +12679,7 @@ renderAdvanced();
     for(const m of mutations){
       if(m.type==='attributes' && m.attributeName==='class'){
         const el=m.target;
+        if((m.oldValue||'').split(/\s+/).includes('open'))continue;
         if(
           (el.classList.contains('modal') && el.classList.contains('open')) ||
           (el.classList.contains('side-panel') && el.classList.contains('open'))
@@ -12696,7 +12705,7 @@ renderAdvanced();
     subtree:true,
     childList:true,
     attributes:true,
-    attributeFilter:['class']
+    attributeFilter:['class'],attributeOldValue:true
   });
 })();
 </script>
@@ -16705,7 +16714,8 @@ function bulkNorm(v){return String(uzApostropheNorm(v||"")).trim().toLowerCase()
     ensure();
     q('saveGroupStudyBtn')?.addEventListener('click',saveProfile);
     q('clearGroupStudyBtn')?.addEventListener('click',clearForm);
-    q('groupStudyExportScheduleBtn')?.addEventListener('click',()=>exportScheduleMatrix().catch(err=>{console.error('Jadval Excel eksport xatosi:',err);showAlert?.('Excel yaratishda xato yuz berdi.','error')}));
+    window.exportLessonScheduleExcel=()=>exportScheduleMatrix().catch(err=>{console.error('Jadval Excel eksport xatosi:',err);showAlert?.('Excel yaratishda xato yuz berdi.','error')});
+    q('groupStudyExportScheduleBtn')?.addEventListener('click',window.exportLessonScheduleExcel);
     q('groupStudyDirectionCode')?.addEventListener('input',syncDirectionPreview);
     q('groupStudyDirectionCode')?.addEventListener('change',syncDirectionPreview);
     q('groupStudyFullName')?.addEventListener('input',()=>{syncDirectionPreview();syncGroupShortName(false)});
@@ -25929,3 +25939,4 @@ html.main-overlay-scroll-locked::-webkit-scrollbar{display:block!important}
 html.main-overlay-scroll-locked:not(:has(body.login-required)){min-height:var(--locked-page-height)!important}
 html.main-overlay-scroll-locked body:not(.login-required){position:fixed!important;top:var(--locked-page-offset,0px)!important;left:0!important;right:0!important;width:100%!important;overflow:visible!important}
 </style>
+
